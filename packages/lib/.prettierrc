@@ -1,0 +1,12 @@
+{
+    "tabWidth": 4,
+    "useTabs": false,
+    "arrowParens": "always",
+    "semi": true,
+    "quoteProps": "as-needed",
+    "jsxSingleQuote": false,
+    "trailingComma": "es5",
+    "endOfLine": "lf",
+    "printWidth": 80,
+    "singleQuote": false
+}
