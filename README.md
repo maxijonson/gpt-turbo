@@ -21,3 +21,4 @@ Since gpt-3.5-turbo is a paid model, you'll need an [OpenAI API key](https://pla
 Most implementations were made following this guide: [OpenAI Docs: Chat completion](https://platform.openai.com/docs/guides/chat)
 
 - [Library](./packages/lib/): A JavaScript library that allows you to interact with the gpt-3.5-turbo model API.
+- [CLI](./packages/cli/): A command-line interface for interacting with the library.
