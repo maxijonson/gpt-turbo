@@ -1,10 +1,12 @@
 {
-    "name": "@maxijonson/gpt-turbo",
+    "name": "@maxijonson/gpt-turbo-cli",
     "version": "0.0.0",
-    "description": "A library for interacting with OpenAI's Chat Completion API",
+    "description": "A CLI that interacts with the @maxijonson/gpt-turbo library",
     "main": "dist/index.js",
     "scripts": {
-        "build": "rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.ts\" \"src/**/*\" dist"
+        "build": "rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.ts\" \"src/**/*\" dist",
+        "gpt-turbo": "ts-node src/index.ts",
+        "ig": "npm run build && npm i -g ."
     },
     "keywords": [
         "openai",
@@ -13,7 +15,8 @@
         "gpt",
         "gpt3.5",
         "completion",
-        "chatcompletion"
+        "chatcompletion",
+        "cli"
     ],
     "author": "Tristan Chin <tristan.chin@chintristan.io>",
     "homepage": "https://github.com/maxijonson/gpt-turbo#readme",
@@ -25,12 +28,19 @@
         "url": "https://github.com/maxijonson/gpt-turbo/issues"
     },
     "license": "MIT",
+    "bin": {
+        "gpt-turbo": "dist/index.js"
+    },
     "directories": {
-        "lib": "dist"
+        "bin": "dist"
     },
     "files": [
         "dist"
     ],
+    "dependencies": {
+        "@maxijonson/gpt-turbo": "^0.0.0",
+        "yargs": "^17.7.1"
+    },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^5.54.0",
         "@typescript-eslint/parser": "^5.54.0",
@@ -40,9 +50,7 @@
         "eslint-plugin-prettier": "^4.2.1",
         "prettier": "^2.8.4",
         "rimraf": "^4.2.0",
+        "ts-node": "^10.9.1",
         "typescript": "^4.9.5"
-    },
-    "dependencies": {
-        "openai": "^3.2.1"
     }
 }
