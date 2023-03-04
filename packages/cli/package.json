@@ -1,6 +1,6 @@
 {
     "name": "@maxijonson/gpt-turbo-cli",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "description": "A CLI that interacts with the @maxijonson/gpt-turbo library",
     "main": "dist/index.js",
     "scripts": {
@@ -38,7 +38,7 @@
         "dist"
     ],
     "dependencies": {
-        "@maxijonson/gpt-turbo": "^0.0.0",
+        "@maxijonson/gpt-turbo": "^1.0.0",
         "dotenv": "^16.0.3",
         "yargs": "^17.7.1"
     },
