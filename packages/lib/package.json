@@ -1,6 +1,6 @@
 {
     "name": "@maxijonson/gpt-turbo",
-    "version": "1.0.0",
+    "version": "0.0.0",
     "description": "A library for interacting with OpenAI's Chat Completion API",
     "main": "dist/index.js",
     "scripts": {
@@ -44,5 +44,6 @@
     },
     "dependencies": {
         "openai": "^3.2.1"
-    }
+    },
+    "gitHead": "328d04dc73d86236dba158a181581a53caf37720"
 }
