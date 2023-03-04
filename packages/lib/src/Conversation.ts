@@ -1,4 +1,5 @@
-import ConversationConfig, {
+import {
+    ConversationConfig,
     ConversationConfigParameters,
 } from "./ConversationConfig";
 import {
@@ -12,7 +13,7 @@ type ChatCompletionRequestOptions = Omit<
     "model" | "messages" | "stream"
 >;
 
-class Conversation {
+export class Conversation {
     private config: ConversationConfig;
     private openai: OpenAIApi;
     private messages: ChatCompletionRequestMessage[];
@@ -101,7 +102,7 @@ class Conversation {
         prompt: string,
         options?: ChatCompletionRequestOptions
     ) {
-        if (!prompt.trim()) return;
+        if (!prompt.trim()) return null;
         this.addUserMessage(prompt);
         const responseMessage = await this.getChatCompletionResponse(options);
         if (responseMessage) {
@@ -110,5 +111,3 @@ class Conversation {
         return responseMessage;
     }
 }
-
-export default Conversation;

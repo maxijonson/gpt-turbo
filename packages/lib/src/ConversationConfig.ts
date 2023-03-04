@@ -23,7 +23,7 @@ export interface ConversationConfigParameters extends ConfigurationParameters {
     context?: string;
 }
 
-class ConversationConfig extends Configuration {
+export class ConversationConfig extends Configuration {
     /**
      * OpenAI API key
      */
@@ -50,5 +50,3 @@ class ConversationConfig extends Configuration {
         this.context = context;
     }
 }
-
-export default ConversationConfig;
