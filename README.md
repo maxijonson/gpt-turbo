@@ -1,6 +1,6 @@
 # GPT Turbo
 
-OpenAI's gpt-3.5-turbo model has an API that allows you to generate conversational text from a prompt just like the [ChatGPT Plus subscription](https://openai.com/blog/chatgpt-plus). The difference between ChatGPT Plus and the gpt-3.5-turbo model API is the price. At the time of writing, ChatGPT Plus is a flat US$20 per month, while its API counterpart is US$0.002 per 1K [tokens](https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them). This means that if you don't plan on using more than 10M tokens per month (and the limitations listed below), you could potentially save money by using the gpt-3.5-turbo model API instead of the ChatGPT Plus subscription. This monorepo contains implementations of the gpt-3.5-turbo model API in different JavaScript environments.
+OpenAI's gpt-3.5-turbo model is an API that allows you to generate conversational text from a prompt just like the [ChatGPT Plus subscription](https://openai.com/blog/chatgpt-plus). The difference between ChatGPT Plus and the this API is mainly the price. At the time of writing, ChatGPT Plus is a flat US$20 per month, while its API counterpart is US$0.002 per 1K [tokens](https://platform.openai.com/docs/introduction/tokens). This means that if you don't plan on using more than 10M tokens per month (and the limitations listed below), you could potentially save money by using the gpt-3.5-turbo model API instead of the ChatGPT Plus subscription. This monorepo contains implementations of the gpt-3.5-turbo model API in different JavaScript environments.
 
 ## Disclaimer
 
@@ -18,7 +18,17 @@ Since gpt-3.5-turbo is a paid model, you'll need an [OpenAI API key](https://pla
 
 ## Implementations
 
-Most implementations were made following this guide: [OpenAI Docs: Chat completion](https://platform.openai.com/docs/guides/chat)
+Most implementations were made following this guide: [OpenAI Docs: Chat completion](https://platform.openai.com/docs/guides/chat). Check out each of their respective folder for more information on how to use them.
 
 - [Library](./packages/lib/): A JavaScript library that allows you to interact with the gpt-3.5-turbo model API.
 - [CLI](./packages/cli/): A command-line interface for interacting with the library.
+
+## Development
+
+This monorepo uses [Lerna](https://lerna.js.org/) to manage different implementations. Since every implementation rely on the Library, it's a good idea to watch for changes in the Library and automatically build it when changes are detected. To do so, run the following command in the root of the project (here):
+
+```bash
+npm run dev
+```
+
+This will watch for changes in the Library and automatically build it when changes are detected, making it available to the other implementations.

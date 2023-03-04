@@ -11,6 +11,7 @@
         "baseUrl": "./src",
         "incremental": true,
         "skipLibCheck": true,
+        "strict": true,
         "strictNullChecks": true,
         "noImplicitAny": true,
         "strictBindCallApply": false,

@@ -39,9 +39,11 @@
     ],
     "dependencies": {
         "@maxijonson/gpt-turbo": "^0.0.0",
+        "dotenv": "^16.0.3",
         "yargs": "^17.7.1"
     },
     "devDependencies": {
+        "@types/yargs": "^17.0.22",
         "@typescript-eslint/eslint-plugin": "^5.54.0",
         "@typescript-eslint/parser": "^5.54.0",
         "copyfiles": "^2.4.1",
