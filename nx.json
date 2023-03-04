@@ -1,0 +1,32 @@
+{
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": [
+          "build"
+        ]
+      }
+    }
+  },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
+    },
+    "gpt-turbo": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "ig": {
+      "dependsOn": [
+        "^build"
+      ]
+    }
+  }
+}
