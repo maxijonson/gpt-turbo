@@ -1,6 +1,6 @@
+import { DEFAULT_CONTEXT, DEFAULT_MODEL } from "./config/constants";
 import { Configuration, ConfigurationParameters } from "openai";
-
-export type ChatCompletionModel = "gpt-3.5-turbo" | "gpt-3.5-turbo-0301";
+import { ChatCompletionModel } from "./utils/types";
 
 export interface ConversationConfigParameters extends ConfigurationParameters {
     /**
@@ -40,8 +40,8 @@ export class ConversationConfig extends Configuration {
     public context: Exclude<ConversationConfigParameters["context"], undefined>;
 
     constructor({
-        model = "gpt-3.5-turbo",
-        context = "You are a large language model trained by OpenAI. Answer as concisely as possible.",
+        model = DEFAULT_MODEL,
+        context = DEFAULT_CONTEXT,
         ...configParameters
     }: ConversationConfigParameters) {
         super(configParameters);

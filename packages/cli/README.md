@@ -20,10 +20,10 @@ gpt-turbo -k <your OpenAI API key>
 
 ## CLI Options
 
-Here's a table of the CLI options. Note that all CLI arguments can also be passed as environment variables. For example, you can pass your OpenAI API key as `GPTTURBO_APIKEY` instead of `-k`. Arguments always take precedence over environment variables.
+Here's a table of the CLI options. Note that all CLI arguments can also be passed as environment variables. For example, you can pass your OpenAI API key as `GPTTURBO_APIKEY` instead of `-k`. Arguments always take precedence over environment variables. Refer to the [library's conversation config](../lib/README.md#conversation-config) for more information on the options default values.
 
-| Argument | Alias | Environment     | Type    | Description                                                             | Default       | Required |
-| -------- | ----- | --------------- | ------- | ----------------------------------------------------------------------- | ------------- | -------- |
-| apiKey   | k     | GPTTURBO_APIKEY | string  | Your OpenAI API key                                                     |               | Yes      |
-| model    | m     | GPTTURBO_MODEL  | string  | The model to use.                                                       | gpt-3.5-turbo |          |
-| dryRun   | d     | GPTTURBO_DRY    | boolean | Run the CLI without sending requests to OpenAI (mirror input as output) | false         |          |
+| Argument | Alias | Environment     | Type    | Description                                                             | Default           | Required |
+| -------- | ----- | --------------- | ------- | ----------------------------------------------------------------------- | ----------------- | -------- |
+| apiKey   | k     | GPTTURBO_APIKEY | string  | Your OpenAI API key                                                     |                   | Yes      |
+| dryRun   | d     | GPTTURBO_DRY    | boolean | Run the CLI without sending requests to OpenAI (mirror input as output) | false             |          |
+| model    | m     | GPTTURBO_MODEL  | string  | The model to use.                                                       | (library default) |          |

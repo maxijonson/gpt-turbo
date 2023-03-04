@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 
-import { GPTTURBO_APIKEY, GPTTURBO_DRY, GPTTURBO_MODEL } from "./config/env";
-import { Conversation } from "@maxijonson/gpt-turbo";
+import {
+    GPTTURBO_APIKEY,
+    GPTTURBO_CONTEXT,
+    GPTTURBO_DRY,
+    GPTTURBO_MODEL,
+} from "./config/env";
+import { ChatCompletionModel, Conversation } from "@maxijonson/gpt-turbo";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import * as readline from "readline/promises";
@@ -25,11 +30,18 @@ import * as readline from "readline/promises";
             description: "Chat completion model to use.",
             alias: "m",
             choices: ["gpt-3.5-turbo", "gpt-3.5-turbo-0301"] as const,
-            default: GPTTURBO_MODEL,
+            default: GPTTURBO_MODEL as ChatCompletionModel | undefined,
+        },
+        context: {
+            type: "string",
+            description:
+                "The first system message to set the context for the GPT model.",
+            alias: "c",
+            default: GPTTURBO_CONTEXT,
         },
     }).argv;
 
-    const { apiKey = GPTTURBO_APIKEY, model, dry } = argv;
+    const { apiKey = GPTTURBO_APIKEY!, model, dry, context } = argv;
 
     if (dry) {
         console.info("Dry run. No requests will be sent to OpenAI.\n");
@@ -38,6 +50,7 @@ import * as readline from "readline/promises";
     const conversation = new Conversation({
         apiKey,
         model,
+        context,
     });
 
     const rl = readline.createInterface({
