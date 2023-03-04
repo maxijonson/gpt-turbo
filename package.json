@@ -1,6 +1,5 @@
 {
   "name": "root",
-  "private": true,
   "scripts": {
     "dev": "lerna run build --scope \"@maxijonson/gpt-turbo\" && lerna watch --scope \"@maxijonson/gpt-turbo\" --include-dependencies -- lerna run build --scope=\"@maxijonson/gpt-turbo\""
   },
