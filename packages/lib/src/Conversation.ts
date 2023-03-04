@@ -6,22 +6,35 @@ import {
     OpenAIApi,
     ChatCompletionRequestMessage,
     CreateChatCompletionRequest,
+    ChatCompletionRequestMessageRoleEnum,
 } from "openai";
+import { encode } from "gpt-3-encoder";
 
 type ChatCompletionRequestOptions = Omit<
     CreateChatCompletionRequest,
     "model" | "messages" | "stream"
 >;
 
+export type ConversationMessage = ChatCompletionRequestMessage & {
+    tokens: number[];
+};
+
 export class Conversation {
     private config: ConversationConfig;
     private openai: OpenAIApi;
-    private messages: ChatCompletionRequestMessage[];
+    private messages: ConversationMessage[];
 
     constructor(config: ConversationConfigParameters) {
         this.config = new ConversationConfig(config);
         this.openai = new OpenAIApi(this.config);
-        this.messages = [{ role: "system", content: this.config.context }];
+        this.messages = [this.createMessage(this.config.context, "system")];
+    }
+
+    private createMessage(
+        content: string,
+        role: ChatCompletionRequestMessageRoleEnum
+    ) {
+        return { role, content, tokens: encode(content) };
     }
 
     /**
@@ -41,7 +54,7 @@ export class Conversation {
      */
     public addAssistantMessage(message: string) {
         if (!message.trim()) return;
-        this.messages.push({ role: "assistant", content: message });
+        this.messages.push(this.createMessage(message, "assistant"));
     }
 
     /**
@@ -51,14 +64,14 @@ export class Conversation {
      */
     public addUserMessage(message: string) {
         if (!message.trim()) return;
-        this.messages.push({ role: "user", content: message });
+        this.messages.push(this.createMessage(message, "user"));
     }
 
     /**
      * Clears all messages in the conversation except the context message.
      */
     public clearMessages() {
-        this.messages = [{ role: "system", content: this.config.context }];
+        this.messages = [this.createMessage(this.config.context, "system")];
     }
 
     /**
@@ -83,7 +96,7 @@ export class Conversation {
         const response = await this.openai.createChatCompletion({
             ...options,
             model: this.config.model,
-            messages: this.messages,
+            messages: this.messages.map(({ tokens, ...message }) => message),
             stream: false,
         });
         const responseMessage =
@@ -109,5 +122,15 @@ export class Conversation {
             this.addAssistantMessage(responseMessage);
         }
         return responseMessage;
+    }
+
+    /**
+     * Returns the size of the conversation in tokens.
+     */
+    public getSize() {
+        return this.messages.reduce(
+            (size, message) => size + message.tokens.length,
+            0
+        );
     }
 }

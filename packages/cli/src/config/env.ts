@@ -8,3 +8,6 @@ export const GPTTURBO_DRY = (process.env.GPTTURBO_DRY || "false") === "true";
 export const GPTTURBO_MODEL = process.env.GPTTURBO_MODEL;
 
 export const GPTTURBO_CONTEXT = process.env.GPTTURBO_CONTEXT;
+
+export const GPTTURBO_SHOWSIZE =
+    (process.env.GPTTURBO_SHOWSIZE || "false") === "true";

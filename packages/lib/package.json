@@ -46,6 +46,7 @@
         "typescript": "^4.9.5"
     },
     "dependencies": {
+        "gpt-3-encoder": "^1.1.4",
         "openai": "^3.2.1"
     },
     "gitHead": "328d04dc73d86236dba158a181581a53caf37720"

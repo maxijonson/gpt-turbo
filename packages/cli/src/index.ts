@@ -5,11 +5,18 @@ import {
     GPTTURBO_CONTEXT,
     GPTTURBO_DRY,
     GPTTURBO_MODEL,
+    GPTTURBO_SHOWSIZE,
 } from "./config/env";
-import { ChatCompletionModel, Conversation } from "@maxijonson/gpt-turbo";
+import {
+    ChatCompletionModel,
+    Conversation,
+    getMessageSize,
+} from "@maxijonson/gpt-turbo";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import * as readline from "readline/promises";
+
+const getCost = (usage: number) => "$" + ((usage / 1000) * 0.002).toFixed(5);
 
 (async () => {
     const argv = await yargs(hideBin(process.argv)).options({
@@ -39,9 +46,16 @@ import * as readline from "readline/promises";
             alias: "c",
             default: GPTTURBO_CONTEXT,
         },
+        size: {
+            type: "boolean",
+            description:
+                "Show the size of the conversation in tokens as well as the usage cost.",
+            alias: "s",
+            default: GPTTURBO_SHOWSIZE,
+        },
     }).argv;
 
-    const { apiKey = GPTTURBO_APIKEY!, model, dry, context } = argv;
+    const { apiKey = GPTTURBO_APIKEY!, model, dry, context, size } = argv;
 
     if (dry) {
         console.info("Dry run. No requests will be sent to OpenAI.\n");
@@ -53,18 +67,49 @@ import * as readline from "readline/promises";
         context,
     });
 
+    if (size) {
+        console.info(`Context Size: ${conversation.getSize()} tokens\n`);
+    }
+
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout,
     });
 
     let prompt = "";
-    do {
-        prompt = await rl.question("You : ");
-        const response = dry ? prompt : await conversation.prompt(prompt);
-        if (response) {
-            console.info(`\nGPT : ${response}\n`);
+    let usage = 0; // Total amount of tokens sent to/from OpenAI since the beginning of the conversation.
+    while (true) {
+        if (size) {
+            console.info(`\nUsage: ${usage} tokens (${getCost(usage)})`);
         }
-    } while (prompt);
+
+        prompt = await rl.question("\nYou : ");
+        if (!prompt) break;
+
+        if (size) {
+            const promptSize = getMessageSize(prompt);
+            console.info(
+                `(${promptSize} / ${conversation.getSize() + promptSize})`
+            );
+        }
+
+        let response: string | null = null;
+        if (dry) {
+            response = prompt;
+            conversation.addUserMessage(response);
+            conversation.addAssistantMessage(prompt);
+        } else {
+            response = await conversation.prompt(prompt);
+        }
+
+        if (!response) continue;
+
+        console.info(`\nGPT : ${response}`);
+        if (size) {
+            const responseSize = getMessageSize(response);
+            console.info(`(${responseSize} / ${conversation.getSize()})`);
+            usage += conversation.getSize();
+        }
+    }
     rl.close();
 })();
