@@ -6,14 +6,14 @@ import {
     GPTTURBO_DRY,
     GPTTURBO_MODEL,
     GPTTURBO_SHOWSIZE,
-} from "./config/env";
+} from "./config/env.js";
 import { ChatCompletionModel } from "@maxijonson/gpt-turbo";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import React from "react";
 import { render } from "ink";
-import App from "./components/App";
-import Providers from "./contexts/providers";
+import App from "./components/App.js";
+import Providers from "./contexts/providers/index.js";
 
 const argv = yargs(hideBin(process.argv))
     .options({

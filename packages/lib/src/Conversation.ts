@@ -1,7 +1,7 @@
 import {
     ConversationConfig,
     ConversationConfigParameters,
-} from "./ConversationConfig";
+} from "./ConversationConfig.js";
 import {
     OpenAIApi,
     CreateChatCompletionRequest,
@@ -13,7 +13,7 @@ import {
     getMessageCost,
     ConversationMessage,
     AddMessageListener,
-} from "./utils";
+} from "./utils/index.js";
 
 type ChatCompletionRequestOptions = Omit<
     CreateChatCompletionRequest,

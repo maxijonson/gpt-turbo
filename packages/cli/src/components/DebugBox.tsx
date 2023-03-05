@@ -1,7 +1,7 @@
 import { Box, Text } from "ink";
 import React from "react";
-import useDebug from "../hooks/useDebug";
-import BoxTitle from "./BoxTitle";
+import useDebug from "../hooks/useDebug.js";
+import BoxTitle from "./BoxTitle.js";
 
 interface DebugBoxProps {}
 

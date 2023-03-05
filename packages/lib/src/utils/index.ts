@@ -1,3 +1,3 @@
-export { default as getMessageSize } from "./getMessageSize";
-export { default as getMessageCost } from "./getMessageCost";
-export * from "./types";
+export { default as getMessageSize } from "./getMessageSize.js";
+export { default as getMessageCost } from "./getMessageCost.js";
+export * from "./types.js";

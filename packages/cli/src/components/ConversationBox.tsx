@@ -2,9 +2,9 @@ import { Conversation, ConversationMessage } from "@maxijonson/gpt-turbo";
 import { Box } from "ink";
 import Spinner from "ink-spinner";
 import React from "react";
-import BoxTitle from "./BoxTitle";
-import Message from "./Message";
-import Prompt from "./Prompt";
+import BoxTitle from "./BoxTitle.js";
+import Message from "./Message.js";
+import Prompt from "./Prompt.js";
 
 interface ConversationBoxProps {
     conversation: Conversation;

@@ -2,9 +2,9 @@ import {
     DEFAULT_CONTEXT,
     DEFAULT_DRY,
     DEFAULT_MODEL,
-} from "./config/constants";
+} from "./config/constants.js";
 import { Configuration, ConfigurationParameters } from "openai";
-import { ChatCompletionModel } from "./utils/types";
+import { ChatCompletionModel } from "./utils/types.js";
 
 export interface ConversationConfigParameters extends ConfigurationParameters {
     /**

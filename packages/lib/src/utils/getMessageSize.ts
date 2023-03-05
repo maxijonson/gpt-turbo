@@ -1,5 +1,5 @@
 import { encode } from "gpt-3-encoder";
-import { ConversationMessage } from "./types";
+import { ConversationMessage } from "./types.js";
 
 /**
  * Returns the size of a message in tokens.

@@ -1,11 +1,11 @@
 import { ChatCompletionModel, Conversation } from "@maxijonson/gpt-turbo";
 import { Box } from "ink";
-import useStdoutDimensions from "ink-use-stdout-dimensions";
 import React from "react";
-import ConversationBox from "./ConversationBox";
-import DebugBox from "./DebugBox";
-import InfoBox from "./InfoBox";
-import UsageBox from "./UsageBox";
+import useStdoutDimensions from "../hooks/useStdoutDimensions.js";
+import ConversationBox from "./ConversationBox.js";
+import DebugBox from "./DebugBox.js";
+import InfoBox from "./InfoBox.js";
+import UsageBox from "./UsageBox.js";
 
 interface AppProps {
     // GPT Turbo Props

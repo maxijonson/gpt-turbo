@@ -4,6 +4,6 @@
     "stdin": false,
     "quiet": true,
     "ext": "ts,tsx",
-    "exec": "ts-node src/index.tsx",
+    "exec": "ts-node-esm src/index.tsx",
     "exitcrash": true
 }

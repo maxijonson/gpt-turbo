@@ -1,6 +1,6 @@
-import { COST_PER_TOKEN } from "../config/constants";
-import getMessageSize from "./getMessageSize";
-import { ConversationMessage } from "./types";
+import { COST_PER_TOKEN } from "../config/constants.js";
+import getMessageSize from "./getMessageSize.js";
+import { ConversationMessage } from "./types.js";
 
 /**
  * Returns the cost of a message according to the OpenAI API [pricing page](https://openai.com/pricing#chat).

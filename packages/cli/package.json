@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "A CLI that interacts with the @maxijonson/gpt-turbo library",
     "main": "dist/index.js",
+    "type": "module",
     "scripts": {
         "build": "rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.tsx\" \"src/**/*.ts\" \"src/**/*\" dist",
         "gpt-turbo": "nodemon",
@@ -43,11 +44,10 @@
     "dependencies": {
         "@maxijonson/gpt-turbo": "^1.0.0",
         "dotenv": "^16.0.3",
-        "ink": "^3.2.0",
-        "ink-spinner": "^4.0.3",
-        "ink-text-input": "^4.0.3",
-        "ink-use-stdout-dimensions": "^1.0.5",
-        "react": "^17.0.2",
+        "ink": "^4.0.0",
+        "ink-spinner": "^5.0.0",
+        "ink-text-input": "^5.0.0",
+        "react": "^18.2.0",
         "yargs": "^17.7.1"
     },
     "devDependencies": {

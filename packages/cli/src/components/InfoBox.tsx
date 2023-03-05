@@ -1,7 +1,7 @@
 import { Conversation } from "@maxijonson/gpt-turbo";
 import { Box, Text } from "ink";
 import React from "react";
-import BoxTitle from "./BoxTitle";
+import BoxTitle from "./BoxTitle.js";
 
 interface InfoBoxProps {
     conversation: Conversation;

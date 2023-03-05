@@ -1,5 +1,5 @@
 import React from "react";
-import DebugProvider from "./DebugProvider";
+import DebugProvider from "./DebugProvider.js";
 
 interface ProvidersProps {
     children?: React.ReactNode;

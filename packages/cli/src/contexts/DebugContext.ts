@@ -1,5 +1,5 @@
 import React from "react";
-import makeNotImplemented from "../utils/makeNotImplemented";
+import makeNotImplemented from "../utils/makeNotImplemented.js";
 
 export interface DebugContextValue {
     log: (...args: any[]) => void;

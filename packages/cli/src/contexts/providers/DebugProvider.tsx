@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import React from "react";
-import { DebugContext, DebugContextValue } from "../DebugContext";
+import { DebugContext, DebugContextValue } from "../DebugContext.js";
 
 interface DebugProviderProps {
     children?: React.ReactNode;

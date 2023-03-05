@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "A library for interacting with OpenAI's Chat Completion API",
     "main": "dist/index.js",
+    "type": "module",
     "scripts": {
         "build": "rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.ts\" \"src/**/*\" dist"
     },
@@ -31,6 +32,10 @@
     "files": [
         "dist"
     ],
+    "exports": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+    },
     "publishConfig": {
         "access": "public"
     },
