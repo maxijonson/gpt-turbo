@@ -1,0 +1,9 @@
+{
+    "$schema": "http://json.schemastore.org/nodemon",
+    "noUpdateNotifier": true,
+    "stdin": false,
+    "quiet": true,
+    "ext": "ts,tsx",
+    "exec": "ts-node src/index.tsx",
+    "exitcrash": true
+}

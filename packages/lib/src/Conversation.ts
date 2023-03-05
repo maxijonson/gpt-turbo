@@ -7,7 +7,13 @@ import {
     CreateChatCompletionRequest,
     ChatCompletionRequestMessageRoleEnum,
 } from "openai";
-import { getMessageSize, getMessageCost, ConversationMessage } from "./utils";
+import { v4 as uuid } from "uuid";
+import {
+    getMessageSize,
+    getMessageCost,
+    ConversationMessage,
+    AddMessageListener,
+} from "./utils";
 
 type ChatCompletionRequestOptions = Omit<
     CreateChatCompletionRequest,
@@ -17,6 +23,7 @@ export class Conversation {
     private config: ConversationConfig;
     private openai: OpenAIApi;
     private messages: ConversationMessage[] = [];
+    private addMessageListeners: AddMessageListener[] = [];
     private cumulativeSize = 0;
     private cumulativeCost = 0;
 
@@ -30,7 +37,7 @@ export class Conversation {
         content: string,
         role: ChatCompletionRequestMessageRoleEnum
     ): ConversationMessage {
-        return { role, content };
+        return { id: uuid(), role, content };
     }
 
     /**
@@ -58,6 +65,7 @@ export class Conversation {
             "assistant"
         );
         this.messages.push(assistantMessage);
+        this.notifyMessageAdded(assistantMessage);
         return assistantMessage;
     }
 
@@ -72,7 +80,32 @@ export class Conversation {
         if (!trimmedMessage) return null;
         const userMessage = this.createMessage(trimmedMessage, "user");
         this.messages.push(userMessage);
+        this.notifyMessageAdded(userMessage);
         return userMessage;
+    }
+
+    /**
+     * Adds a listener function that is called whenever a message is added to the conversation.
+     *
+     * @param listener The function to call when a message is added to the conversation.
+     * @returns A function that removes the listener from the list of listeners.
+     */
+    public onMessageAdded(listener: AddMessageListener) {
+        this.addMessageListeners.push(listener);
+        return () => this.offMessageAdded(listener);
+    }
+
+    /**
+     * Removes a listener function from the list of listeners that was previously added with `onMessageAdded`.
+     * @param listener The function to remove from the list of listeners.
+     */
+    public offMessageAdded(listener: AddMessageListener) {
+        const index = this.addMessageListeners.indexOf(listener);
+        if (index !== -1) this.addMessageListeners.splice(index, 1);
+    }
+
+    private notifyMessageAdded(message: ConversationMessage) {
+        this.addMessageListeners.forEach((listener) => listener(message));
     }
 
     /**

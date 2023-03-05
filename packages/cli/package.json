@@ -4,8 +4,8 @@
     "description": "A CLI that interacts with the @maxijonson/gpt-turbo library",
     "main": "dist/index.js",
     "scripts": {
-        "build": "rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.ts\" \"src/**/*\" dist",
-        "gpt-turbo": "ts-node src/index.ts",
+        "build": "rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.tsx\" \"src/**/*.ts\" \"src/**/*\" dist",
+        "gpt-turbo": "nodemon",
         "ig": "npm run build && npm i -g ."
     },
     "keywords": [
@@ -43,9 +43,15 @@
     "dependencies": {
         "@maxijonson/gpt-turbo": "^1.0.0",
         "dotenv": "^16.0.3",
+        "ink": "^3.2.0",
+        "ink-spinner": "^4.0.3",
+        "ink-text-input": "^4.0.3",
+        "ink-use-stdout-dimensions": "^1.0.5",
+        "react": "^17.0.2",
         "yargs": "^17.7.1"
     },
     "devDependencies": {
+        "@types/react": "^18.0.28",
         "@types/yargs": "^17.0.22",
         "@typescript-eslint/eslint-plugin": "^5.54.0",
         "@typescript-eslint/parser": "^5.54.0",
@@ -53,6 +59,7 @@
         "eslint": "^8.35.0",
         "eslint-config-prettier": "^8.6.0",
         "eslint-plugin-prettier": "^4.2.1",
+        "nodemon": "^2.0.21",
         "prettier": "^2.8.4",
         "rimraf": "^4.2.0",
         "ts-node": "^10.9.1",
