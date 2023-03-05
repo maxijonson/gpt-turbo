@@ -25,7 +25,7 @@ Here's a table of the CLI options. Note that all CLI arguments can also be passe
 | Argument | Alias | Environment       | Type    | Description                                                                        | Default           | Required |
 | -------- | ----- | ----------------- | ------- | ---------------------------------------------------------------------------------- | ----------------- | -------- |
 | apiKey   | k     | GPTTURBO_APIKEY   | string  | Your OpenAI API key                                                                |                   | Yes      |
-| dryRun   | d     | GPTTURBO_DRY      | boolean | Run the CLI without sending requests to OpenAI (mirror input as output)            | false             |          |
+| dry      | d     | GPTTURBO_DRY      | boolean | Run the CLI without sending requests to OpenAI (mirror input as output)            | false             |          |
 | size     | s     | GPTTURBO_SHOWSIZE | boolean | Show the size of the conversation in tokens as well as the usage cost              | false             |          |
 | model    | m     | GPTTURBO_MODEL    | string  | The model to use.                                                                  | (library default) |          |
 | context  | c     | GPTTURBO_CONTEXT  | string  | You are a large language model trained by OpenAI. Answer as concisely as possible. | (library default) |          |

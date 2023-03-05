@@ -16,8 +16,6 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import * as readline from "readline/promises";
 
-const getCost = (usage: number) => "$" + ((usage / 1000) * 0.002).toFixed(5);
-
 (async () => {
     const argv = await yargs(hideBin(process.argv)).options({
         apiKey: {
@@ -58,17 +56,18 @@ const getCost = (usage: number) => "$" + ((usage / 1000) * 0.002).toFixed(5);
     const { apiKey = GPTTURBO_APIKEY!, model, dry, context, size } = argv;
 
     if (dry) {
-        console.info("Dry run. No requests will be sent to OpenAI.\n");
+        console.info("Dry run: No requests will be sent to OpenAI.\n");
     }
 
     const conversation = new Conversation({
         apiKey,
         model,
         context,
+        dry,
     });
 
     if (size) {
-        console.info(`Context Size: ${conversation.getSize()} tokens\n`);
+        console.info(`Context Size: ${getMessageSize(context)} tokens`);
     }
 
     const rl = readline.createInterface({
@@ -77,38 +76,26 @@ const getCost = (usage: number) => "$" + ((usage / 1000) * 0.002).toFixed(5);
     });
 
     let prompt = "";
-    let usage = 0; // Total amount of tokens sent to/from OpenAI since the beginning of the conversation.
     while (true) {
-        if (size) {
-            console.info(`\nUsage: ${usage} tokens (${getCost(usage)})`);
-        }
-
         prompt = await rl.question("\nYou : ");
         if (!prompt) break;
 
-        if (size) {
-            const promptSize = getMessageSize(prompt);
-            console.info(
-                `(${promptSize} / ${conversation.getSize() + promptSize})`
-            );
-        }
-
-        let response: string | null = null;
-        if (dry) {
-            response = prompt;
-            conversation.addUserMessage(response);
-            conversation.addAssistantMessage(prompt);
-        } else {
-            response = await conversation.prompt(prompt);
-        }
-
+        const response = await conversation.prompt(prompt);
         if (!response) continue;
 
-        console.info(`\nGPT : ${response}`);
         if (size) {
-            const responseSize = getMessageSize(response);
-            console.info(`(${responseSize} / ${conversation.getSize()})`);
-            usage += conversation.getSize();
+            console.info(`(${getMessageSize(prompt)} tokens)`);
+        }
+
+        console.info(`\nGPT : ${response}`);
+
+        if (size) {
+            console.info(`(${getMessageSize(response)} tokens)`);
+            console.info(
+                `\nUsage: ${conversation.getCumulativeSize()} tokens ($${conversation
+                    .getCumulativeCost()
+                    .toFixed(5)})`
+            );
         }
     }
     rl.close();
