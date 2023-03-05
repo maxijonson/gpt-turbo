@@ -3,6 +3,7 @@ import { Box } from "ink";
 import useStdoutDimensions from "ink-use-stdout-dimensions";
 import React from "react";
 import ConversationBox from "./ConversationBox";
+import DebugBox from "./DebugBox";
 import InfoBox from "./InfoBox";
 import UsageBox from "./UsageBox";
 
@@ -37,6 +38,9 @@ export default ({ showUsage, apiKey, context, dry, model }: AppProps) => {
                 <InfoBox conversation={conversation} />
             </Box>
             <ConversationBox conversation={conversation} />
+            <Box flexDirection="column" width="20%">
+                <DebugBox />
+            </Box>
         </Box>
     );
 };

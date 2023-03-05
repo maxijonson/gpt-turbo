@@ -13,6 +13,7 @@ import { hideBin } from "yargs/helpers";
 import React from "react";
 import { render } from "ink";
 import App from "./components/App";
+import Providers from "./contexts/providers";
 
 const argv = yargs(hideBin(process.argv))
     .options({
@@ -61,11 +62,13 @@ const {
 } = argv;
 
 render(
-    <App
-        apiKey={apiKey}
-        model={model}
-        dry={dry}
-        context={context}
-        showUsage={showUsage}
-    />
+    <Providers>
+        <App
+            apiKey={apiKey}
+            model={model}
+            dry={dry}
+            context={context}
+            showUsage={showUsage}
+        />
+    </Providers>
 );

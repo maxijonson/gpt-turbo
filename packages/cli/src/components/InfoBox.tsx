@@ -20,7 +20,7 @@ export default ({ conversation }: InfoBoxProps) => {
     }, [conversation]);
 
     return (
-        <Box borderStyle="round" flexDirection="column" flexGrow={2}>
+        <Box borderStyle="round" flexDirection="column" flexGrow={1}>
             <BoxTitle title="Info" />
             <Box>
                 <Box flexDirection="column">
