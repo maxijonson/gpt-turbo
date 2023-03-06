@@ -16,9 +16,17 @@ interface AppProps {
 
     // CLI Props
     showUsage?: boolean;
+    showDebug?: boolean;
 }
 
-export default ({ showUsage, apiKey, context, dry, model }: AppProps) => {
+export default ({
+    showUsage,
+    showDebug,
+    apiKey,
+    context,
+    dry,
+    model,
+}: AppProps) => {
     const conversation = React.useMemo(
         () =>
             new Conversation({
@@ -33,14 +41,18 @@ export default ({ showUsage, apiKey, context, dry, model }: AppProps) => {
 
     return (
         <Box width={cols} height={rows}>
-            <Box flexDirection="column" width="20%" flexShrink={0}>
-                {showUsage && <UsageBox conversation={conversation} />}
-                <InfoBox conversation={conversation} />
-            </Box>
+            {showUsage && (
+                <Box flexDirection="column" width="20%" flexShrink={0}>
+                    {<UsageBox conversation={conversation} />}
+                    <InfoBox conversation={conversation} />
+                </Box>
+            )}
             <ConversationBox conversation={conversation} />
-            <Box flexDirection="column" width="20%" flexShrink={0}>
-                <DebugBox />
-            </Box>
+            {showDebug && (
+                <Box flexDirection="column" width="20%" flexShrink={0}>
+                    <DebugBox />
+                </Box>
+            )}
         </Box>
     );
 };

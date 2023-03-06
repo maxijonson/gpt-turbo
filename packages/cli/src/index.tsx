@@ -5,7 +5,8 @@ import {
     GPTTURBO_CONTEXT,
     GPTTURBO_DRY,
     GPTTURBO_MODEL,
-    GPTTURBO_SHOWSIZE,
+    GPTTURBO_SHOWDEBUG,
+    GPTTURBO_SHOWUSAGE,
 } from "./config/env.js";
 import { ChatCompletionModel } from "@maxijonson/gpt-turbo";
 import yargs from "yargs";
@@ -43,12 +44,17 @@ const argv = yargs(hideBin(process.argv))
             alias: "c",
             default: GPTTURBO_CONTEXT,
         },
-        size: {
+        showUsage: {
             type: "boolean",
-            description:
-                "Show the size of the conversation in tokens as well as the usage cost.",
-            alias: "s",
-            default: GPTTURBO_SHOWSIZE,
+            description: "Show the usage information about the conversation.",
+            alias: "u",
+            default: GPTTURBO_SHOWUSAGE,
+        },
+        showDebug: {
+            type: "boolean",
+            description: "Show console debug messages.",
+            alias: "D",
+            default: GPTTURBO_SHOWDEBUG,
         },
     })
     .parseSync();
@@ -58,7 +64,8 @@ const {
     model,
     dry,
     context,
-    size: showUsage,
+    showUsage,
+    showDebug,
 } = argv;
 
 render(
@@ -69,6 +76,7 @@ render(
             dry={dry}
             context={context}
             showUsage={showUsage}
+            showDebug={showDebug}
         />
     </Providers>
 );
