@@ -14,7 +14,7 @@ module.exports = {
     env: {
         node: true,
     },
-    ignorePatterns: [".eslintrc.js"],
+    ignorePatterns: [".eslintrc.cjs"],
     rules: {
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-empty-function": "off",

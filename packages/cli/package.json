@@ -6,7 +6,8 @@
     "type": "module",
     "scripts": {
         "lint": "eslint --ext .ts,.tsx src",
-        "build": "npm run lint && rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.tsx\" \"src/**/*.ts\" \"src/**/*\" dist",
+        "lint:strict": "npm run lint -- --max-warnings 0",
+        "build": "npm run lint:strict && rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.tsx\" \"src/**/*.ts\" \"src/**/*\" dist",
         "gpt-turbo": "nodemon",
         "ig": "npm run build && npm i -g ."
     },

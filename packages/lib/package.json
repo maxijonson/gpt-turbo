@@ -5,7 +5,9 @@
     "main": "dist/index.js",
     "type": "module",
     "scripts": {
-        "build": "rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.ts\" \"src/**/*\" dist"
+        "lint": "eslint --ext .ts src",
+        "lint:strict": "npm run lint -- --max-warnings 0",
+        "build": "npm run lint:strict && rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.ts\" \"src/**/*\" dist"
     },
     "keywords": [
         "openai",
