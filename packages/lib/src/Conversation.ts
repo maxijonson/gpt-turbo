@@ -143,7 +143,7 @@ export class Conversation {
                 this.messages[this.messages.length - 1]?.content ?? null;
         } else {
             const messages = this.messages.map(
-                ({ _size, _cost, ...message }) => message
+                ({ _size, _cost, id, ...message }) => message
             );
             const response = await this.openai.createChatCompletion({
                 ...options,

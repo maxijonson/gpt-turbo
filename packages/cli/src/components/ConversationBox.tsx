@@ -53,7 +53,15 @@ export default ({ conversation }: ConversationBoxProps) => {
     const onSubmit = async (prompt: string) => {
         if (pending) return;
         setPending(prompt);
-        await conversation.prompt(prompt);
+        try {
+            await conversation.prompt(prompt);
+        } catch (e) {
+            if (e instanceof Error) {
+                console.error(e.message);
+            } else {
+                console.error("An unknown error occurred");
+            }
+        }
         setPending(null);
     };
 
