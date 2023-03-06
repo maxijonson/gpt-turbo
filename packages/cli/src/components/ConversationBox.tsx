@@ -81,15 +81,12 @@ export default ({ conversation }: ConversationBoxProps) => {
                     <Message key={message.id} message={message} />
                 ))}
                 {pending && (
-                    <>
-                        <Message message={{ role: "user", content: pending }} />
-                        <Message
-                            message={{
-                                role: "assistant",
-                                content: <Spinner />,
-                            }}
-                        />
-                    </>
+                    <Message
+                        message={{
+                            role: "assistant",
+                            content: <Spinner />,
+                        }}
+                    />
                 )}
             </Box>
             <Prompt onSubmit={onSubmit} />
