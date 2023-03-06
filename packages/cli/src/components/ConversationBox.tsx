@@ -2,8 +2,9 @@ import { Conversation, ConversationMessage } from "@maxijonson/gpt-turbo";
 import { Box } from "ink";
 import Spinner from "ink-spinner";
 import React from "react";
+import { useElementDimensions } from "../hooks/useElementDimensions.js";
 import BoxTitle from "./BoxTitle.js";
-import Message from "./Message.js";
+import Message, { SENDER_WIDTH } from "./Message.js";
 import Prompt from "./Prompt.js";
 
 interface ConversationBoxProps {
@@ -13,6 +14,41 @@ interface ConversationBoxProps {
 export default ({ conversation }: ConversationBoxProps) => {
     const [pending, setPending] = React.useState<string | null>(null);
     const [messages, setMessages] = React.useState<ConversationMessage[]>([]);
+    const {
+        ref: messagesBoxRef,
+        width: messagesBoxWidth,
+        height: messagesBoxHeight,
+    } = useElementDimensions();
+
+    const pages = React.useMemo(() => {
+        if (!messagesBoxRef.current) return [messages];
+        if (!messagesBoxWidth || !messagesBoxHeight) return [messages];
+
+        const pages: ConversationMessage[][] = [];
+        let page: ConversationMessage[] = [];
+        let pageHeight = 0;
+
+        // TODO: Handle messages that are longer than the box height by splitting them into multiple messages
+        for (let i = 0; i < messages.length; i++) {
+            const message = messages[i];
+            const messageWidth = SENDER_WIDTH + message.content.length;
+            const messageHeight = Math.ceil(messageWidth / messagesBoxWidth);
+
+            if (pageHeight + messageHeight > messagesBoxHeight) {
+                pages.push(page);
+                page = [];
+                pageHeight = 0;
+            }
+
+            page.push(message);
+            pageHeight += messageHeight;
+        }
+
+        if (page.length) {
+            pages.push(page);
+        }
+        return pages;
+    }, [messages, messagesBoxHeight, messagesBoxRef, messagesBoxWidth]);
 
     const onSubmit = async (prompt: string) => {
         if (pending) return;
@@ -22,8 +58,9 @@ export default ({ conversation }: ConversationBoxProps) => {
     };
 
     React.useEffect(() => {
-        const listener = conversation.onMessageAdded(() => {
-            setMessages(conversation.getMessages());
+        const listener = conversation.onMessageAdded((message) => {
+            // We deep clone the message so that we can mutate it later (e.g. splitting the message when the message overflows the box)
+            setMessages((messages) => [...messages, structuredClone(message)]);
         });
         return () => listener();
     }, [conversation]);
@@ -31,8 +68,8 @@ export default ({ conversation }: ConversationBoxProps) => {
     return (
         <Box borderStyle="round" flexGrow={1} flexDirection="column">
             <BoxTitle title="Conversation" />
-            <Box flexGrow={1} flexDirection="column">
-                {messages.map((message) => (
+            <Box ref={messagesBoxRef} flexGrow={1} flexDirection="column">
+                {pages.at(-1)?.map((message) => (
                     <Message key={message.id} message={message} />
                 ))}
                 {pending && (

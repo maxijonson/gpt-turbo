@@ -5,16 +5,17 @@ module.exports = {
         tsconfigRootDir: __dirname,
         sourceType: "module",
     },
-    plugins: ["@typescript-eslint/eslint-plugin"],
+    plugins: ["@typescript-eslint/eslint-plugin", "react-hooks"],
     extends: [
         "plugin:@typescript-eslint/recommended",
         "plugin:prettier/recommended",
+        "plugin:react-hooks/recommended",
     ],
     root: true,
     env: {
         node: true,
     },
-    ignorePatterns: [".eslintrc.js"],
+    ignorePatterns: [".eslintrc.cjs"],
     rules: {
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-empty-function": "off",
@@ -59,5 +60,8 @@ module.exports = {
         "arrow-body-style": "off",
 
         "prettier/prettier": ["warn"],
+
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
     },
 };

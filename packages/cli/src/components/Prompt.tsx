@@ -16,6 +16,8 @@ export default ({ onSubmit }: PromptProps) => {
         onSubmit(prompt);
     };
 
+    const tokensStr = `(${getMessageSize(prompt)} Tokens)`;
+
     return (
         <Box minHeight={3} flexShrink={0} borderStyle="single">
             <Box flexGrow={1}>
@@ -26,7 +28,9 @@ export default ({ onSubmit }: PromptProps) => {
                     onSubmit={handleSubmit}
                 />
             </Box>
-            <Text>({getMessageSize(prompt)} Tokens)</Text>
+            <Box flexShrink={0} width={tokensStr.length + 2}>
+                <Text>{tokensStr}</Text>
+            </Box>
         </Box>
     );
 };

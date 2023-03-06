@@ -33,12 +33,12 @@ export default ({ showUsage, apiKey, context, dry, model }: AppProps) => {
 
     return (
         <Box width={cols} height={rows}>
-            <Box flexDirection="column" width="20%">
+            <Box flexDirection="column" width="20%" flexShrink={0}>
                 {showUsage && <UsageBox conversation={conversation} />}
                 <InfoBox conversation={conversation} />
             </Box>
             <ConversationBox conversation={conversation} />
-            <Box flexDirection="column" width="20%">
+            <Box flexDirection="column" width="20%" flexShrink={0}>
                 <DebugBox />
             </Box>
         </Box>

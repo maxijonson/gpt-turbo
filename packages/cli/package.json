@@ -5,7 +5,8 @@
     "main": "dist/index.js",
     "type": "module",
     "scripts": {
-        "build": "rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.tsx\" \"src/**/*.ts\" \"src/**/*\" dist",
+        "lint": "eslint --ext .ts,.tsx src",
+        "build": "npm run lint && rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.tsx\" \"src/**/*.ts\" \"src/**/*\" dist",
         "gpt-turbo": "nodemon",
         "ig": "npm run build && npm i -g ."
     },
@@ -59,6 +60,7 @@
         "eslint": "^8.35.0",
         "eslint-config-prettier": "^8.6.0",
         "eslint-plugin-prettier": "^4.2.1",
+        "eslint-plugin-react-hooks": "^4.6.0",
         "nodemon": "^2.0.21",
         "prettier": "^2.8.4",
         "rimraf": "^4.2.0",
