@@ -1,8 +1,8 @@
 import { Conversation, ConversationMessage } from "@maxijonson/gpt-turbo";
-import { Box } from "ink";
-import Spinner from "ink-spinner";
+import { Box, Text } from "ink";
 import React from "react";
 import { useElementDimensions } from "../hooks/useElementDimensions.js";
+import usePagedMessages from "../hooks/usePagedMessages.js";
 import BoxTitle from "./BoxTitle.js";
 import Message, { SENDER_WIDTH } from "./Message.js";
 import Prompt from "./Prompt.js";
@@ -19,36 +19,11 @@ export default ({ conversation }: ConversationBoxProps) => {
         width: messagesBoxWidth,
         height: messagesBoxHeight,
     } = useElementDimensions();
-
-    const pages = React.useMemo(() => {
-        if (!messagesBoxRef.current) return [messages];
-        if (!messagesBoxWidth || !messagesBoxHeight) return [messages];
-
-        const pages: ConversationMessage[][] = [];
-        let page: ConversationMessage[] = [];
-        let pageHeight = 0;
-
-        // TODO: Handle messages that are longer than the box height by splitting them into multiple messages
-        for (let i = 0; i < messages.length; i++) {
-            const message = messages[i];
-            const messageWidth = SENDER_WIDTH + message.content.length;
-            const messageHeight = Math.ceil(messageWidth / messagesBoxWidth);
-
-            if (pageHeight + messageHeight > messagesBoxHeight) {
-                pages.push(page);
-                page = [];
-                pageHeight = 0;
-            }
-
-            page.push(message);
-            pageHeight += messageHeight;
-        }
-
-        if (page.length) {
-            pages.push(page);
-        }
-        return pages;
-    }, [messages, messagesBoxHeight, messagesBoxRef, messagesBoxWidth]);
+    const { pages, pageIndex, setPageIndex } = usePagedMessages(
+        messages,
+        Math.max(0, messagesBoxWidth - SENDER_WIDTH),
+        messagesBoxHeight
+    );
 
     const onSubmit = async (prompt: string) => {
         if (pending) return;
@@ -65,31 +40,43 @@ export default ({ conversation }: ConversationBoxProps) => {
         setPending(null);
     };
 
+    const paginationDisplay = React.useMemo(() => {
+        if (pages.length <= 1) return null;
+        return pages.map((_, i) => `${i === pageIndex ? "●" : "○"}`).join(" ");
+    }, [pageIndex, pages]);
+
     React.useEffect(() => {
-        const listener = conversation.onMessageAdded((message) => {
-            // We deep clone the message so that we can mutate it later (e.g. splitting the message when the message overflows the box)
-            setMessages((messages) => [...messages, structuredClone(message)]);
+        return conversation.onMessageAdded((message) => {
+            setMessages((messages) => [...messages, message]);
         });
-        return () => listener();
     }, [conversation]);
 
+    React.useEffect(() => {
+        setPageIndex();
+    }, [messages, setPageIndex]);
+
     return (
-        <Box borderStyle="round" flexGrow={1} flexDirection="column">
+        <Box
+            borderStyle="round"
+            flexGrow={1}
+            flexDirection="column"
+            paddingX={1}
+        >
             <BoxTitle title="Conversation" />
             <Box ref={messagesBoxRef} flexGrow={1} flexDirection="column">
                 {pages.at(-1)?.map((message) => (
                     <Message key={message.id} message={message} />
                 ))}
-                {pending && (
-                    <Message
-                        message={{
-                            role: "assistant",
-                            content: <Spinner />,
-                        }}
-                    />
-                )}
             </Box>
-            <Prompt onSubmit={onSubmit} />
+            <Box
+                width="100%"
+                justifyContent="center"
+                minHeight={1}
+                flexShrink={0}
+            >
+                <Text wrap="wrap">{paginationDisplay}</Text>
+            </Box>
+            <Prompt onSubmit={onSubmit} loading={!!pending} />
         </Box>
     );
 };

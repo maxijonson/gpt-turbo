@@ -139,6 +139,7 @@ export class Conversation {
         let responseMessage: string | null = null;
 
         if (this.config.dry) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             responseMessage =
                 this.messages[this.messages.length - 1]?.content ?? null;
         } else {

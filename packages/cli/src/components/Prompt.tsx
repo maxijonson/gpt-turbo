@@ -1,13 +1,15 @@
 import { getMessageSize } from "@maxijonson/gpt-turbo";
 import { Box, Text } from "ink";
+import Spinner from "ink-spinner";
 import TextInput from "ink-text-input";
 import React from "react";
 
 interface PromptProps {
     onSubmit: (prompt: string) => void;
+    loading?: boolean;
 }
 
-export default ({ onSubmit }: PromptProps) => {
+export default ({ onSubmit, loading = false }: PromptProps) => {
     const [prompt, setPrompt] = React.useState("");
 
     const handleSubmit = async () => {
@@ -21,10 +23,12 @@ export default ({ onSubmit }: PromptProps) => {
     return (
         <Box minHeight={3} flexShrink={0} borderStyle="single">
             <Box flexGrow={1}>
+                {loading && <Spinner />}
                 <TextInput
-                    value={prompt}
+                    value={loading ? "" : prompt}
+                    showCursor={!loading}
                     onChange={setPrompt}
-                    placeholder=" Prompt"
+                    placeholder={loading ? undefined : " Prompt"}
                     onSubmit={handleSubmit}
                 />
             </Box>

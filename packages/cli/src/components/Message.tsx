@@ -38,7 +38,7 @@ export default ({ message }: MessageProps) => {
             <Box width={SENDER_WIDTH}>
                 <Text bold>{sender}: </Text>
             </Box>
-            <Box flexGrow={1}>
+            <Box flexGrow={1} paddingRight={1}>
                 <Text>{message.content}</Text>
             </Box>
         </Box>
