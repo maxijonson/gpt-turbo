@@ -7,10 +7,12 @@ interface BoxTitleProps {
 
 export default ({ title }: BoxTitleProps) => {
     return (
-        <Box justifyContent="center">
-            <Text bold underline>
-                {title}
-            </Text>
+        <Box flexDirection="column">
+            <Box justifyContent="center">
+                <Text bold underline>
+                    {title}
+                </Text>
+            </Box>
         </Box>
     );
 };
