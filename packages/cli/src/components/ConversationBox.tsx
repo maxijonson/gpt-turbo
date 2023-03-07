@@ -5,7 +5,9 @@ import { useElementDimensions } from "../hooks/useElementDimensions.js";
 import usePagedMessages from "../hooks/usePagedMessages.js";
 import BoxTitle from "./BoxTitle.js";
 import Message, { SENDER_WIDTH } from "./Message.js";
+import { FOCUSID_CONVERSATION } from "../config/constants.js";
 import Prompt from "./Prompt.js";
+import useCustomFocus from "../hooks/useCustomFocus.js";
 
 interface ConversationBoxProps {
     conversation: Conversation;
@@ -24,7 +26,9 @@ export default ({ conversation }: ConversationBoxProps) => {
         Math.max(0, messagesBoxWidth - SENDER_WIDTH),
         messagesBoxHeight
     );
-    const [inputActive, setInputActive] = React.useState(true);
+    const { isFocused } = useCustomFocus({
+        id: FOCUSID_CONVERSATION,
+    });
 
     const onSubmit = React.useCallback(
         async (prompt: string) => {
@@ -51,12 +55,6 @@ export default ({ conversation }: ConversationBoxProps) => {
 
     const handleInput = React.useCallback(
         (_input: string, key: Key) => {
-            if (key.tab) {
-                setInputActive((inputActive) => !inputActive);
-            }
-
-            if (inputActive) return;
-
             if (key.leftArrow) {
                 setPageIndex((current) => current - 1);
             }
@@ -65,9 +63,9 @@ export default ({ conversation }: ConversationBoxProps) => {
                 setPageIndex((current) => current + 1);
             }
         },
-        [inputActive, setPageIndex]
+        [setPageIndex]
     );
-    useInput(handleInput);
+    useInput(handleInput, { isActive: isFocused });
 
     React.useEffect(() => {
         return conversation.onMessageAdded((message) => {
@@ -100,11 +98,7 @@ export default ({ conversation }: ConversationBoxProps) => {
             >
                 <Text wrap="wrap">{paginationDisplay}</Text>
             </Box>
-            <Prompt
-                onSubmit={onSubmit}
-                loading={!!pending}
-                focus={inputActive}
-            />
+            <Prompt onSubmit={onSubmit} loading={!!pending} />
         </Box>
     );
 };

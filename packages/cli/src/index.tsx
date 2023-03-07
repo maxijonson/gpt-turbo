@@ -5,8 +5,6 @@ import {
     GPTTURBO_CONTEXT,
     GPTTURBO_DRY,
     GPTTURBO_MODEL,
-    GPTTURBO_SHOWDEBUG,
-    GPTTURBO_SHOWUSAGE,
 } from "./config/env.js";
 import { ChatCompletionModel } from "@maxijonson/gpt-turbo";
 import yargs from "yargs";
@@ -44,39 +42,13 @@ const argv = yargs(hideBin(process.argv))
             alias: "c",
             default: GPTTURBO_CONTEXT,
         },
-        showUsage: {
-            type: "boolean",
-            description: "Show the usage information about the conversation.",
-            alias: "u",
-            default: GPTTURBO_SHOWUSAGE,
-        },
-        showDebug: {
-            type: "boolean",
-            description: "Show console debug messages.",
-            alias: "D",
-            default: GPTTURBO_SHOWDEBUG,
-        },
     })
     .parseSync();
 
-const {
-    apiKey = GPTTURBO_APIKEY!,
-    model,
-    dry,
-    context,
-    showUsage,
-    showDebug,
-} = argv;
+const { apiKey = GPTTURBO_APIKEY!, model, dry, context } = argv;
 
 render(
     <Providers>
-        <App
-            apiKey={apiKey}
-            model={model}
-            dry={dry}
-            context={context}
-            showUsage={showUsage}
-            showDebug={showDebug}
-        />
+        <App apiKey={apiKey} model={model} dry={dry} context={context} />
     </Providers>
 );

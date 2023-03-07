@@ -1,4 +1,5 @@
 import React from "react";
+import AppFocusProvider from "./AppFocusProvider.js";
 import DebugProvider from "./DebugProvider.js";
 
 interface ProvidersProps {
@@ -6,5 +7,9 @@ interface ProvidersProps {
 }
 
 export default ({ children }: ProvidersProps) => {
-    return <DebugProvider>{children}</DebugProvider>;
+    return (
+        <DebugProvider>
+            <AppFocusProvider>{children}</AppFocusProvider>
+        </DebugProvider>
+    );
 };

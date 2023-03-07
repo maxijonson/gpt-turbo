@@ -1,6 +1,8 @@
 import { ChatCompletionModel, Conversation } from "@maxijonson/gpt-turbo";
-import { Box } from "ink";
+import { Box, useInput } from "ink";
 import React from "react";
+import { FOCUSID_APP } from "../config/constants.js";
+import useCustomFocus from "../hooks/useCustomFocus.js";
 import useStdoutDimensions from "../hooks/useStdoutDimensions.js";
 import CommandsBox from "./CommandsBox.js";
 import ConversationBox from "./ConversationBox.js";
@@ -13,20 +15,9 @@ interface AppProps {
     model?: ChatCompletionModel;
     dry?: boolean;
     context?: string;
-
-    // CLI Props
-    showUsage?: boolean;
-    showDebug?: boolean;
 }
 
-export default ({
-    showUsage,
-    showDebug,
-    apiKey,
-    context,
-    dry,
-    model,
-}: AppProps) => {
+export default ({ apiKey, context, dry, model }: AppProps) => {
     const conversation = React.useMemo(
         () =>
             new Conversation({
@@ -38,6 +29,21 @@ export default ({
         [apiKey, context, dry, model]
     );
     const [cols, rows] = useStdoutDimensions();
+    const { isFocused } = useCustomFocus({
+        id: FOCUSID_APP,
+    });
+    const [showDebug, setShowDebug] = React.useState(false);
+    const [showUsage, setShowUsage] = React.useState(true);
+
+    const handleInput = React.useCallback((input: string) => {
+        if (input === "d") {
+            setShowDebug((showDebug) => !showDebug);
+        }
+        if (input === "u") {
+            setShowUsage((showUsage) => !showUsage);
+        }
+    }, []);
+    useInput(handleInput, { isActive: isFocused });
 
     return (
         <Box width={cols} height={rows}>
