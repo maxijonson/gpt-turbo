@@ -1,5 +1,5 @@
 import { Conversation, ConversationMessage } from "@maxijonson/gpt-turbo";
-import { Box, Text } from "ink";
+import { Box, Key, Text, useInput } from "ink";
 import React from "react";
 import { useElementDimensions } from "../hooks/useElementDimensions.js";
 import usePagedMessages from "../hooks/usePagedMessages.js";
@@ -24,26 +24,50 @@ export default ({ conversation }: ConversationBoxProps) => {
         Math.max(0, messagesBoxWidth - SENDER_WIDTH),
         messagesBoxHeight
     );
+    const [inputActive, setInputActive] = React.useState(true);
 
-    const onSubmit = async (prompt: string) => {
-        if (pending) return;
-        setPending(prompt);
-        try {
-            await conversation.prompt(prompt);
-        } catch (e) {
-            if (e instanceof Error) {
-                console.error(e.message);
-            } else {
-                console.error("An unknown error occurred");
+    const onSubmit = React.useCallback(
+        async (prompt: string) => {
+            if (pending) return;
+            setPending(prompt);
+            try {
+                await conversation.prompt(prompt);
+            } catch (e) {
+                if (e instanceof Error) {
+                    console.error(e.message);
+                } else {
+                    console.error("An unknown error occurred");
+                }
             }
-        }
-        setPending(null);
-    };
+            setPending(null);
+        },
+        [conversation, pending]
+    );
 
     const paginationDisplay = React.useMemo(() => {
         if (pages.length <= 1) return null;
         return pages.map((_, i) => `${i === pageIndex ? "●" : "○"}`).join(" ");
     }, [pageIndex, pages]);
+
+    const handleInput = React.useCallback(
+        (_input: string, key: Key) => {
+            if (key.tab) {
+                setInputActive((inputActive) => !inputActive);
+            }
+
+            if (inputActive) return;
+
+            if (key.leftArrow) {
+                setPageIndex((current) => current - 1);
+            }
+
+            if (key.rightArrow) {
+                setPageIndex((current) => current + 1);
+            }
+        },
+        [inputActive, setPageIndex]
+    );
+    useInput(handleInput);
 
     React.useEffect(() => {
         return conversation.onMessageAdded((message) => {
@@ -64,7 +88,7 @@ export default ({ conversation }: ConversationBoxProps) => {
         >
             <BoxTitle title="Conversation" />
             <Box ref={messagesBoxRef} flexGrow={1} flexDirection="column">
-                {pages.at(-1)?.map((message) => (
+                {pages.at(pageIndex)?.map((message) => (
                     <Message key={message.id} message={message} />
                 ))}
             </Box>
@@ -76,7 +100,11 @@ export default ({ conversation }: ConversationBoxProps) => {
             >
                 <Text wrap="wrap">{paginationDisplay}</Text>
             </Box>
-            <Prompt onSubmit={onSubmit} loading={!!pending} />
+            <Prompt
+                onSubmit={onSubmit}
+                loading={!!pending}
+                focus={inputActive}
+            />
         </Box>
     );
 };

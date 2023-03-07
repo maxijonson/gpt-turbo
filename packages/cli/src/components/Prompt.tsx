@@ -7,9 +7,10 @@ import React from "react";
 interface PromptProps {
     onSubmit: (prompt: string) => void;
     loading?: boolean;
+    focus?: boolean;
 }
 
-export default ({ onSubmit, loading = false }: PromptProps) => {
+export default ({ onSubmit, loading = false, focus }: PromptProps) => {
     const [prompt, setPrompt] = React.useState("");
 
     const handleSubmit = async () => {
@@ -30,6 +31,7 @@ export default ({ onSubmit, loading = false }: PromptProps) => {
                     onChange={setPrompt}
                     placeholder={loading ? undefined : " Prompt"}
                     onSubmit={handleSubmit}
+                    focus={focus}
                 />
             </Box>
             <Box flexShrink={0} width={tokensStr.length + 2}>

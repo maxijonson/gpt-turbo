@@ -43,8 +43,17 @@ export default (
     }, [messages, messagesBoxHeight, messagesBoxWidth]);
 
     const handleSetPageIndex = React.useCallback(
-        (index = pages.length - 1) =>
-            setPageIndex(Math.max(0, Math.min(index, pages.length - 1))),
+        (nextIndex: Parameters<typeof setPageIndex>[0] = pages.length - 1) => {
+            if (typeof nextIndex === "number") {
+                setPageIndex(
+                    Math.max(0, Math.min(nextIndex, pages.length - 1))
+                );
+            } else {
+                setPageIndex((current) =>
+                    Math.max(0, Math.min(nextIndex(current), pages.length - 1))
+                );
+            }
+        },
         [pages.length]
     );
 
