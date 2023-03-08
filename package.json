@@ -1,9 +1,13 @@
 {
   "name": "root",
   "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "clean": "lerna run clean",
+    "dev": "lerna run build --scope \"@maxijonson/gpt-turbo\" && lerna watch --scope \"@maxijonson/gpt-turbo\" --include-dependencies -- lerna run build --scope=\"@maxijonson/gpt-turbo\"",
     "build": "lerna run build",
-    "release": "npm run build && lerna publish",
-    "dev": "lerna run build --scope \"@maxijonson/gpt-turbo\" && lerna watch --scope \"@maxijonson/gpt-turbo\" --include-dependencies -- lerna run build --scope=\"@maxijonson/gpt-turbo\""
+    "lint:strict": "lerna run lint:strict",
+    "lint:fix": "lerna run lint:fix",
+    "release": "npm run build && lerna publish"
   },
   "workspaces": [
     "packages/*"
