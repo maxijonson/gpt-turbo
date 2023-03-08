@@ -18,6 +18,10 @@ export default ({ onSubmit, loading = false }: PromptProps) => {
         id: FOCUSID_PROMPT,
     });
 
+    const handleChange = React.useCallback((input: string) => {
+        setPrompt(input.replace(/\r/g, "\n"));
+    }, []);
+
     const handleSubmit = async () => {
         if (!prompt) return;
         setPrompt("");
@@ -33,7 +37,7 @@ export default ({ onSubmit, loading = false }: PromptProps) => {
                 <TextInput
                     value={loading ? "" : prompt}
                     showCursor={!loading}
-                    onChange={setPrompt}
+                    onChange={handleChange}
                     placeholder={loading ? undefined : " Prompt"}
                     onSubmit={handleSubmit}
                     focus={isFocused}
