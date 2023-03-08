@@ -1,0 +1,33 @@
+name: Documentation Report
+description: Found a typo or something that could be improved in the documentation? Let us know!
+title: "[Docs]: "
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thanks for taking the time to fill out this documentation report!
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      description: Which part of GPT Turbo is affected?
+      multiple: true
+      options:
+        - "Monorepo"
+        - "Library (@maxijonson/gpt-turbo)"
+        - "CLI (@maxijonson/gpt-turbo-cli)"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe what you found
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggestion
+      description: How could we improve the documentation?

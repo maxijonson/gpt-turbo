@@ -1,0 +1,53 @@
+name: Bug Report
+description: File a bug report about the library or one of its implementations
+title: "[Bug]: "
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thanks for taking the time to fill out this bug report!
+        Before you submit, please make sure to check out the [contributing guidelines on bug reporting](https://github.com/maxijonson/gpt-turbo/blob/master/CONTRIBUTING.md#reporting-bugs) and make sure that you are using the latest version.
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      description: Which part of GPT Turbo is affected?
+      multiple: true
+      options:
+        - 'Library (@maxijonson/gpt-turbo)'
+        - 'CLI (@maxijonson/gpt-turbo-cli)'
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the bug
+    validations:
+      required: true
+  - type: input
+    id: codesandbox
+    attributes:
+      label: CodeSandbox link
+      description: Include a link to a [CodeSandbox](https://codesandbox.io/) that reproduces the bug.
+  - type: dropdown
+    id: fix
+    attributes:
+      label: Known fix
+      description: Do you know of a fix for this issue?
+      options:
+        - 'Yes'
+        - 'No'
+  - type: dropdown
+    id: participate
+    attributes:
+      label: Participation
+      description: Are you willing to participate in fixing this bug? (Submit a PR)
+      options:
+        - 'Yes'
+        - 'No'
+  - type: textarea
+    id: possibleFix
+    attributes:
+      label: Possible fix

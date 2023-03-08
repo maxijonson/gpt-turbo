@@ -1,0 +1,42 @@
+name: Feature Request
+description: Have an idea for a new feature? Let us know!
+title: "[Enchancement]: "
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thanks for taking the time to fill out this feature request!
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      description: What kind of feature are you requesting?
+      options:
+        - "New feature"
+        - "Improvement on an existing feature"
+        - "New implementation"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the feature you are requesting
+    validations:
+      required: true
+  - type: textarea
+    id: benefit
+    attributes:
+      label: Benefit
+      description: How would this feature benefit the project?
+    validations:
+      required: true
+  - type: dropdown
+    id: participate
+    attributes:
+      label: Participation
+      description: Are you willing to participate in implementing this feature? (Submit a PR)
+      options:
+        - "Yes"
+        - "No"
