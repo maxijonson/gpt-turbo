@@ -1,4 +1,4 @@
-import { ChatCompletionModel, Conversation } from "@maxijonson/gpt-turbo";
+import { ChatCompletionModel, Conversation } from "gpt-turbo";
 import { Box, useInput } from "ink";
 import React from "react";
 import { FOCUSID_APP } from "../config/constants.js";

@@ -2,7 +2,7 @@
 
 OpenAI's gpt-3.5-turbo model is an API that allows you to generate conversational text from a prompt just like the [ChatGPT Plus subscription](https://openai.com/blog/chatgpt-plus). The difference between ChatGPT Plus and the this API is mainly the price. At the time of writing, ChatGPT Plus is a flat US$20 per month, while its API counterpart is US$0.002 per 1K [tokens](https://platform.openai.com/docs/introduction/tokens). This means that if you don't plan on using more than 10M tokens per month (and the limitations listed below), you could potentially save money by using the gpt-3.5-turbo model API instead of the ChatGPT Plus subscription. 
 
-This monorepo contains implementations of the gpt-3.5-turbo model API in different JavaScript environments. The main implementation is the `@maxijonson/gpt-turbo` library, which is used by the other implementations and can be used in your own projects. 
+This monorepo contains implementations of the gpt-3.5-turbo model API in different JavaScript environments. The main implementation is the `gpt-turbo` library, which is used by the other implementations and can be used in your own projects. 
 
 ## Disclaimer
 

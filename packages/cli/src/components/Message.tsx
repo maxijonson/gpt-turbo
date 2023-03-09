@@ -1,4 +1,4 @@
-import { ConversationMessage } from "@maxijonson/gpt-turbo";
+import { ConversationMessage } from "gpt-turbo";
 import { Box, Text } from "ink";
 import React from "react";
 

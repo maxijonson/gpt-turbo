@@ -1,4 +1,4 @@
-import { Conversation, ConversationMessage } from "@maxijonson/gpt-turbo";
+import { Conversation, ConversationMessage } from "gpt-turbo";
 import { Box, Key, Text, useInput } from "ink";
 import React from "react";
 import { useElementDimensions } from "../hooks/useElementDimensions.js";

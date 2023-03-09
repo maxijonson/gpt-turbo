@@ -2,8 +2,8 @@
   "name": "root",
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "clean": "lerna run clean",
-    "dev": "lerna run build --scope \"@maxijonson/gpt-turbo\" && lerna watch --scope \"@maxijonson/gpt-turbo\" --include-dependencies -- lerna run build --scope=\"@maxijonson/gpt-turbo\"",
+    "clean": "lerna run clean --yes && rm -rf node_modules",
+    "dev": "lerna run build --scope \"gpt-turbo\" && lerna watch --scope \"gpt-turbo\" --include-dependencies -- lerna run build --scope=\"gpt-turbo\"",
     "build": "lerna run build",
     "lint:strict": "lerna run lint:strict",
     "lint:fix": "lerna run lint:fix",

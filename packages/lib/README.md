@@ -5,7 +5,7 @@ A library for interacting with OpenAI's Chat Completion API. It is essentially a
 ## Installation
 
 ```bash
-npm install @maxijonson/gpt-turbo
+npm install gpt-turbo
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ npm install @maxijonson/gpt-turbo
 If you want to jump right in and start a conversation with the GPT model, this is the most straightforward way to use this library.
 
 ```ts
-import { Conversation } from '@maxijonson/gpt-turbo';
+import { Conversation } from 'gpt-turbo';
 
 (async () => {
     const conversation = new Conversation({

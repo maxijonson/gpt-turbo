@@ -15,8 +15,8 @@ body:
       multiple: true
       options:
         - "Monorepo"
-        - "Library (@maxijonson/gpt-turbo)"
-        - "CLI (@maxijonson/gpt-turbo-cli)"
+        - "Library (gpt-turbo)"
+        - "CLI (gpt-turbo-cli)"
     validations:
       required: true
   - type: textarea

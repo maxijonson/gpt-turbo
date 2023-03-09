@@ -1,7 +1,7 @@
 {
-    "name": "@maxijonson/gpt-turbo-cli",
+    "name": "gpt-turbo-cli",
     "version": "1.2.1",
-    "description": "A CLI that interacts with the @maxijonson/gpt-turbo library",
+    "description": "A CLI that interacts with the gpt-turbo library",
     "main": "dist/index.js",
     "type": "module",
     "scripts": {
@@ -45,7 +45,7 @@
         "access": "public"
     },
     "dependencies": {
-        "@maxijonson/gpt-turbo": "^1.2.1",
+        "gpt-turbo": "^1.2.1",
         "dotenv": "^16.0.3",
         "ink": "^4.0.0",
         "ink-spinner": "^5.0.0",

@@ -1,11 +1,11 @@
 # GPT Turbo - CLI
 
-A CLI that interacts with the @maxijonson/gpt-turbo library
+A CLI that interacts with the gpt-turbo library
 
 ## Installation
 
 ```bash
-npm install -g @maxijonson/gpt-turbo-cli
+npm install -g gpt-turbo-cli
 ```
 
 ## Usage

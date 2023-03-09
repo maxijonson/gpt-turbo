@@ -6,7 +6,7 @@ import {
     GPTTURBO_DRY,
     GPTTURBO_MODEL,
 } from "./config/env.js";
-import { ChatCompletionModel } from "@maxijonson/gpt-turbo";
+import { ChatCompletionModel } from "gpt-turbo";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import React from "react";

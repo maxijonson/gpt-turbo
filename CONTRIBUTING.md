@@ -47,9 +47,9 @@ This project and everyone participating in it is governed by the [GPT Turbo Code
 On top of the project's dependencies and devDependencies documentation, here are some useful links:
 
 - [GPT Turbo Library Documentation](./packages/lib/README.md)
-- [GPT Turbo Library on NPM](https://www.npmjs.com/package/@maxijonson/gpt-turbo)
+- [GPT Turbo Library on NPM](https://www.npmjs.com/package/gpt-turbo)
 - [GPT Turbo CLI Documentation](./packages/cli/README.md)
-- [GPT Turbo CLI on NPM](https://www.npmjs.com/package/@maxijonson/gpt-turbo-cli)
+- [GPT Turbo CLI on NPM](https://www.npmjs.com/package/gpt-turbo-cli)
 
 ## Testing
 
