@@ -8,11 +8,6 @@ import { ChatCompletionModel } from "./utils/types.js";
 
 export interface ConversationConfigParameters extends ConfigurationParameters {
     /**
-     * OpenAI API key
-     */
-    apiKey: string;
-
-    /**
      * Chat completion model to use.
      *
      * @default "gpt-3.5-turbo"
@@ -35,14 +30,12 @@ export interface ConversationConfigParameters extends ConfigurationParameters {
 }
 
 export class ConversationConfig extends Configuration {
-    public apiKey: ConversationConfigParameters["apiKey"];
-
     private _model: Exclude<ConversationConfigParameters["model"], undefined>;
     private _context: Exclude<
         ConversationConfigParameters["context"],
         undefined
     >;
-    private _dry: Exclude<ConversationConfigParameters["dry"], undefined>;
+    private _dry!: Exclude<ConversationConfigParameters["dry"], undefined>;
 
     constructor({
         model = DEFAULT_MODEL,
@@ -51,10 +44,9 @@ export class ConversationConfig extends Configuration {
         ...configParameters
     }: ConversationConfigParameters) {
         super(configParameters);
-        this.apiKey = configParameters.apiKey;
         this._model = model;
         this._context = context.trim();
-        this._dry = dry;
+        this.setDry(dry);
     }
 
     public get model() {
@@ -73,11 +65,21 @@ export class ConversationConfig extends Configuration {
         this._context = context.trim();
     }
 
+    private setDry(dry: boolean) {
+        this._dry = dry;
+        if (!dry && !this.apiKey) {
+            console.warn(
+                "[gpt-turbo] No OpenAI API key was provided. Conversation will run on dry mode. If this was intentional, you should explicitly set the 'dry' parameter to 'true'."
+            );
+            this._dry = true;
+        }
+    }
+
     public get dry() {
         return this._dry;
     }
 
     public set dry(dry: boolean) {
-        this._dry = dry;
+        this.setDry(dry);
     }
 }

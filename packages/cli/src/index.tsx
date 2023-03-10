@@ -20,7 +20,7 @@ const argv = yargs(hideBin(process.argv))
             type: "string",
             description: "Your OpenAI API key.",
             alias: "k",
-            demandOption: !GPTTURBO_APIKEY,
+            default: GPTTURBO_APIKEY,
         },
         dry: {
             type: "boolean",
