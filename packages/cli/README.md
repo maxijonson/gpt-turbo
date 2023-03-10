@@ -2,6 +2,9 @@
 
 A CLI that interacts with the gpt-turbo library
 
+<!-- Demo is here: ./demo.gif -->
+![Demo](./demo.gif)
+
 ## Installation
 
 ```bash
