@@ -1,6 +1,6 @@
 {
     "name": "gpt-turbo-cli",
-    "version": "1.2.3",
+    "version": "1.2.4",
     "description": "A CLI that interacts with the gpt-turbo library",
     "main": "dist/index.js",
     "type": "module",
