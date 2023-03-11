@@ -1,5 +1,6 @@
 import React from "react";
 import AppFocusProvider from "./AppFocusProvider.js";
+import ConfigProvider from "./ConfigProvider.js";
 import DebugProvider from "./DebugProvider.js";
 
 interface ProvidersProps {
@@ -9,7 +10,9 @@ interface ProvidersProps {
 export default ({ children }: ProvidersProps) => {
     return (
         <DebugProvider>
-            <AppFocusProvider>{children}</AppFocusProvider>
+            <ConfigProvider>
+                <AppFocusProvider>{children}</AppFocusProvider>
+            </ConfigProvider>
         </DebugProvider>
     );
 };

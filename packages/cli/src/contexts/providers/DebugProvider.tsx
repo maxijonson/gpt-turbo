@@ -29,7 +29,7 @@ export default ({ children }: DebugProviderProps) => {
         [logs, log]
     );
 
-    React.useLayoutEffect(() => {
+    React.useEffect(() => {
         const originalLog = console.log;
         const originalInfo = console.info;
         const originalWarn = console.warn;

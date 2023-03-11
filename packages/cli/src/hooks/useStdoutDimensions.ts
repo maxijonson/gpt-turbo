@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useStdout } from "ink";
 
 export default (): [number, number] => {
@@ -8,7 +8,7 @@ export default (): [number, number] => {
         stdout.rows,
     ]);
 
-    useEffect(() => {
+    React.useLayoutEffect(() => {
         const handler = () => setDimensions([stdout.columns, stdout.rows]);
         stdout.on("resize", handler);
         return () => {
