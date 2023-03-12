@@ -1,15 +1,16 @@
 import { ConversationMessage } from "gpt-turbo";
 import React from "react";
+import getMessageHeight from "../utils/getMessageHeight.js";
 
 export default (
     messages: ConversationMessage[],
-    messagesBoxWidth: number,
-    messagesBoxHeight: number
+    maxWidth: number,
+    maxHeight: number
 ) => {
     const [pageIndex, setPageIndex] = React.useState(0);
 
     const pages = React.useMemo(() => {
-        if (!messagesBoxWidth || !messagesBoxHeight) {
+        if (!maxWidth || !maxHeight) {
             return [];
         }
 
@@ -17,30 +18,31 @@ export default (
         let page: ConversationMessage[] = [];
         let pageHeight = 0;
 
+        const addPage = () => {
+            if (!page.length) return;
+            pages.push(page);
+            page = [];
+            pageHeight = 0;
+        };
+
         const msgs = messages.slice();
         for (let i = 0; i < messages.length; i++) {
             const message = msgs[i];
-            const messageWidth = message.content.length;
-            const messageHeight = Math.ceil(messageWidth / messagesBoxWidth);
-            const isOverflowing =
-                pageHeight + messageHeight > messagesBoxHeight;
+            const messageHeight = getMessageHeight(message.content, maxWidth);
+            const isOverflowing = pageHeight + messageHeight > maxHeight;
 
-            if (isOverflowing && page.length) {
-                pages.push(page);
-                page = [];
-                pageHeight = 0;
+            if (isOverflowing) {
+                addPage();
             }
 
             page.push(message);
             pageHeight += messageHeight;
         }
 
-        if (page.length) {
-            pages.push(page);
-        }
+        addPage();
 
         return pages;
-    }, [messages, messagesBoxHeight, messagesBoxWidth]);
+    }, [messages, maxHeight, maxWidth]);
 
     const handleSetPageIndex = React.useCallback(
         (nextIndex: Parameters<typeof setPageIndex>[0] = pages.length - 1) => {
