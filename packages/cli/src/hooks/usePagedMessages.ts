@@ -1,6 +1,7 @@
 import { ConversationMessage } from "gpt-turbo";
 import React from "react";
 import getMessageHeight from "../utils/getMessageHeight.js";
+import splitMessage from "../utils/splitMessage.js";
 
 export default (
     messages: ConversationMessage[],
@@ -25,11 +26,36 @@ export default (
             pageHeight = 0;
         };
 
+        // TODO: getMessageHeight is pretty expensive and when a message is huge, it can get even more expensive. Maybe find some ways to optimize this or memoize some message heights.
         const msgs = messages.slice();
-        for (let i = 0; i < messages.length; i++) {
+        for (let i = 0; i < msgs.length; i++) {
             const message = msgs[i];
             const messageHeight = getMessageHeight(message.content, maxWidth);
+            const isHuge = messageHeight > maxHeight;
             const isOverflowing = pageHeight + messageHeight > maxHeight;
+
+            // FIXME: Not yet perfect. May overflow temporarily until the window is resized or a message is added.
+            if (isHuge) {
+                const remainingHeight = maxHeight - pageHeight;
+                const [firstMessageContent, secondMessageContent] =
+                    splitMessage(message.content, maxWidth, remainingHeight);
+
+                if (firstMessageContent.length && secondMessageContent.length) {
+                    msgs[i] = {
+                        ...message,
+                        content: firstMessageContent,
+                    };
+
+                    msgs.splice(i + 1, 0, {
+                        ...message,
+                        id: message.id + "-",
+                        content: secondMessageContent,
+                    });
+
+                    i--;
+                    continue;
+                }
+            }
 
             if (isOverflowing) {
                 addPage();
