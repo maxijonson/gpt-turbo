@@ -17,6 +17,7 @@ interface AppProps {
     model?: ChatCompletionModel;
     dry?: boolean;
     context?: string;
+    disableModeration?: boolean;
 
     // CLI Props
     showUsage?: boolean;
@@ -29,13 +30,15 @@ export default (props: AppProps) => {
     );
     const {
         apiKey,
-        context,
         dry,
         model,
+        context,
+        disableModeration,
         setApiKey,
-        setContext,
         setDry,
         setModel,
+        setContext,
+        setDisableModeration,
     } = useConfig();
 
     const [cols, rows] = useStdoutDimensions();
@@ -60,20 +63,25 @@ export default (props: AppProps) => {
         if (props.model) setModel(props.model);
         if (props.dry !== undefined) setDry(props.dry);
         if (props.context) setContext(props.context);
+        if (props.disableModeration !== undefined) {
+            setDisableModeration(props.disableModeration);
+        }
 
         if (props.showUsage !== undefined) setShowUsage(props.showUsage);
         if (props.showDebug !== undefined) setShowDebug(props.showDebug);
     }, [
         props.apiKey,
-        props.context,
         props.dry,
         props.model,
+        props.context,
+        props.disableModeration,
         props.showDebug,
         props.showUsage,
         setApiKey,
-        setContext,
         setDry,
         setModel,
+        setContext,
+        setDisableModeration,
     ]);
 
     React.useEffect(() => {
@@ -84,9 +92,10 @@ export default (props: AppProps) => {
                 model,
                 apiKey,
                 context,
+                disableModeration,
             })
         );
-    }, [apiKey, context, dry, model]);
+    }, [apiKey, context, disableModeration, dry, model]);
 
     if (!apiKey && !dry) {
         return <ApiKeyWarning />;

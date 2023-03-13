@@ -26,3 +26,5 @@ export type ConversationMessage = Omit<ChatCompletionRequestMessage, "name"> & {
 };
 
 export type AddMessageListener = (message: ConversationMessage) => void;
+
+export type RemoveMessageListener = (message: ConversationMessage) => void;

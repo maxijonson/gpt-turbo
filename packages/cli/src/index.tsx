@@ -7,10 +7,12 @@ import {
     GPTTURBO_DRY,
     GPTTURBO_MODEL,
     GPTTURBO_SHOWUSAGE,
+    GPTTURBO_DISABLEMODERATION,
 } from "./config/env.js";
 import {
     ChatCompletionModel,
     DEFAULT_CONTEXT,
+    DEFAULT_DISABLEMODERATION,
     DEFAULT_DRY,
     DEFAULT_MODEL,
 } from "gpt-turbo";
@@ -52,6 +54,13 @@ const argv = yargs(hideBin(process.argv))
             alias: "c",
             default: GPTTURBO_CONTEXT ?? DEFAULT_CONTEXT,
         },
+        disableModeration: {
+            type: "boolean",
+            description:
+                "Disable message moderation. When left enabled, if 'dry' is true and 'apiKey' is specified, message will still be moderated, since the Moderation API is free.",
+            alias: "M",
+            default: GPTTURBO_DISABLEMODERATION ?? DEFAULT_DISABLEMODERATION,
+        },
         showUsage: {
             type: "boolean",
             description: "Initially show the usage box.",
@@ -67,7 +76,8 @@ const argv = yargs(hideBin(process.argv))
     })
     .parseSync();
 
-const { apiKey, model, dry, context, showUsage, showDebug } = argv;
+const { apiKey, model, dry, context, disableModeration, showUsage, showDebug } =
+    argv;
 
 render(
     <Providers>
@@ -76,6 +86,7 @@ render(
             model={model}
             dry={dry}
             context={context}
+            disableModeration={disableModeration}
             showUsage={showUsage}
             showDebug={showDebug}
         />

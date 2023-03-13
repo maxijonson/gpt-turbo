@@ -1,4 +1,4 @@
-import { Conversation, ConversationMessage } from "gpt-turbo";
+import { Conversation, ConversationMessage, createMessage } from "gpt-turbo";
 import { Box, Key, Text, useInput } from "ink";
 import React from "react";
 import { useElementDimensions } from "../hooks/useElementDimensions.js";
@@ -14,38 +14,59 @@ interface ConversationBoxProps {
 }
 
 export default ({ conversation }: ConversationBoxProps) => {
-    const [pending, setPending] = React.useState<string | null>(null);
+    const [error, setError] = React.useState<string | null>(null);
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [pendingMessage, setPendingMessage] = React.useState<string | null>(
+        null
+    );
     const [messages, setMessages] = React.useState<ConversationMessage[]>([]);
+
+    const pageableMessages = React.useMemo(() => {
+        const baseMessages = messages.slice();
+        if (pendingMessage) {
+            baseMessages.push(createMessage(pendingMessage, "user"));
+        }
+        if (error) {
+            baseMessages.push(createMessage(error, "system"));
+        }
+        return baseMessages;
+    }, [error, messages, pendingMessage]);
+
     const {
         ref: messagesBoxRef,
         width: messagesBoxWidth,
         height: messagesBoxHeight,
     } = useElementDimensions();
-    const { pages, pageIndex, setPageIndex } = usePagedMessages(
-        messages,
-        Math.max(0, messagesBoxWidth - SENDER_WIDTH),
-        messagesBoxHeight
-    );
     const { isFocused } = useCustomFocus({
         id: FOCUSID_CONVERSATION,
     });
+    const { pages, pageIndex, setPageIndex } = usePagedMessages(
+        pageableMessages,
+        Math.max(0, messagesBoxWidth - SENDER_WIDTH),
+        messagesBoxHeight
+    );
 
     const onSubmit = React.useCallback(
         async (prompt: string) => {
-            if (pending) return;
-            setPending(prompt);
+            if (pendingMessage) return;
+            setError(null);
+            setPendingMessage(prompt);
+            setIsLoading(true);
             try {
                 await conversation.prompt(prompt);
             } catch (e) {
                 if (e instanceof Error) {
                     console.error(e.message);
+                    setError(e.message);
                 } else {
                     console.error("An unknown error occurred");
+                    setError("An unknown error occurred");
                 }
             }
-            setPending(null);
+            setPendingMessage(null);
+            setIsLoading(false);
         },
-        [conversation, pending]
+        [conversation, pendingMessage]
     );
 
     const paginationDisplay = React.useMemo(() => {
@@ -69,7 +90,16 @@ export default ({ conversation }: ConversationBoxProps) => {
 
     React.useEffect(() => {
         return conversation.onMessageAdded((message) => {
+            setPendingMessage(null);
             setMessages((messages) => [...messages, message]);
+        });
+    }, [conversation]);
+
+    React.useEffect(() => {
+        return conversation.onMessageRemoved((message) => {
+            setMessages((messages) =>
+                messages.filter((m) => m.id !== message.id)
+            );
         });
     }, [conversation]);
 
@@ -98,7 +128,7 @@ export default ({ conversation }: ConversationBoxProps) => {
             >
                 <Text wrap="wrap">{paginationDisplay}</Text>
             </Box>
-            <Prompt onSubmit={onSubmit} loading={!!pending} />
+            <Prompt onSubmit={onSubmit} loading={isLoading} />
         </Box>
     );
 };

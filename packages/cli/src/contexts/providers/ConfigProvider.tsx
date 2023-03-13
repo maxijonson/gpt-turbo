@@ -1,4 +1,10 @@
-import { ChatCompletionModel } from "gpt-turbo";
+import {
+    ChatCompletionModel,
+    DEFAULT_CONTEXT,
+    DEFAULT_DISABLEMODERATION,
+    DEFAULT_DRY,
+    DEFAULT_MODEL,
+} from "gpt-turbo";
 import React from "react";
 import { ConfigContext, ConfigContextValue } from "../ConfigContext.js";
 
@@ -9,9 +15,12 @@ interface ConfigProviderProps {
 export default ({ children }: ConfigProviderProps) => {
     const [apiKey, setApiKey] = React.useState("");
     const [model, setModel] =
-        React.useState<ChatCompletionModel>("gpt-3.5-turbo");
-    const [dry, setDry] = React.useState(false);
-    const [context, setContext] = React.useState("");
+        React.useState<ChatCompletionModel>(DEFAULT_MODEL);
+    const [dry, setDry] = React.useState<boolean>(DEFAULT_DRY);
+    const [context, setContext] = React.useState<string>(DEFAULT_CONTEXT);
+    const [disableModeration, setDisableModeration] = React.useState<boolean>(
+        DEFAULT_DISABLEMODERATION
+    );
 
     const providerValue = React.useMemo<ConfigContextValue>(
         () => ({
@@ -19,12 +28,14 @@ export default ({ children }: ConfigProviderProps) => {
             model,
             dry,
             context,
+            disableModeration,
             setApiKey,
             setModel,
             setDry,
             setContext,
+            setDisableModeration,
         }),
-        [apiKey, context, dry, model]
+        [apiKey, context, disableModeration, dry, model]
     );
 
     return (

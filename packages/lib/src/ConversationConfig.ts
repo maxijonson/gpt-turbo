@@ -1,5 +1,6 @@
 import {
     DEFAULT_CONTEXT,
+    DEFAULT_DISABLEMODERATION,
     DEFAULT_DRY,
     DEFAULT_MODEL,
 } from "./config/constants.js";
@@ -27,6 +28,15 @@ export interface ConversationConfigParameters extends ConfigurationParameters {
      * @default false
      */
     dry?: boolean;
+
+    /**
+     * By default, messages are checked for violations of the OpenAI Community Guidelines. Set this to true to disable this check.
+     *
+     * **Note:** This is not recommended, as it could result in account suspension. Additionally, [OpenAI's Moderation API](https://platform.openai.com/docs/guides/moderation) is free to use.
+     *
+     * @default false
+     */
+    disableModeration?: boolean;
 }
 
 export class ConversationConfig extends Configuration {
@@ -36,16 +46,22 @@ export class ConversationConfig extends Configuration {
         undefined
     >;
     private _dry!: Exclude<ConversationConfigParameters["dry"], undefined>;
+    private _disableModeration: Exclude<
+        ConversationConfigParameters["disableModeration"],
+        undefined
+    >;
 
     constructor({
         model = DEFAULT_MODEL,
         context = DEFAULT_CONTEXT,
         dry = DEFAULT_DRY,
+        disableModeration = DEFAULT_DISABLEMODERATION,
         ...configParameters
     }: ConversationConfigParameters) {
         super(configParameters);
         this._model = model;
         this._context = context.trim();
+        this._disableModeration = disableModeration;
         this.setDry(dry);
     }
 
@@ -81,5 +97,13 @@ export class ConversationConfig extends Configuration {
 
     public set dry(dry: boolean) {
         this.setDry(dry);
+    }
+
+    public get disableModeration() {
+        return this._disableModeration;
+    }
+
+    public set disableModeration(disableModeration: boolean) {
+        this._disableModeration = disableModeration;
     }
 }

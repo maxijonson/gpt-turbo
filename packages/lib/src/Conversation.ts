@@ -2,18 +2,16 @@ import {
     ConversationConfig,
     ConversationConfigParameters,
 } from "./ConversationConfig.js";
-import {
-    OpenAIApi,
-    CreateChatCompletionRequest,
-    ChatCompletionRequestMessageRoleEnum,
-} from "openai";
-import { v4 as uuid } from "uuid";
+import { OpenAIApi, CreateChatCompletionRequest } from "openai";
 import {
     getMessageSize,
     getMessageCost,
     ConversationMessage,
     AddMessageListener,
+    RemoveMessageListener,
+    createMessage,
 } from "./utils/index.js";
+import { ModerationException } from "./exceptions/ModerationException.js";
 
 type ChatCompletionRequestOptions = Omit<
     CreateChatCompletionRequest,
@@ -24,6 +22,7 @@ export class Conversation {
     private openai: OpenAIApi;
     private messages: ConversationMessage[] = [];
     private addMessageListeners: AddMessageListener[] = [];
+    private removeMessageListeners: RemoveMessageListener[] = [];
     private cumulativeSize = 0;
     private cumulativeCost = 0;
 
@@ -33,20 +32,17 @@ export class Conversation {
         this.clearMessages();
     }
 
-    private createMessage(
-        content: string,
-        role: ChatCompletionRequestMessageRoleEnum
-    ): ConversationMessage {
-        return { id: uuid(), role, content };
-    }
-
     private notifyMessageAdded(message: ConversationMessage) {
         this.addMessageListeners.forEach((listener) => listener(message));
     }
 
+    private notifyMessageRemoved(message: ConversationMessage) {
+        this.removeMessageListeners.forEach((listener) => listener(message));
+    }
+
     private addMessage(message: ConversationMessage) {
         message.content = message.content.trim();
-        if (!message.content) return;
+        if (!message.content) return null;
 
         if (message.role === "system") {
             this.config.context = message.content;
@@ -64,7 +60,7 @@ export class Conversation {
     }
 
     private addSystemMessage(message: string) {
-        const systemMessage = this.createMessage(message, "system");
+        const systemMessage = createMessage(message, "system");
         return this.addMessage(systemMessage);
     }
 
@@ -75,7 +71,7 @@ export class Conversation {
      * @returns The [ConversationMessage](./utils/types.ts) object that was added to the conversation, or `null` if none was added (e.g. if the message was empty).
      */
     public addAssistantMessage(message: string) {
-        const assistantMessage = this.createMessage(message, "assistant");
+        const assistantMessage = createMessage(message, "assistant");
         return this.addMessage(assistantMessage);
     }
 
@@ -86,7 +82,7 @@ export class Conversation {
      * @returns The [ConversationMessage](./utils/types.ts) object that was added to the conversation, or `null` if none was added (e.g. if the message was empty).
      */
     public addUserMessage(message: string) {
-        const userMessage = this.createMessage(message, "user");
+        const userMessage = createMessage(message, "user");
         return this.addMessage(userMessage);
     }
 
@@ -103,6 +99,7 @@ export class Conversation {
 
     /**
      * Removes a listener function from the list of listeners that was previously added with `onMessageAdded`.
+     *
      * @param listener The function to remove from the list of listeners.
      */
     public offMessageAdded(listener: AddMessageListener) {
@@ -122,11 +119,45 @@ export class Conversation {
     }
 
     /**
+     * Removes a listener function from the list of listeners that was previously added with `onMessageRemoved`.
+     *
+     * @param listener The function to remove from the list of listeners.
+     */
+    public offMessageRemoved(listener: RemoveMessageListener) {
+        const index = this.removeMessageListeners.indexOf(listener);
+        if (index !== -1) this.removeMessageListeners.splice(index, 1);
+    }
+
+    /**
+     * Adds a listener function that is called whenever a message is removed to the conversation.
+     *
+     * @param listener The function to call when a message is removed to the conversation.
+     * @returns A function that removes the listener from the list of listeners.
+     */
+    public onMessageRemoved(listener: RemoveMessageListener) {
+        this.removeMessageListeners.push(listener);
+        return () => this.offMessageRemoved(listener);
+    }
+
+    /**
      * Clears all messages in the conversation except the context message, if it is set.
      */
     public clearMessages() {
         this.messages = [];
         this.addSystemMessage(this.config.context);
+    }
+
+    /**
+     * Removes a message from the conversation's history.
+     *
+     * @param message Either the ID of the message to remove, or the message object itself (where the ID will be extracted from).
+     */
+    public removeMessage(message: string | ConversationMessage) {
+        const id = typeof message === "string" ? message : message.id;
+        const index = this.messages.findIndex((m) => m.id === id);
+        if (index === -1) return;
+        const removedMessage = this.messages.splice(index, 1)[0];
+        this.notifyMessageRemoved(removedMessage);
     }
 
     /**
@@ -136,6 +167,19 @@ export class Conversation {
      */
     public setContext(context: string) {
         this.addSystemMessage(context);
+    }
+
+    /**
+     * Check whether the message complies with OpenAI's [usage policies](https://openai.com/policies/usage-policies).
+     *
+     * @param message The message to check for violations.
+     * @returns The Moderation response from the [OpenAI's Moderation API](https://platform.openai.com/docs/guides/moderation/overview).
+     */
+    public async getModerationResponse(message: string) {
+        const response = await this.openai.createModeration({
+            input: message,
+        });
+        return response.data.results[0];
     }
 
     /**
@@ -175,23 +219,57 @@ export class Conversation {
     }
 
     /**
-     * Adds the prompt as a user message (`addUserMessage`), gets the response from the OpenAI API (`getChatCompletionResponse`), and adds the response as an assistant message (`addAssistantMessage`).
+     * This is the **recommended** way to interact with the GPT model. It's a wrapper method around the following public methods (which you can use directly if you want more control over the conversation flow):
+     * - `getModerationResponse` - Checks whether the message breaks any of OpenAI's [usage policies](https://openai.com/policies/usage-policies). This step will only be performed if `disableModeration` is set to `false`. In Dry mode, this step will **not** be skipped if `apiKey` was specified, since this endpoint is free.
+     * - `addUserMessage` - Adds a message with the role of "user" to the conversation's message history.
+     * - `getChatCompletionResponse` - Sends the message history to OpenAI, including the previously added user message, and gets the assistant's response.
+     * - `addAssistantMessage` - Adds the previously obtained response with the role of "assistant" to the conversation's message history.
      *
      * @param prompt The prompt to send to the assistant.
      * @param options Additional options to pass to the createChatCompletion request.
-     * @returns The assistant's response.
+     * @returns The assistant's response, or `null` if the user's message was empty.
+     * @throws [ModerationException](./exceptions/ModerationException.js) if the message was flagged by the moderation API.
      */
     public async prompt(
         prompt: string,
         options?: ChatCompletionRequestOptions
     ) {
+        if (!prompt.trim()) return null;
+
+        if (
+            !this.config.disableModeration &&
+            (!this.config.dry || this.config.apiKey)
+        ) {
+            const moderation = await this.getModerationResponse(prompt);
+            if (moderation.flagged) {
+                throw new ModerationException(
+                    moderation.categories,
+                    moderation.category_scores
+                );
+            }
+        }
+
         const userMessage = this.addUserMessage(prompt);
         if (!userMessage) return null;
-        const responseMessage = await this.getChatCompletionResponse(options);
-        const assistantMessage = this.addAssistantMessage(
-            responseMessage ?? ""
-        );
-        return assistantMessage?.content ?? null;
+
+        try {
+            const completion = await this.getChatCompletionResponse(options);
+            if (!completion) {
+                this.removeMessage(userMessage);
+                return null;
+            }
+
+            const assistantMessage = this.addAssistantMessage(completion);
+            if (!assistantMessage) {
+                this.removeMessage(userMessage);
+                return null;
+            }
+
+            return assistantMessage.content;
+        } catch (e) {
+            this.removeMessage(userMessage);
+            throw e;
+        }
     }
 
     /**
