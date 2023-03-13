@@ -40,6 +40,56 @@ export class Conversation {
         return { id: uuid(), role, content };
     }
 
+    private notifyMessageAdded(message: ConversationMessage) {
+        this.addMessageListeners.forEach((listener) => listener(message));
+    }
+
+    private addMessage(message: ConversationMessage) {
+        message.content = message.content.trim();
+        if (!message.content) return;
+
+        if (message.role === "system") {
+            this.config.context = message.content;
+            if (this.messages[0]?.role === "system") {
+                this.messages[0] = message;
+            } else {
+                this.messages.unshift(message);
+            }
+        } else {
+            this.messages.push(message);
+        }
+
+        this.notifyMessageAdded(message);
+        return message;
+    }
+
+    private addSystemMessage(message: string) {
+        const systemMessage = this.createMessage(message, "system");
+        return this.addMessage(systemMessage);
+    }
+
+    /**
+     * Adds a message with the role of "assistant" to the conversation.
+     *
+     * @param message The content of the message.
+     * @returns The [ConversationMessage](./utils/types.ts) object that was added to the conversation, or `null` if none was added (e.g. if the message was empty).
+     */
+    public addAssistantMessage(message: string) {
+        const assistantMessage = this.createMessage(message, "assistant");
+        return this.addMessage(assistantMessage);
+    }
+
+    /**
+     * Adds a message with the role of "user" to the conversation.
+     *
+     * @param message The content of the message.
+     * @returns The [ConversationMessage](./utils/types.ts) object that was added to the conversation, or `null` if none was added (e.g. if the message was empty).
+     */
+    public addUserMessage(message: string) {
+        const userMessage = this.createMessage(message, "user");
+        return this.addMessage(userMessage);
+    }
+
     /**
      * Get the messages in the conversation.
      *
@@ -52,36 +102,12 @@ export class Conversation {
     }
 
     /**
-     * Adds a message with the role of "assistant" to the conversation.
-     *
-     * @param message The content of the message.
-     * @returns The [ConversationMessage](./utils/types.ts) object that was added to the conversation, or `null` if none was added (e.g. if the message was empty).
+     * Removes a listener function from the list of listeners that was previously added with `onMessageAdded`.
+     * @param listener The function to remove from the list of listeners.
      */
-    public addAssistantMessage(message: string) {
-        const trimmedMessage = message.trim();
-        if (!trimmedMessage) return null;
-        const assistantMessage = this.createMessage(
-            trimmedMessage,
-            "assistant"
-        );
-        this.messages.push(assistantMessage);
-        this.notifyMessageAdded(assistantMessage);
-        return assistantMessage;
-    }
-
-    /**
-     * Adds a message with the role of "user" to the conversation.
-     *
-     * @param message The content of the message.
-     * @returns The [ConversationMessage](./utils/types.ts) object that was added to the conversation, or `null` if none was added (e.g. if the message was empty).
-     */
-    public addUserMessage(message: string) {
-        const trimmedMessage = message.trim();
-        if (!trimmedMessage) return null;
-        const userMessage = this.createMessage(trimmedMessage, "user");
-        this.messages.push(userMessage);
-        this.notifyMessageAdded(userMessage);
-        return userMessage;
+    public offMessageAdded(listener: AddMessageListener) {
+        const index = this.addMessageListeners.indexOf(listener);
+        if (index !== -1) this.addMessageListeners.splice(index, 1);
     }
 
     /**
@@ -96,25 +122,11 @@ export class Conversation {
     }
 
     /**
-     * Removes a listener function from the list of listeners that was previously added with `onMessageAdded`.
-     * @param listener The function to remove from the list of listeners.
-     */
-    public offMessageAdded(listener: AddMessageListener) {
-        const index = this.addMessageListeners.indexOf(listener);
-        if (index !== -1) this.addMessageListeners.splice(index, 1);
-    }
-
-    private notifyMessageAdded(message: ConversationMessage) {
-        this.addMessageListeners.forEach((listener) => listener(message));
-    }
-
-    /**
      * Clears all messages in the conversation except the context message, if it is set.
      */
     public clearMessages() {
-        this.messages = this.config.context
-            ? [this.createMessage(this.config.context, "system")]
-            : [];
+        this.messages = [];
+        this.addSystemMessage(this.config.context);
     }
 
     /**
@@ -123,8 +135,7 @@ export class Conversation {
      * @param context The new context message.
      */
     public setContext(context: string) {
-        this.config.context = context.trim();
-        this.messages[0].content = context;
+        this.addSystemMessage(context);
     }
 
     /**
