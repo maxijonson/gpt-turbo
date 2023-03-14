@@ -16,7 +16,7 @@ export const SENDER_WIDTH = [
 );
 
 interface MessageProps {
-    message: Pick<ConversationMessage, "role"> & {
+    message: Pick<ConversationMessage, "role" | "flags"> & {
         content: React.ReactNode;
     };
 }
@@ -26,7 +26,7 @@ export default ({ message }: MessageProps) => {
         switch (message.role) {
             case "assistant":
                 return SENDER_ASSISTANT;
-            case "system": // Shouldn't happen, but just in case
+            case "system":
                 return SENDER_SYSTEM;
             case "user":
             default:
@@ -39,7 +39,9 @@ export default ({ message }: MessageProps) => {
                 <Text bold>{sender}: </Text>
             </Box>
             <Box flexGrow={1} paddingRight={1}>
-                <Text>{message.content}</Text>
+                <Text color={message.flags?.length ? "yellow" : "white"}>
+                    {message.content}
+                </Text>
             </Box>
         </Box>
     );

@@ -7,7 +7,7 @@ export interface ConfigContextState {
     dry: boolean;
     model: ChatCompletionModel;
     context: string;
-    disableModeration: boolean;
+    disableModeration: boolean | "soft";
 }
 
 export interface ConfigContextSetters {
@@ -15,7 +15,9 @@ export interface ConfigContextSetters {
     setDry: React.Dispatch<React.SetStateAction<boolean>>;
     setModel: React.Dispatch<React.SetStateAction<ChatCompletionModel>>;
     setContext: React.Dispatch<React.SetStateAction<string>>;
-    setDisableModeration: React.Dispatch<React.SetStateAction<boolean>>;
+    setDisableModeration: React.Dispatch<
+        React.SetStateAction<boolean | "soft">
+    >;
 }
 
 export interface ConfigContextValue

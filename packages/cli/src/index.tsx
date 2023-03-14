@@ -59,7 +59,17 @@ const argv = yargs(hideBin(process.argv))
             description:
                 "Disable message moderation. When left enabled, if 'dry' is true and 'apiKey' is specified, message will still be moderated, since the Moderation API is free.",
             alias: "M",
-            default: GPTTURBO_DISABLEMODERATION ?? DEFAULT_DISABLEMODERATION,
+            default:
+                (GPTTURBO_DISABLEMODERATION === "soft"
+                    ? null
+                    : GPTTURBO_DISABLEMODERATION) ?? DEFAULT_DISABLEMODERATION,
+        },
+        softModeration: {
+            type: "boolean",
+            description:
+                "Moderates the messages without throwing an error when the message is flagged. Ignored if disableModeration is true.",
+            alias: "S",
+            default: GPTTURBO_DISABLEMODERATION === "soft" ?? false,
         },
         showUsage: {
             type: "boolean",
@@ -76,8 +86,18 @@ const argv = yargs(hideBin(process.argv))
     })
     .parseSync();
 
-const { apiKey, model, dry, context, disableModeration, showUsage, showDebug } =
-    argv;
+const {
+    apiKey,
+    model,
+    dry,
+    context,
+    disableModeration,
+    softModeration,
+    showUsage,
+    showDebug,
+} = argv;
+
+const moderation = disableModeration || (softModeration && "soft");
 
 render(
     <Providers>
@@ -86,7 +106,7 @@ render(
             model={model}
             dry={dry}
             context={context}
-            disableModeration={disableModeration}
+            disableModeration={moderation}
             showUsage={showUsage}
             showDebug={showDebug}
         />

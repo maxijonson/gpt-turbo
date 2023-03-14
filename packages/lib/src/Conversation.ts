@@ -40,9 +40,16 @@ export class Conversation {
         this.removeMessageListeners.forEach((listener) => listener(message));
     }
 
-    private addMessage(message: ConversationMessage) {
+    private async addMessage(message: ConversationMessage) {
         message.content = message.content.trim();
         if (!message.content) return null;
+
+        if (this.config.isModerationEnabled) {
+            message.flags = await this.getMessageFlags(message.content);
+            if (this.config.isModerationStrict && message.flags.length > 0) {
+                throw new ModerationException(message.flags);
+            }
+        }
 
         if (message.role === "system") {
             this.config.context = message.content;
@@ -183,6 +190,24 @@ export class Conversation {
     }
 
     /**
+     * Check whether the message complies with OpenAI's [usage policies](https://openai.com/policies/usage-policies).
+     * The flags are returned as an array of violated categories (if any).
+     *
+     * @param message The message to check for violations.
+     */
+    public async getMessageFlags(message: string) {
+        const { flagged, categories } = await this.getModerationResponse(
+            message
+        );
+
+        return flagged
+            ? Object.keys(categories).filter(
+                  (category) => categories[category as keyof typeof categories]
+              )
+            : [];
+    }
+
+    /**
      * Fires a "createChatCompletion" request to the OpenAI API with the current messages.
      *
      * @param options Additional options to pass to the createChatCompletion request.
@@ -228,28 +253,12 @@ export class Conversation {
      * @param prompt The prompt to send to the assistant.
      * @param options Additional options to pass to the createChatCompletion request.
      * @returns The assistant's response, or `null` if the user's message was empty.
-     * @throws [ModerationException](./exceptions/ModerationException.js) if the message was flagged by the moderation API.
      */
     public async prompt(
         prompt: string,
         options?: ChatCompletionRequestOptions
     ) {
-        if (!prompt.trim()) return null;
-
-        if (
-            !this.config.disableModeration &&
-            (!this.config.dry || this.config.apiKey)
-        ) {
-            const moderation = await this.getModerationResponse(prompt);
-            if (moderation.flagged) {
-                throw new ModerationException(
-                    moderation.categories,
-                    moderation.category_scores
-                );
-            }
-        }
-
-        const userMessage = this.addUserMessage(prompt);
+        const userMessage = await this.addUserMessage(prompt);
         if (!userMessage) return null;
 
         try {
@@ -259,7 +268,7 @@ export class Conversation {
                 return null;
             }
 
-            const assistantMessage = this.addAssistantMessage(completion);
+            const assistantMessage = await this.addAssistantMessage(completion);
             if (!assistantMessage) {
                 this.removeMessage(userMessage);
                 return null;

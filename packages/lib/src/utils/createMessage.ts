@@ -6,5 +6,5 @@ export default (
     content: string,
     role: ChatCompletionRequestMessageRoleEnum
 ): ConversationMessage => {
-    return { id: uuid(), role, content };
+    return { id: uuid(), role, content, flags: null };
 };

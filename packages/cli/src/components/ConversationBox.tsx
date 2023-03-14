@@ -1,4 +1,9 @@
-import { Conversation, ConversationMessage, createMessage } from "gpt-turbo";
+import {
+    Conversation,
+    ConversationMessage,
+    createMessage,
+    ModerationException,
+} from "gpt-turbo";
 import { Box, Key, Text, useInput } from "ink";
 import React from "react";
 import { useElementDimensions } from "../hooks/useElementDimensions.js";
@@ -27,7 +32,10 @@ export default ({ conversation }: ConversationBoxProps) => {
             baseMessages.push(createMessage(pendingMessage, "user"));
         }
         if (error) {
-            baseMessages.push(createMessage(error, "system"));
+            baseMessages.push({
+                ...createMessage(error, "system"),
+                flags: [""],
+            });
         }
         return baseMessages;
     }, [error, messages, pendingMessage]);
@@ -56,7 +64,9 @@ export default ({ conversation }: ConversationBoxProps) => {
                 await conversation.prompt(prompt);
             } catch (e) {
                 if (e instanceof Error) {
-                    console.error(e.message);
+                    if (!(e instanceof ModerationException)) {
+                        console.error(e.message);
+                    }
                     setError(e.message);
                 } else {
                     console.error("An unknown error occurred");
@@ -90,6 +100,7 @@ export default ({ conversation }: ConversationBoxProps) => {
 
     React.useEffect(() => {
         return conversation.onMessageAdded((message) => {
+            if (message.role === "system") return;
             setPendingMessage(null);
             setMessages((messages) => [...messages, message]);
         });

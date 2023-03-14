@@ -9,6 +9,12 @@ export type ConversationMessage = Omit<ChatCompletionRequestMessage, "name"> & {
     id: string;
 
     /**
+     * An array of strings representing the categories of violations that the message contains.
+     * Null if it was never checked for violations.
+     */
+    flags: string[] | null;
+
+    /**
      * The size of the message content in tokens.
      *
      * **Do not use this property as it is only set internally whenever the size of the message is calculated.

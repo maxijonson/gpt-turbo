@@ -18,9 +18,9 @@ export default ({ children }: ConfigProviderProps) => {
         React.useState<ChatCompletionModel>(DEFAULT_MODEL);
     const [dry, setDry] = React.useState<boolean>(DEFAULT_DRY);
     const [context, setContext] = React.useState<string>(DEFAULT_CONTEXT);
-    const [disableModeration, setDisableModeration] = React.useState<boolean>(
-        DEFAULT_DISABLEMODERATION
-    );
+    const [disableModeration, setDisableModeration] = React.useState<
+        boolean | "soft"
+    >(DEFAULT_DISABLEMODERATION);
 
     const providerValue = React.useMemo<ConfigContextValue>(
         () => ({

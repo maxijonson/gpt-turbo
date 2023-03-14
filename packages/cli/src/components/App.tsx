@@ -17,7 +17,7 @@ interface AppProps {
     model?: ChatCompletionModel;
     dry?: boolean;
     context?: string;
-    disableModeration?: boolean;
+    disableModeration?: boolean | "soft";
 
     // CLI Props
     showUsage?: boolean;

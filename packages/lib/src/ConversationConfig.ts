@@ -30,13 +30,15 @@ export interface ConversationConfigParameters extends ConfigurationParameters {
     dry?: boolean;
 
     /**
-     * By default, messages are checked for violations of the OpenAI Community Guidelines. Set this to true to disable this check.
+     * By default, messages are checked for violations of the OpenAI Community Guidelines and throw an error if any are found.
+     * Set this to true to disable this check.
+     * Set this to "soft" to still check for violations, but not throw an error if any are found. The violations will be added to the `flags` property of the message.
      *
      * **Note:** This is not recommended, as it could result in account suspension. Additionally, [OpenAI's Moderation API](https://platform.openai.com/docs/guides/moderation) is free to use.
      *
      * @default false
      */
-    disableModeration?: boolean;
+    disableModeration?: boolean | "soft";
 }
 
 export class ConversationConfig extends Configuration {
@@ -77,11 +79,11 @@ export class ConversationConfig extends Configuration {
         return this._context;
     }
 
-    public set context(context: string) {
+    public set context(context: typeof this._context) {
         this._context = context.trim();
     }
 
-    private setDry(dry: boolean) {
+    private setDry(dry: typeof this._dry) {
         this._dry = dry;
         if (!dry && !this.apiKey) {
             console.warn(
@@ -95,7 +97,7 @@ export class ConversationConfig extends Configuration {
         return this._dry;
     }
 
-    public set dry(dry: boolean) {
+    public set dry(dry: typeof this._dry) {
         this.setDry(dry);
     }
 
@@ -103,7 +105,22 @@ export class ConversationConfig extends Configuration {
         return this._disableModeration;
     }
 
-    public set disableModeration(disableModeration: boolean) {
+    public set disableModeration(
+        disableModeration: typeof this._disableModeration
+    ) {
         this._disableModeration = disableModeration;
+    }
+
+    public get isModerationEnabled() {
+        if (!this.apiKey) return false;
+        return this.isModerationStrict || this.isModerationSoft;
+    }
+
+    public get isModerationStrict() {
+        return !this._disableModeration;
+    }
+
+    public get isModerationSoft() {
+        return this._disableModeration === "soft";
     }
 }
