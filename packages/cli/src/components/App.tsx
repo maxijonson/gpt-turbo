@@ -1,4 +1,4 @@
-import { ChatCompletionModel, Conversation } from "gpt-turbo";
+import { Conversation } from "gpt-turbo";
 import { Box, useInput } from "ink";
 import React from "react";
 import { FOCUSID_APP } from "../config/constants.js";
@@ -14,7 +14,7 @@ import UsageBox from "./UsageBox.js";
 interface AppProps {
     // GPT Turbo Props
     apiKey?: string;
-    model?: ChatCompletionModel;
+    model?: string;
     dry?: boolean;
     context?: string;
     disableModeration?: boolean | "soft";

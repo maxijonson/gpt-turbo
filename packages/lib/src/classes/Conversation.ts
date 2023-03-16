@@ -3,24 +3,22 @@ import {
     ConversationConfigParameters,
 } from "./ConversationConfig.js";
 import { OpenAIApi, CreateChatCompletionRequest } from "openai";
-import {
-    getMessageSize,
-    getMessageCost,
-    ConversationMessage,
-    AddMessageListener,
-    RemoveMessageListener,
-    createMessage,
-} from "../utils/index.js";
+import { getMessageSize, getMessageCost } from "../utils/index.js";
 import { ModerationException } from "../exceptions/ModerationException.js";
+import { Message } from "./Message.js";
 
-type ChatCompletionRequestOptions = Omit<
+export type ChatCompletionRequestOptions = Omit<
     CreateChatCompletionRequest,
     "model" | "messages" | "stream"
 >;
+
+export type AddMessageListener = (message: Message) => void;
+export type RemoveMessageListener = (message: Message) => void;
+
 export class Conversation {
     private config: ConversationConfig;
     private openai: OpenAIApi;
-    private messages: ConversationMessage[] = [];
+    private messages: Message[] = [];
     private addMessageListeners: AddMessageListener[] = [];
     private removeMessageListeners: RemoveMessageListener[] = [];
     private cumulativeSize = 0;
@@ -32,22 +30,22 @@ export class Conversation {
         this.clearMessages();
     }
 
-    private notifyMessageAdded(message: ConversationMessage) {
+    private notifyMessageAdded(message: Message) {
         this.addMessageListeners.forEach((listener) => listener(message));
     }
 
-    private notifyMessageRemoved(message: ConversationMessage) {
+    private notifyMessageRemoved(message: Message) {
         this.removeMessageListeners.forEach((listener) => listener(message));
     }
 
-    private async addMessage(message: ConversationMessage) {
+    private async addMessage(message: Message) {
         message.content = message.content.trim();
         if (!message.content) return null;
 
         if (this.config.isModerationEnabled) {
-            message.flags = await this.getMessageFlags(message.content);
-            if (this.config.isModerationStrict && message.flags.length > 0) {
-                throw new ModerationException(message.flags);
+            const flags = await message.moderate(this.openai);
+            if (this.config.isModerationStrict && flags.length > 0) {
+                throw new ModerationException(flags);
             }
         }
 
@@ -67,7 +65,7 @@ export class Conversation {
     }
 
     private addSystemMessage(message: string) {
-        const systemMessage = createMessage(message, "system");
+        const systemMessage = new Message("system", message);
         return this.addMessage(systemMessage);
     }
 
@@ -75,10 +73,10 @@ export class Conversation {
      * Adds a message with the role of "assistant" to the conversation.
      *
      * @param message The content of the message.
-     * @returns The [ConversationMessage](./utils/types.ts) object that was added to the conversation, or `null` if none was added (e.g. if the message was empty).
+     * @returns The [Message](./utils/types.ts) object that was added to the conversation, or `null` if none was added (e.g. if the message was empty).
      */
     public addAssistantMessage(message: string) {
-        const assistantMessage = createMessage(message, "assistant");
+        const assistantMessage = new Message("assistant", message);
         return this.addMessage(assistantMessage);
     }
 
@@ -86,10 +84,10 @@ export class Conversation {
      * Adds a message with the role of "user" to the conversation.
      *
      * @param message The content of the message.
-     * @returns The [ConversationMessage](./utils/types.ts) object that was added to the conversation, or `null` if none was added (e.g. if the message was empty).
+     * @returns The [Message](./utils/types.ts) object that was added to the conversation, or `null` if none was added (e.g. if the message was empty).
      */
     public addUserMessage(message: string) {
-        const userMessage = createMessage(message, "user");
+        const userMessage = new Message("user", message);
         return this.addMessage(userMessage);
     }
 
@@ -159,7 +157,7 @@ export class Conversation {
      *
      * @param message Either the ID of the message to remove, or the message object itself (where the ID will be extracted from).
      */
-    public removeMessage(message: string | ConversationMessage) {
+    public removeMessage(message: string | Message) {
         const id = typeof message === "string" ? message : message.id;
         const index = this.messages.findIndex((m) => m.id === id);
         if (index === -1) return;
@@ -174,37 +172,6 @@ export class Conversation {
      */
     public setContext(context: string) {
         this.addSystemMessage(context);
-    }
-
-    /**
-     * Check whether the message complies with OpenAI's [usage policies](https://openai.com/policies/usage-policies).
-     *
-     * @param message The message to check for violations.
-     * @returns The Moderation response from the [OpenAI's Moderation API](https://platform.openai.com/docs/guides/moderation/overview).
-     */
-    public async getModerationResponse(message: string) {
-        const response = await this.openai.createModeration({
-            input: message,
-        });
-        return response.data.results[0];
-    }
-
-    /**
-     * Check whether the message complies with OpenAI's [usage policies](https://openai.com/policies/usage-policies).
-     * The flags are returned as an array of violated categories (if any).
-     *
-     * @param message The message to check for violations.
-     */
-    public async getMessageFlags(message: string) {
-        const { flagged, categories } = await this.getModerationResponse(
-            message
-        );
-
-        return flagged
-            ? Object.keys(categories).filter(
-                  (category) => categories[category as keyof typeof categories]
-              )
-            : [];
     }
 
     /**
@@ -285,10 +252,7 @@ export class Conversation {
      * Returns the size of the conversation in tokens.
      */
     public getSize() {
-        return this.messages.reduce(
-            (size, message) => size + getMessageSize(message),
-            0
-        );
+        return this.messages.reduce((size, message) => size + message.size, 0);
     }
 
     /**
@@ -306,10 +270,7 @@ export class Conversation {
      * Note: This estimate is based on OpenAI's [pricing page](https://openai.com/pricing#chat)
      */
     public getCost() {
-        return this.messages.reduce(
-            (cost, message) => cost + getMessageCost(message),
-            0
-        );
+        return this.messages.reduce((cost, message) => cost + message.cost, 0);
     }
 
     /**

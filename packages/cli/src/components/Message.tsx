@@ -1,4 +1,4 @@
-import { ConversationMessage } from "gpt-turbo";
+import { Message } from "gpt-turbo";
 import { Box, Text } from "ink";
 import React from "react";
 
@@ -16,7 +16,7 @@ export const SENDER_WIDTH = [
 );
 
 interface MessageProps {
-    message: Pick<ConversationMessage, "role" | "flags"> & {
+    message: Pick<Message, "role" | "flags"> & {
         content: React.ReactNode;
     };
 }

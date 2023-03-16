@@ -10,7 +10,6 @@ import {
     GPTTURBO_DISABLEMODERATION,
 } from "./config/env.js";
 import {
-    ChatCompletionModel,
     DEFAULT_CONTEXT,
     DEFAULT_DISABLEMODERATION,
     DEFAULT_DRY,
@@ -41,11 +40,7 @@ const argv = yargs(hideBin(process.argv))
             type: "string",
             description: "Chat completion model to use.",
             alias: "m",
-            choices: [
-                "gpt-3.5-turbo",
-                "gpt-3.5-turbo-0301",
-            ] as ChatCompletionModel[],
-            default: (GPTTURBO_MODEL ?? DEFAULT_MODEL) as ChatCompletionModel,
+            default: GPTTURBO_MODEL ?? DEFAULT_MODEL,
         },
         context: {
             type: "string",

@@ -1,5 +1,4 @@
 import {
-    ChatCompletionModel,
     DEFAULT_CONTEXT,
     DEFAULT_DISABLEMODERATION,
     DEFAULT_DRY,
@@ -14,8 +13,7 @@ interface ConfigProviderProps {
 
 export default ({ children }: ConfigProviderProps) => {
     const [apiKey, setApiKey] = React.useState("");
-    const [model, setModel] =
-        React.useState<ChatCompletionModel>(DEFAULT_MODEL);
+    const [model, setModel] = React.useState<string>(DEFAULT_MODEL);
     const [dry, setDry] = React.useState<boolean>(DEFAULT_DRY);
     const [context, setContext] = React.useState<string>(DEFAULT_CONTEXT);
     const [disableModeration, setDisableModeration] = React.useState<

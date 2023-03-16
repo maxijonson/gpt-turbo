@@ -1,15 +1,10 @@
-import {
-    Conversation,
-    ConversationMessage,
-    createMessage,
-    ModerationException,
-} from "gpt-turbo";
+import { Conversation, Message, ModerationException } from "gpt-turbo";
 import { Box, Key, Text, useInput } from "ink";
 import React from "react";
 import { useElementDimensions } from "../hooks/useElementDimensions.js";
 import usePagedMessages from "../hooks/usePagedMessages.js";
 import BoxTitle from "./BoxTitle.js";
-import Message, { SENDER_WIDTH } from "./Message.js";
+import Msg, { SENDER_WIDTH } from "./Message.js";
 import { FOCUSID_CONVERSATION } from "../config/constants.js";
 import Prompt from "./Prompt.js";
 import useCustomFocus from "../hooks/useCustomFocus.js";
@@ -24,18 +19,15 @@ export default ({ conversation }: ConversationBoxProps) => {
     const [pendingMessage, setPendingMessage] = React.useState<string | null>(
         null
     );
-    const [messages, setMessages] = React.useState<ConversationMessage[]>([]);
+    const [messages, setMessages] = React.useState<Message[]>([]);
 
     const pageableMessages = React.useMemo(() => {
         const baseMessages = messages.slice();
         if (pendingMessage) {
-            baseMessages.push(createMessage(pendingMessage, "user"));
+            baseMessages.push(new Message("user", pendingMessage));
         }
         if (error) {
-            baseMessages.push({
-                ...createMessage(error, "system"),
-                flags: [""],
-            });
+            baseMessages.push(new Message("system", error));
         }
         return baseMessages;
     }, [error, messages, pendingMessage]);
@@ -128,7 +120,7 @@ export default ({ conversation }: ConversationBoxProps) => {
             <BoxTitle title="Conversation" />
             <Box ref={messagesBoxRef} flexGrow={1} flexDirection="column">
                 {pages.at(pageIndex)?.map((message) => (
-                    <Message key={message.id} message={message} />
+                    <Msg key={message.id} message={message} />
                 ))}
             </Box>
             <Box

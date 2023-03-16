@@ -5,7 +5,6 @@ import {
     DEFAULT_MODEL,
 } from "../config/constants.js";
 import { Configuration, ConfigurationParameters } from "openai";
-import { ChatCompletionModel } from "../utils/types.js";
 
 export interface ConversationConfigParameters extends ConfigurationParameters {
     /**
@@ -13,7 +12,7 @@ export interface ConversationConfigParameters extends ConfigurationParameters {
      *
      * @default "gpt-3.5-turbo"
      */
-    model?: ChatCompletionModel;
+    model?: string;
 
     /**
      * The first system message to set the context for the GPT model.
@@ -71,7 +70,7 @@ export class ConversationConfig extends Configuration {
         return this._model;
     }
 
-    public set model(model: ChatCompletionModel) {
+    public set model(model) {
         this._model = model;
     }
 
@@ -79,7 +78,7 @@ export class ConversationConfig extends Configuration {
         return this._context;
     }
 
-    public set context(context: typeof this._context) {
+    public set context(context) {
         this._context = context.trim();
     }
 
@@ -97,7 +96,7 @@ export class ConversationConfig extends Configuration {
         return this._dry;
     }
 
-    public set dry(dry: typeof this._dry) {
+    public set dry(dry) {
         this.setDry(dry);
     }
 
@@ -105,9 +104,7 @@ export class ConversationConfig extends Configuration {
         return this._disableModeration;
     }
 
-    public set disableModeration(
-        disableModeration: typeof this._disableModeration
-    ) {
+    public set disableModeration(disableModeration) {
         this._disableModeration = disableModeration;
     }
 

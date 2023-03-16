@@ -1,13 +1,9 @@
-import { ConversationMessage } from "gpt-turbo";
+import { Message } from "gpt-turbo";
 import React from "react";
 import getMessageHeight from "../utils/getMessageHeight.js";
 import splitMessage from "../utils/splitMessage.js";
 
-export default (
-    messages: ConversationMessage[],
-    maxWidth: number,
-    maxHeight: number
-) => {
+export default (messages: Message[], maxWidth: number, maxHeight: number) => {
     const [pageIndex, setPageIndex] = React.useState(0);
 
     const pages = React.useMemo(() => {
@@ -15,8 +11,8 @@ export default (
             return [];
         }
 
-        const pages: ConversationMessage[][] = [];
-        let page: ConversationMessage[] = [];
+        const pages: Message[][] = [];
+        let page: Message[] = [];
         let pageHeight = 0;
 
         const addPage = () => {
@@ -41,16 +37,13 @@ export default (
                     splitMessage(message.content, maxWidth, remainingHeight);
 
                 if (firstMessageContent.length && secondMessageContent.length) {
-                    msgs[i] = {
-                        ...message,
-                        content: firstMessageContent,
-                    };
+                    msgs[i] = new Message(message.role, firstMessageContent);
 
-                    msgs.splice(i + 1, 0, {
-                        ...message,
-                        id: message.id + "-",
-                        content: secondMessageContent,
-                    });
+                    msgs.splice(
+                        i + 1,
+                        0,
+                        new Message(message.role, secondMessageContent)
+                    );
 
                     i--;
                     continue;

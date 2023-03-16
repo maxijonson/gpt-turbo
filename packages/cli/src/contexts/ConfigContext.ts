@@ -1,23 +1,29 @@
-import { ChatCompletionModel } from "gpt-turbo";
+import {
+    DEFAULT_CONTEXT,
+    DEFAULT_DISABLEMODERATION,
+    DEFAULT_DRY,
+    DEFAULT_MODEL,
+} from "gpt-turbo";
 import React from "react";
 import makeNotImplemented from "../utils/makeNotImplemented.js";
 
 export interface ConfigContextState {
     apiKey: string;
     dry: boolean;
-    model: ChatCompletionModel;
+    model: string;
     context: string;
     disableModeration: boolean | "soft";
 }
 
+type ConfigSetter<K extends keyof ConfigContextState> = React.Dispatch<
+    React.SetStateAction<ConfigContextState[K]>
+>;
 export interface ConfigContextSetters {
-    setApiKey: React.Dispatch<React.SetStateAction<string>>;
-    setDry: React.Dispatch<React.SetStateAction<boolean>>;
-    setModel: React.Dispatch<React.SetStateAction<ChatCompletionModel>>;
-    setContext: React.Dispatch<React.SetStateAction<string>>;
-    setDisableModeration: React.Dispatch<
-        React.SetStateAction<boolean | "soft">
-    >;
+    setApiKey: ConfigSetter<"apiKey">;
+    setDry: ConfigSetter<"dry">;
+    setModel: ConfigSetter<"model">;
+    setContext: ConfigSetter<"context">;
+    setDisableModeration: ConfigSetter<"disableModeration">;
 }
 
 export interface ConfigContextValue
@@ -27,10 +33,10 @@ export interface ConfigContextValue
 const notImplemented = makeNotImplemented("ConfigContext");
 export const ConfigContext = React.createContext<ConfigContextValue>({
     apiKey: "",
-    dry: false,
-    model: "gpt-3.5-turbo",
-    context: "",
-    disableModeration: false,
+    dry: DEFAULT_DRY,
+    model: DEFAULT_MODEL,
+    context: DEFAULT_CONTEXT,
+    disableModeration: DEFAULT_DISABLEMODERATION,
     setApiKey: notImplemented,
     setDry: notImplemented,
     setModel: notImplemented,
