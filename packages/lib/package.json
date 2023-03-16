@@ -8,7 +8,8 @@
         "lint": "eslint --ext .ts src",
         "lint:strict": "npm run lint -- --max-warnings 0",
         "lint:fix": "npm run lint -- --fix",
-        "build": "npm run lint:strict && rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.ts\" \"src/**/*\" dist"
+        "build": "npm run lint:strict && rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.ts\" \"src/**/*\" dist",
+        "sandbox": "ts-node-esm sandbox/index.ts"
     },
     "keywords": [
         "openai",
@@ -61,6 +62,7 @@
         "eslint-plugin-prettier": "^4.2.1",
         "prettier": "^2.8.4",
         "rimraf": "^4.2.0",
+        "ts-node": "^10.9.1",
         "typescript": "^4.9.5"
     },
     "dependencies": {

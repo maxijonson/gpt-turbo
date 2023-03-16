@@ -10,8 +10,8 @@ import {
     AddMessageListener,
     RemoveMessageListener,
     createMessage,
-} from "./utils/index.js";
-import { ModerationException } from "./exceptions/ModerationException.js";
+} from "../utils/index.js";
+import { ModerationException } from "../exceptions/ModerationException.js";
 
 type ChatCompletionRequestOptions = Omit<
     CreateChatCompletionRequest,
