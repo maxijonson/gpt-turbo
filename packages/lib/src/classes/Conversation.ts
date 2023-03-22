@@ -3,6 +3,7 @@ import {
     ConversationConfigParameters,
 } from "./ConversationConfig.js";
 import { OpenAIApi, CreateChatCompletionRequest } from "openai";
+import { AxiosResponse } from "axios";
 import { getMessageSize, getMessageCost } from "../utils/index.js";
 import { ModerationException } from "../exceptions/ModerationException.js";
 import { Message } from "./Message.js";
@@ -174,40 +175,89 @@ export class Conversation {
         this.addSystemMessage(context);
     }
 
+    private async handleStreamedResponse(
+        options: ChatCompletionRequestOptions = {}
+    ) {
+        const responseMessage = new Message("assistant");
+        const messages = this.messages.map(({ role, content }) => ({
+            role,
+            content,
+        }));
+
+        if (this.config.dry) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            responseMessage.content =
+                messages[messages.length - 1]?.content ?? null;
+        } else {
+            const unsubscribeStreaming = responseMessage.onMessageStreamingStop(
+                (message) => {
+                    this.cumulativeSize +=
+                        this.getSize() + getMessageSize(message.content);
+                    this.cumulativeCost +=
+                        this.getCost() + getMessageCost(message.content);
+                    unsubscribeStreaming();
+                }
+            );
+
+            const response = await this.openai.createChatCompletion(
+                {
+                    ...options,
+                    model: this.config.model,
+                    stream: true,
+                    messages,
+                },
+                { responseType: "stream" }
+            );
+            responseMessage.readContentFromStream(response as AxiosResponse);
+        }
+
+        return responseMessage;
+    }
+
+    private async handleNonStreamedResponse(
+        options: ChatCompletionRequestOptions = {}
+    ) {
+        const responseMessage = new Message("assistant");
+        const messages = this.messages.map(({ role, content }) => ({
+            role,
+            content,
+        }));
+
+        if (this.config.dry) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            responseMessage.content =
+                messages[messages.length - 1]?.content ?? null;
+        } else {
+            const response = await this.openai.createChatCompletion({
+                ...options,
+                model: this.config.model,
+                stream: false,
+                messages,
+            });
+            responseMessage.content =
+                response.data.choices[0].message?.content ?? "";
+        }
+
+        this.cumulativeSize +=
+            this.getSize() + getMessageSize(responseMessage.content);
+        this.cumulativeCost +=
+            this.getCost() + getMessageCost(responseMessage.content);
+
+        return responseMessage;
+    }
+
     /**
      * Fires a "createChatCompletion" request to the OpenAI API with the current messages.
      *
      * @param options Additional options to pass to the createChatCompletion request.
-     * @returns The response from the OpenAI API.
+     * @returns A new [`Message`](./Message.js) object with the role of "assistant" and the content set to the response from the OpenAI API. If the `stream` config option was set to true, the content will be progressively updated, listen to changes with the `onMessageUpdate` event.
      */
     public async getChatCompletionResponse(
         options: ChatCompletionRequestOptions = {}
-    ) {
-        let responseMessage: string | null = null;
-
-        if (this.config.dry) {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            responseMessage =
-                this.messages[this.messages.length - 1]?.content ?? null;
-        } else {
-            const messages = this.messages.map(({ role, content }) => ({
-                role,
-                content,
-            }));
-            const response = await this.openai.createChatCompletion({
-                ...options,
-                model: this.config.model,
-                messages,
-                stream: false,
-            });
-            responseMessage = response.data.choices[0].message?.content ?? null;
-        }
-
-        if (!responseMessage) return null;
-
-        this.cumulativeSize += this.getSize() + getMessageSize(responseMessage);
-        this.cumulativeCost += this.getCost() + getMessageCost(responseMessage);
-        return responseMessage;
+    ): Promise<Message> {
+        return this.config.stream
+            ? this.handleStreamedResponse(options)
+            : this.handleNonStreamedResponse(options);
     }
 
     /**
@@ -235,7 +285,7 @@ export class Conversation {
                 return null;
             }
 
-            const assistantMessage = await this.addAssistantMessage(completion);
+            const assistantMessage = await this.addMessage(completion);
             if (!assistantMessage) {
                 this.removeMessage(userMessage);
                 return null;

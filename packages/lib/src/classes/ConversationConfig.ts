@@ -3,6 +3,7 @@ import {
     DEFAULT_DISABLEMODERATION,
     DEFAULT_DRY,
     DEFAULT_MODEL,
+    DEFAULT_STREAM,
 } from "../config/constants.js";
 import { Configuration, ConfigurationParameters } from "openai";
 
@@ -38,31 +39,38 @@ export interface ConversationConfigParameters extends ConfigurationParameters {
      * @default false
      */
     disableModeration?: boolean | "soft";
+
+    /**
+     * Whether or not to stream messages (like ChatGPT), instead of waiting for a complete response.
+     *
+     * @default false
+     */
+    stream?: boolean;
 }
 
+type ConversationConfigProperty<K extends keyof ConversationConfigParameters> =
+    Exclude<ConversationConfigParameters[K], undefined>;
+
 export class ConversationConfig extends Configuration {
-    private _model: Exclude<ConversationConfigParameters["model"], undefined>;
-    private _context: Exclude<
-        ConversationConfigParameters["context"],
-        undefined
-    >;
-    private _dry!: Exclude<ConversationConfigParameters["dry"], undefined>;
-    private _disableModeration: Exclude<
-        ConversationConfigParameters["disableModeration"],
-        undefined
-    >;
+    private _model: ConversationConfigProperty<"model">;
+    private _context: ConversationConfigProperty<"context">;
+    private _dry!: ConversationConfigProperty<"dry">;
+    private _disableModeration: ConversationConfigProperty<"disableModeration">;
+    private _stream: ConversationConfigProperty<"stream">;
 
     constructor({
         model = DEFAULT_MODEL,
         context = DEFAULT_CONTEXT,
         dry = DEFAULT_DRY,
         disableModeration = DEFAULT_DISABLEMODERATION,
+        stream = DEFAULT_STREAM,
         ...configParameters
     }: ConversationConfigParameters) {
         super(configParameters);
         this._model = model;
         this._context = context.trim();
         this._disableModeration = disableModeration;
+        this._stream = stream;
         this.setDry(dry);
     }
 
@@ -119,5 +127,13 @@ export class ConversationConfig extends Configuration {
 
     public get isModerationSoft() {
         return this._disableModeration === "soft";
+    }
+
+    public get stream() {
+        return this._stream;
+    }
+
+    public set stream(stream) {
+        this._stream = stream;
     }
 }

@@ -7,4 +7,6 @@ export const DEFAULT_DRY = false as const;
 
 export const DEFAULT_DISABLEMODERATION = false as const;
 
+export const DEFAULT_STREAM = false as const;
+
 export const COST_PER_TOKEN = 0.000002 as const;

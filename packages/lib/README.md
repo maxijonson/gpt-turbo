@@ -21,7 +21,29 @@ import { Conversation } from 'gpt-turbo';
     });
 
     const response = await conversation.prompt("What is TypeScript?");
-    console.log(`Response: ${response}`);
+    console.log(`Response: ${response.content}`);
+})();
+```
+
+You can also stream messages like ChatGPT does.
+
+```ts
+import { Conversation } from 'gpt-turbo';
+
+(async () => {
+    const conversation = new Conversation({
+        apiKey: /* Your OpenAI API key */,
+    });
+
+    const response = await conversation.prompt("What is TypeScript?", { stream: true });
+    process.stdout.write(`Response: `);
+    const unsubscribe = response.onMessageUpdate((content) => {
+        process.stdout.write(content);
+    });
+
+    response.onStreamingStop(() => {
+        unsubscribe();
+    });
 })();
 ```
 
