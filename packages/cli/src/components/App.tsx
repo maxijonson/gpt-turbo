@@ -28,25 +28,13 @@ export default (props: AppProps) => {
     const [conversation, setConversation] = React.useState<Conversation | null>(
         null
     );
-    const {
-        apiKey,
-        dry,
-        model,
-        context,
-        disableModeration,
-        setApiKey,
-        setDry,
-        setModel,
-        setContext,
-        setDisableModeration,
-    } = useConfig();
-
+    const { apiKey, dry, model, context, disableModeration } = useConfig();
     const [cols, rows] = useStdoutDimensions();
     const { isFocused } = useCustomFocus({
         id: FOCUSID_APP,
     });
-    const [showDebug, setShowDebug] = React.useState(false);
-    const [showUsage, setShowUsage] = React.useState(true);
+    const [showDebug, setShowDebug] = React.useState(props.showDebug ?? false);
+    const [showUsage, setShowUsage] = React.useState(props.showUsage ?? true);
 
     const handleInput = React.useCallback((input: string) => {
         if (input === "d") {
@@ -59,32 +47,6 @@ export default (props: AppProps) => {
     useInput(handleInput, { isActive: isFocused });
 
     React.useEffect(() => {
-        if (props.apiKey) setApiKey(props.apiKey);
-        if (props.model) setModel(props.model);
-        if (props.dry !== undefined) setDry(props.dry);
-        if (props.context) setContext(props.context);
-        if (props.disableModeration !== undefined) {
-            setDisableModeration(props.disableModeration);
-        }
-
-        if (props.showUsage !== undefined) setShowUsage(props.showUsage);
-        if (props.showDebug !== undefined) setShowDebug(props.showDebug);
-    }, [
-        props.apiKey,
-        props.dry,
-        props.model,
-        props.context,
-        props.disableModeration,
-        props.showDebug,
-        props.showUsage,
-        setApiKey,
-        setDry,
-        setModel,
-        setContext,
-        setDisableModeration,
-    ]);
-
-    React.useEffect(() => {
         if (!apiKey && !dry) return;
         setConversation(
             new Conversation({
@@ -93,6 +55,7 @@ export default (props: AppProps) => {
                 apiKey,
                 context,
                 disableModeration,
+                stream: true,
             })
         );
     }, [apiKey, context, disableModeration, dry, model]);

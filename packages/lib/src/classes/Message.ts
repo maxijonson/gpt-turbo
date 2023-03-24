@@ -244,5 +244,9 @@ export class Message {
         };
 
         stream.on("data", listener);
+
+        stream.on("end", () => {
+            this.isStreaming = false;
+        });
     }
 }

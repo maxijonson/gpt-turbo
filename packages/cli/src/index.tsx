@@ -95,15 +95,13 @@ const {
 const moderation = disableModeration || (softModeration && "soft");
 
 render(
-    <Providers>
-        <App
-            apiKey={apiKey}
-            model={model}
-            dry={dry}
-            context={context}
-            disableModeration={moderation}
-            showUsage={showUsage}
-            showDebug={showDebug}
-        />
+    <Providers
+        initialApiKey={apiKey}
+        initialModel={model}
+        initialDry={dry}
+        initialContext={context}
+        initialDisableModeration={moderation}
+    >
+        <App showUsage={showUsage} showDebug={showDebug} />
     </Providers>
 );

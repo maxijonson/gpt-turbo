@@ -16,6 +16,7 @@ interface ConversationBoxProps {
 export default ({ conversation }: ConversationBoxProps) => {
     const [error, setError] = React.useState<string | null>(null);
     const [isLoading, setIsLoading] = React.useState(false);
+    const [isStreaming, setIsStreaming] = React.useState(false);
     const [pendingMessage, setPendingMessage] = React.useState<string | null>(
         null
     );
@@ -91,11 +92,35 @@ export default ({ conversation }: ConversationBoxProps) => {
     useInput(handleInput, { isActive: isFocused });
 
     React.useEffect(() => {
-        return conversation.onMessageAdded((message) => {
-            if (message.role === "system") return;
-            setPendingMessage(null);
-            setMessages((messages) => [...messages, message]);
-        });
+        const unsubscribeMessageUpdate: (() => void)[] = [];
+        const unsubscribeMessageStreaming: (() => void)[] = [];
+        const unsubscribeMessageAdded = conversation.onMessageAdded(
+            (message) => {
+                if (message.role === "system") return;
+                setPendingMessage(null);
+                setMessages((messages) => [...messages, message]);
+
+                if (message.role !== "assistant") return;
+
+                unsubscribeMessageUpdate.push(
+                    message.onMessageUpdate(
+                        () => setMessages((messages) => [...messages]) // Force re-render by creating a new array
+                    )
+                );
+
+                unsubscribeMessageStreaming.push(
+                    message.onMessageStreaming((streaming) => {
+                        setIsStreaming(streaming);
+                    })
+                );
+            }
+        );
+
+        return () => {
+            unsubscribeMessageAdded();
+            unsubscribeMessageUpdate.forEach((unsubscribe) => unsubscribe());
+            unsubscribeMessageStreaming.forEach((unsubscribe) => unsubscribe());
+        };
     }, [conversation]);
 
     React.useEffect(() => {
@@ -131,7 +156,7 @@ export default ({ conversation }: ConversationBoxProps) => {
             >
                 <Text wrap="wrap">{paginationDisplay}</Text>
             </Box>
-            <Prompt onSubmit={onSubmit} loading={isLoading} />
+            <Prompt onSubmit={onSubmit} loading={isLoading || isStreaming} />
         </Box>
     );
 };

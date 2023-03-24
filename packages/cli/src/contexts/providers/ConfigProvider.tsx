@@ -9,16 +9,32 @@ import { ConfigContext, ConfigContextValue } from "../ConfigContext.js";
 
 interface ConfigProviderProps {
     children?: React.ReactNode;
+    initialApiKey?: string;
+    initialModel?: string;
+    initialDry?: boolean;
+    initialContext?: string;
+    initialDisableModeration?: boolean | "soft";
 }
 
-export default ({ children }: ConfigProviderProps) => {
-    const [apiKey, setApiKey] = React.useState("");
-    const [model, setModel] = React.useState<string>(DEFAULT_MODEL);
-    const [dry, setDry] = React.useState<boolean>(DEFAULT_DRY);
-    const [context, setContext] = React.useState<string>(DEFAULT_CONTEXT);
+export default ({
+    children,
+    initialApiKey,
+    initialModel,
+    initialDry,
+    initialContext,
+    initialDisableModeration,
+}: ConfigProviderProps) => {
+    const [apiKey, setApiKey] = React.useState(initialApiKey ?? "");
+    const [model, setModel] = React.useState<string>(
+        initialModel ?? DEFAULT_MODEL
+    );
+    const [dry, setDry] = React.useState<boolean>(initialDry ?? DEFAULT_DRY);
+    const [context, setContext] = React.useState<string>(
+        initialContext ?? DEFAULT_CONTEXT
+    );
     const [disableModeration, setDisableModeration] = React.useState<
         boolean | "soft"
-    >(DEFAULT_DISABLEMODERATION);
+    >(initialDisableModeration ?? DEFAULT_DISABLEMODERATION);
 
     const providerValue = React.useMemo<ConfigContextValue>(
         () => ({

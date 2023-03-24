@@ -34,16 +34,21 @@ export default ({ children }: DebugProviderProps) => {
         const originalInfo = console.info;
         const originalWarn = console.warn;
         const originalError = console.error;
+        const originalClear = console.clear;
 
         console.log = log;
         console.info = log;
         console.warn = log;
         console.error = log;
+        console.clear = () => {
+            setLogs([]);
+        };
         return () => {
             console.log = originalLog;
             console.info = originalInfo;
             console.warn = originalWarn;
             console.error = originalError;
+            console.clear = originalClear;
         };
     }, [log]);
 

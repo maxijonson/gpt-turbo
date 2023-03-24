@@ -37,7 +37,7 @@ module.exports = {
         "no-console": [
             "warn",
             {
-                allow: ["warn", "error", "info"],
+                allow: ["warn", "error", "info", "clear"],
             },
         ],
         "no-continue": "off",

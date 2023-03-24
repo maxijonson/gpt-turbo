@@ -7,6 +7,7 @@ import { AxiosResponse } from "axios";
 import { getMessageSize, getMessageCost } from "../utils/index.js";
 import { ModerationException } from "../exceptions/ModerationException.js";
 import { Message } from "./Message.js";
+import { MessageRoleException } from "../index.js";
 
 export type ChatCompletionRequestOptions = Omit<
     CreateChatCompletionRequest,
@@ -41,7 +42,6 @@ export class Conversation {
 
     private async addMessage(message: Message) {
         message.content = message.content.trim();
-        if (!message.content) return null;
 
         if (this.config.isModerationEnabled) {
             const flags = await message.moderate(this.openai);
@@ -58,6 +58,11 @@ export class Conversation {
                 this.messages.unshift(message);
             }
         } else {
+            if (
+                this.messages[this.messages.length - 1]?.role === message.role
+            ) {
+                throw new MessageRoleException();
+            }
             this.messages.push(message);
         }
 
