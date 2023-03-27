@@ -15,6 +15,7 @@ export type MessageStreamingStopListener = (message: Message) => void;
 export class Message {
     private _id = uuid();
     private _role!: ChatCompletionRequestMessageRoleEnum;
+    private _model!: string;
     private _content!: string;
     private _flags: string[] | null = null;
     private _size: number | null = null;
@@ -24,8 +25,18 @@ export class Message {
     private messageUpdateListeners: MessageUpdateListener[] = [];
     private messageStreamingListeners: MessageStreamingListener[] = [];
 
-    constructor(role: ChatCompletionRequestMessageRoleEnum, content = "") {
+    /**
+     * @param role The role of who this message is from. Either "user", "assistant" or "system". Defaults to "user"
+     * @param content The content of the message. Defaults to an empty string.
+     * @param model The model used for processing this message. This is only used to calculate the cost of the message. Defaults to an empty string. If you don't specify a model, the `cost` will always be `0`.
+     */
+    constructor(
+        role: ChatCompletionRequestMessageRoleEnum = "user",
+        content = "",
+        model = ""
+    ) {
         this.role = role;
+        this.model = model;
         this.content = content;
     }
 
@@ -43,6 +54,14 @@ export class Message {
 
     private set role(role) {
         this._role = role;
+    }
+
+    get model() {
+        return this._model;
+    }
+
+    private set model(model) {
+        this._model = model;
     }
 
     get content() {
@@ -87,7 +106,11 @@ export class Message {
         if (this._cost) {
             return this._cost;
         }
-        const c = getMessageCost(this.size);
+        const c = getMessageCost(
+            this.size,
+            this.model,
+            this.role === "assistant" ? "completion" : "prompt"
+        );
         this.cost = c;
         return this._cost as typeof c;
     }

@@ -20,6 +20,8 @@
         "gpt-3",
         "gpt3.5",
         "gpt-3.5",
+        "gpt4",
+        "gpt-4",
         "completion",
         "chatcompletion",
         "conversation",

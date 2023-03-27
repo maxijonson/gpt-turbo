@@ -4,7 +4,7 @@ import {
 } from "./ConversationConfig.js";
 import { OpenAIApi, CreateChatCompletionRequest } from "openai";
 import { AxiosResponse } from "axios";
-import { getMessageSize, getMessageCost } from "../utils/index.js";
+import { getMessageSize } from "../utils/index.js";
 import { ModerationException } from "../exceptions/ModerationException.js";
 import { Message } from "./Message.js";
 import { MessageRoleException } from "../index.js";
@@ -80,7 +80,7 @@ export class Conversation {
     }
 
     private addSystemMessage(message: string) {
-        const systemMessage = new Message("system", message);
+        const systemMessage = new Message("system", message, this.config.model);
         return this.addMessage(systemMessage);
     }
 
@@ -91,7 +91,11 @@ export class Conversation {
      * @returns The [Message](./utils/types.ts) object that was added to the conversation, or `null` if none was added (e.g. if the message was empty).
      */
     public addAssistantMessage(message: string) {
-        const assistantMessage = new Message("assistant", message);
+        const assistantMessage = new Message(
+            "assistant",
+            message,
+            this.config.model
+        );
         return this.addMessage(assistantMessage);
     }
 
@@ -102,7 +106,7 @@ export class Conversation {
      * @returns The [Message](./utils/types.ts) object that was added to the conversation, or `null` if none was added (e.g. if the message was empty).
      */
     public addUserMessage(message: string) {
-        const userMessage = new Message("user", message);
+        const userMessage = new Message("user", message, this.config.model);
         return this.addMessage(userMessage);
     }
 
@@ -193,7 +197,7 @@ export class Conversation {
         options: ChatCompletionRequestOptions = {},
         axiosOptions: OpenAiAxiosConfig = {}
     ) {
-        const responseMessage = new Message("assistant");
+        const message = new Message("assistant", "", this.config.model);
         const messages = this.messages.map(({ role, content }) => ({
             role,
             content,
@@ -201,18 +205,14 @@ export class Conversation {
 
         if (this.config.dry) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            responseMessage.content =
-                messages[messages.length - 1]?.content ?? null;
+            message.content = messages[messages.length - 1]?.content ?? null;
         } else {
-            const unsubscribeStreaming = responseMessage.onMessageStreamingStop(
-                (message) => {
-                    this.cumulativeSize +=
-                        this.getSize() + getMessageSize(message.content);
-                    this.cumulativeCost +=
-                        this.getCost() + getMessageCost(message.content);
-                    unsubscribeStreaming();
-                }
-            );
+            const unsubscribeStreaming = message.onMessageStreamingStop((m) => {
+                this.cumulativeSize +=
+                    this.getSize() + getMessageSize(m.content);
+                this.cumulativeCost += this.getCost() + m.cost;
+                unsubscribeStreaming();
+            });
 
             const response = await this.openai.createChatCompletion(
                 {
@@ -227,17 +227,17 @@ export class Conversation {
                     responseType: "stream",
                 }
             );
-            responseMessage.readContentFromStream(response as AxiosResponse);
+            message.readContentFromStream(response as AxiosResponse);
         }
 
-        return responseMessage;
+        return message;
     }
 
     private async handleNonStreamedResponse(
         options: ChatCompletionRequestOptions = {},
         axiosOptions: OpenAiAxiosConfig = {}
     ) {
-        const responseMessage = new Message("assistant");
+        const message = new Message("assistant", "", this.config.model);
         const messages = this.messages.map(({ role, content }) => ({
             role,
             content,
@@ -245,8 +245,7 @@ export class Conversation {
 
         if (this.config.dry) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            responseMessage.content =
-                messages[messages.length - 1]?.content ?? null;
+            message.content = messages[messages.length - 1]?.content ?? null;
         } else {
             const response = await this.openai.createChatCompletion(
                 {
@@ -261,16 +260,13 @@ export class Conversation {
                     responseType: "json",
                 }
             );
-            responseMessage.content =
-                response.data.choices[0].message?.content ?? "";
+            message.content = response.data.choices[0].message?.content ?? "";
         }
 
-        this.cumulativeSize +=
-            this.getSize() + getMessageSize(responseMessage.content);
-        this.cumulativeCost +=
-            this.getCost() + getMessageCost(responseMessage.content);
+        this.cumulativeSize += this.getSize() + getMessageSize(message.content);
+        this.cumulativeCost += this.getCost() + message.cost;
 
-        return responseMessage;
+        return message;
     }
 
     /**

@@ -8,12 +8,15 @@ import Msg, { SENDER_WIDTH } from "./Message.js";
 import { FOCUSID_CONVERSATION } from "../config/constants.js";
 import Prompt from "./Prompt.js";
 import useCustomFocus from "../hooks/useCustomFocus.js";
+import useConfig from "../hooks/useConfig.js";
 
 interface ConversationBoxProps {
     conversation: Conversation;
 }
 
 export default ({ conversation }: ConversationBoxProps) => {
+    const { model } = useConfig();
+
     const [error, setError] = React.useState<string | null>(null);
     const [isLoading, setIsLoading] = React.useState(false);
     const [isStreaming, setIsStreaming] = React.useState(false);
@@ -25,13 +28,13 @@ export default ({ conversation }: ConversationBoxProps) => {
     const pageableMessages = React.useMemo(() => {
         const baseMessages = messages.slice();
         if (pendingMessage) {
-            baseMessages.push(new Message("user", pendingMessage));
+            baseMessages.push(new Message("user", pendingMessage, model));
         }
         if (error) {
-            baseMessages.push(new Message("system", error));
+            baseMessages.push(new Message("system", error, model));
         }
         return baseMessages;
-    }, [error, messages, pendingMessage]);
+    }, [error, messages, model, pendingMessage]);
 
     const {
         ref: messagesBoxRef,

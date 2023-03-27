@@ -2,8 +2,11 @@ import { Message } from "gpt-turbo";
 import React from "react";
 import getMessageHeight from "../utils/getMessageHeight.js";
 import splitMessage from "../utils/splitMessage.js";
+import useConfig from "./useConfig.js";
 
 export default (messages: Message[], maxWidth: number, maxHeight: number) => {
+    const { model } = useConfig();
+
     const [pageIndex, setPageIndex] = React.useState(0);
 
     const pages = React.useMemo(() => {
@@ -37,12 +40,16 @@ export default (messages: Message[], maxWidth: number, maxHeight: number) => {
                     splitMessage(message.content, maxWidth, remainingHeight);
 
                 if (firstMessageContent.length && secondMessageContent.length) {
-                    msgs[i] = new Message(message.role, firstMessageContent);
+                    msgs[i] = new Message(
+                        message.role,
+                        firstMessageContent,
+                        model
+                    );
 
                     msgs.splice(
                         i + 1,
                         0,
-                        new Message(message.role, secondMessageContent)
+                        new Message(message.role, secondMessageContent, model)
                     );
 
                     i--;
@@ -61,7 +68,7 @@ export default (messages: Message[], maxWidth: number, maxHeight: number) => {
         addPage();
 
         return pages;
-    }, [messages, maxHeight, maxWidth]);
+    }, [maxWidth, maxHeight, messages, model]);
 
     const handleSetPageIndex = React.useCallback(
         (nextIndex: Parameters<typeof setPageIndex>[0] = pages.length - 1) => {
