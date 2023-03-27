@@ -113,11 +113,22 @@ export class Message {
         );
     }
 
+    /**
+     * Removes a message update listener, previously set with `onMessageUpdate`.
+     *
+     * @param listener The previously added listener
+     */
     public offMessageUpdate(listener: MessageUpdateListener) {
         const index = this.messageUpdateListeners.indexOf(listener);
         if (index !== -1) this.messageUpdateListeners.splice(index, 1);
     }
 
+    /**
+     * Add a listener for message content changes
+     *
+     * @param listener The listener to trigger when `content` changes
+     * @returns An unsubscribe function for this `listener`
+     */
     public onMessageUpdate(listener: MessageUpdateListener) {
         this.messageUpdateListeners.push(listener);
         return () => this.offMessageUpdate(listener);
@@ -131,7 +142,7 @@ export class Message {
     }
 
     /**
-     * Removes a message streaming listener, previously set with `onMessageStreaming`.
+     * Removes a message streaming listener, previously set with `onMessageStreamingUpdate`.
      *
      * @param listener The previously added listener
      */
@@ -146,33 +157,33 @@ export class Message {
      * @param listener The listener to trigger when `isStreaming` changes
      * @returns An unsubscribe function for this `listener`
      */
-    public onMessageStreaming(listener: MessageStreamingListener) {
+    public onMessageStreamingUpdate(listener: MessageStreamingListener) {
         this.messageStreamingListeners.push(listener);
         return () => this.offMessageStreaming(listener);
     }
 
     /**
-     * Adds a listener for message streaming start
+     * Adds a listener for when the message receives a new token from the stream
      *
-     * **Note: ** Internally, this creates a new function wrapping your passed `listener` and passes it to `onMessageStreaming`.
+     * **Note: ** Internally, this creates a new function wrapping your passed `listener` and passes it to `onMessageStreamingUpdate`.
      * For this reason, you cannot remove a listener using `offMessageStreaming(listener)`.
      * Instead, use the returned function to unsubscribe the listener properly.
      *
-     * @param listener The listener to trigger when `isStreaming` is set to `true`
+     * @param listener The listener to trigger when receiving a new message token
      * @returns An unsubscribe function for this `listener`
      */
-    public onMessageStreamingStart(listener: MessageStreamingStartListener) {
+    public onMessageStreamReceive(listener: MessageStreamingStartListener) {
         const startListener: MessageStreamingListener = (
             isStreaming,
             message
         ) => isStreaming && listener(message);
-        return this.onMessageStreaming(startListener);
+        return this.onMessageStreamingUpdate(startListener);
     }
 
     /**
      * Adds a listener for message streaming stop
      *
-     * **Note: ** Internally, this creates a new function wrapping your passed `listener` and passes it to `onMessageStreaming`.
+     * **Note: ** Internally, this creates a new function wrapping your passed `listener` and passes it to `onMessageStreamingUpdate`.
      * For this reason, you cannot remove a listener using `offMessageStreaming(listener)`.
      * Instead, use the returned function to unsubscribe the listener properly.
      *
@@ -182,7 +193,7 @@ export class Message {
     public onMessageStreamingStop(listener: MessageStreamingStopListener) {
         const stopListener: MessageStreamingListener = (isStreaming, message) =>
             !isStreaming && listener(message);
-        return this.onMessageStreaming(stopListener);
+        return this.onMessageStreamingUpdate(stopListener);
     }
 
     /**

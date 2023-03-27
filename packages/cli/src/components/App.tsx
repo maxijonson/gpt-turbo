@@ -28,7 +28,8 @@ export default (props: AppProps) => {
     const [conversation, setConversation] = React.useState<Conversation | null>(
         null
     );
-    const { apiKey, dry, model, context, disableModeration } = useConfig();
+    const { apiKey, dry, model, context, disableModeration, stream } =
+        useConfig();
     const [cols, rows] = useStdoutDimensions();
     const { isFocused } = useCustomFocus({
         id: FOCUSID_APP,
@@ -55,10 +56,10 @@ export default (props: AppProps) => {
                 apiKey,
                 context,
                 disableModeration,
-                stream: true,
+                stream,
             })
         );
-    }, [apiKey, context, disableModeration, dry, model]);
+    }, [apiKey, context, disableModeration, dry, model, stream]);
 
     if (!apiKey && !dry) {
         return <ApiKeyWarning />;

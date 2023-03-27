@@ -10,6 +10,7 @@ interface ProvidersProps {
     initialDry?: boolean;
     initialContext?: string;
     initialDisableModeration?: boolean | "soft";
+    initialStream?: boolean;
 }
 
 export default ({
@@ -19,6 +20,7 @@ export default ({
     initialDry,
     initialContext,
     initialDisableModeration,
+    initialStream,
 }: ProvidersProps) => {
     return (
         <DebugProvider>
@@ -28,6 +30,7 @@ export default ({
                 initialDry={initialDry}
                 initialContext={initialContext}
                 initialDisableModeration={initialDisableModeration}
+                initialStream={initialStream}
             >
                 <AppFocusProvider>{children}</AppFocusProvider>
             </ConfigProvider>

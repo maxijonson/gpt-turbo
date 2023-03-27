@@ -8,12 +8,14 @@ import {
     GPTTURBO_MODEL,
     GPTTURBO_SHOWUSAGE,
     GPTTURBO_DISABLEMODERATION,
+    GPTTURBO_STREAM,
 } from "./config/env.js";
 import {
     DEFAULT_CONTEXT,
     DEFAULT_DISABLEMODERATION,
     DEFAULT_DRY,
     DEFAULT_MODEL,
+    DEFAULT_STREAM,
 } from "gpt-turbo";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
@@ -59,6 +61,13 @@ const argv = yargs(hideBin(process.argv))
                     ? null
                     : GPTTURBO_DISABLEMODERATION) ?? DEFAULT_DISABLEMODERATION,
         },
+        stream: {
+            type: "boolean",
+            description:
+                "Streams the message instead of waiting for the complete result",
+            alias: "s",
+            default: GPTTURBO_STREAM ?? DEFAULT_STREAM,
+        },
         softModeration: {
             type: "boolean",
             description:
@@ -87,6 +96,7 @@ const {
     dry,
     context,
     disableModeration,
+    stream,
     softModeration,
     showUsage,
     showDebug,
@@ -101,6 +111,7 @@ render(
         initialDry={dry}
         initialContext={context}
         initialDisableModeration={moderation}
+        initialStream={stream}
     >
         <App showUsage={showUsage} showDebug={showDebug} />
     </Providers>

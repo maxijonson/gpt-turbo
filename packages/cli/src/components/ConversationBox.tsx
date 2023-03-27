@@ -109,7 +109,7 @@ export default ({ conversation }: ConversationBoxProps) => {
                 );
 
                 unsubscribeMessageStreaming.push(
-                    message.onMessageStreaming((streaming) => {
+                    message.onMessageStreamingUpdate((streaming) => {
                         setIsStreaming(streaming);
                     })
                 );

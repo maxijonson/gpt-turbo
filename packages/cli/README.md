@@ -20,6 +20,9 @@ gpt-turbo --help
 
 # Start a conversation with the GPT model
 gpt-turbo -k <your OpenAI API key>
+
+# Stream the conversation just like ChatGPT
+gpt-turbo -k <your OpenAI API key> -s
 ```
 
 ## CLI Options
@@ -33,4 +36,7 @@ Here's a table of the CLI options. Note that all CLI arguments can also be passe
 | model             | m     | GPTTURBO_MODEL             | string  | The model to use.                                                                                                                                             | (library default) |          |
 | context           | c     | GPTTURBO_CONTEXT           | string  | The first system message to set the context for the GPT model                                                                                                 | (library default) |          |
 | disableModeration | M     | GPTTURBO_DISABLEMODERATION | boolean | Disable message moderation. When left enabled, if `dry` is true and `apiKey` is specified, message will still be moderated, since the Moderation API is free. | (library default) |          |
+| stream            | s     | GPTTURBO_STREAM            | boolean | Streams the message instead of waiting for the complete result                                                                                                | (library default) |          |
 | softModeration    | S     | GPTTURBO_SOFTMODERATION    | boolean | Keep moderating messages, but don't throw an error if the message is not approved. Ignored if `disableModeration` is `true`.                                  | false             |          |
+| usage             | u     | GPTTURBO_SHOWUSAGE         | boolean | Show the usage window at app start                                                                                                                            | false             |          |
+| debug             | D     | GPTTURBO_SHOWDEBUG         | boolean | Show the debug window at app start                                                                                                                            | false             |          |

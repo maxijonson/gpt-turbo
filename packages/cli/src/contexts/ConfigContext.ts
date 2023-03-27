@@ -3,6 +3,7 @@ import {
     DEFAULT_DISABLEMODERATION,
     DEFAULT_DRY,
     DEFAULT_MODEL,
+    DEFAULT_STREAM,
 } from "gpt-turbo";
 import React from "react";
 import makeNotImplemented from "../utils/makeNotImplemented.js";
@@ -13,6 +14,7 @@ export interface ConfigContextState {
     model: string;
     context: string;
     disableModeration: boolean | "soft";
+    stream: boolean;
 }
 
 type ConfigSetter<K extends keyof ConfigContextState> = React.Dispatch<
@@ -24,6 +26,7 @@ export interface ConfigContextSetters {
     setModel: ConfigSetter<"model">;
     setContext: ConfigSetter<"context">;
     setDisableModeration: ConfigSetter<"disableModeration">;
+    setStream: ConfigSetter<"stream">;
 }
 
 export interface ConfigContextValue
@@ -37,9 +40,11 @@ export const ConfigContext = React.createContext<ConfigContextValue>({
     model: DEFAULT_MODEL,
     context: DEFAULT_CONTEXT,
     disableModeration: DEFAULT_DISABLEMODERATION,
+    stream: DEFAULT_STREAM,
     setApiKey: notImplemented,
     setDry: notImplemented,
     setModel: notImplemented,
     setContext: notImplemented,
     setDisableModeration: notImplemented,
+    setStream: notImplemented,
 });
