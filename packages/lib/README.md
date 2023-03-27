@@ -33,9 +33,10 @@ import { Conversation } from 'gpt-turbo';
 (async () => {
     const conversation = new Conversation({
         apiKey: /* Your OpenAI API key */,
+        stream: true,
     });
 
-    const response = await conversation.prompt("What is TypeScript?", { stream: true });
+    const response = await conversation.prompt("What is TypeScript?");
     process.stdout.write(`Response: `);
     const unsubscribe = response.onMessageUpdate((content) => {
         process.stdout.write(content);
