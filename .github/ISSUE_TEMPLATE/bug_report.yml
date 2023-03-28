@@ -20,34 +20,43 @@ body:
     validations:
       required: true
   - type: textarea
-    id: description
+    id: current
     attributes:
-      label: Description
-      description: Describe the bug
+      label: Current behavior
+      description: |
+        Describe the bug. 
+        - Please use code blocks (with \`\`\`) to format your code and error messages.
+        - Screenshots, GIFs, and videos are super helpful!
     validations:
       required: true
-  - type: input
-    id: codesandbox
+  - type: textarea
+    id: expected
     attributes:
-      label: CodeSandbox link
-      description: Include a link to a [CodeSandbox](https://codesandbox.io/) that reproduces the bug.
-  - type: dropdown
-    id: fix
+      label: Expected behavior
+      description: Describe what you expected to happen
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
     attributes:
-      label: Known fix
-      description: Do you know of a fix for this issue?
-      options:
-        - 'Yes'
-        - 'No'
-  - type: dropdown
-    id: participate
-    attributes:
-      label: Participation
-      description: Are you willing to participate in fixing this bug? (Submit a PR)
-      options:
-        - 'Yes'
-        - 'No'
+      label: Steps to reproduce
+      description: List the steps to reproduce the bug
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
   - type: textarea
     id: possibleFix
     attributes:
       label: Possible fix
+      description: If you have an idea of how to fix the bug, please share it here
+  - type: dropdown
+    id: participate
+    attributes:
+      label: Participation
+      description: Are you willing to submit a PR to fix this bug?
+      options:
+        - 'Yes'
+        - 'No'
