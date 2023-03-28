@@ -40,99 +40,17 @@ export class Message {
         this.content = content;
     }
 
-    get id() {
-        return this._id;
-    }
-
-    private set id(id) {
-        this._id = id;
-    }
-
-    get role() {
-        return this._role;
-    }
-
-    private set role(role) {
-        this._role = role;
-    }
-
-    get model() {
-        return this._model;
-    }
-
-    private set model(model) {
-        this._model = model;
-    }
-
-    get content() {
-        return this._content;
-    }
-
-    set content(content) {
-        this._content = content;
-        this.flags = null;
-        this.size = null;
-        this.cost = null;
-
-        this.notifyMessageUpdate();
-    }
-
-    get flags() {
-        return this._flags?.slice() ?? null;
-    }
-
-    private set flags(flags) {
-        this._flags = flags;
-    }
-
-    get isFlagged() {
-        return (this.flags?.length ?? 0) > 0;
-    }
-
-    get size(): number {
-        if (this._size) {
-            return this._size;
-        }
-        const s = getMessageSize(this._content);
-        this.size = s;
-        return this._size as typeof s;
-    }
-
-    private set size(size: number | null) {
-        this._size = size;
-    }
-
-    get cost(): number {
-        if (this._cost) {
-            return this._cost;
-        }
-        const c = getMessageCost(
-            this.size,
-            this.model,
-            this.role === "assistant" ? "completion" : "prompt"
-        );
-        this.cost = c;
-        return this._cost as typeof c;
-    }
-
-    private set cost(cost: number | null) {
-        this._cost = cost;
-    }
-
-    get isStreaming() {
-        return this._isStreaming;
-    }
-
-    private set isStreaming(isStreaming) {
-        this._isStreaming = isStreaming;
-
-        this.notifyMessageStreaming();
-    }
-
     private notifyMessageUpdate() {
         const content = this.content;
         this.messageUpdateListeners.forEach((listener) =>
             listener(content, this)
+        );
+    }
+
+    private notifyMessageStreaming() {
+        const isStreaming = this.isStreaming;
+        this.messageStreamingListeners.forEach((listener) =>
+            listener(isStreaming, this)
         );
     }
 
@@ -155,13 +73,6 @@ export class Message {
     public onMessageUpdate(listener: MessageUpdateListener) {
         this.messageUpdateListeners.push(listener);
         return () => this.offMessageUpdate(listener);
-    }
-
-    private notifyMessageStreaming() {
-        const isStreaming = this.isStreaming;
-        this.messageStreamingListeners.forEach((listener) =>
-            listener(isStreaming, this)
-        );
     }
 
     /**
@@ -282,5 +193,94 @@ export class Message {
         stream.on("end", () => {
             this.isStreaming = false;
         });
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    private set id(id) {
+        this._id = id;
+    }
+
+    get role() {
+        return this._role;
+    }
+
+    private set role(role) {
+        this._role = role;
+    }
+
+    get model() {
+        return this._model;
+    }
+
+    private set model(model) {
+        this._model = model;
+    }
+
+    get content() {
+        return this._content;
+    }
+
+    set content(content) {
+        this._content = content;
+        this.flags = null;
+        this.size = null;
+        this.cost = null;
+
+        this.notifyMessageUpdate();
+    }
+
+    get flags() {
+        return this._flags?.slice() ?? null;
+    }
+
+    private set flags(flags) {
+        this._flags = flags;
+    }
+
+    get isFlagged() {
+        return (this.flags?.length ?? 0) > 0;
+    }
+
+    get size(): number {
+        if (this._size) {
+            return this._size;
+        }
+        const s = getMessageSize(this._content);
+        this.size = s;
+        return this._size as typeof s;
+    }
+
+    private set size(size: number | null) {
+        this._size = size;
+    }
+
+    get cost(): number {
+        if (this._cost) {
+            return this._cost;
+        }
+        const c = getMessageCost(
+            this.size,
+            this.model,
+            this.role === "assistant" ? "completion" : "prompt"
+        );
+        this.cost = c;
+        return this._cost as typeof c;
+    }
+
+    private set cost(cost: number | null) {
+        this._cost = cost;
+    }
+
+    get isStreaming() {
+        return this._isStreaming;
+    }
+
+    private set isStreaming(isStreaming) {
+        this._isStreaming = isStreaming;
+
+        this.notifyMessageStreaming();
     }
 }

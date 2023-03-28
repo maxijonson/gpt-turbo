@@ -286,11 +286,7 @@ export class Conversation {
     }
 
     /**
-     * This is the **recommended** way to interact with the GPT model. It's a wrapper method around the following public methods (which you can use directly if you want more control over the conversation flow):
-     * - `getModerationResponse` - Checks whether the message breaks any of OpenAI's [usage policies](https://openai.com/policies/usage-policies). This step will only be performed if `disableModeration` is set to `false`. In Dry mode, this step will **not** be skipped if `apiKey` was specified, since this endpoint is free.
-     * - `addUserMessage` - Adds a message with the role of "user" to the conversation's message history.
-     * - `getChatCompletionResponse` - Sends the message history to OpenAI, including the previously added user message, and gets the assistant's response.
-     * - `addAssistantMessage` - Adds the previously obtained response with the role of "assistant" to the conversation's message history.
+     * This is the **recommended** way to interact with the GPT model. It's a wrapper method around other public methods that handles the logic of adding a user message, sending a request to the OpenAI API, and adding the assistant's response.
      *
      * @param prompt The prompt to send to the assistant.
      * @param options Additional options to pass to the createChatCompletion request.
