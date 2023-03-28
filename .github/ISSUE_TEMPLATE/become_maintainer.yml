@@ -14,9 +14,9 @@ body:
     attributes:
       label: TypeScript Experience
       description: By submitting this application, you assert that you are experienced with TypeScript.
-    options:
-      - label: I am experienced with TypeScript
-        required: true
+      options:
+        - label: I am experienced with TypeScript
+          required: true
   - type: dropdown
     id: experience
     attributes:
