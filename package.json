@@ -8,7 +8,10 @@
     "build": "lerna run build",
     "lint:strict": "lerna run lint:strict",
     "lint:fix": "lerna run lint:fix",
-    "release": "npm run build && lerna publish"
+    "release": "npm run build && lerna publish",
+    "release:patch": "npm run build && lerna publish patch --yes",
+    "release:minor": "npm run build && lerna publish minor --yes",
+    "release:major": "npm run build && lerna publish major --yes"
   },
   "workspaces": [
     "packages/*"
