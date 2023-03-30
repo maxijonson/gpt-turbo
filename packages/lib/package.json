@@ -1,6 +1,6 @@
 {
     "name": "gpt-turbo",
-    "version": "2.2.1",
+    "version": "2.2.2",
     "description": "A library for interacting with OpenAI's Chat Completion API",
     "main": "dist/index.js",
     "type": "module",
@@ -68,7 +68,7 @@
         "typescript": "^4.9.5"
     },
     "dependencies": {
-        "gpt3-tokenizer": "^1.1.5",
+        "gpt-token-utils": "^1.2.0",
         "openai": "^3.2.1",
         "uuid": "^9.0.0"
     },
