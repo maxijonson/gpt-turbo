@@ -1,6 +1,4 @@
-import GPT3Tokenizer from "gpt3-tokenizer";
-
-const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
+import { encode } from "gpt-token-utils";
 
 /**
  * Returns the size of a message in tokens.
@@ -8,5 +6,5 @@ const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
  * @param message The message to get the size of.
  */
 export default (message: string) => {
-    return tokenizer.encode(message).bpe.length;
+    return encode(message).length;
 };
