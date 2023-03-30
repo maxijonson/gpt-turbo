@@ -1,0 +1,72 @@
+{
+    "name": "gpt-turbo-web",
+    "version": "2.2.0",
+    "description": "A Web app that interacts with the gpt-turbo library",
+    "private": true,
+    "main": "dist/index.js",
+    "type": "module",
+    "scripts": {
+        "lint": "eslint --ext .ts,.tsx src",
+        "lint:strict": "npm run lint -- --max-warnings 0",
+        "lint:fix": "npm run lint -- --fix",
+        "build": "npm run lint:strict && rimraf dist && tsc -p tsconfig.build.json && vite build",
+        "dev": "vite",
+        "preview": "vite preview"
+    },
+    "keywords": [
+        "openai",
+        "chatgpt",
+        "chat",
+        "gpt",
+        "gpt3",
+        "gpt-3",
+        "gpt3.5",
+        "gpt-3.5",
+        "gpt4",
+        "gpt-4",
+        "completion",
+        "chatcompletion",
+        "conversation",
+        "conversation ai",
+        "ai",
+        "ml",
+        "bot",
+        "chatbot",
+        "web",
+        "web app",
+        "react"
+    ],
+    "author": "Tristan Chin <tristan.chin@chintristan.io>",
+    "homepage": "https://github.com/maxijonson/gpt-turbo/tree/develop/packages/web#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/maxijonson/gpt-turbo.git"
+    },
+    "bugs": {
+        "url": "https://github.com/maxijonson/gpt-turbo/issues"
+    },
+    "license": "MIT",
+    "files": [
+        "dist"
+    ],
+    "dependencies": {
+        "gpt-turbo": "^2.2.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+    },
+    "devDependencies": {
+        "@types/react": "^18.0.26",
+        "@types/react-dom": "^18.0.9",
+        "@typescript-eslint/eslint-plugin": "^5.54.0",
+        "@typescript-eslint/parser": "^5.54.0",
+        "@vitejs/plugin-react-swc": "^3.0.0",
+        "eslint": "^8.35.0",
+        "eslint-config-prettier": "^8.6.0",
+        "eslint-plugin-prettier": "^4.2.1",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "prettier": "^2.8.4",
+        "typescript": "^4.9.3",
+        "vite": "^4.0.0",
+        "vite-plugin-eslint": "^1.8.1"
+    }
+}
