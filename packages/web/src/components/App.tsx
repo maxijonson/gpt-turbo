@@ -1,6 +1,5 @@
 import { AppShell } from "@mantine/core";
 import AppNavbar from "./AppNavbar";
-import AppHeader from "./AppHeader";
 import ConversationPage from "../pages/ConversationPage";
 
 export default () => {
@@ -8,7 +7,6 @@ export default () => {
         <AppShell
             padding="md"
             navbar={<AppNavbar />}
-            header={<AppHeader />}
             sx={(theme) => ({
                 backgroundColor:
                     theme.colorScheme === "dark"
