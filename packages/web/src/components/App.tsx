@@ -1,8 +1,15 @@
-import { AppShell } from "@mantine/core";
+import { AppShell, LoadingOverlay } from "@mantine/core";
 import AppNavbar from "./AppNavbar";
 import ConversationPage from "../pages/ConversationPage";
+import useSettings from "../hooks/useSettings";
 
 export default () => {
+    const { areSettingsLoaded } = useSettings();
+
+    if (!areSettingsLoaded) {
+        return <LoadingOverlay visible />;
+    }
+
     return (
         <AppShell
             padding="md"

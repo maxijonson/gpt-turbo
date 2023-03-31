@@ -117,15 +117,16 @@ export class ConversationConfig extends Configuration {
     }
 
     public get isModerationEnabled() {
-        if (!this.apiKey) return false;
         return this.isModerationStrict || this.isModerationSoft;
     }
 
     public get isModerationStrict() {
+        if (!this.apiKey) return false;
         return !this._disableModeration;
     }
 
     public get isModerationSoft() {
+        if (!this.apiKey) return false;
         return this._disableModeration === "soft";
     }
 

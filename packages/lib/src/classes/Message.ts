@@ -3,6 +3,7 @@ import { ChatCompletionRequestMessageRoleEnum, OpenAIApi } from "openai";
 import { AxiosResponse } from "axios";
 import { Stream } from "stream";
 import { getMessageCost, getMessageSize } from "../index.js";
+import { OpenAiAxiosConfig } from "../utils/types.js";
 
 export type MessageUpdateListener = (content: string, message: Message) => void;
 export type MessageStreamingListener = (
@@ -136,15 +137,21 @@ export class Message {
      * @param openai The OpenAIApi instance to use for moderation
      * @returns The flags applied on the message
      */
-    public async moderate(openai: OpenAIApi): Promise<string[]> {
+    public async moderate(
+        openai: OpenAIApi,
+        axiosConfig: OpenAiAxiosConfig = {}
+    ): Promise<string[]> {
         const flags = this.flags;
         if (flags) {
             return flags;
         }
 
-        const response = await openai.createModeration({
-            input: this.content,
-        });
+        const response = await openai.createModeration(
+            {
+                input: this.content,
+            },
+            axiosConfig
+        );
         const { flagged, categories } = response.data.results[0];
 
         this.flags = flagged

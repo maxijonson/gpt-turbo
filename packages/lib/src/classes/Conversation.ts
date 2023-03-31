@@ -2,25 +2,19 @@ import {
     ConversationConfig,
     ConversationConfigParameters,
 } from "./ConversationConfig.js";
-import { OpenAIApi, CreateChatCompletionRequest } from "openai";
+import { OpenAIApi } from "openai";
 import { AxiosResponse } from "axios";
 import { getMessageSize } from "../utils/index.js";
 import { ModerationException } from "../exceptions/ModerationException.js";
 import { Message } from "./Message.js";
 import { MessageRoleException } from "../index.js";
 import { v4 as uuid } from "uuid";
-
-export type ChatCompletionRequestOptions = Omit<
-    CreateChatCompletionRequest,
-    "model" | "messages" | "stream"
->;
-type OpenAiAxiosConfig = Omit<
-    Parameters<OpenAIApi["createChatCompletion"]>[1],
-    "responseType"
->;
-
-export type AddMessageListener = (message: Message) => void;
-export type RemoveMessageListener = (message: Message) => void;
+import {
+    OpenAiAxiosConfig,
+    AddMessageListener,
+    RemoveMessageListener,
+    ChatCompletionRequestOptions,
+} from "../utils/types.js";
 
 export class Conversation {
     public id = uuid();
@@ -55,7 +49,7 @@ export class Conversation {
         message.content = message.content.trim();
 
         if (this.config.isModerationEnabled) {
-            const flags = await message.moderate(this.openai);
+            const flags = await message.moderate(this.openai, this.axiosConfig);
             if (this.config.isModerationStrict && flags.length > 0) {
                 throw new ModerationException(flags);
             }

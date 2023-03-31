@@ -16,6 +16,7 @@ import {
     Anchor,
 } from "@mantine/core";
 import React from "react";
+import useSettings from "../hooks/useSettings";
 
 const ModelSelectItem = React.forwardRef<
     HTMLDivElement,
@@ -34,9 +35,10 @@ const ModelSelectItem = React.forwardRef<
 
 export default () => {
     const { addConversation, setActiveConversation } = useConversationManager();
+    const { settings } = useSettings();
     const form = useForm({
         initialValues: {
-            apiKey: "",
+            apiKey: settings.apiKey,
             model: DEFAULT_MODEL,
             context: DEFAULT_CONTEXT,
             dry: DEFAULT_DRY,

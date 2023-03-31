@@ -1,5 +1,6 @@
 import ConversationManagerProvider from "./ConversationManagerProvider";
 import MantineProviders from "./MantineProviders";
+import SettingsProvider from "./SettingsProvider";
 
 interface ProviderProps {
     children?: React.ReactNode;
@@ -7,10 +8,10 @@ interface ProviderProps {
 
 export default ({ children }: ProviderProps) => {
     return (
-        <MantineProviders>
+        <SettingsProvider>
             <ConversationManagerProvider>
-                {children}
+                <MantineProviders>{children}</MantineProviders>
             </ConversationManagerProvider>
-        </MantineProviders>
+        </SettingsProvider>
     );
 };

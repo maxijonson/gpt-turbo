@@ -8,8 +8,10 @@ import {
     createStyles,
 } from "@mantine/core";
 import useConversationManager from "../hooks/useConversationManager";
-import { BiPlus } from "react-icons/bi";
+import { BiCog, BiPlus } from "react-icons/bi";
 import TippedActionIcon from "./TippedActionIcon";
+import { openModal } from "@mantine/modals";
+import Settings from "./Settings";
 
 const useStyles = createStyles(() => ({
     scrollArea: {
@@ -33,6 +35,19 @@ export default () => {
                         tip="Add conversation"
                     >
                         <BiPlus />
+                    </TippedActionIcon>
+                    <TippedActionIcon
+                        tip="Settings"
+                        onClick={() =>
+                            openModal({
+                                children: <Settings />,
+                                centered: true,
+                                size: "lg",
+                                title: "Settings",
+                            })
+                        }
+                    >
+                        <BiCog />
                     </TippedActionIcon>
                 </Group>
             </Navbar.Section>
