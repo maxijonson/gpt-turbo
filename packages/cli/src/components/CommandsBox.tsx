@@ -8,8 +8,6 @@ import {
 import useAppFocus from "../hooks/useAppFocus.js";
 import BoxTitle from "./BoxTitle.js";
 
-export interface CommandsBoxProps {}
-
 export interface Command {
     label: string;
     command: string;
@@ -20,7 +18,7 @@ const DEFAULT_COMMANDS: Command[] = [
     { label: "Focus Prompt", command: "p" },
 ];
 
-export default ({}: CommandsBoxProps) => {
+export default () => {
     const { activeId } = useAppFocus();
 
     const commands = React.useMemo<Command[]>(() => {

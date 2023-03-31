@@ -9,7 +9,7 @@
         "lint": "eslint --ext .ts,.tsx src",
         "lint:strict": "npm run lint -- --max-warnings 0",
         "lint:fix": "npm run lint -- --fix",
-        "build": "npm run lint:strict && rimraf dist && tsc -p tsconfig.build.json && vite build",
+        "build": "npm run lint:strict && rimraf dist && vite build",
         "dev": "vite",
         "preview": "vite preview"
     },
@@ -50,9 +50,15 @@
         "dist"
     ],
     "dependencies": {
+        "@emotion/react": "^11.10.6",
+        "@mantine/core": "^6.0.5",
+        "@mantine/form": "^6.0.5",
+        "@mantine/hooks": "^6.0.5",
+        "@mantine/modals": "^6.0.5",
         "gpt-turbo": "^2.2.0",
         "react": "^18.2.0",
-        "react-dom": "^18.2.0"
+        "react-dom": "^18.2.0",
+        "react-icons": "^4.8.0"
     },
     "devDependencies": {
         "@types/react": "^18.0.26",

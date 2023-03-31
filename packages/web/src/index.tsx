@@ -1,11 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Conversation } from "gpt-turbo";
-
-console.info(Conversation);
+import Providers from "./contexts/providers";
+import App from "./components/App";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
-        <h1>Hello GPT-Turbo</h1>
+        <Providers>
+            <App />
+        </Providers>
     </React.StrictMode>
 );

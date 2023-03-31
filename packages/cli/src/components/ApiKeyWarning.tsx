@@ -6,8 +6,6 @@ import CenteredText from "./CenteredText.js";
 import useConfig from "../hooks/useConfig.js";
 import TextInput from "ink-text-input";
 
-interface ApiKeyWarningProps {}
-
 const ACTIONS = [
     {
         id: "exit",
@@ -23,7 +21,7 @@ const ACTIONS = [
     },
 ] as const;
 
-export default ({}: ApiKeyWarningProps) => {
+export default () => {
     const [cols, rows] = useStdoutDimensions();
     const { item, cycleNext, cyclePrevious } = useCycle(ACTIONS);
     const { exit } = useApp();

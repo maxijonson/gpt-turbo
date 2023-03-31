@@ -8,6 +8,7 @@ import { getMessageSize } from "../utils/index.js";
 import { ModerationException } from "../exceptions/ModerationException.js";
 import { Message } from "./Message.js";
 import { MessageRoleException } from "../index.js";
+import { v4 as uuid } from "uuid";
 
 export type ChatCompletionRequestOptions = Omit<
     CreateChatCompletionRequest,
@@ -22,6 +23,7 @@ export type AddMessageListener = (message: Message) => void;
 export type RemoveMessageListener = (message: Message) => void;
 
 export class Conversation {
+    public id = uuid();
     private config: ConversationConfig;
     private axiosConfig: OpenAiAxiosConfig;
     private openai: OpenAIApi;

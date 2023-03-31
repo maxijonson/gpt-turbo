@@ -3,9 +3,7 @@ import React from "react";
 import useDebug from "../hooks/useDebug.js";
 import BoxTitle from "./BoxTitle.js";
 
-interface DebugBoxProps {}
-
-export default ({}: DebugBoxProps) => {
+export default () => {
     const { logs } = useDebug();
 
     return (
