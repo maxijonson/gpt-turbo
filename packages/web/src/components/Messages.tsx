@@ -44,6 +44,10 @@ export default () => {
         });
     }, [conversation]);
 
+    React.useEffect(() => {
+        setMessages(conversation?.getMessages() ?? []);
+    }, [conversation]);
+
     return (
         <Container sx={{ flexGrow: 1 }} w="100%" h={0}>
             <ScrollArea h="100%" offsetScrollbars>
