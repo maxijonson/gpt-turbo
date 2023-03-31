@@ -10,7 +10,10 @@ export default () => {
             navbar={<AppNavbar />}
             header={<AppHeader />}
             sx={(theme) => ({
-                backgroundColor: theme.colors.gray[1],
+                backgroundColor:
+                    theme.colorScheme === "dark"
+                        ? theme.colors.dark[8]
+                        : theme.colors.gray[1],
             })}
         >
             <ConversationPage />

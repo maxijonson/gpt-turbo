@@ -1,6 +1,7 @@
 import { Container, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import useConversationManager from "../hooks/useConversationManager";
+import { notifications } from "@mantine/notifications";
 
 export default () => {
     const { activeConversation: conversation } = useConversationManager();
@@ -12,8 +13,17 @@ export default () => {
 
     const handleSubmit = form.onSubmit(async (values) => {
         if (!conversation) return;
-        await conversation.prompt(values.message);
         form.reset();
+        try {
+            await conversation.prompt(values.message);
+        } catch (e) {
+            console.error(e);
+            notifications.show({
+                title: "Prompt error",
+                message: (e as any).message ?? "Unknown error",
+                color: "red",
+            });
+        }
     });
 
     return (

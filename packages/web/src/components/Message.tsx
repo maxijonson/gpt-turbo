@@ -20,15 +20,29 @@ export default ({ message }: MessageProps) => {
         }
     })();
 
+    const color = (() => {
+        switch (message.role) {
+            case "assistant":
+                return "teal";
+            case "user":
+                return "blue";
+            case "system":
+            default:
+                return "gray";
+        }
+    })();
+
     return (
         <Group noWrap>
             <div style={{ alignSelf: "start" }}>
-                <Avatar>
+                <Avatar color={color}>
                     <Sender />
                 </Avatar>
             </div>
             <Card shadow="sm" style={{ flexGrow: 1 }}>
-                <Text>{message.content}</Text>
+                {message.content.split("\n").map((line, i) => (
+                    <Text key={i}>{line}</Text>
+                ))}
             </Card>
         </Group>
     );
