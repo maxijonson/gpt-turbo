@@ -2,6 +2,7 @@ import { Container, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import useConversationManager from "../hooks/useConversationManager";
 import { notifications } from "@mantine/notifications";
+import React from "react";
 
 export default () => {
     const { activeConversation: conversation } = useConversationManager();
@@ -10,12 +11,18 @@ export default () => {
             message: "",
         },
     });
+    const [isStreaming, setIsStreaming] = React.useState(false);
 
     const handleSubmit = form.onSubmit(async (values) => {
         if (!conversation) return;
         form.reset();
         try {
-            await conversation.prompt(values.message);
+            const message = await conversation.prompt(values.message);
+            if (message) {
+                message.onMessageStreamingUpdate((isStreaming) => {
+                    setIsStreaming(isStreaming);
+                });
+            }
         } catch (e) {
             console.error(e);
             notifications.show({
@@ -31,6 +38,7 @@ export default () => {
             <form onSubmit={handleSubmit}>
                 <Textarea
                     {...form.getInputProps("message")}
+                    disabled={isStreaming}
                     autosize
                     minRows={1}
                     maxRows={8}

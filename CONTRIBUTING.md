@@ -157,7 +157,7 @@ There are no strict rules for commit messages (yet), but it can be useful to pre
 Are you interested in becoming a maintainer of this project? As of now, the project is maintained by a single person, and it would be great to have more people involved beyond contributors! The only requirement I am looking for is a solid experience with [TypeScript](https://www.typescriptlang.org/), since it is at the core of the project. 
 
 It's also a plus if you have experience in the technologies used by the library and its implementations:
-- [OpenAI's Node.js Library](https://www.npmjs.com/package/openai)
+- [OpenAI's API](https://platform.openai.com/docs/api-reference/chat)
 - [React](https://reactjs.org/)
 - [Ink](https://github.com/vadimdemedes/ink)
 - and more

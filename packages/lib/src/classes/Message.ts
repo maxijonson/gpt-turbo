@@ -1,9 +1,11 @@
 import { v4 as uuid } from "uuid";
-import { ChatCompletionRequestMessageRoleEnum, OpenAIApi } from "openai";
-import { AxiosResponse } from "axios";
-import { Stream } from "stream";
 import { getMessageCost, getMessageSize } from "../index.js";
-import { OpenAiAxiosConfig } from "../utils/types.js";
+import {
+    ChatCompletionRequestMessageRoleEnum,
+    RequestOptions,
+    CreateChatCompletionStreamResponse,
+} from "../utils/types.js";
+import createModeration from "../utils/createModeration.js";
 
 export type MessageUpdateListener = (content: string, message: Message) => void;
 export type MessageStreamingListener = (
@@ -49,10 +51,9 @@ export class Message {
     }
 
     private notifyMessageStreaming() {
-        const isStreaming = this.isStreaming;
-        this.messageStreamingListeners.forEach((listener) =>
-            listener(isStreaming, this)
-        );
+        this.messageStreamingListeners.forEach((listener) => {
+            listener(this.isStreaming, this);
+        });
     }
 
     /**
@@ -61,8 +62,9 @@ export class Message {
      * @param listener The previously added listener
      */
     public offMessageUpdate(listener: MessageUpdateListener) {
-        const index = this.messageUpdateListeners.indexOf(listener);
-        if (index !== -1) this.messageUpdateListeners.splice(index, 1);
+        this.messageUpdateListeners = this.messageUpdateListeners.filter(
+            (l) => l !== listener
+        );
     }
 
     /**
@@ -82,8 +84,9 @@ export class Message {
      * @param listener The previously added listener
      */
     public offMessageStreaming(listener: MessageStreamingListener) {
-        const index = this.messageStreamingListeners.indexOf(listener);
-        if (index !== -1) this.messageStreamingListeners.splice(index, 1);
+        this.messageStreamingListeners = this.messageStreamingListeners.filter(
+            (l) => l !== listener
+        );
     }
 
     /**
@@ -98,16 +101,16 @@ export class Message {
     }
 
     /**
-     * Adds a listener for when the message receives a new token from the stream
+     * Adds a listener for message streaming start.
      *
      * **Note: ** Internally, this creates a new function wrapping your passed `listener` and passes it to `onMessageStreamingUpdate`.
      * For this reason, you cannot remove a listener using `offMessageStreaming(listener)`.
      * Instead, use the returned function to unsubscribe the listener properly.
      *
-     * @param listener The listener to trigger when receiving a new message token
+     * @param listener The listener to trigger when `isStreaming` is set to `true`
      * @returns An unsubscribe function for this `listener`
      */
-    public onMessageStreamReceive(listener: MessageStreamingStartListener) {
+    public onMessageStreamingStart(listener: MessageStreamingStartListener) {
         const startListener: MessageStreamingListener = (
             isStreaming,
             message
@@ -116,7 +119,7 @@ export class Message {
     }
 
     /**
-     * Adds a listener for message streaming stop
+     * Adds a listener for message streaming stop.
      *
      * **Note: ** Internally, this creates a new function wrapping your passed `listener` and passes it to `onMessageStreamingUpdate`.
      * For this reason, you cannot remove a listener using `offMessageStreaming(listener)`.
@@ -134,25 +137,28 @@ export class Message {
     /**
      * Call the OpenAI moderation API to check if the message is flagged. Only called once for the same content.
      *
-     * @param openai The OpenAIApi instance to use for moderation
+     * @param apiKey The OpenAI API key
+     * @param requestOptions The request options to pass to fetch
      * @returns The flags applied on the message
      */
     public async moderate(
-        openai: OpenAIApi,
-        axiosConfig: OpenAiAxiosConfig = {}
+        apiKey: string,
+        requestOptions: RequestOptions = {}
     ): Promise<string[]> {
         const flags = this.flags;
         if (flags) {
             return flags;
         }
+        if (!this.content) return [];
 
-        const response = await openai.createModeration(
+        const response = await createModeration(
             {
+                apiKey,
                 input: this.content,
             },
-            axiosConfig
+            requestOptions
         );
-        const { flagged, categories } = response.data.results[0];
+        const { flagged, categories } = response.results[0];
 
         this.flags = flagged
             ? Object.keys(categories).filter(
@@ -166,40 +172,39 @@ export class Message {
     /**
      * Progessively adds content to the message from a streamed response type.
      *
-     * @param response The AxiosResponse from the OpenAI API
+     * @param response The ReadableStream from the OpenAI API
      */
-    public readContentFromStream(response: AxiosResponse) {
-        const stream = response.data as unknown as Stream;
-        let buffer = "";
-
-        const listener = (chunk: any) => {
+    public async readContentFromStream(response: ReadableStream) {
+        try {
             this.isStreaming = true;
-            buffer += chunk.toString();
-            const payloadRegex = /^data: (.+)$/m;
-            let match;
+            const reader = response.getReader();
+            const decoder = new TextDecoder();
 
-            while ((match = payloadRegex.exec(buffer))) {
-                const payloadStr = match[1];
-                const payload = JSON.parse(payloadStr);
-                buffer = buffer.slice(match[0].length);
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const decoded = decoder.decode(value).trim();
+                const chunks = decoded.split("data: ").filter((c) => c.trim());
 
-                const { role, content } = payload.choices[0].delta;
-                if (!role && !content) {
-                    stream.off("data", listener);
-                    this.isStreaming = false;
-                    break;
-                } else {
-                    if (!content) continue;
-                    this.content += content;
+                for (const chunk of chunks) {
+                    try {
+                        const json: CreateChatCompletionStreamResponse =
+                            JSON.parse(chunk);
+                        const content =
+                            json?.choices?.[0]?.delta?.content ?? null;
+
+                        if (!content) continue;
+                        this.content += json.choices[0].delta.content;
+                    } catch {
+                        continue;
+                    }
                 }
             }
-        };
-
-        stream.on("data", listener);
-
-        stream.on("end", () => {
+        } catch (err) {
+            console.error(err);
+        } finally {
             this.isStreaming = false;
-        });
+        }
     }
 
     get id() {

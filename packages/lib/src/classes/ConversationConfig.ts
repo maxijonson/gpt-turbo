@@ -5,16 +5,15 @@ import {
     DEFAULT_MODEL,
     DEFAULT_STREAM,
 } from "../config/constants.js";
-import { Configuration, ConfigurationParameters } from "openai";
+import { CreateChatCompletionRequest } from "../utils/types.js";
 
-export interface ConversationConfigParameters extends ConfigurationParameters {
-    /**
-     * Chat completion model to use.
-     *
-     * @default "gpt-3.5-turbo"
-     */
-    model?: string;
+type ExcludedConfigParameters = "messages";
 
+export interface ConversationConfigParameters
+    extends Omit<
+        Partial<CreateChatCompletionRequest>,
+        ExcludedConfigParameters
+    > {
     /**
      * The first system message to set the context for the GPT model.
      *
@@ -39,47 +38,78 @@ export interface ConversationConfigParameters extends ConfigurationParameters {
      * @default false
      */
     disableModeration?: boolean | "soft";
-
-    /**
-     * Whether or not to stream messages (like ChatGPT), instead of waiting for a complete response.
-     *
-     * @default false
-     */
-    stream?: boolean;
 }
 
 type ConversationConfigProperty<K extends keyof ConversationConfigParameters> =
     Exclude<ConversationConfigParameters[K], undefined>;
 
-export class ConversationConfig extends Configuration {
-    private _model: ConversationConfigProperty<"model">;
-    private _context: ConversationConfigProperty<"context">;
+export class ConversationConfig {
+    public model: ConversationConfigProperty<"model">;
+    public stream: ConversationConfigProperty<"stream">;
+    public frequencyPenalty:
+        | ConversationConfigProperty<"frequency_penalty">
+        | undefined;
+    public presencePenalty:
+        | ConversationConfigProperty<"presence_penalty">
+        | undefined;
+    public maxTokens: ConversationConfigProperty<"max_tokens"> | undefined;
+    public logitBias: ConversationConfigProperty<"logit_bias"> | undefined;
+    public stop: ConversationConfigProperty<"stop"> | undefined;
+    public temperature: ConversationConfigProperty<"temperature"> | undefined;
+    public topP: ConversationConfigProperty<"top_p"> | undefined;
+    public user: ConversationConfigProperty<"user"> | undefined;
+    private _apiKey!: ConversationConfigProperty<"apiKey">;
+
+    public disableModeration: ConversationConfigProperty<"disableModeration">;
+    private _context!: ConversationConfigProperty<"context">;
     private _dry!: ConversationConfigProperty<"dry">;
-    private _disableModeration: ConversationConfigProperty<"disableModeration">;
-    private _stream: ConversationConfigProperty<"stream">;
 
     constructor({
-        model = DEFAULT_MODEL,
         context = DEFAULT_CONTEXT,
         dry = DEFAULT_DRY,
         disableModeration = DEFAULT_DISABLEMODERATION,
-        stream = DEFAULT_STREAM,
-        ...configParameters
+        ...chatCompletionConfig
     }: ConversationConfigParameters) {
-        super(configParameters);
-        this._model = model;
-        this._context = context.trim();
-        this._disableModeration = disableModeration;
-        this._stream = stream;
-        this.setDry(dry);
+        const {
+            apiKey = "",
+            model = DEFAULT_MODEL,
+            stream = DEFAULT_STREAM,
+            frequency_penalty,
+            presence_penalty,
+            max_tokens,
+            logit_bias,
+            stop,
+            temperature,
+            top_p,
+            user,
+        } = chatCompletionConfig;
+
+        this.apiKey = apiKey;
+        this.dry = dry;
+        this.model = model;
+        this.context = context.trim();
+        this.disableModeration = disableModeration;
+        this.stream = stream;
+
+        this.frequencyPenalty = frequency_penalty;
+        this.presencePenalty = presence_penalty;
+        this.maxTokens = max_tokens;
+        this.logitBias = logit_bias;
+        this.stop = stop;
+        this.temperature = temperature;
+        this.topP = top_p;
+        this.user = user;
     }
 
-    public get model() {
-        return this._model;
+    public get apiKey() {
+        return this._apiKey;
     }
 
-    public set model(model) {
-        this._model = model;
+    public set apiKey(apiKey) {
+        this._apiKey = apiKey;
+        if (this.dry !== undefined) {
+            this.dry = this.dry; // Revalidate dry mode
+        }
     }
 
     public get context() {
@@ -90,7 +120,11 @@ export class ConversationConfig extends Configuration {
         this._context = context.trim();
     }
 
-    private setDry(dry: typeof this._dry) {
+    public get dry() {
+        return this._dry;
+    }
+
+    public set dry(dry) {
         this._dry = dry;
         if (!dry && !this.apiKey) {
             console.warn(
@@ -100,41 +134,36 @@ export class ConversationConfig extends Configuration {
         }
     }
 
-    public get dry() {
-        return this._dry;
-    }
-
-    public set dry(dry) {
-        this.setDry(dry);
-    }
-
-    public get disableModeration() {
-        return this._disableModeration;
-    }
-
-    public set disableModeration(disableModeration) {
-        this._disableModeration = disableModeration;
-    }
-
     public get isModerationEnabled() {
         return this.isModerationStrict || this.isModerationSoft;
     }
 
     public get isModerationStrict() {
         if (!this.apiKey) return false;
-        return !this._disableModeration;
+        return !this.disableModeration;
     }
 
     public get isModerationSoft() {
         if (!this.apiKey) return false;
-        return this._disableModeration === "soft";
+        return this.disableModeration === "soft";
     }
 
-    public get stream() {
-        return this._stream;
-    }
-
-    public set stream(stream) {
-        this._stream = stream;
+    public get chatCompletionConfig(): Omit<
+        CreateChatCompletionRequest,
+        "messages"
+    > {
+        return {
+            apiKey: this.apiKey,
+            model: this.model,
+            stream: this.stream,
+            frequency_penalty: this.frequencyPenalty,
+            presence_penalty: this.presencePenalty,
+            max_tokens: this.maxTokens,
+            logit_bias: this.logitBias,
+            stop: this.stop,
+            temperature: this.temperature,
+            top_p: this.topP,
+            user: this.user,
+        };
     }
 }

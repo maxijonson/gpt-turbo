@@ -2,25 +2,23 @@ import {
     ConversationConfig,
     ConversationConfigParameters,
 } from "./ConversationConfig.js";
-import { OpenAIApi } from "openai";
-import { AxiosResponse } from "axios";
-import { getMessageSize } from "../utils/index.js";
+import { createChatCompletion, getMessageSize } from "../utils/index.js";
 import { ModerationException } from "../exceptions/ModerationException.js";
 import { Message } from "./Message.js";
-import { MessageRoleException } from "../index.js";
+import { MessageRoleException } from "../exceptions/index.js";
 import { v4 as uuid } from "uuid";
 import {
-    OpenAiAxiosConfig,
     AddMessageListener,
+    HandleChatCompletionOptions,
+    PromptOptions,
     RemoveMessageListener,
-    ChatCompletionRequestOptions,
+    RequestOptions,
 } from "../utils/types.js";
 
 export class Conversation {
     public id = uuid();
     private config: ConversationConfig;
-    private axiosConfig: OpenAiAxiosConfig;
-    private openai: OpenAIApi;
+    private requestOptions: RequestOptions;
     private messages: Message[] = [];
     private addMessageListeners: AddMessageListener[] = [];
     private removeMessageListeners: RemoveMessageListener[] = [];
@@ -29,11 +27,10 @@ export class Conversation {
 
     constructor(
         config: ConversationConfigParameters,
-        axiosConfig: OpenAiAxiosConfig = {}
+        options: RequestOptions = {}
     ) {
         this.config = new ConversationConfig(config);
-        this.axiosConfig = axiosConfig;
-        this.openai = new OpenAIApi(this.config);
+        this.requestOptions = options;
         this.clearMessages();
     }
 
@@ -49,7 +46,10 @@ export class Conversation {
         message.content = message.content.trim();
 
         if (this.config.isModerationEnabled) {
-            const flags = await message.moderate(this.openai, this.axiosConfig);
+            const flags = await message.moderate(
+                this.config.apiKey,
+                this.requestOptions
+            );
             if (this.config.isModerationStrict && flags.length > 0) {
                 throw new ModerationException(flags);
             }
@@ -123,8 +123,9 @@ export class Conversation {
      * @param listener The function to remove from the list of listeners.
      */
     public offMessageAdded(listener: AddMessageListener) {
-        const index = this.addMessageListeners.indexOf(listener);
-        if (index !== -1) this.addMessageListeners.splice(index, 1);
+        this.addMessageListeners = this.addMessageListeners.filter(
+            (l) => l !== listener
+        );
     }
 
     /**
@@ -144,8 +145,9 @@ export class Conversation {
      * @param listener The function to remove from the list of listeners.
      */
     public offMessageRemoved(listener: RemoveMessageListener) {
-        const index = this.removeMessageListeners.indexOf(listener);
-        if (index !== -1) this.removeMessageListeners.splice(index, 1);
+        this.removeMessageListeners = this.removeMessageListeners.filter(
+            (l) => l !== listener
+        );
     }
 
     /**
@@ -174,9 +176,9 @@ export class Conversation {
      */
     public removeMessage(message: string | Message) {
         const id = typeof message === "string" ? message : message.id;
-        const index = this.messages.findIndex((m) => m.id === id);
-        if (index === -1) return;
-        const removedMessage = this.messages.splice(index, 1)[0];
+        const removedMessage = this.messages.find((m) => m.id === id);
+        if (!removedMessage) return;
+        this.messages = this.messages.filter((m) => m.id !== id);
         this.notifyMessageRemoved(removedMessage);
     }
 
@@ -190,8 +192,8 @@ export class Conversation {
     }
 
     private async handleStreamedResponse(
-        options: ChatCompletionRequestOptions = {},
-        axiosOptions: OpenAiAxiosConfig = {}
+        options: HandleChatCompletionOptions = {},
+        requestOptions: RequestOptions = {}
     ) {
         const message = new Message("assistant", "", this.config.model);
         const messages = this.messages.map(({ role, content }) => ({
@@ -210,28 +212,30 @@ export class Conversation {
                 unsubscribeStreaming();
             });
 
-            const response = await this.openai.createChatCompletion(
+            createChatCompletion(
                 {
+                    ...this.config.chatCompletionConfig,
                     ...options,
-                    model: this.config.model,
                     stream: true,
                     messages,
                 },
                 {
-                    ...this.axiosConfig,
-                    ...axiosOptions,
-                    responseType: "stream",
+                    ...this.requestOptions,
+                    ...requestOptions,
                 }
-            );
-            message.readContentFromStream(response as AxiosResponse);
+            ).then((response) => {
+                // Using .then() to get the message out as soon as possible, since the content is known to be empty at first.
+                // This gives time for client code to subscribe to the streaming events.
+                message.readContentFromStream(response);
+            });
         }
 
         return message;
     }
 
     private async handleNonStreamedResponse(
-        options: ChatCompletionRequestOptions = {},
-        axiosOptions: OpenAiAxiosConfig = {}
+        options: HandleChatCompletionOptions = {},
+        requestOptions: RequestOptions = {}
     ) {
         const message = new Message("assistant", "", this.config.model);
         const messages = this.messages.map(({ role, content }) => ({
@@ -243,20 +247,19 @@ export class Conversation {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             message.content = messages[messages.length - 1]?.content ?? null;
         } else {
-            const response = await this.openai.createChatCompletion(
+            const response = await createChatCompletion(
                 {
+                    ...this.config.chatCompletionConfig,
                     ...options,
-                    model: this.config.model,
                     stream: false,
                     messages,
                 },
                 {
-                    ...this.axiosConfig,
-                    ...axiosOptions,
-                    responseType: "json",
+                    ...this.requestOptions,
+                    ...requestOptions,
                 }
             );
-            message.content = response.data.choices[0].message?.content ?? "";
+            message.content = response.choices[0].message?.content ?? "";
         }
 
         this.cumulativeSize += this.getSize() + getMessageSize(message.content);
@@ -268,17 +271,17 @@ export class Conversation {
     /**
      * Fires a "createChatCompletion" request to the OpenAI API with the current messages.
      *
-     * @param options Additional options to pass to the createChatCompletion request.
-     * @param axiosOptions Additional options to pass to the axios request. This overrides the axios config passed to the constructor.
+     * @param options Additional options to pass to the createChatCompletion request. This overrides the config passed to the constructor.
+     * @param requestOptions Additional options to pass to the request. This overrides the config passed to the constructor.
      * @returns A new [`Message`](./Message.js) object with the role of "assistant" and the content set to the response from the OpenAI API. If the `stream` config option was set to true, the content will be progressively updated, listen to changes with the `onMessageUpdate` event.
      */
     public async getChatCompletionResponse(
-        options: ChatCompletionRequestOptions = {},
-        axiosOptions: OpenAiAxiosConfig = {}
+        options: HandleChatCompletionOptions = {},
+        requestOptions: RequestOptions = {}
     ): Promise<Message> {
         return this.config.stream
-            ? this.handleStreamedResponse(options, axiosOptions)
-            : this.handleNonStreamedResponse(options, axiosOptions);
+            ? this.handleStreamedResponse(options, requestOptions)
+            : this.handleNonStreamedResponse(options, requestOptions);
     }
 
     /**
@@ -286,13 +289,13 @@ export class Conversation {
      *
      * @param prompt The prompt to send to the assistant.
      * @param options Additional options to pass to the createChatCompletion request.
-     * @param axiosOptions Additional options to pass to the axios request. This overrides the axios config passed to the constructor.
+     * @param requestOptions Additional options to pass to the request. This overrides the config passed to the constructor.
      * @returns The assistant's response, or `null` if the user's message was empty.
      */
     public async prompt(
         prompt: string,
-        options?: ChatCompletionRequestOptions,
-        axiosOptions?: OpenAiAxiosConfig
+        options?: PromptOptions,
+        requestOptions?: RequestOptions
     ) {
         const userMessage = await this.addUserMessage(prompt);
         if (!userMessage) return null;
@@ -300,7 +303,7 @@ export class Conversation {
         try {
             const completion = await this.getChatCompletionResponse(
                 options,
-                axiosOptions
+                requestOptions
             );
             if (!completion) {
                 this.removeMessage(userMessage);
@@ -313,7 +316,7 @@ export class Conversation {
                 return null;
             }
 
-            return assistantMessage.content;
+            return assistantMessage;
         } catch (e) {
             this.removeMessage(userMessage);
             throw e;

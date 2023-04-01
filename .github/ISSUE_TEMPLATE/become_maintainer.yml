@@ -24,7 +24,7 @@ body:
       description: Which one of these technologies are you comfortable with? Feel free to mention any other technologies you think are relevant in the next section!
       multiple: true
       options:
-        - "OpenAI Node SDK"
+        - "OpenAI API"
         - "React"
         - "Angular"
         - "Vue"
