@@ -12,7 +12,6 @@ export default () => {
     React.useEffect(() => {
         if (!conversation) return;
         const unsubscribeMessageUpdate: (() => void)[] = [];
-        const unsubscribeMessageStreaming: (() => void)[] = [];
         const unsubscribeMessageAdded = conversation.onMessageAdded(
             (message) => {
                 if (message.role === "system") return;
@@ -31,7 +30,6 @@ export default () => {
         return () => {
             unsubscribeMessageAdded();
             unsubscribeMessageUpdate.forEach((unsubscribe) => unsubscribe());
-            unsubscribeMessageStreaming.forEach((unsubscribe) => unsubscribe());
         };
     }, [conversation]);
 
