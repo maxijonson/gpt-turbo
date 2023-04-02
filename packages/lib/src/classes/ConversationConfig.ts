@@ -12,7 +12,7 @@ export type ChatCompletionConfig = Omit<
     "messages"
 >;
 
-export interface ConversationConfigParameters {
+export interface ConversationSetup {
     /**
      * The first system message to set the context for the GPT model.
      *
@@ -39,11 +39,16 @@ export interface ConversationConfigParameters {
     disableModeration?: boolean | "soft";
 }
 
+export type ConversationConfigParameters = ConversationSetup &
+    ChatCompletionConfig;
+
 type ChatCompletionConfigProperty<K extends keyof ChatCompletionConfig> =
     Exclude<ChatCompletionConfig[K], undefined>;
 
-type ConversationConfigProperty<K extends keyof ConversationConfigParameters> =
-    Exclude<ConversationConfigParameters[K], undefined>;
+type ConversationConfigProperty<K extends keyof ConversationSetup> = Exclude<
+    ConversationSetup[K],
+    undefined
+>;
 
 export class ConversationConfig {
     public model: ChatCompletionConfigProperty<"model">;
@@ -71,7 +76,7 @@ export class ConversationConfig {
         dry = DEFAULT_DRY,
         disableModeration = DEFAULT_DISABLEMODERATION,
         ...chatCompletionConfig
-    }: ConversationConfigParameters & ChatCompletionConfig) {
+    }: ConversationConfigParameters) {
         const {
             apiKey = "",
             model = DEFAULT_MODEL,
@@ -150,7 +155,7 @@ export class ConversationConfig {
         return this.disableModeration === "soft";
     }
 
-    public get config(): Required<ConversationConfigParameters> {
+    public get config(): Required<ConversationSetup> {
         return {
             context: this.context,
             dry: this.dry,
