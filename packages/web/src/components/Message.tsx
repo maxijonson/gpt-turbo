@@ -79,26 +79,30 @@ export default ({ message }: MessageProps) => {
         let language: Language | null = null;
         let codeLines: string[] = [];
 
-        for (let i = 0; i < lines.length; ++i) {
+        for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
+
             if (!isCode && line.startsWith("```")) {
                 isCode = true;
                 language =
                     LANGUAGES.find((l) =>
                         line.slice(3).toLocaleLowerCase().includes(l)
-                    ) ?? null;
+                    ) || null;
                 output.push(
                     <Prism key={i} language={language ?? "markdown"}>
                         {codeLines.join("\n")}
                     </Prism>
                 );
                 continue;
-            } else if (isCode && line.startsWith("```")) {
+            }
+
+            if (isCode && line.startsWith("```")) {
                 isCode = false;
                 codeLines = [];
                 language = null;
                 continue;
             }
+
             if (isCode) {
                 codeLines.push(line);
                 output[output.length - 1] = (
@@ -108,6 +112,7 @@ export default ({ message }: MessageProps) => {
                 );
                 continue;
             }
+
             if (!line) {
                 output.push(<br key={i} />);
                 continue;
