@@ -8,6 +8,27 @@ export default () => {
     const [messages, setMessages] = React.useState(
         conversation?.getMessages() ?? []
     );
+    const viewport = React.useRef<HTMLDivElement>(null);
+    const [isSticky, setIsSticky] = React.useState(true);
+
+    const scrollToBottom = React.useCallback(() => {
+        viewport.current?.scrollTo({
+            top: viewport.current.scrollHeight,
+        });
+        setIsSticky(true);
+    }, []);
+
+    const onScrollPositionChange = React.useCallback(
+        ({ y }: { x: number; y: number }) => {
+            const bottomY = y + (viewport.current?.clientHeight ?? 0);
+            setIsSticky(bottomY === viewport.current?.scrollHeight);
+        },
+        []
+    );
+
+    React.useEffect(() => {
+        scrollToBottom();
+    }, [scrollToBottom]);
 
     React.useEffect(() => {
         if (!conversation) return;
@@ -17,12 +38,15 @@ export default () => {
                 if (message.role === "system") return;
                 setMessages((messages) => [...messages, message]);
 
+                if (isSticky) setTimeout(scrollToBottom, 0);
+
                 if (message.role !== "assistant") return;
 
                 unsubscribeMessageUpdate.push(
-                    message.onMessageUpdate(
-                        () => setMessages((messages) => [...messages]) // Force re-render by creating a new array
-                    )
+                    message.onMessageUpdate(() => {
+                        setMessages((messages) => [...messages]); // Force re-render by creating a new array
+                        if (isSticky) setTimeout(scrollToBottom, 0);
+                    })
                 );
             }
         );
@@ -31,7 +55,7 @@ export default () => {
             unsubscribeMessageAdded();
             unsubscribeMessageUpdate.forEach((unsubscribe) => unsubscribe());
         };
-    }, [conversation]);
+    }, [conversation, isSticky, scrollToBottom]);
 
     React.useEffect(() => {
         if (!conversation) return;
@@ -48,7 +72,12 @@ export default () => {
 
     return (
         <Container sx={{ flexGrow: 1 }} w="100%" h={0}>
-            <ScrollArea h="100%" offsetScrollbars>
+            <ScrollArea
+                h="100%"
+                offsetScrollbars
+                onScrollPositionChange={onScrollPositionChange}
+                viewportRef={viewport}
+            >
                 <Stack>
                     {messages.map((message) => (
                         <Message key={message.id} message={message} />
