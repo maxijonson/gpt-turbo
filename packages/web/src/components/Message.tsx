@@ -1,7 +1,16 @@
-import { Avatar, Card, Group, Text } from "@mantine/core";
+import {
+    ActionIcon,
+    Avatar,
+    Card,
+    CopyButton,
+    Group,
+    Text,
+    Tooltip,
+} from "@mantine/core";
 import { Message } from "gpt-turbo";
 import { SiOpenai } from "react-icons/si";
-import { BiCog, BiUser } from "react-icons/bi";
+import { BiCheck, BiCog, BiUser } from "react-icons/bi";
+import { RxClipboard } from "react-icons/rx";
 import React from "react";
 import { Prism } from "@mantine/prism";
 
@@ -46,6 +55,56 @@ const LANGUAGES = [
 
 type Language = (typeof LANGUAGES)[number];
 
+const CodeBlock = ({
+    language,
+    children,
+}: {
+    language: Language | null;
+    children: string;
+}) => {
+    return language ? (
+        <Prism language={language}>{children}</Prism>
+    ) : (
+        <Card
+            sx={(theme) => ({
+                backgroundColor:
+                    theme.colorScheme === "dark"
+                        ? theme.colors.dark[6]
+                        : theme.colors.gray[0],
+            })}
+            py={0}
+            px="sm"
+        >
+            <Group noWrap>
+                <Text
+                    ff="ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace"
+                    lh={1.7}
+                    fs="0.8125rem"
+                    size={13}
+                    sx={{ flexGrow: 1 }}
+                    component="pre"
+                >
+                    {children}
+                </Text>
+                <CopyButton value={children} timeout={2000}>
+                    {({ copied, copy }) => (
+                        <Tooltip
+                            label={copied ? "Copied" : "Copy code"}
+                            withArrow
+                            position="right"
+                            color={copied ? "teal" : undefined}
+                        >
+                            <ActionIcon onClick={copy}>
+                                {copied ? <BiCheck /> : <RxClipboard />}
+                            </ActionIcon>
+                        </Tooltip>
+                    )}
+                </CopyButton>
+            </Group>
+        </Card>
+    );
+};
+
 export default ({ message }: MessageProps) => {
     const Sender = (() => {
         switch (message.role) {
@@ -89,9 +148,9 @@ export default ({ message }: MessageProps) => {
                         line.slice(3).toLocaleLowerCase().includes(l)
                     ) || null;
                 output.push(
-                    <Prism key={i} language={language ?? "markdown"}>
+                    <CodeBlock key={i} language={language}>
                         {codeLines.join("\n")}
-                    </Prism>
+                    </CodeBlock>
                 );
                 continue;
             }
@@ -106,9 +165,9 @@ export default ({ message }: MessageProps) => {
             if (isCode) {
                 codeLines.push(line);
                 output[output.length - 1] = (
-                    <Prism key={i} language={language ?? "markdown"}>
+                    <CodeBlock key={i} language={language}>
                         {codeLines.join("\n")}
-                    </Prism>
+                    </CodeBlock>
                 );
                 continue;
             }
