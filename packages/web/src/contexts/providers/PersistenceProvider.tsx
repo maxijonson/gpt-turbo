@@ -45,8 +45,10 @@ export default ({ children }: PersistenceProviderProps) => {
 
     const save = React.useCallback(() => {
         const persistedConversations: PersistenceConversation[] = conversations
-            .filter((conversation) =>
-                persistedConversationIds.includes(conversation.id)
+            .filter(
+                (conversation) =>
+                    persistedConversationIds.includes(conversation.id) &&
+                    conversation.getMessages().length
             )
             .map((conversation) => ({
                 ...conversation.getConfig(),
@@ -137,9 +139,8 @@ export default ({ children }: PersistenceProviderProps) => {
         if (isLoading || !hasInit) return;
 
         const offs = conversations
-            .filter(
-                (conversation) =>
-                    !persistedConversationIds.includes(conversation.id)
+            .filter((conversation) =>
+                persistedConversationIds.includes(conversation.id)
             )
             .map((conversation) => {
                 const messageOffs: (() => void)[] = [];
