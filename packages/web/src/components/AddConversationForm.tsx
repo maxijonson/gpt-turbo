@@ -46,7 +46,7 @@ export default () => {
             dry: DEFAULT_DRY,
             disableModeration: "on",
             stream: true,
-            save: true,
+            save: false,
         },
         transformValues: (values) => ({
             ...values,
@@ -157,6 +157,14 @@ export default () => {
                     label="Context"
                 />
                 <Button type="submit">Start</Button>
+                {form.values.save && (
+                    <Text size="xs" color="gray" italic align="center">
+                        This conversation will be saved to your browser's local
+                        storage, along with your API key, if specified. Make
+                        sure that you trust the device you are using and that
+                        you are not using a shared device.
+                    </Text>
+                )}
             </Stack>
         </form>
     );

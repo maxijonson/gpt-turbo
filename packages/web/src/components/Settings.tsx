@@ -24,12 +24,14 @@ export default () => {
                         label="OpenAI API Key"
                     />
                     <Button type="submit">Save</Button>
+                    <Text size="xs" color="gray" italic align="center">
+                        These settings will be saved to your browser's local
+                        storage, including your API key, if specified. Make sure
+                        that you trust the device you are using and that you are
+                        not using a shared device.
+                    </Text>
                 </Stack>
             </form>
-            <Text align="center" italic>
-                These settings are stored in your browser's local storage and
-                used as default settings for new conversations.
-            </Text>
         </Container>
     );
 };
