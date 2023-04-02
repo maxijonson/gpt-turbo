@@ -378,6 +378,8 @@ export class Conversation {
     public setConfig(config: ConversationConfigParameters, merge = false) {
         const newConfig = merge ? { ...this.getConfig(), ...config } : config;
         this.config = new ConversationConfig(newConfig);
-        this.setContext(this.config.context);
+        if (config.context) {
+            this.setContext(config.context);
+        }
     }
 }

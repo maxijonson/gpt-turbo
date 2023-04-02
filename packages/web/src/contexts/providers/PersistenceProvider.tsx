@@ -81,8 +81,15 @@ export default ({ children }: PersistenceProviderProps) => {
         setIsLoading(true);
         const load = async () => {
             let i = -1;
-            for (const { messages, ...config } of persistence.conversations) {
-                const newConversation = addConversation(config);
+            for (const {
+                messages,
+                disableModeration,
+                ...config
+            } of persistence.conversations) {
+                const newConversation = addConversation({
+                    ...config,
+                    disableModeration: true,
+                });
                 if (++i === 0) setActiveConversation(newConversation.id, true);
                 addPersistedConversationId(newConversation.id);
 
@@ -102,6 +109,13 @@ export default ({ children }: PersistenceProviderProps) => {
                             newConversation.setContext(message.content);
                     }
                 }
+
+                newConversation.setConfig(
+                    {
+                        disableModeration,
+                    },
+                    true
+                );
             }
         };
         load().then(() => {
