@@ -17,6 +17,7 @@ import {
 } from "@mantine/core";
 import React from "react";
 import useSettings from "../hooks/useSettings";
+import usePersistence from "../hooks/usePersistence";
 
 const ModelSelectItem = React.forwardRef<
     HTMLDivElement,
@@ -35,6 +36,7 @@ const ModelSelectItem = React.forwardRef<
 
 export default () => {
     const { addConversation, setActiveConversation } = useConversationManager();
+    const { addPersistedConversationId } = usePersistence();
     const { settings } = useSettings();
     const form = useForm({
         initialValues: {
@@ -44,6 +46,7 @@ export default () => {
             dry: DEFAULT_DRY,
             disableModeration: "on",
             stream: true,
+            save: true,
         },
         transformValues: (values) => ({
             ...values,
@@ -59,9 +62,12 @@ export default () => {
         { label: "GPT 4 (32k)", value: "gpt-4-32k" },
     ]);
 
-    const handleSubmit = form.onSubmit((values) => {
+    const handleSubmit = form.onSubmit(({ save, ...values }) => {
         const newConversation = addConversation(values);
         setActiveConversation(newConversation.id, true);
+        if (save) {
+            addPersistedConversationId(newConversation.id);
+        }
     });
 
     return (
@@ -97,7 +103,7 @@ export default () => {
                             return item;
                         }}
                     />
-                    <Group position="right">
+                    <Group position="center">
                         <Input.Wrapper label="Moderation">
                             <div>
                                 <SegmentedControl
@@ -130,6 +136,13 @@ export default () => {
                         <Input.Wrapper label="Stream">
                             <Switch
                                 {...form.getInputProps("stream", {
+                                    type: "checkbox",
+                                })}
+                            />
+                        </Input.Wrapper>
+                        <Input.Wrapper label="Save">
+                            <Switch
+                                {...form.getInputProps("save", {
                                     type: "checkbox",
                                 })}
                             />

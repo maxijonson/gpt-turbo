@@ -1,9 +1,6 @@
 import React from "react";
 import makeNotImplemented from "../utils/makeNotImplemented";
-
-export interface Settings {
-    apiKey: string;
-}
+import { Settings } from "../entities/settings";
 
 export interface SettingsContextValue {
     settings: Settings;

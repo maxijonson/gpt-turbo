@@ -1,27 +1,24 @@
 import React from "react";
-import {
-    Settings,
-    SettingsContext,
-    SettingsContextValue,
-} from "../SettingsContext";
-import { useLocalStorage } from "@mantine/hooks";
+import { SettingsContext, SettingsContextValue } from "../SettingsContext";
+import useStorage from "../../hooks/useStorage";
+import { Settings, settingsSchema } from "../../entities/settings";
 
 interface SettingsProviderProps {
     children?: React.ReactNode;
 }
 
-const SETTINGS_KEY = "gpt-turbo-settings";
-
 export default ({ children }: SettingsProviderProps) => {
-    const [settingsCheck] = useLocalStorage<Settings>({
-        key: SETTINGS_KEY,
-    });
-    const [settings, setSettings] = useLocalStorage<Settings>({
-        key: SETTINGS_KEY,
-        defaultValue: {
+    const {
+        value: settings,
+        setValue: setSettings,
+        isValueLoaded: areSettingsLoaded,
+    } = useStorage<Settings>(
+        "gpt-turbo-settings",
+        {
             apiKey: "",
         },
-    });
+        settingsSchema
+    );
 
     const handleSetSettings = React.useCallback(
         (nextSettings: Parameters<typeof setSettings>[0]) => {
@@ -40,9 +37,9 @@ export default ({ children }: SettingsProviderProps) => {
         () => ({
             settings,
             setSettings: handleSetSettings,
-            areSettingsLoaded: settingsCheck !== undefined,
+            areSettingsLoaded,
         }),
-        [handleSetSettings, settings, settingsCheck]
+        [handleSetSettings, settings, areSettingsLoaded]
     );
 
     return (

@@ -7,13 +7,12 @@ import {
 } from "../config/constants.js";
 import { CreateChatCompletionRequest } from "../utils/types.js";
 
-type ExcludedConfigParameters = "messages";
+export type ChatCompletionConfig = Omit<
+    Partial<CreateChatCompletionRequest>,
+    "messages"
+>;
 
-export interface ConversationConfigParameters
-    extends Omit<
-        Partial<CreateChatCompletionRequest>,
-        ExcludedConfigParameters
-    > {
+export interface ConversationConfigParameters {
     /**
      * The first system message to set the context for the GPT model.
      *
@@ -40,25 +39,28 @@ export interface ConversationConfigParameters
     disableModeration?: boolean | "soft";
 }
 
+type ChatCompletionConfigProperty<K extends keyof ChatCompletionConfig> =
+    Exclude<ChatCompletionConfig[K], undefined>;
+
 type ConversationConfigProperty<K extends keyof ConversationConfigParameters> =
     Exclude<ConversationConfigParameters[K], undefined>;
 
 export class ConversationConfig {
-    public model: ConversationConfigProperty<"model">;
-    public stream: ConversationConfigProperty<"stream">;
+    public model: ChatCompletionConfigProperty<"model">;
+    public stream: ChatCompletionConfigProperty<"stream">;
     public frequencyPenalty:
-        | ConversationConfigProperty<"frequency_penalty">
+        | ChatCompletionConfigProperty<"frequency_penalty">
         | undefined;
     public presencePenalty:
-        | ConversationConfigProperty<"presence_penalty">
+        | ChatCompletionConfigProperty<"presence_penalty">
         | undefined;
-    public maxTokens: ConversationConfigProperty<"max_tokens"> | undefined;
-    public logitBias: ConversationConfigProperty<"logit_bias"> | undefined;
-    public stop: ConversationConfigProperty<"stop"> | undefined;
-    public temperature: ConversationConfigProperty<"temperature"> | undefined;
-    public topP: ConversationConfigProperty<"top_p"> | undefined;
-    public user: ConversationConfigProperty<"user"> | undefined;
-    private _apiKey!: ConversationConfigProperty<"apiKey">;
+    public maxTokens: ChatCompletionConfigProperty<"max_tokens"> | undefined;
+    public logitBias: ChatCompletionConfigProperty<"logit_bias"> | undefined;
+    public stop: ChatCompletionConfigProperty<"stop"> | undefined;
+    public temperature: ChatCompletionConfigProperty<"temperature"> | undefined;
+    public topP: ChatCompletionConfigProperty<"top_p"> | undefined;
+    public user: ChatCompletionConfigProperty<"user"> | undefined;
+    private _apiKey!: ChatCompletionConfigProperty<"apiKey">;
 
     public disableModeration: ConversationConfigProperty<"disableModeration">;
     private _context!: ConversationConfigProperty<"context">;
@@ -69,7 +71,7 @@ export class ConversationConfig {
         dry = DEFAULT_DRY,
         disableModeration = DEFAULT_DISABLEMODERATION,
         ...chatCompletionConfig
-    }: ConversationConfigParameters) {
+    }: ConversationConfigParameters & ChatCompletionConfig) {
         const {
             apiKey = "",
             model = DEFAULT_MODEL,
@@ -148,10 +150,18 @@ export class ConversationConfig {
         return this.disableModeration === "soft";
     }
 
-    public get chatCompletionConfig(): Omit<
-        CreateChatCompletionRequest,
-        "messages"
-    > {
+    public get config(): Required<ConversationConfigParameters> {
+        return {
+            context: this.context,
+            dry: this.dry,
+            disableModeration: this.disableModeration,
+        };
+    }
+
+    public get chatCompletionConfig(): Required<
+        Pick<ChatCompletionConfig, "apiKey" | "model" | "stream">
+    > &
+        ChatCompletionConfig {
         return {
             apiKey: this.apiKey,
             model: this.model,

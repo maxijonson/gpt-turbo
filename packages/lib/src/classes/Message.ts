@@ -16,7 +16,7 @@ export type MessageStreamingStartListener = (message: Message) => void;
 export type MessageStreamingStopListener = (message: Message) => void;
 
 export class Message {
-    private _id = uuid();
+    public id = uuid();
     private _role!: ChatCompletionRequestMessageRoleEnum;
     private _model!: string;
     private _content!: string;
@@ -205,14 +205,6 @@ export class Message {
         } finally {
             this.isStreaming = false;
         }
-    }
-
-    get id() {
-        return this._id;
-    }
-
-    private set id(id) {
-        this._id = id;
     }
 
     get role() {

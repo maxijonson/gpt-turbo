@@ -26,7 +26,7 @@ export class Conversation {
     private cumulativeCost = 0;
 
     constructor(
-        config: ConversationConfigParameters,
+        config: ConversationConfigParameters = {},
         options: RequestOptions = {}
     ) {
         this.config = new ConversationConfig(config);
@@ -57,10 +57,16 @@ export class Conversation {
 
         if (message.role === "system") {
             this.config.context = message.content;
-            if (this.messages[0]?.role === "system") {
-                this.messages[0] = message;
-            } else {
-                this.messages.unshift(message);
+            if (message.content) {
+                // Update the system message or add it if it doesn't exist.
+                if (this.messages[0]?.role === "system") {
+                    this.messages[0] = message;
+                } else {
+                    this.messages.unshift(message);
+                }
+            } else if (this.messages[0]?.role === "system") {
+                // Remove the system message if it exists and the new content is empty.
+                this.messages.shift();
             }
         } else {
             if (
@@ -180,15 +186,6 @@ export class Conversation {
         if (!removedMessage) return;
         this.messages = this.messages.filter((m) => m.id !== id);
         this.notifyMessageRemoved(removedMessage);
-    }
-
-    /**
-     * Sets the context message at the beginning of the conversation.
-     *
-     * @param context The new context message.
-     */
-    public setContext(context: string) {
-        this.addSystemMessage(context);
     }
 
     private async handleStreamedResponse(
@@ -353,5 +350,34 @@ export class Conversation {
      */
     public getCumulativeCost() {
         return this.cumulativeCost;
+    }
+
+    /**
+     * Sets the context message at the beginning of the conversation.
+     *
+     * @param context The new context message.
+     */
+    public setContext(context: string) {
+        this.addSystemMessage(context);
+    }
+
+    /**
+     * Gets the current config properties.
+     */
+    public getConfig() {
+        return {
+            ...this.config.chatCompletionConfig,
+            ...this.config.config,
+        };
+    }
+
+    /**
+     * Assigns a new config to the conversation.
+     * Set the `merge` parameter to `true` to merge the new config with the existing config instead of replacing it.
+     */
+    public setConfig(config: ConversationConfigParameters, merge = false) {
+        const newConfig = merge ? { ...this.getConfig(), ...config } : config;
+        this.config = new ConversationConfig(newConfig);
+        this.setContext(this.config.context);
     }
 }

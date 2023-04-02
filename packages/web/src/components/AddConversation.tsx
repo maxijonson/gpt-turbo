@@ -11,10 +11,10 @@ export default () => {
                     radius="md"
                     withBorder
                     w="100%"
-                    maw={620}
+                    miw={620}
                 >
                     <Stack w="100%">
-                        <Title align="center">Add Conversation</Title>
+                        <Title align="center">New Conversation</Title>
                         <AddConversationForm />
                     </Stack>
                 </Card>
