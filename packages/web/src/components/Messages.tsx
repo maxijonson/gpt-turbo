@@ -12,9 +12,11 @@ export default () => {
     const [isSticky, setIsSticky] = React.useState(true);
 
     const scrollToBottom = React.useCallback(() => {
-        viewport.current?.scrollTo({
-            top: viewport.current.scrollHeight,
-        });
+        setTimeout(() => {
+            viewport.current?.scrollTo({
+                top: viewport.current.scrollHeight,
+            });
+        }, 0);
         setIsSticky(true);
     }, []);
 
@@ -28,7 +30,7 @@ export default () => {
 
     React.useEffect(() => {
         scrollToBottom();
-    }, [scrollToBottom]);
+    }, [scrollToBottom, conversation]);
 
     React.useEffect(() => {
         if (!conversation) return;
@@ -38,14 +40,14 @@ export default () => {
                 if (message.role === "system") return;
                 setMessages((messages) => [...messages, message]);
 
-                if (isSticky) setTimeout(scrollToBottom, 0);
+                if (isSticky) scrollToBottom();
 
                 if (message.role !== "assistant") return;
 
                 unsubscribeMessageUpdate.push(
                     message.onMessageUpdate(() => {
                         setMessages((messages) => [...messages]); // Force re-render by creating a new array
-                        if (isSticky) setTimeout(scrollToBottom, 0);
+                        if (isSticky) scrollToBottom();
                     })
                 );
             }

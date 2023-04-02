@@ -138,6 +138,8 @@ export default ({ children }: PersistenceProviderProps) => {
     React.useEffect(() => {
         if (isLoading || !hasInit) return;
 
+        save();
+
         const offs = conversations
             .filter((conversation) =>
                 persistedConversationIds.includes(conversation.id)

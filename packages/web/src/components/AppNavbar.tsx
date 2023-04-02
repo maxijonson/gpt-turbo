@@ -1,17 +1,10 @@
-import {
-    Button,
-    Group,
-    Navbar,
-    ScrollArea,
-    Stack,
-    Text,
-    createStyles,
-} from "@mantine/core";
+import { Group, Navbar, ScrollArea, Stack, createStyles } from "@mantine/core";
 import useConversationManager from "../hooks/useConversationManager";
 import { BiCog, BiPlus } from "react-icons/bi";
 import TippedActionIcon from "./TippedActionIcon";
 import { openModal } from "@mantine/modals";
 import Settings from "./Settings";
+import NavbarConversation from "./NavbarConversation";
 
 const useStyles = createStyles(() => ({
     scrollArea: {
@@ -22,8 +15,7 @@ const useStyles = createStyles(() => ({
 }));
 
 export default () => {
-    const { conversations, setActiveConversation, activeConversation } =
-        useConversationManager();
+    const { conversations, setActiveConversation } = useConversationManager();
     const { classes } = useStyles();
 
     return (
@@ -60,24 +52,10 @@ export default () => {
                 >
                     <Stack spacing="xs">
                         {conversations.map((conversation) => (
-                            <Button
+                            <NavbarConversation
                                 key={conversation.id}
-                                variant={
-                                    conversation.id === activeConversation?.id
-                                        ? "light"
-                                        : "subtle"
-                                }
-                                color={
-                                    conversation.id === activeConversation?.id
-                                        ? "blue"
-                                        : "gray"
-                                }
-                                onClick={() =>
-                                    setActiveConversation(conversation.id)
-                                }
-                            >
-                                <Text truncate="end">{conversation.id}</Text>
-                            </Button>
+                                conversation={conversation}
+                            />
                         ))}
                     </Stack>
                 </ScrollArea>
