@@ -40,9 +40,11 @@ export default ({ message }: MessageProps) => {
                 </Avatar>
             </div>
             <Card shadow="sm" style={{ flexGrow: 1 }}>
-                {message.content.split("\n").map((line, i) => (
-                    <Text key={i}>{line}</Text>
-                ))}
+                {message.content
+                    .split("\n")
+                    .map((line, i) =>
+                        line ? <Text key={i}>{line}</Text> : <br key={i} />
+                    )}
             </Card>
         </Group>
     );
