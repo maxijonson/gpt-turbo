@@ -4,7 +4,7 @@ A Web app, very similar to ChatGPT, that interacts with the gpt-turbo library. T
 
 ## Conversation and Settings Storage
 
-Just like ChatGPT, conversations and their messages are saved. You can also set some default settings, such as your API key, so you don't need to re-enter it every time. This is possible through the use of the browser's local storage. This web app does not use any hosted cloud service. Everything is done locally in your browser.
+Just like ChatGPT, conversations and their messages can be saved. You can also set some default settings, such as your API key, so you don't need to re-enter it every time. This is possible through the use of the browser's local storage. This web app does not use any hosted cloud service. Everything is done locally in your browser.
 
 Since this feature could require that your API key be saved for each conversation that uses it, and due to the security implications of that, the web app will only save your conversations if you explicitly allow it during the conversation's initial setup page.
 
