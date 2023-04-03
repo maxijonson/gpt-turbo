@@ -1,4 +1,5 @@
 import { ENDPOINT_CHATCOMPLETION } from "../index.js";
+import base64Encode from "./base64Encode.js";
 import {
     CreateChatCompletionRequest,
     RequestOptions,
@@ -24,9 +25,9 @@ export default async <T extends CreateChatCompletionRequest>(
             `${proxy.protocol || "http"}://${proxy.host}:${proxy.port || 80}`
         );
         if (proxy.auth) {
-            const auth = Buffer.from(
+            const auth = base64Encode(
                 `${proxy.auth.username}:${proxy.auth.password}`
-            ).toString("base64");
+            );
             headers["Proxy-Authorization"] = `Basic ${auth}`;
         }
     }
