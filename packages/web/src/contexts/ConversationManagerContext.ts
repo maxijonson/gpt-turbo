@@ -11,6 +11,8 @@ export interface ConversationManagerContextValue {
     ) => Conversation;
     removeConversation: (id: string) => void;
     setActiveConversation: (id: string | null, force?: boolean) => void;
+    getConversationName: (id: string) => string;
+    setConversationName: (id: string, name: string) => void;
 }
 
 const notImplemented = makeNotImplemented("ConversationManagerContext");
@@ -22,4 +24,6 @@ export const ConversationManagerContext =
         addConversation: notImplemented,
         removeConversation: notImplemented,
         setActiveConversation: notImplemented,
+        getConversationName: notImplemented,
+        setConversationName: notImplemented,
     });

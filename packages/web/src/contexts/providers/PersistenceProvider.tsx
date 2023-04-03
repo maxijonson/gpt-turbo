@@ -15,8 +15,13 @@ interface PersistenceProviderProps {
 }
 
 export default ({ children }: PersistenceProviderProps) => {
-    const { conversations, addConversation, setActiveConversation } =
-        useConversationManager();
+    const {
+        conversations,
+        addConversation,
+        setActiveConversation,
+        getConversationName,
+        setConversationName,
+    } = useConversationManager();
     const {
         value: persistence,
         setValue: setPersistence,
@@ -52,6 +57,7 @@ export default ({ children }: PersistenceProviderProps) => {
             )
             .map((conversation) => ({
                 ...conversation.getConfig(),
+                name: getConversationName(conversation.id),
                 messages: conversation.getMessages().map(
                     (message): PersistenceMessage => ({
                         content: message.content,
@@ -63,7 +69,12 @@ export default ({ children }: PersistenceProviderProps) => {
         setPersistence({
             conversations: persistedConversations,
         });
-    }, [conversations, persistedConversationIds, setPersistence]);
+    }, [
+        conversations,
+        getConversationName,
+        persistedConversationIds,
+        setPersistence,
+    ]);
 
     const providerValue = React.useMemo<PersistenceContextValue>(
         () => ({
@@ -94,6 +105,7 @@ export default ({ children }: PersistenceProviderProps) => {
                 });
                 if (++i === 0) setActiveConversation(newConversation.id, true);
                 addPersistedConversationId(newConversation.id);
+                setConversationName(newConversation.id, config.name);
 
                 for (const message of messages) {
                     switch (message.role) {
@@ -132,6 +144,7 @@ export default ({ children }: PersistenceProviderProps) => {
         isPersistenceLoaded,
         persistence,
         setActiveConversation,
+        setConversationName,
     ]);
 
     // Save conversations on change

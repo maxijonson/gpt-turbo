@@ -2,6 +2,7 @@ import { z } from "zod";
 import { persistenceMessageSchema } from "./persistenceMessage";
 
 export const persistenceConversationSchema = z.object({
+    name: z.string(),
     messages: z.array(persistenceMessageSchema),
 
     context: z.string(),

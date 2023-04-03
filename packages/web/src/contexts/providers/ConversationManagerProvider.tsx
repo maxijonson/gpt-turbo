@@ -14,6 +14,9 @@ export default ({ children }: ConversationManagerProviderProps) => {
         []
     );
     const [activeId, setActiveId] = React.useState<string | null>(null);
+    const [conversationNames, setConversationNames] = React.useState<
+        Map<string, string>
+    >(new Map());
 
     const addConversation = React.useCallback(
         (conversation: ConversationConfigParameters) => {
@@ -54,6 +57,28 @@ export default ({ children }: ConversationManagerProviderProps) => {
         [activeId, setActiveConversation]
     );
 
+    const getConversationName = React.useCallback(
+        (id: string) => {
+            return (
+                conversationNames.get(id) ??
+                conversations.find((c) => c.id === id)?.id ??
+                ""
+            );
+        },
+        [conversationNames, conversations]
+    );
+
+    const setConversationName = React.useCallback(
+        (id: string, name: string) => {
+            setConversationNames((c) => {
+                const newMap = new Map(c);
+                newMap.set(id, name);
+                return newMap;
+            });
+        },
+        []
+    );
+
     const providerValue = React.useMemo<ConversationManagerContextValue>(
         () => ({
             conversations: Array.from(conversations.values()),
@@ -63,13 +88,17 @@ export default ({ children }: ConversationManagerProviderProps) => {
             addConversation,
             removeConversation,
             setActiveConversation,
+            getConversationName,
+            setConversationName,
         }),
         [
             activeId,
             addConversation,
             conversations,
+            getConversationName,
             removeConversation,
             setActiveConversation,
+            setConversationName,
         ]
     );
 

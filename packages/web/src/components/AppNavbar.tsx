@@ -23,12 +23,14 @@ export default () => {
             <Navbar.Section>
                 <Group position="center">
                     <TippedActionIcon
+                        variant="outline"
                         onClick={() => setActiveConversation(null)}
                         tip="Add conversation"
                     >
                         <BiPlus />
                     </TippedActionIcon>
                     <TippedActionIcon
+                        variant="outline"
                         tip="Settings"
                         onClick={() =>
                             openModal({
