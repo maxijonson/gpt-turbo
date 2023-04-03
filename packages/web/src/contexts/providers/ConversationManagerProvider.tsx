@@ -59,13 +59,9 @@ export default ({ children }: ConversationManagerProviderProps) => {
 
     const getConversationName = React.useCallback(
         (id: string) => {
-            return (
-                conversationNames.get(id) ??
-                conversations.find((c) => c.id === id)?.id ??
-                ""
-            );
+            return conversationNames.get(id) ?? "New Chat";
         },
-        [conversationNames, conversations]
+        [conversationNames]
     );
 
     const setConversationName = React.useCallback(
