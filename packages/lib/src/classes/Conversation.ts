@@ -45,6 +45,10 @@ export class Conversation {
     private async addMessage(message: Message) {
         message.content = message.content.trim();
 
+        if (!message.content && message.role === "user") {
+            throw new Error("User message content cannot be empty.");
+        }
+
         if (this.config.isModerationEnabled) {
             const flags = await message.moderate(
                 this.config.apiKey,
@@ -270,7 +274,7 @@ export class Conversation {
      *
      * @param options Additional options to pass to the createChatCompletion request. This overrides the config passed to the constructor.
      * @param requestOptions Additional options to pass to the request. This overrides the config passed to the constructor.
-     * @returns A new [`Message`](./Message.js) object with the role of "assistant" and the content set to the response from the OpenAI API. If the `stream` config option was set to true, the content will be progressively updated, listen to changes with the `onMessageUpdate` event.
+     * @returns A new [`Message`](./Message.js) instance with the role of "assistant" and the content set to the response from the OpenAI API. If the `stream` config option was set to true, the content will be progressively updated, listen to changes with the `onMessageUpdate` event.
      */
     public async getChatCompletionResponse(
         options: HandleChatCompletionOptions = {},
@@ -279,6 +283,26 @@ export class Conversation {
         return this.config.stream
             ? this.handleStreamedResponse(options, requestOptions)
             : this.handleNonStreamedResponse(options, requestOptions);
+    }
+
+    private async getAssistantResponse(
+        options?: PromptOptions,
+        requestOptions?: RequestOptions
+    ) {
+        const completion = await this.getChatCompletionResponse(
+            options,
+            requestOptions
+        );
+        if (!completion) {
+            return null;
+        }
+
+        const assistantMessage = await this.addMessage(completion);
+        if (!assistantMessage) {
+            return null;
+        }
+
+        return assistantMessage;
     }
 
     /**
@@ -298,16 +322,11 @@ export class Conversation {
         if (!userMessage) return null;
 
         try {
-            const completion = await this.getChatCompletionResponse(
+            const assistantMessage = await this.getAssistantResponse(
                 options,
                 requestOptions
             );
-            if (!completion) {
-                this.removeMessage(userMessage);
-                return null;
-            }
 
-            const assistantMessage = await this.addMessage(completion);
             if (!assistantMessage) {
                 this.removeMessage(userMessage);
                 return null;
@@ -316,6 +335,84 @@ export class Conversation {
             return assistantMessage;
         } catch (e) {
             this.removeMessage(userMessage);
+            throw e;
+        }
+    }
+
+    /**
+     * Removes all messages starting from (but excluding) the `fromMessage` if it's a user message, or its previous user message if `fromMessage` is an assistant message.
+     * Then, the `prompt` method is called using either the specified `newPrompt` or the previous user message's content.
+     *
+     * This is useful if you want to edit a previous user message (by specifying `newPrompt`) or if you want to regenerate the response to a previous user message (by not specifying `newPrompt`).
+     *
+     * @param fromMessage The message to re-prompt from. This can be either a message ID or a [`Message`](./Message.js) instance.
+     * @param newPrompt The new prompt to use for the previous user message. If not provided, the previous user's message content will be reused.
+     * @param options Additional options to pass to the createChatCompletion request.
+     * @param requestOptions Additional options to pass to the request. This overrides the config passed to the constructor.
+     * @returns The assistant's response, or `null` if the user's message was empty.
+     *
+     * @example
+     * ```typescript
+     * let assistantRes1 = await conversation.prompt("Hello!"); // Hi
+     * let assistantRes2 = await conversation.prompt("How are you?"); // I'm good, how are you?
+     *
+     * // Regenerate the assistantRes2 response
+     * assistantRes2 = await conversation.reprompt(assistantRes2); // Good! What about you?
+     *
+     * // Edit the initial prompt (and remove all messages after it. In this case, assistantRes2's response)
+     * assistantRes1 = await conversation.reprompt(assistantRes1, "Goodbye!"); // See you later!
+     * ```
+     */
+    public async reprompt(
+        fromMessage: string | Message,
+        newPrompt?: string,
+        options?: PromptOptions,
+        requestOptions?: RequestOptions
+    ) {
+        // Find the message to reprompt from
+        const id =
+            typeof fromMessage === "string" ? fromMessage : fromMessage.id;
+        const fromIndex = this.messages.findIndex((m) => m.id === id);
+        if (fromIndex === -1) {
+            throw new Error(`Message with ID "${id}" not found.`);
+        }
+        const from = this.messages[fromIndex];
+
+        // Find the previous user message
+        const previousUserMessageIndex =
+            from.role === "user" ? fromIndex : fromIndex - 1;
+        const previousUserMessage = this.messages[previousUserMessageIndex];
+        if (!previousUserMessage) {
+            throw new Error(
+                `Could not find a previous user message to reprompt from (${id}).`
+            );
+        }
+
+        // Edit the previous user message if needed
+        if (newPrompt) {
+            previousUserMessage.content = newPrompt;
+        }
+
+        // Remove all messages after the previous user message
+        this.messages
+            .slice(previousUserMessageIndex + 1)
+            .forEach((m) => this.removeMessage(m));
+
+        try {
+            // Get the new assistant response
+            const assistantMessage = await this.getAssistantResponse(
+                options,
+                requestOptions
+            );
+
+            if (!assistantMessage) {
+                this.removeMessage(previousUserMessage);
+                return null;
+            }
+
+            return assistantMessage;
+        } catch (e) {
+            this.removeMessage(previousUserMessage);
             throw e;
         }
     }

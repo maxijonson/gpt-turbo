@@ -14,7 +14,7 @@ export default () => {
     const [isStreaming, setIsStreaming] = React.useState(false);
 
     const handleSubmit = form.onSubmit(async (values) => {
-        if (!conversation) return;
+        if (!conversation || !values.message) return;
         form.reset();
         try {
             const message = await conversation.prompt(values.message);

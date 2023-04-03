@@ -4,15 +4,22 @@ import {
     Card,
     CopyButton,
     Group,
+    Stack,
     Text,
+    Textarea,
     Tooltip,
+    createStyles,
 } from "@mantine/core";
 import { Message } from "gpt-turbo";
 import { SiOpenai } from "react-icons/si";
-import { BiCheck, BiCog, BiUser } from "react-icons/bi";
+import { BiCheck, BiCog, BiEdit, BiRefresh, BiUser, BiX } from "react-icons/bi";
 import { RxClipboard } from "react-icons/rx";
 import React from "react";
 import { Prism } from "@mantine/prism";
+import TippedActionIcon from "./TippedActionIcon";
+import { useForm } from "@mantine/form";
+import useConversationManager from "../hooks/useConversationManager";
+import { notifications } from "@mantine/notifications";
 
 interface MessageProps {
     message: Message;
@@ -105,7 +112,49 @@ const CodeBlock = ({
     );
 };
 
+const useStyles = createStyles((theme) => ({
+    root: {
+        "& .message-actions": {
+            opacity: 0,
+        },
+        "&:hover .message-actions": {
+            opacity: 1,
+        },
+    },
+}));
+
 export default ({ message }: MessageProps) => {
+    const { activeConversation: conversation } = useConversationManager();
+    const { classes } = useStyles();
+    const [isEditing, setIsEditing] = React.useState(false);
+    const form = useForm({
+        initialValues: {
+            content: message.content,
+        },
+    });
+    const editFormRef = React.useRef<HTMLFormElement>(null);
+
+    const reprompt = React.useCallback(
+        async (newPrompt?: string) => {
+            try {
+                await conversation?.reprompt(message, newPrompt);
+            } catch (e) {
+                console.error(e);
+                notifications.show({
+                    title: "Prompt error",
+                    message: (e as any).message ?? "Unknown error",
+                    color: "red",
+                });
+            }
+        },
+        [conversation, message]
+    );
+
+    const onSubmit = form.onSubmit((values) => {
+        reprompt(values.content);
+        setIsEditing(false);
+    });
+
     const Sender = (() => {
         switch (message.role) {
             case "assistant":
@@ -183,16 +232,69 @@ export default ({ message }: MessageProps) => {
         return output;
     }, [message.content]);
 
+    const Actions = React.useMemo(() => {
+        if (message.role === "system") return null;
+
+        if (message.role === "assistant") {
+            return (
+                <TippedActionIcon onClick={() => reprompt()}>
+                    <BiRefresh />
+                </TippedActionIcon>
+            );
+        }
+
+        if (isEditing) {
+            return (
+                <>
+                    <TippedActionIcon
+                        onClick={() => editFormRef.current?.requestSubmit()}
+                    >
+                        <BiCheck />
+                    </TippedActionIcon>
+                    <TippedActionIcon
+                        onClick={() => {
+                            setIsEditing(false);
+                            form.reset();
+                        }}
+                    >
+                        <BiX />
+                    </TippedActionIcon>
+                </>
+            );
+        }
+
+        return (
+            <TippedActionIcon onClick={() => setIsEditing(true)}>
+                <BiEdit />
+            </TippedActionIcon>
+        );
+    }, [form, isEditing, message.role, reprompt]);
+
     return (
-        <Group noWrap>
+        <Group noWrap className={classes.root}>
             <div style={{ alignSelf: "start" }}>
                 <Avatar color={color}>
                     <Sender />
                 </Avatar>
             </div>
             <Card shadow="sm" style={{ flexGrow: 1 }}>
-                {MessageContent}
+                {isEditing ? (
+                    <form ref={editFormRef} onSubmit={onSubmit}>
+                        <Textarea
+                            {...form.getInputProps("content")}
+                            autosize
+                            minRows={1}
+                            maxRows={8}
+                            w="100%"
+                        />
+                    </form>
+                ) : (
+                    MessageContent
+                )}
             </Card>
+            <Stack sx={{ alignSelf: "start" }} className="message-actions">
+                {Actions}
+            </Stack>
         </Group>
     );
 };

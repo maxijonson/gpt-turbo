@@ -108,19 +108,26 @@ export default ({ children }: PersistenceProviderProps) => {
                 setConversationName(newConversation.id, config.name);
 
                 for (const message of messages) {
-                    switch (message.role) {
-                        case "user":
-                            await newConversation.addUserMessage(
-                                message.content
-                            );
-                            break;
-                        case "assistant":
-                            await newConversation.addAssistantMessage(
-                                message.content
-                            );
-                            break;
-                        case "system":
-                            newConversation.setContext(message.content);
+                    try {
+                        switch (message.role) {
+                            case "user":
+                                await newConversation.addUserMessage(
+                                    message.content
+                                );
+                                break;
+                            case "assistant":
+                                await newConversation.addAssistantMessage(
+                                    message.content
+                                );
+                                break;
+                            case "system":
+                                newConversation.setContext(message.content);
+                        }
+                    } catch (e) {
+                        console.error(
+                            "Error while loading message",
+                            (e as Error).message
+                        );
                     }
                 }
 
