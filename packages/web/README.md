@@ -37,3 +37,7 @@ npm run preview
 # or
 npm run preview -- --port 8080 
 ```
+
+## Deploy
+
+TODO: Instructions on how to deploy the web app.
