@@ -1,6 +1,13 @@
-import { Group, Navbar, ScrollArea, Stack, createStyles } from "@mantine/core";
+import {
+    Group,
+    Navbar,
+    ScrollArea,
+    Stack,
+    createStyles,
+    useMantineColorScheme,
+} from "@mantine/core";
 import useConversationManager from "../hooks/useConversationManager";
-import { BiCog, BiPlus, BiTrash } from "react-icons/bi";
+import { BiCog, BiMoon, BiPlus, BiSun, BiTrash } from "react-icons/bi";
 import TippedActionIcon from "./TippedActionIcon";
 import { openModal } from "@mantine/modals";
 import Settings from "./Settings";
@@ -20,6 +27,8 @@ export default () => {
         useConversationManager();
     const { classes } = useStyles();
     const [isClearingAll, setIsClearingAll] = React.useState(false);
+    const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+    const dark = colorScheme === "dark";
 
     const onClearAllClick = React.useCallback(() => {
         if (isClearingAll) {
@@ -70,6 +79,13 @@ export default () => {
                         onClick={onClearAllClick}
                     >
                         <BiTrash />
+                    </TippedActionIcon>
+                    <TippedActionIcon
+                        tip={dark ? "Light mode" : "Dark mode"}
+                        variant="outline"
+                        onClick={() => toggleColorScheme()}
+                    >
+                        {dark ? <BiSun /> : <BiMoon />}
                     </TippedActionIcon>
                 </Group>
             </Navbar.Section>

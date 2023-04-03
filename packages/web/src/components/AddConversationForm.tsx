@@ -158,7 +158,7 @@ export default () => {
                 />
                 <Button type="submit">Start</Button>
                 {form.values.save && (
-                    <Text size="xs" color="gray" italic align="center">
+                    <Text size="xs" italic align="center">
                         This conversation will be saved to your browser's local
                         storage, along with your API key, if specified. Make
                         sure that you trust the device you are using and that

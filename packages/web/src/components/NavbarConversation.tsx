@@ -10,8 +10,31 @@ interface NavbarConversationProps {
     conversation: Conversation;
 }
 
-const useStyles = createStyles(
-    (theme, { isActive }: { isActive: boolean }) => ({
+const useStyles = createStyles((theme, { isActive }: { isActive: boolean }) => {
+    const dark = theme.colorScheme === "dark";
+    let backgroundColor: string | undefined;
+    let hoverBackgroundColor: string | undefined;
+    let color: string | undefined;
+
+    if (dark && isActive) {
+        backgroundColor = theme.colors.blue[7];
+        hoverBackgroundColor = theme.colors.blue[8];
+        color = theme.white;
+    } else if (dark && !isActive) {
+        backgroundColor = undefined;
+        hoverBackgroundColor = theme.colors.dark[6];
+        color = theme.white;
+    } else if (isActive) {
+        backgroundColor = theme.colors.blue[1];
+        hoverBackgroundColor = theme.colors.blue[2];
+        color = theme.colors.blue[7];
+    } else {
+        backgroundColor = undefined;
+        hoverBackgroundColor = theme.colors.gray[1];
+        color = theme.colors.gray[8];
+    }
+
+    return {
         root: {
             display: "flex",
             flexWrap: "nowrap",
@@ -19,18 +42,17 @@ const useStyles = createStyles(
             textDecoration: "none",
             fontWeight: 600,
             borderRadius: theme.radius.sm,
-            backgroundColor: isActive ? theme.colors.blue[0] : "transparent",
+            backgroundColor,
+            color,
             height: "2.5rem",
 
             "&:hover": {
                 textDecoration: "none",
-                backgroundColor: isActive
-                    ? theme.colors.blue[0]
-                    : theme.colors.gray[1],
+                backgroundColor: hoverBackgroundColor,
             },
         },
-    })
-);
+    };
+});
 
 export default ({ conversation }: NavbarConversationProps) => {
     const {
@@ -157,7 +179,6 @@ export default ({ conversation }: NavbarConversationProps) => {
     return (
         <Anchor
             className={classes.root}
-            color={isActive ? "blue" : "gray"}
             px="xs"
             py="xs"
             onClick={() => setActiveConversation(conversation.id)}

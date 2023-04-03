@@ -76,7 +76,7 @@ const CodeBlock = ({
             sx={(theme) => ({
                 backgroundColor:
                     theme.colorScheme === "dark"
-                        ? theme.colors.dark[6]
+                        ? theme.colors.dark[8]
                         : theme.colors.gray[0],
             })}
             py={0}
@@ -101,7 +101,11 @@ const CodeBlock = ({
                             position="right"
                             color={copied ? "teal" : undefined}
                         >
-                            <ActionIcon onClick={copy}>
+                            <ActionIcon
+                                onClick={copy}
+                                mt="sm"
+                                sx={{ alignSelf: "start" }}
+                            >
                                 {copied ? <BiCheck /> : <RxClipboard />}
                             </ActionIcon>
                         </Tooltip>
@@ -112,7 +116,7 @@ const CodeBlock = ({
     );
 };
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(() => ({
     root: {
         "& .message-actions": {
             opacity: 0,

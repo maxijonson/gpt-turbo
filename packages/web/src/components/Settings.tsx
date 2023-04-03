@@ -24,7 +24,7 @@ export default () => {
                         label="OpenAI API Key"
                     />
                     <Button type="submit">Save</Button>
-                    <Text size="xs" color="gray" italic align="center">
+                    <Text size="xs" italic align="center">
                         These settings will be saved to your browser's local
                         storage, including your API key, if specified. Make sure
                         that you trust the device you are using and that you are
