@@ -10,6 +10,7 @@ export interface ConversationManagerContextValue {
         conversationConfig: ConversationConfigParameters
     ) => Conversation;
     removeConversation: (id: string) => void;
+    removeAllConversations: () => void;
     setActiveConversation: (id: string | null, force?: boolean) => void;
     getConversationName: (id: string) => string;
     setConversationName: (id: string, name: string) => void;
@@ -23,6 +24,7 @@ export const ConversationManagerContext =
         activeConversation: null,
         addConversation: notImplemented,
         removeConversation: notImplemented,
+        removeAllConversations: notImplemented,
         setActiveConversation: notImplemented,
         getConversationName: notImplemented,
         setConversationName: notImplemented,

@@ -57,6 +57,11 @@ export default ({ children }: ConversationManagerProviderProps) => {
         [activeId, setActiveConversation]
     );
 
+    const removeAllConversations = React.useCallback(() => {
+        setConversations([]);
+        setActiveConversation(null);
+    }, [setActiveConversation]);
+
     const getConversationName = React.useCallback(
         (id: string) => {
             return conversationNames.get(id) ?? "New Chat";
@@ -83,6 +88,7 @@ export default ({ children }: ConversationManagerProviderProps) => {
                 conversations.find((c) => c.id === activeId) ?? null,
             addConversation,
             removeConversation,
+            removeAllConversations,
             setActiveConversation,
             getConversationName,
             setConversationName,
@@ -92,6 +98,7 @@ export default ({ children }: ConversationManagerProviderProps) => {
             addConversation,
             conversations,
             getConversationName,
+            removeAllConversations,
             removeConversation,
             setActiveConversation,
             setConversationName,

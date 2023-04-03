@@ -1,10 +1,11 @@
 import { Group, Navbar, ScrollArea, Stack, createStyles } from "@mantine/core";
 import useConversationManager from "../hooks/useConversationManager";
-import { BiCog, BiPlus } from "react-icons/bi";
+import { BiCog, BiPlus, BiTrash } from "react-icons/bi";
 import TippedActionIcon from "./TippedActionIcon";
 import { openModal } from "@mantine/modals";
 import Settings from "./Settings";
 import NavbarConversation from "./NavbarConversation";
+import React from "react";
 
 const useStyles = createStyles(() => ({
     scrollArea: {
@@ -15,8 +16,23 @@ const useStyles = createStyles(() => ({
 }));
 
 export default () => {
-    const { conversations, setActiveConversation } = useConversationManager();
+    const { conversations, setActiveConversation, removeAllConversations } =
+        useConversationManager();
     const { classes } = useStyles();
+    const [isClearingAll, setIsClearingAll] = React.useState(false);
+
+    const onClearAllClick = React.useCallback(() => {
+        if (isClearingAll) {
+            removeAllConversations();
+        }
+        setIsClearingAll((c) => !c);
+
+        if (!isClearingAll) {
+            setTimeout(() => {
+                setIsClearingAll(false);
+            }, 3000);
+        }
+    }, [isClearingAll, removeAllConversations]);
 
     return (
         <Navbar width={{ base: 300 }} p="xs">
@@ -42,6 +58,18 @@ export default () => {
                         }
                     >
                         <BiCog />
+                    </TippedActionIcon>
+                    <TippedActionIcon
+                        variant={isClearingAll ? "filled" : "outline"}
+                        color={isClearingAll ? "red" : "gray"}
+                        tip={
+                            isClearingAll
+                                ? "Confirm"
+                                : "Clear all conversations"
+                        }
+                        onClick={onClearAllClick}
+                    >
+                        <BiTrash />
                     </TippedActionIcon>
                 </Group>
             </Navbar.Section>

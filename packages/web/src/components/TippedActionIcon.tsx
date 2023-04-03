@@ -1,4 +1,4 @@
-import { ActionIcon, Tooltip, Variants } from "@mantine/core";
+import { ActionIcon, MantineColor, Tooltip, Variants } from "@mantine/core";
 import { MouseEventHandler } from "react";
 
 interface TippedActionIconProps {
@@ -14,12 +14,19 @@ interface TippedActionIconProps {
         | "transparent"
         | "gradient"
     >;
+    color?: MantineColor;
 }
 
-export default ({ children, onClick, tip, variant }: TippedActionIconProps) => {
+export default ({
+    children,
+    onClick,
+    tip,
+    variant,
+    color,
+}: TippedActionIconProps) => {
     return (
         <Tooltip label={tip} withArrow openDelay={1000} hidden={!tip}>
-            <ActionIcon variant={variant} color="gray" onClick={onClick}>
+            <ActionIcon variant={variant} color={color} onClick={onClick}>
                 {children}
             </ActionIcon>
         </Tooltip>
