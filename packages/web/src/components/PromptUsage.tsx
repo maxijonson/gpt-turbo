@@ -6,16 +6,11 @@ import React from "react";
 interface PromptUsageProps {
     prompt: string;
     conversation: Conversation;
-    mode: "size" | "value";
-    onUsageClick: () => void;
 }
 
-export default ({
-    prompt,
-    conversation,
-    mode,
-    onUsageClick,
-}: PromptUsageProps) => {
+export default ({ prompt, conversation }: PromptUsageProps) => {
+    const [mode, setMode] = React.useState<"size" | "value">("size");
+
     const usageDisplay =
         mode === "size"
             ? getMessageSize(prompt)
@@ -51,7 +46,13 @@ export default ({
                 </Stack>
             }
         >
-            <Button variant="subtle" p="xs" onClick={onUsageClick}>
+            <Button
+                variant="subtle"
+                p="xs"
+                onClick={() =>
+                    setMode((m) => (m === "size" ? "value" : "size"))
+                }
+            >
                 {usageDisplay}
             </Button>
         </Tooltip>
