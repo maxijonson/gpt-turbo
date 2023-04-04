@@ -230,11 +230,15 @@ export default ({ message }: MessageProps) => {
                 continue;
             }
 
-            output.push(<Text key={i}>{line}</Text>);
+            output.push(
+                <Text key={i} color={message.isFlagged ? "orange" : undefined}>
+                    {line}
+                </Text>
+            );
         }
 
         return output;
-    }, [message.content]);
+    }, [message.content, message.isFlagged]);
 
     const Actions = React.useMemo(() => {
         if (message.role === "system") return null;
