@@ -1,4 +1,5 @@
 import {
+    Divider,
     Group,
     Navbar,
     ScrollArea,
@@ -7,12 +8,20 @@ import {
     useMantineColorScheme,
 } from "@mantine/core";
 import useConversationManager from "../hooks/useConversationManager";
-import { BiCog, BiMoon, BiPlus, BiSun, BiTrash } from "react-icons/bi";
+import {
+    BiCog,
+    BiDollar,
+    BiMoon,
+    BiPlus,
+    BiSun,
+    BiTrash,
+} from "react-icons/bi";
 import TippedActionIcon from "./TippedActionIcon";
 import { openModal } from "@mantine/modals";
 import Settings from "./Settings";
 import NavbarConversation from "./NavbarConversation";
 import React from "react";
+import Usage from "./Usage";
 
 const useStyles = createStyles(() => ({
     scrollArea: {
@@ -23,8 +32,14 @@ const useStyles = createStyles(() => ({
 }));
 
 export default () => {
-    const { conversations, setActiveConversation, removeAllConversations } =
-        useConversationManager();
+    const {
+        conversations,
+        activeConversation,
+        setActiveConversation,
+        removeAllConversations,
+        showUsage,
+        setShowUsage,
+    } = useConversationManager();
     const { classes } = useStyles();
     const [isClearingAll, setIsClearingAll] = React.useState(false);
     const { colorScheme, toggleColorScheme } = useMantineColorScheme();
@@ -87,9 +102,17 @@ export default () => {
                     >
                         {dark ? <BiSun /> : <BiMoon />}
                     </TippedActionIcon>
+                    <TippedActionIcon
+                        tip={showUsage ? "Hide usage" : "Show usage"}
+                        variant="outline"
+                        onClick={() => setShowUsage((c) => !c)}
+                    >
+                        <BiDollar />
+                    </TippedActionIcon>
                 </Group>
+                <Divider my="xs" />
             </Navbar.Section>
-            <Navbar.Section grow mt="md" h={0}>
+            <Navbar.Section grow h={0}>
                 <ScrollArea
                     h="100%"
                     classNames={{
@@ -106,6 +129,12 @@ export default () => {
                     </Stack>
                 </ScrollArea>
             </Navbar.Section>
+            {activeConversation && showUsage && (
+                <Navbar.Section>
+                    <Divider my="xs" />
+                    <Usage conversation={activeConversation} />
+                </Navbar.Section>
+            )}
         </Navbar>
     );
 };

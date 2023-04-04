@@ -17,6 +17,7 @@ export default ({ children }: ConversationManagerProviderProps) => {
     const [conversationNames, setConversationNames] = React.useState<
         Map<string, string>
     >(new Map());
+    const [showUsage, setShowUsage] = React.useState(true);
 
     const addConversation = React.useCallback(
         (conversation: ConversationConfigParameters) => {
@@ -86,12 +87,14 @@ export default ({ children }: ConversationManagerProviderProps) => {
             activeId,
             activeConversation:
                 conversations.find((c) => c.id === activeId) ?? null,
+            showUsage,
             addConversation,
             removeConversation,
             removeAllConversations,
             setActiveConversation,
             getConversationName,
             setConversationName,
+            setShowUsage,
         }),
         [
             activeId,
@@ -102,6 +105,7 @@ export default ({ children }: ConversationManagerProviderProps) => {
             removeConversation,
             setActiveConversation,
             setConversationName,
+            showUsage,
         ]
     );
 

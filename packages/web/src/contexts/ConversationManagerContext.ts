@@ -6,6 +6,7 @@ export interface ConversationManagerContextValue {
     conversations: Conversation[];
     activeId: string | null;
     activeConversation: Conversation | null;
+    showUsage: boolean;
     addConversation: (
         conversationConfig: ConversationConfigParameters
     ) => Conversation;
@@ -14,6 +15,7 @@ export interface ConversationManagerContextValue {
     setActiveConversation: (id: string | null, force?: boolean) => void;
     getConversationName: (id: string) => string;
     setConversationName: (id: string, name: string) => void;
+    setShowUsage: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const notImplemented = makeNotImplemented("ConversationManagerContext");
@@ -22,10 +24,12 @@ export const ConversationManagerContext =
         conversations: [],
         activeId: null,
         activeConversation: null,
+        showUsage: false,
         addConversation: notImplemented,
         removeConversation: notImplemented,
         removeAllConversations: notImplemented,
         setActiveConversation: notImplemented,
         getConversationName: notImplemented,
         setConversationName: notImplemented,
+        setShowUsage: notImplemented,
     });
