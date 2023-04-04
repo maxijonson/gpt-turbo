@@ -4,6 +4,8 @@ import {
     ConversationManagerContext,
     ConversationManagerContextValue,
 } from "../ConversationManagerContext";
+import useStorage from "../../hooks/useStorage";
+import { z } from "zod";
 
 interface ConversationManagerProviderProps {
     children?: React.ReactNode;
@@ -17,7 +19,11 @@ export default ({ children }: ConversationManagerProviderProps) => {
     const [conversationNames, setConversationNames] = React.useState<
         Map<string, string>
     >(new Map());
-    const [showUsage, setShowUsage] = React.useState(true);
+    const { value: showUsage, setValue: setShowUsage } = useStorage(
+        "gpt-turbo-showusage",
+        true,
+        z.boolean()
+    );
 
     const addConversation = React.useCallback(
         (conversation: ConversationConfigParameters) => {
@@ -105,6 +111,7 @@ export default ({ children }: ConversationManagerProviderProps) => {
             removeConversation,
             setActiveConversation,
             setConversationName,
+            setShowUsage,
             showUsage,
         ]
     );
