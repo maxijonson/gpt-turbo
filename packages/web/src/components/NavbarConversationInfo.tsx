@@ -36,6 +36,8 @@ const Icon = ({
     );
 };
 
+const SIZE = 14;
+
 export default ({ conversation }: NavbarConversationInfoProps) => {
     const { model, dry, disableModeration, stream } = conversation.getConfig();
     const { persistedConversationIds } = usePersistence();
@@ -43,10 +45,10 @@ export default ({ conversation }: NavbarConversationInfoProps) => {
     const persisted = persistedConversationIds.includes(conversation.id);
 
     const Model = (() => {
-        if (model.startsWith("gpt-3.5")) return <Bs3CircleFill size={15} />;
-        if (model.startsWith("gpt-4-32k")) return <Bs4SquareFill />;
-        if (model.startsWith("gpt-4")) return <Bs4CircleFill />;
-        return <BsQuestionCircleFill />;
+        if (model.startsWith("gpt-3.5")) return <Bs3CircleFill size={SIZE} />;
+        if (model.startsWith("gpt-4-32k")) return <Bs4SquareFill size={SIZE} />;
+        if (model.startsWith("gpt-4")) return <Bs4CircleFill size={SIZE} />;
+        return <BsQuestionCircleFill size={SIZE} />;
     })();
 
     const Dry = (() => {
@@ -55,23 +57,23 @@ export default ({ conversation }: NavbarConversationInfoProps) => {
     })();
 
     const DisableModeration = (() => {
-        if (disableModeration === "soft") return <BsShieldShaded />;
-        if (disableModeration) return <BsShieldSlash />;
-        return <BsShieldFill />;
+        if (disableModeration === "soft") return <BsShieldShaded size={SIZE} />;
+        if (disableModeration) return <BsShieldSlash size={SIZE} />;
+        return <BsShieldFill size={SIZE} />;
     })();
 
     const Stream = (() => {
-        if (stream) return <BsFastForwardFill />;
-        return <BsPlayFill />;
+        if (stream) return <BsFastForwardFill size={SIZE} />;
+        return <BsPlayFill size={SIZE} />;
     })();
 
     const Persisted = (() => {
-        if (persisted) return <BiSave />;
-        return <TbCircleDashed />;
+        if (persisted) return <BiSave size={SIZE} />;
+        return <TbCircleDashed size={SIZE} />;
     })();
 
     return (
-        <Group spacing="xs">
+        <Group spacing="xs" align="center">
             <Icon IconType={Model} label={model} />
             <Icon IconType={Dry} label={dry ? "Dry run" : "Live"} />
             <Icon
