@@ -64,13 +64,6 @@ export default () => {
                 <Group position="center">
                     <TippedActionIcon
                         variant="outline"
-                        onClick={() => setActiveConversation(null)}
-                        tip="Add conversation"
-                    >
-                        <BiPlus />
-                    </TippedActionIcon>
-                    <TippedActionIcon
-                        variant="outline"
                         tip="Settings"
                         onClick={() =>
                             openModal({
@@ -84,31 +77,44 @@ export default () => {
                         <BiCog />
                     </TippedActionIcon>
                     <TippedActionIcon
-                        variant={isClearingAll ? "filled" : "outline"}
-                        color={isClearingAll ? "red" : "gray"}
-                        tip={
-                            isClearingAll
-                                ? "Confirm"
-                                : "Clear all conversations"
-                        }
-                        onClick={onClearAllClick}
-                    >
-                        <BiTrash />
-                    </TippedActionIcon>
-                    <TippedActionIcon
                         tip={dark ? "Light mode" : "Dark mode"}
                         variant="outline"
                         onClick={() => toggleColorScheme()}
                     >
                         {dark ? <BiSun /> : <BiMoon />}
                     </TippedActionIcon>
-                    <TippedActionIcon
-                        tip={showUsage ? "Hide usage" : "Show usage"}
-                        variant="outline"
-                        onClick={() => setShowUsage((c) => !c)}
-                    >
-                        <BiDollar />
-                    </TippedActionIcon>
+                    {activeConversation && (
+                        <TippedActionIcon
+                            variant="outline"
+                            onClick={() => setActiveConversation(null)}
+                            tip="Add conversation"
+                        >
+                            <BiPlus />
+                        </TippedActionIcon>
+                    )}
+                    {conversations.length && (
+                        <TippedActionIcon
+                            variant={isClearingAll ? "filled" : "outline"}
+                            color={isClearingAll ? "red" : "gray"}
+                            tip={
+                                isClearingAll
+                                    ? "Confirm"
+                                    : "Clear all conversations"
+                            }
+                            onClick={onClearAllClick}
+                        >
+                            <BiTrash />
+                        </TippedActionIcon>
+                    )}
+                    {activeConversation && (
+                        <TippedActionIcon
+                            tip={showUsage ? "Hide usage" : "Show usage"}
+                            variant="outline"
+                            onClick={() => setShowUsage((c) => !c)}
+                        >
+                            <BiDollar />
+                        </TippedActionIcon>
+                    )}
                 </Group>
                 <Divider my="xs" />
             </Navbar.Section>
