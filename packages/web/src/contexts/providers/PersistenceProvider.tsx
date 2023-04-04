@@ -80,10 +80,17 @@ export default ({ children }: PersistenceProviderProps) => {
         () => ({
             persistence,
             addPersistedConversationId,
+            persistedConversationIds,
             isLoading,
             hasInit,
         }),
-        [addPersistedConversationId, hasInit, isLoading, persistence]
+        [
+            addPersistedConversationId,
+            hasInit,
+            isLoading,
+            persistedConversationIds,
+            persistence,
+        ]
     );
 
     // Load persisted conversations

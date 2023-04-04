@@ -1,10 +1,18 @@
-import { Anchor, Group, Text, TextInput, createStyles } from "@mantine/core";
+import {
+    Anchor,
+    Group,
+    Stack,
+    Text,
+    TextInput,
+    createStyles,
+} from "@mantine/core";
 import { Conversation } from "gpt-turbo";
 import useConversationManager from "../hooks/useConversationManager";
 import { BiCheck, BiPencil, BiTrash, BiX } from "react-icons/bi";
 import React from "react";
 import { useForm } from "@mantine/form";
 import TippedActionIcon from "./TippedActionIcon";
+import NavbarConversationInfo from "./NavbarConversationInfo";
 
 interface NavbarConversationProps {
     conversation: Conversation;
@@ -37,14 +45,12 @@ const useStyles = createStyles((theme, { isActive }: { isActive: boolean }) => {
     return {
         root: {
             display: "flex",
-            flexWrap: "nowrap",
             alignItems: "center",
             textDecoration: "none",
             fontWeight: 600,
             borderRadius: theme.radius.sm,
             backgroundColor,
             color,
-            height: "2.5rem",
 
             "&:hover": {
                 textDecoration: "none",
@@ -183,24 +189,30 @@ export default ({ conversation }: NavbarConversationProps) => {
             py="xs"
             onClick={() => setActiveConversation(conversation.id)}
         >
-            {isEditing ? (
-                <form
-                    onSubmit={onEdit}
-                    ref={editFormRef}
-                    style={{ flexGrow: 1 }}
-                >
-                    <TextInput {...editForm.getInputProps("name")} w="100%" />
-                </form>
-            ) : (
-                <Text size="sm" truncate="end" sx={{ flexGrow: 1 }}>
-                    {name}
-                </Text>
-            )}
-            {isActive && (
-                <Group noWrap spacing={2}>
-                    {Actions}
-                </Group>
-            )}
+            <Group noWrap w="100%">
+                <Stack spacing={0} sx={{ flexGrow: 1 }}>
+                    {isEditing ? (
+                        <form onSubmit={onEdit} ref={editFormRef}>
+                            <TextInput
+                                {...editForm.getInputProps("name")}
+                                w="100%"
+                            />
+                        </form>
+                    ) : (
+                        <Text size="sm" truncate="end">
+                            {name}
+                        </Text>
+                    )}
+                    {!isEditing && (
+                        <NavbarConversationInfo conversation={conversation} />
+                    )}
+                </Stack>
+                {isActive && (
+                    <Group noWrap spacing={2}>
+                        {Actions}
+                    </Group>
+                )}
+            </Group>
         </Anchor>
     );
 };

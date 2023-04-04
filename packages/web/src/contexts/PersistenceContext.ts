@@ -5,6 +5,7 @@ import { Persistence } from "../entities/persistence";
 export interface PersistenceContextValue {
     persistence: Persistence;
     addPersistedConversationId: (id: string) => void;
+    persistedConversationIds: string[];
     isLoading: boolean;
     hasInit: boolean;
 }
@@ -15,6 +16,7 @@ export const PersistenceContext = React.createContext<PersistenceContextValue>({
         conversations: [],
     },
     addPersistedConversationId: notImplemented,
+    persistedConversationIds: [],
     isLoading: false,
     hasInit: true,
 });
