@@ -4,6 +4,12 @@ import useConversationManager from "../hooks/useConversationManager";
 import { notifications } from "@mantine/notifications";
 import React from "react";
 import PromptUsage from "./PromptUsage";
+import {
+    useClickOutside,
+    useFocusReturn,
+    useFocusWithin,
+    useMergedRef,
+} from "@mantine/hooks";
 
 export default () => {
     const { activeConversation: conversation, showUsage } =
@@ -14,6 +20,17 @@ export default () => {
         },
     });
     const [isStreaming, setIsStreaming] = React.useState(false);
+
+    const [shouldReturnFocus, setShouldReturnFocus] = React.useState(false);
+    const { ref: focusWithinRef, focused } = useFocusWithin({
+        onFocus: () => setShouldReturnFocus(true),
+    });
+    const clickOutsideRef = useClickOutside(() => setShouldReturnFocus(false));
+    const textAreaRef = useMergedRef(focusWithinRef, clickOutsideRef);
+    const returnFocus = useFocusReturn({
+        opened: focused,
+        shouldReturnFocus,
+    });
 
     const handleSubmit = form.onSubmit(async (values) => {
         if (!conversation || !values.prompt) return;
@@ -38,6 +55,12 @@ export default () => {
         }
     });
 
+    React.useEffect(() => {
+        if (shouldReturnFocus) {
+            returnFocus();
+        }
+    }, [returnFocus, shouldReturnFocus]);
+
     if (!conversation) return <Loader />;
 
     return (
@@ -46,6 +69,7 @@ export default () => {
                 <form onSubmit={handleSubmit} style={{ flexGrow: 1 }}>
                     <Textarea
                         {...form.getInputProps("prompt")}
+                        ref={textAreaRef}
                         disabled={isStreaming}
                         autosize
                         minRows={1}
