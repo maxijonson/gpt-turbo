@@ -1,6 +1,6 @@
 {
     "name": "gpt-turbo",
-    "version": "2.2.2",
+    "version": "3.0.0",
     "description": "A library for interacting with OpenAI's Chat Completion API",
     "main": "dist/index.js",
     "type": "module",

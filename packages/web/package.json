@@ -1,6 +1,6 @@
 {
     "name": "gpt-turbo-web",
-    "version": "2.2.0",
+    "version": "3.0.0",
     "description": "A Web app that interacts with the gpt-turbo library",
     "private": true,
     "main": "dist/index.js",
@@ -56,7 +56,7 @@
         "@mantine/hooks": "^6.0.5",
         "@mantine/modals": "^6.0.5",
         "@mantine/notifications": "^6.0.5",
-        "gpt-turbo": "^2.2.0",
+        "gpt-turbo": "^3.0.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-icons": "^4.8.0",
