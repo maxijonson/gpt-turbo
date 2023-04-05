@@ -17,6 +17,7 @@ body:
       options:
         - 'Library (gpt-turbo)'
         - 'CLI (gpt-turbo-cli)'
+        - 'Web (gpt-turbo-web)'
     validations:
       required: true
   - type: textarea
