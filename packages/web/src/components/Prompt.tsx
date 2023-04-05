@@ -24,6 +24,9 @@ export default () => {
                 message.onMessageStreamingUpdate((isStreaming) => {
                     setIsStreaming(isStreaming);
                 });
+                if (message.isStreaming) {
+                    setIsStreaming(true);
+                }
             }
         } catch (e) {
             console.error(e);

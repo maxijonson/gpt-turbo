@@ -2,7 +2,11 @@ import {
     ConversationConfig,
     ConversationConfigParameters,
 } from "./ConversationConfig.js";
-import { createChatCompletion, getMessageSize } from "../utils/index.js";
+import {
+    createChatCompletion,
+    createDryChatCompletion,
+    getMessageSize,
+} from "../utils/index.js";
 import { ModerationException } from "../exceptions/ModerationException.js";
 import { Message } from "./Message.js";
 import { MessageRoleException } from "../exceptions/index.js";
@@ -202,17 +206,21 @@ export class Conversation {
             content,
         }));
 
-        if (this.config.dry) {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            message.content = messages[messages.length - 1]?.content ?? null;
-        } else {
-            const unsubscribeStreaming = message.onMessageStreamingStop((m) => {
-                this.cumulativeSize +=
-                    this.getSize() + getMessageSize(m.content);
-                this.cumulativeCost += this.getCost() + m.cost;
-                unsubscribeStreaming();
-            });
+        const unsubscribeStreaming = message.onMessageStreamingStop((m) => {
+            this.cumulativeSize += this.getSize() + getMessageSize(m.content);
+            this.cumulativeCost += this.getCost() + m.cost;
+            unsubscribeStreaming();
+        });
 
+        if (this.config.dry) {
+            const response = createDryChatCompletion(
+                this.messages[messages.length - 1]?.content ?? "",
+                {
+                    model: this.config.model,
+                }
+            );
+            message.readContentFromStream(response);
+        } else {
             createChatCompletion(
                 {
                     ...this.config.chatCompletionConfig,
