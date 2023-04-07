@@ -27,7 +27,7 @@ npm run build
 
 ## Usage
 
-As of right now, the web app is not hosted anywhere. You can run it locally by following the instructions below. You can also serve it yourself. The web app has been built so that it can be served by anyone as a static website. 
+You can view an example of the deployed web app [here](https://gpt-turbo-web.chintristan.io/), or you can run it locally by following the instructions below and serve it yourself. The web app has been built so that it can be served by anyone as a static website. 
 
 *Run these in this package directory*
 
@@ -39,6 +39,8 @@ npm run preview -- --port 8080
 ```
 
 ## Deploy
+
+You can see the latest version of the deployed web app [here](https://gpt-turbo-web.chintristan.io/).
 
 The following instructions are for deploying the web app to [Render](https://render.com/), as they offer free hosting for static websites. However, these steps can generally be applied to any hosting service that allows you to serve a static website. As such, these instructions assume you already have a Render account connected with you GitHub account. You can sign up [here](https://dashboard.render.com/register).
 
