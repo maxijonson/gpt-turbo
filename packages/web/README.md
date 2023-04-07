@@ -40,4 +40,16 @@ npm run preview -- --port 8080
 
 ## Deploy
 
-TODO: Instructions on how to deploy the web app.
+The following instructions are for deploying the web app to [Render](https://render.com/), as they offer free hosting for static websites. However, these steps can generally be applied to any hosting service that allows you to serve a static website. As such, these instructions assume you already have a Render account connected with you GitHub account. You can sign up [here](https://dashboard.render.com/register).
+
+1. On Render's dashboard, click "New" and select "Static Site".
+2. Link the GitHub repository
+   1. Option 1 (Recommended): Fork this repository on your GitHub account and connect it to Render. This will allow you to make your own changes to the web app, if you want to.
+   2. Option 2: Link this repository: https://github.com/maxijonson/gpt-turbo .
+3. Give the site a name, for example `gpt-turbo-web`.
+4. Select the `master` branch as the branch to deploy.
+5. Set the root directory to `packages/web`.
+6. Set the build command to `npm run build`.
+7. Set the publish directory to `dist`. (`packages/web/dist`)
+8. (Optional) If you chose to link this repository (option 2), you may want to disable the "Auto-Deploy" option under the "Advanced" tab. This will prevent Render from automatically deploying the web app every time a change is made to it. You can then manually deploy the web app later.
+9. Click "Create Static Site".
