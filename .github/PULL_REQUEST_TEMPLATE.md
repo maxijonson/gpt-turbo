@@ -11,6 +11,7 @@ Issue: #
 - [ ] Library
 - Implementations
   - [ ] CLI
+  - [ ] Web
 - [ ] Other: <!-- Please specify -->
 
 ## Type of change
