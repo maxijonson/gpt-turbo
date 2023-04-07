@@ -1,7 +1,9 @@
 import React from "react";
 import AppFocusProvider from "./AppFocusProvider.js";
 import ConfigProvider from "./ConfigProvider.js";
+import ConversationManagerProvider from "./ConversationManagerProvider.js";
 import DebugProvider from "./DebugProvider.js";
+import PersistenceProvider from "./PersistenceProvider.js";
 
 interface ProvidersProps {
     children?: React.ReactNode;
@@ -32,7 +34,11 @@ export default ({
                 initialDisableModeration={initialDisableModeration}
                 initialStream={initialStream}
             >
-                <AppFocusProvider>{children}</AppFocusProvider>
+                <ConversationManagerProvider>
+                    <AppFocusProvider>
+                        <PersistenceProvider>{children}</PersistenceProvider>
+                    </AppFocusProvider>
+                </ConversationManagerProvider>
             </ConfigProvider>
         </DebugProvider>
     );

@@ -1,38 +1,26 @@
-import { Conversation } from "gpt-turbo";
 import { Box, Text } from "ink";
 import React from "react";
+import useConversationManager from "../hooks/useConversationManager.js";
 import BoxTitle from "./BoxTitle.js";
-
-interface UsageBoxProps {
-    conversation: Conversation;
-}
 
 const SEPARATOR = ": ";
 
-export default ({ conversation }: UsageBoxProps) => {
-    const [cumulSize, setCumulSize] = React.useState(0);
-    const [cumulCost, setCumulCost] = React.useState(0);
-    const [size, setSize] = React.useState(0);
-    const [cost, setCost] = React.useState(0);
-
-    React.useEffect(() => {
-        const listener = conversation.onMessageAdded(() => {
-            setCumulSize(conversation.getCumulativeSize());
-            setCumulCost(conversation.getCumulativeCost());
-            setSize(conversation.getSize());
-            setCost(conversation.getCost());
-        });
-        return () => listener();
-    }, [conversation]);
+export default () => {
+    const [, forceUpdate] = React.useReducer((x) => x + 1, 0);
+    const { conversation } = useConversationManager();
+    const cumulativeSize = conversation?.getCumulativeSize() ?? 0;
+    const cumulativeCost = conversation?.getCumulativeCost() ?? 0;
+    const size = conversation?.getSize() ?? 0;
+    const cost = conversation?.getCost() ?? 0;
 
     const usages = React.useMemo<{ label: string; value: string }[]>(
         () => [
-            { label: "Cumul. Tokens", value: "" + cumulSize },
-            { label: "Cumul. Cost", value: "$" + cumulCost.toFixed(5) },
+            { label: "Cumul. Tokens", value: "" + cumulativeSize },
+            { label: "Cumul. Cost", value: "$" + cumulativeCost.toFixed(5) },
             { label: "Convo. Tokens", value: "" + size },
             { label: "Convo. Cost", value: "$" + cost.toFixed(5) },
         ],
-        [cost, cumulCost, cumulSize, size]
+        [cost, cumulativeCost, cumulativeSize, size]
     );
 
     const minWidth = React.useMemo(
@@ -42,6 +30,22 @@ export default ({ conversation }: UsageBoxProps) => {
             ) + SEPARATOR.length,
         [usages]
     );
+
+    React.useEffect(() => {
+        if (!conversation) return;
+        const offs: (() => void)[] = [];
+        const offMessageAdded = conversation.onMessageAdded((message) => {
+            offs.push(
+                message.onMessageStreamingUpdate(() => forceUpdate()),
+                message.onMessageUpdate(() => forceUpdate())
+            );
+        });
+
+        return () => {
+            offs.forEach((off) => off());
+            offMessageAdded();
+        };
+    }, [conversation]);
 
     return (
         <Box

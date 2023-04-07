@@ -35,3 +35,19 @@ export const GPTTURBO_SHOWDEBUG =
     process.env.GPTTURBO_SHOWDEBUG === undefined
         ? undefined
         : process.env.GPTTURBO_SHOWDEBUG === "true";
+
+export const GPTTURBO_SAVE = (() => {
+    if (!process.env.GPTTURBO_SAVE) {
+        return undefined;
+    }
+    const save = process.env.GPTTURBO_SAVE;
+    if (save === "true") {
+        return true;
+    }
+    if (save === "false") {
+        return false;
+    }
+    return save;
+})();
+
+export const GPTTURBO_LOAD = process.env.GPTTURBO_LOAD;

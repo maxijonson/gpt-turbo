@@ -1,4 +1,4 @@
-import { Conversation, Message, ModerationException } from "gpt-turbo";
+import { Message, ModerationException } from "gpt-turbo";
 import { Box, Key, Text, useInput } from "ink";
 import React from "react";
 import { useElementDimensions } from "../hooks/useElementDimensions.js";
@@ -9,12 +9,10 @@ import { FOCUSID_CONVERSATION } from "../config/constants.js";
 import Prompt from "./Prompt.js";
 import useCustomFocus from "../hooks/useCustomFocus.js";
 import useConfig from "../hooks/useConfig.js";
+import useConversationManager from "../hooks/useConversationManager.js";
 
-interface ConversationBoxProps {
-    conversation: Conversation;
-}
-
-export default ({ conversation }: ConversationBoxProps) => {
+export default () => {
+    const { conversation } = useConversationManager();
     const { model } = useConfig();
 
     const [error, setError] = React.useState<string | null>(null);
@@ -23,7 +21,9 @@ export default ({ conversation }: ConversationBoxProps) => {
     const [pendingMessage, setPendingMessage] = React.useState<string | null>(
         null
     );
-    const [messages, setMessages] = React.useState<Message[]>([]);
+    const [messages, setMessages] = React.useState<Message[]>(
+        conversation?.getMessages() ?? []
+    );
 
     const pageableMessages = React.useMemo(() => {
         const baseMessages = messages.slice();
@@ -52,7 +52,7 @@ export default ({ conversation }: ConversationBoxProps) => {
 
     const onSubmit = React.useCallback(
         async (prompt: string) => {
-            if (pendingMessage) return;
+            if (pendingMessage || !conversation) return;
             setError(null);
             setPendingMessage(prompt);
             setIsLoading(true);
@@ -95,6 +95,7 @@ export default ({ conversation }: ConversationBoxProps) => {
     useInput(handleInput, { isActive: isFocused });
 
     React.useEffect(() => {
+        if (!conversation) return;
         const unsubscribeMessageUpdate: (() => void)[] = [];
         const unsubscribeMessageStreaming: (() => void)[] = [];
         const unsubscribeMessageAdded = conversation.onMessageAdded(
@@ -127,6 +128,7 @@ export default ({ conversation }: ConversationBoxProps) => {
     }, [conversation]);
 
     React.useEffect(() => {
+        if (!conversation) return;
         return conversation.onMessageRemoved((message) => {
             setMessages((messages) =>
                 messages.filter((m) => m.id !== message.id)
