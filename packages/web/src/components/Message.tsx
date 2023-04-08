@@ -201,11 +201,7 @@ export default ({ message }: MessageProps) => {
                     <Sender />
                 </Avatar>
             </div>
-            <Card
-                shadow="sm"
-                style={{ flexGrow: 1 }}
-                pb={isSm ? "xl" : undefined}
-            >
+            <Card shadow="sm" style={{ flexGrow: 1 }}>
                 <Stack p={0}>
                     {isEditing ? (
                         <form ref={editFormRef} onSubmit={onSubmit}>
