@@ -105,7 +105,7 @@ export default () => {
                         </Text>
                     }
                 />
-                <Group grow>
+                <Group>
                     <Select
                         {...form.getInputProps("model")}
                         label="Model"
@@ -119,8 +119,9 @@ export default () => {
                             setModelOptions((current) => [...current, item]);
                             return item;
                         }}
+                        sx={{ flexGrow: 1 }}
                     />
-                    <Group position="center">
+                    <Group position="center" sx={{ flexGrow: 1 }}>
                         <Input.Wrapper label="Moderation">
                             <div>
                                 <SegmentedControl
@@ -135,7 +136,7 @@ export default () => {
                             </div>
                         </Input.Wrapper>
                     </Group>
-                    <Group position="center">
+                    <Group position="center" noWrap sx={{ flexGrow: 1 }}>
                         <Tooltip
                             label="Dry mode is enabled when no API key is specified"
                             disabled={!!form.values.apiKey}

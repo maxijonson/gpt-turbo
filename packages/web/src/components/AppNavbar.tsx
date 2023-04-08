@@ -1,11 +1,14 @@
 import {
+    Burger,
     Divider,
     Group,
+    MediaQuery,
     Navbar,
     ScrollArea,
     Stack,
     createStyles,
     useMantineColorScheme,
+    useMantineTheme,
 } from "@mantine/core";
 import useConversationManager from "../hooks/useConversationManager";
 import {
@@ -22,12 +25,19 @@ import Settings from "./Settings";
 import NavbarConversation from "./NavbarConversation";
 import React from "react";
 import Usage from "./Usage";
+import { useMediaQuery } from "@mantine/hooks";
 
 const useStyles = createStyles(() => ({
     scrollArea: {
         "& > div": {
             display: "block !important",
         },
+    },
+    burger: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        zIndex: 101,
     },
 }));
 
@@ -43,7 +53,16 @@ export default () => {
     const { classes } = useStyles();
     const [isClearingAll, setIsClearingAll] = React.useState(false);
     const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+    const theme = useMantineTheme();
+
+    const [opened, setOpened] = React.useState(false);
+    const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
+
     const dark = colorScheme === "dark";
+
+    const closeNavbar = React.useCallback(() => {
+        setOpened(false);
+    }, []);
 
     const onClearAllClick = React.useCallback(() => {
         if (isClearingAll) {
@@ -59,88 +78,114 @@ export default () => {
     }, [isClearingAll, removeAllConversations]);
 
     return (
-        <Navbar width={{ base: 300 }} p="xs">
-            <Navbar.Section>
-                <Group position="center">
-                    <TippedActionIcon
-                        variant="outline"
-                        tip="Settings"
-                        onClick={() =>
-                            openModal({
-                                children: <Settings />,
-                                centered: true,
-                                size: "lg",
-                                title: "Settings",
-                            })
-                        }
-                    >
-                        <BiCog />
-                    </TippedActionIcon>
-                    <TippedActionIcon
-                        tip={dark ? "Light mode" : "Dark mode"}
-                        variant="outline"
-                        onClick={() => toggleColorScheme()}
-                    >
-                        {dark ? <BiSun /> : <BiMoon />}
-                    </TippedActionIcon>
-                    {activeConversation && (
-                        <TippedActionIcon
-                            variant="outline"
-                            onClick={() => setActiveConversation(null)}
-                            tip="Add conversation"
-                        >
-                            <BiPlus />
-                        </TippedActionIcon>
-                    )}
-                    {conversations.length && (
-                        <TippedActionIcon
-                            variant={isClearingAll ? "filled" : "outline"}
-                            color={isClearingAll ? "red" : "gray"}
-                            tip={
-                                isClearingAll
-                                    ? "Confirm"
-                                    : "Clear all conversations"
-                            }
-                            onClick={onClearAllClick}
-                        >
-                            <BiTrash />
-                        </TippedActionIcon>
-                    )}
-                    {activeConversation && (
-                        <TippedActionIcon
-                            tip={showUsage ? "Hide usage" : "Show usage"}
-                            variant="outline"
-                            onClick={() => setShowUsage((c) => !c)}
-                        >
-                            <BiDollar />
-                        </TippedActionIcon>
-                    )}
-                </Group>
-                <Divider my="xs" />
-            </Navbar.Section>
-            <Navbar.Section grow h={0}>
-                <ScrollArea
-                    h="100%"
-                    classNames={{
-                        viewport: classes.scrollArea,
-                    }}
-                >
-                    <Stack spacing="xs">
-                        {conversations.map((conversation) => (
-                            <NavbarConversation
-                                key={conversation.id}
-                                conversation={conversation}
-                            />
-                        ))}
-                    </Stack>
-                </ScrollArea>
-            </Navbar.Section>
-            {activeConversation && showUsage && (
+        <>
+            <MediaQuery
+                largerThan="sm"
+                styles={{
+                    display: "none",
+                }}
+            >
+                <Burger
+                    className={classes.burger}
+                    opened={opened}
+                    onClick={() => setOpened((c) => !c)}
+                    size="sm"
+                    ml="sm"
+                    mt="sm"
+                />
+            </MediaQuery>
+            <Navbar
+                width={{ sm: 300 }}
+                p="xs"
+                hiddenBreakpoint="sm"
+                hidden={isSm && !opened}
+            >
                 <Navbar.Section>
+                    <Group position="center">
+                        <TippedActionIcon
+                            variant="outline"
+                            tip="Settings"
+                            onClick={() =>
+                                openModal({
+                                    children: <Settings />,
+                                    centered: true,
+                                    size: "lg",
+                                    title: "Settings",
+                                })
+                            }
+                        >
+                            <BiCog />
+                        </TippedActionIcon>
+                        <TippedActionIcon
+                            tip={dark ? "Light mode" : "Dark mode"}
+                            variant="outline"
+                            onClick={() => toggleColorScheme()}
+                        >
+                            {dark ? <BiSun /> : <BiMoon />}
+                        </TippedActionIcon>
+                        {activeConversation && (
+                            <TippedActionIcon
+                                variant="outline"
+                                onClick={() => {
+                                    setActiveConversation(null);
+                                    closeNavbar();
+                                }}
+                                tip="Add conversation"
+                            >
+                                <BiPlus />
+                            </TippedActionIcon>
+                        )}
+                        {conversations.length && (
+                            <TippedActionIcon
+                                variant={isClearingAll ? "filled" : "outline"}
+                                color={isClearingAll ? "red" : "gray"}
+                                tip={
+                                    isClearingAll
+                                        ? "Confirm"
+                                        : "Clear all conversations"
+                                }
+                                onClick={onClearAllClick}
+                            >
+                                <BiTrash />
+                            </TippedActionIcon>
+                        )}
+                        {activeConversation && (
+                            <TippedActionIcon
+                                tip={showUsage ? "Hide usage" : "Show usage"}
+                                variant="outline"
+                                onClick={() => setShowUsage((c) => !c)}
+                            >
+                                <BiDollar />
+                            </TippedActionIcon>
+                        )}
+                    </Group>
                     <Divider my="xs" />
-                    <Usage conversation={activeConversation} />
                 </Navbar.Section>
-            )}
-        </Navbar>
+                <Navbar.Section grow h={0}>
+                    <ScrollArea
+                        h="100%"
+                        classNames={{
+                            viewport: classes.scrollArea,
+                        }}
+                    >
+                        <Stack spacing="xs">
+                            {conversations.map((conversation) => (
+                                <NavbarConversation
+                                    key={conversation.id}
+                                    conversation={conversation}
+                                    onClick={closeNavbar}
+                                />
+                            ))}
+                        </Stack>
+                    </ScrollArea>
+                </Navbar.Section>
+                {activeConversation && showUsage && (
+                    <Navbar.Section>
+                        <Divider my="xs" />
+                        <Usage conversation={activeConversation} />
+                    </Navbar.Section>
+                )}
+            </Navbar>
+        </>
     );
 };

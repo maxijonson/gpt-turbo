@@ -1,7 +1,15 @@
-import { Container, ScrollArea, Stack } from "@mantine/core";
+import { Container, ScrollArea, Stack, createStyles } from "@mantine/core";
 import useConversationManager from "../hooks/useConversationManager";
 import Message from "./Message";
 import React from "react";
+
+const useStyles = createStyles(() => ({
+    scrollArea: {
+        "& > div": {
+            display: "block !important",
+        },
+    },
+}));
 
 export default () => {
     const { activeConversation: conversation } = useConversationManager();
@@ -10,6 +18,7 @@ export default () => {
     );
     const viewport = React.useRef<HTMLDivElement>(null);
     const [isSticky, setIsSticky] = React.useState(true);
+    const { classes } = useStyles();
 
     const scrollToBottom = React.useCallback(() => {
         setTimeout(() => {
@@ -73,8 +82,11 @@ export default () => {
     }, [conversation]);
 
     return (
-        <Container sx={{ flexGrow: 1 }} w="100%" h={0}>
+        <Container sx={{ flexGrow: 1 }} w="100%" h={0} p={0}>
             <ScrollArea
+                classNames={{
+                    viewport: classes.scrollArea,
+                }}
                 h="100%"
                 offsetScrollbars
                 onScrollPositionChange={onScrollPositionChange}

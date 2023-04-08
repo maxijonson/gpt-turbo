@@ -16,6 +16,7 @@ import NavbarConversationInfo from "./NavbarConversationInfo";
 
 interface NavbarConversationProps {
     conversation: Conversation;
+    onClick?: () => void;
 }
 
 const useStyles = createStyles((theme, { isActive }: { isActive: boolean }) => {
@@ -60,7 +61,7 @@ const useStyles = createStyles((theme, { isActive }: { isActive: boolean }) => {
     };
 });
 
-export default ({ conversation }: NavbarConversationProps) => {
+export default ({ conversation, onClick }: NavbarConversationProps) => {
     const {
         activeConversation,
         setActiveConversation,
@@ -187,7 +188,10 @@ export default ({ conversation }: NavbarConversationProps) => {
             className={classes.root}
             px="xs"
             py="xs"
-            onClick={() => setActiveConversation(conversation.id)}
+            onClick={() => {
+                setActiveConversation(conversation.id);
+                onClick?.();
+            }}
         >
             <Group noWrap w="100%">
                 <Stack spacing={0} sx={{ flexGrow: 1 }}>

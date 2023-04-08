@@ -16,6 +16,7 @@ export default () => {
     return (
         <AppShell
             padding="md"
+            navbarOffsetBreakpoint="sm"
             navbar={<AppNavbar />}
             sx={(theme) => ({
                 backgroundColor:
