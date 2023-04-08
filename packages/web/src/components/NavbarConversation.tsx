@@ -189,6 +189,7 @@ export default ({ conversation, onClick }: NavbarConversationProps) => {
             px="xs"
             py="xs"
             onClick={() => {
+                if (isEditing) return;
                 setActiveConversation(conversation.id);
                 onClick?.();
             }}
