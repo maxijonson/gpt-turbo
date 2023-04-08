@@ -90,7 +90,8 @@ export default () => {
                     opened={opened}
                     onClick={() => setOpened((c) => !c)}
                     size="sm"
-                    mt="sm"
+                    mt="xs"
+                    mr="sm"
                 />
             </MediaQuery>
             <Navbar

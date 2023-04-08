@@ -1,7 +1,14 @@
-import { Container, ScrollArea, Stack, createStyles } from "@mantine/core";
+import {
+    Container,
+    ScrollArea,
+    Stack,
+    createStyles,
+    useMantineTheme,
+} from "@mantine/core";
 import useConversationManager from "../hooks/useConversationManager";
 import Message from "./Message";
 import React from "react";
+import { useMediaQuery } from "@mantine/hooks";
 
 const useStyles = createStyles(() => ({
     scrollArea: {
@@ -19,6 +26,9 @@ export default () => {
     const viewport = React.useRef<HTMLDivElement>(null);
     const [isSticky, setIsSticky] = React.useState(true);
     const { classes } = useStyles();
+
+    const theme = useMantineTheme();
+    const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
     const scrollToBottom = React.useCallback(() => {
         setTimeout(() => {
@@ -82,7 +92,13 @@ export default () => {
     }, [conversation]);
 
     return (
-        <Container sx={{ flexGrow: 1 }} w="100%" h={0} p={0}>
+        <Container
+            sx={{ flexGrow: 1 }}
+            w="100%"
+            h={0}
+            p={0}
+            pt={isSm ? "xl" : 0}
+        >
             <ScrollArea
                 classNames={{
                     viewport: classes.scrollArea,
