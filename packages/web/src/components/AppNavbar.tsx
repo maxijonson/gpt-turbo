@@ -36,7 +36,7 @@ const useStyles = createStyles(() => ({
     burger: {
         position: "absolute",
         top: 0,
-        left: 0,
+        right: 0,
         zIndex: 101,
     },
 }));
@@ -90,7 +90,6 @@ export default () => {
                     opened={opened}
                     onClick={() => setOpened((c) => !c)}
                     size="sm"
-                    ml="sm"
                     mt="sm"
                 />
             </MediaQuery>
