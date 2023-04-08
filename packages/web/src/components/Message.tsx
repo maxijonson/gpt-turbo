@@ -23,13 +23,19 @@ interface MessageProps {
     message: Message;
 }
 
-const useStyles = createStyles(() => ({
+const useStyles = createStyles((theme) => ({
     root: {
         "& .message-actions": {
             opacity: 0,
+            display: "none",
+
+            [theme.fn.largerThan("sm")]: {
+                display: "block",
+            },
         },
         "&:hover .message-actions": {
             opacity: 1,
+            display: "block",
         },
     },
 }));
@@ -214,24 +220,13 @@ export default ({ message }: MessageProps) => {
                     ) : (
                         MessageContent
                     )}
-                    {isSm && (
-                        <Group
-                            sx={{
-                                position: "absolute",
-                                bottom: 0,
-                                right: 0,
-                            }}
-                        >
-                            {Actions}
-                        </Group>
-                    )}
                 </Stack>
             </Card>
-            {!isSm && (
+            {
                 <Stack sx={{ alignSelf: "start" }} className="message-actions">
                     {Actions}
                 </Stack>
-            )}
+            }
         </Group>
     );
 };
