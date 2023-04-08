@@ -55,3 +55,9 @@ The following instructions are for deploying the web app to [Render](https://ren
 7. Set the publish directory to `dist`. (`packages/web/dist`)
 8. (Optional) If you chose to link this repository (option 2), you may want to disable the "Auto-Deploy" option under the "Advanced" tab. This will prevent Render from automatically deploying the web app every time a change is made to it. You can then manually deploy the web app later.
 9. Click "Create Static Site".
+
+## Attributions
+
+Thanks to these authors for providing some assets used in this web app:
+
+<a href="https://www.flaticon.com/free-icons/quick" title="quick icons">Quick icons created by Cuputo - Flaticon</a>

@@ -55,8 +55,8 @@
         "@mantine/form": "^6.0.5",
         "@mantine/hooks": "^6.0.5",
         "@mantine/modals": "^6.0.5",
-        "@mantine/prism": "^6.0.5",
         "@mantine/notifications": "^6.0.5",
+        "@mantine/prism": "^6.0.5",
         "gpt-turbo": "^3.0.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
@@ -76,6 +76,7 @@
         "prettier": "^2.8.4",
         "typescript": "^4.9.3",
         "vite": "^4.0.0",
-        "vite-plugin-eslint": "^1.8.1"
+        "vite-plugin-eslint": "^1.8.1",
+        "vite-plugin-pwa": "^0.14.7"
     }
 }
