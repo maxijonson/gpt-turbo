@@ -1,4 +1,4 @@
-import { Container, Group, Loader, Textarea } from "@mantine/core";
+import { ActionIcon, Container, Group, Loader, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import useConversationManager from "../hooks/useConversationManager";
 import { notifications } from "@mantine/notifications";
@@ -9,7 +9,9 @@ import {
     useFocusReturn,
     useFocusWithin,
     useMergedRef,
+    useOs,
 } from "@mantine/hooks";
+import { BiPaperPlane } from "react-icons/bi";
 
 export default () => {
     const { activeConversation: conversation, showUsage } =
@@ -26,14 +28,26 @@ export default () => {
         onFocus: () => setShouldReturnFocus(true),
     });
     const clickOutsideRef = useClickOutside(() => setShouldReturnFocus(false));
-    const textAreaRef = useMergedRef(focusWithinRef, clickOutsideRef);
+    const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+    const textAreaRefs = useMergedRef(
+        focusWithinRef,
+        clickOutsideRef,
+        textAreaRef
+    );
     const returnFocus = useFocusReturn({
         opened: focused,
         shouldReturnFocus,
     });
+    const isMobile = ["ios", "android"].includes(useOs());
+    const formRef = React.useRef<HTMLFormElement>(null);
 
     const handleSubmit = form.onSubmit(async (values) => {
         if (!conversation || !values.prompt) return;
+
+        if (isMobile) {
+            textAreaRef.current?.blur();
+        }
+
         form.reset();
         try {
             const message = await conversation.prompt(values.prompt);
@@ -56,30 +70,41 @@ export default () => {
     });
 
     React.useEffect(() => {
-        if (shouldReturnFocus) {
+        if (shouldReturnFocus && !isMobile) {
             returnFocus();
         }
-    }, [returnFocus, shouldReturnFocus]);
+    }, [isMobile, returnFocus, shouldReturnFocus]);
 
     if (!conversation) return <Loader />;
 
     return (
         <Container w="100%">
             <Group>
-                <form onSubmit={handleSubmit} style={{ flexGrow: 1 }}>
+                <form
+                    onSubmit={handleSubmit}
+                    style={{ flexGrow: 1 }}
+                    ref={formRef}
+                >
                     <Textarea
                         {...form.getInputProps("prompt")}
-                        ref={textAreaRef}
+                        ref={textAreaRefs}
                         disabled={isStreaming}
                         autosize
                         minRows={1}
                         maxRows={8}
                         w="100%"
                         placeholder="Ask away..."
+                        rightSection={
+                            <ActionIcon
+                                onClick={() => formRef.current?.requestSubmit()}
+                            >
+                                <BiPaperPlane />
+                            </ActionIcon>
+                        }
                         onKeyDown={(e) => {
                             if (e.key === "Enter" && !e.shiftKey) {
                                 e.preventDefault();
-                                handleSubmit();
+                                formRef.current?.requestSubmit();
                             }
                         }}
                     />
