@@ -11,6 +11,9 @@ export default defineConfig({
         }),
         VitePWA({
             registerType: "autoUpdate",
+            devOptions: {
+                enabled: true,
+            },
             manifest: {
                 name: "GPT Turbo",
                 short_name: "GPT Turbo",
