@@ -11,7 +11,7 @@
         "lint:fix": "npm run lint -- --fix",
         "build": "npm run lint:strict && rimraf dist && vite build",
         "dev": "vite",
-        "preview": "vite preview"
+        "preview": "npm run build && vite preview"
     },
     "keywords": [
         "openai",

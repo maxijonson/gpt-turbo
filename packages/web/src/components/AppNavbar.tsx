@@ -1,4 +1,5 @@
 import {
+    Anchor,
     Burger,
     Divider,
     Group,
@@ -6,6 +7,7 @@ import {
     Navbar,
     ScrollArea,
     Stack,
+    Text,
     createStyles,
     useMantineColorScheme,
     useMantineTheme,
@@ -26,6 +28,7 @@ import NavbarConversation from "./NavbarConversation";
 import React from "react";
 import Usage from "./Usage";
 import { useMediaQuery } from "@mantine/hooks";
+import { BsGithub } from "react-icons/bs";
 
 const useStyles = createStyles(() => ({
     scrollArea: {
@@ -185,6 +188,30 @@ export default () => {
                         <Usage conversation={activeConversation} />
                     </Navbar.Section>
                 )}
+                <Navbar.Section>
+                    <Divider my="xs" />
+                    <Stack spacing={0} p={0}>
+                        <Group position="center">
+                            <TippedActionIcon
+                                tip="View source code"
+                                onClick={() =>
+                                    window.open(
+                                        "https://github.com/maxijonson/gpt-turbo/tree/develop/packages/web"
+                                    )
+                                }
+                                size="xs"
+                            >
+                                <BsGithub />
+                            </TippedActionIcon>
+                        </Group>
+                        <Text align="center" size="xs">
+                            GPT Turbo Web v{APP_VERSION} by{" "}
+                            <Anchor href="https://github.com/maxijonson">
+                                Tristan Chin
+                            </Anchor>
+                        </Text>
+                    </Stack>
+                </Navbar.Section>
             </Navbar>
         </>
     );
