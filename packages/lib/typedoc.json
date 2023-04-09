@@ -1,0 +1,5 @@
+{
+    "name": "GPT Turbo",
+    "entryPoints": ["src/index.ts"],
+    "out": "docs"
+}

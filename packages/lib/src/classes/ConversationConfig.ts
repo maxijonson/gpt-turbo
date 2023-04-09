@@ -5,71 +5,44 @@ import {
     DEFAULT_MODEL,
     DEFAULT_STREAM,
 } from "../config/constants.js";
-import { CreateChatCompletionRequest } from "../utils/types.js";
+import {
+    ConversationConfigChatCompletionOptions,
+    ConversationConfigOptions,
+    ConversationConfigParameters,
+} from "../utils/types.js";
 
-export type ChatCompletionConfig = Omit<
-    Partial<CreateChatCompletionRequest>,
-    "messages"
->;
+type ConversationConfigChatCompletionRequiredOption<
+    K extends keyof ConversationConfigChatCompletionOptions
+> = Exclude<ConversationConfigChatCompletionOptions[K], undefined>;
 
-export interface ConversationSetup {
-    /**
-     * The first system message to set the context for the GPT model.
-     *
-     * @default "You are a large language model trained by OpenAI. Answer as concisely as possible."
-     */
-    context?: string;
+type ConversationConfigRequiredOption<
+    K extends keyof ConversationConfigOptions
+> = Exclude<ConversationConfigOptions[K], undefined>;
 
-    /**
-     * Dry run. Don't send any requests to OpenAI. Responses will mirror the last message in the conversation.
-     *
-     * @default false
-     */
-    dry?: boolean;
-
-    /**
-     * By default, messages are checked for violations of the OpenAI Community Guidelines and throw an error if any are found.
-     * Set this to true to disable this check.
-     * Set this to "soft" to still check for violations, but not throw an error if any are found. The violations will be added to the `flags` property of the message.
-     *
-     * **Note:** This is not recommended, as it could result in account suspension. Additionally, [OpenAI's Moderation API](https://platform.openai.com/docs/guides/moderation) is free to use.
-     *
-     * @default false
-     */
-    disableModeration?: boolean | "soft";
-}
-
-export type ConversationConfigParameters = ConversationSetup &
-    ChatCompletionConfig;
-
-type ChatCompletionConfigProperty<K extends keyof ChatCompletionConfig> =
-    Exclude<ChatCompletionConfig[K], undefined>;
-
-type ConversationConfigProperty<K extends keyof ConversationSetup> = Exclude<
-    ConversationSetup[K],
-    undefined
->;
-
+/**
+ * The configuration for a conversation. Contains library specific options and OpenAI's Chat Completion default options.
+ *
+ * @remarks
+ * Since this class is only instanciated by the Conversation class internally and is not required by any of its public methods, you should not need to use this class directly.
+ *
+ * @internal
+ */
 export class ConversationConfig {
-    public model: ChatCompletionConfigProperty<"model">;
-    public stream: ChatCompletionConfigProperty<"stream">;
-    public frequencyPenalty:
-        | ChatCompletionConfigProperty<"frequency_penalty">
-        | undefined;
-    public presencePenalty:
-        | ChatCompletionConfigProperty<"presence_penalty">
-        | undefined;
-    public maxTokens: ChatCompletionConfigProperty<"max_tokens"> | undefined;
-    public logitBias: ChatCompletionConfigProperty<"logit_bias"> | undefined;
-    public stop: ChatCompletionConfigProperty<"stop"> | undefined;
-    public temperature: ChatCompletionConfigProperty<"temperature"> | undefined;
-    public topP: ChatCompletionConfigProperty<"top_p"> | undefined;
-    public user: ChatCompletionConfigProperty<"user"> | undefined;
-    private _apiKey!: ChatCompletionConfigProperty<"apiKey">;
+    public model: ConversationConfigChatCompletionRequiredOption<"model">;
+    public stream: ConversationConfigChatCompletionRequiredOption<"stream">;
+    public frequencyPenalty: ConversationConfigChatCompletionOptions["frequency_penalty"];
+    public presencePenalty: ConversationConfigChatCompletionOptions["presence_penalty"];
+    public maxTokens: ConversationConfigChatCompletionOptions["max_tokens"];
+    public logitBias: ConversationConfigChatCompletionOptions["logit_bias"];
+    public stop: ConversationConfigChatCompletionOptions["stop"];
+    public temperature: ConversationConfigChatCompletionOptions["temperature"];
+    public topP: ConversationConfigChatCompletionOptions["top_p"];
+    public user: ConversationConfigChatCompletionOptions["user"];
+    private _apiKey!: ConversationConfigChatCompletionRequiredOption<"apiKey">;
 
-    public disableModeration: ConversationConfigProperty<"disableModeration">;
-    private _context!: ConversationConfigProperty<"context">;
-    private _dry!: ConversationConfigProperty<"dry">;
+    public disableModeration: ConversationConfigRequiredOption<"disableModeration">;
+    private _context!: ConversationConfigRequiredOption<"context">;
+    private _dry!: ConversationConfigRequiredOption<"dry">;
 
     constructor({
         context = DEFAULT_CONTEXT,
@@ -155,7 +128,7 @@ export class ConversationConfig {
         return this.disableModeration === "soft";
     }
 
-    public get config(): Required<ConversationSetup> {
+    public get config(): Required<ConversationConfigOptions> {
         return {
             context: this.context,
             dry: this.dry,
@@ -164,9 +137,12 @@ export class ConversationConfig {
     }
 
     public get chatCompletionConfig(): Required<
-        Pick<ChatCompletionConfig, "apiKey" | "model" | "stream">
+        Pick<
+            ConversationConfigChatCompletionOptions,
+            "apiKey" | "model" | "stream"
+        >
     > &
-        ChatCompletionConfig {
+        ConversationConfigChatCompletionOptions {
         return {
             apiKey: this.apiKey,
             model: this.model,

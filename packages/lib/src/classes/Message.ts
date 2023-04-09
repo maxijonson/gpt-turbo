@@ -4,19 +4,20 @@ import {
     ChatCompletionRequestMessageRoleEnum,
     RequestOptions,
     CreateChatCompletionStreamResponse,
+    MessageStreamingListener,
+    MessageStreamingStartListener,
+    MessageStreamingStopListener,
+    MessageUpdateListener,
 } from "../utils/types.js";
 import createModeration from "../utils/createModeration.js";
 
-export type MessageUpdateListener = (content: string, message: Message) => void;
-export type MessageStreamingListener = (
-    isStreaming: boolean,
-    message: Message
-) => void;
-export type MessageStreamingStartListener = (message: Message) => void;
-export type MessageStreamingStopListener = (message: Message) => void;
-
+/**
+ * A message in a Conversation.
+ */
 export class Message {
-    /** A UUID generated for this message by the library. */
+    /**
+     * A UUID generated for this message by the library.
+     */
     public id = uuid();
 
     private _role!: ChatCompletionRequestMessageRoleEnum;
