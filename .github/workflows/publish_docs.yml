@@ -30,9 +30,8 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Build Docs in the packages/web directory
-        run: npm run docs
-        working-directory: packages/web
+      - name: Build Docs
+        run: cd packages/web && npm run docs
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
