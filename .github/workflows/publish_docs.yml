@@ -31,7 +31,7 @@ jobs:
         run: npm install
 
       - name: Build Docs in the packages/web directory
-        run: npm run build:docs
+        run: npm run docs
         working-directory: packages/web
 
       - name: Upload artifact
