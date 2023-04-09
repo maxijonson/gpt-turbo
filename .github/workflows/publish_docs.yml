@@ -30,18 +30,14 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: List NPM scripts
-        run: npm run
-        working-directory: ./packages/web
-
       - name: Build Docs
         run: npm run docs
-        working-directory: ./packages/web
+        working-directory: ./packages/lib
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: "./packages/web/docs"
+          path: "./packages/lib/docs"
 
       - name: Deploy to GitHub Pages
         id: deployment
