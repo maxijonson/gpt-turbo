@@ -1,28 +1,13 @@
 import getMessageTokens from "./getMessageTokens.js";
+import { CreateDryChatCompletionConfig } from "./types.js";
 
-export interface CreateDryChatCompletionConfig {
-    /**
-     * The model to use for the completion.
-     *
-     * @default "gpt-3.5-turbo"
-     */
-    model?: string;
-
-    /**
-     * The delay before the first chunk is sent.
-     *
-     * @default 500
-     */
-    initialDelay?: number;
-
-    /**
-     * The delay between each chunk.
-     *
-     * @default 50
-     */
-    chunkDelay?: number;
-}
-
+/**
+ * Creates a dry chat completion and returns a `ReadableStream`. Can be used to simulate a streamed chat completion.
+ *
+ * @param message The message to simulate.
+ * @param config The configuration for the dry chat completion.
+ * @returns A `ReadableStream` that can be used to simulate a streamed chat completion.
+ */
 export default (
     message: string,
     config: CreateDryChatCompletionConfig = {}

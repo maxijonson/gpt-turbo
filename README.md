@@ -1,12 +1,14 @@
 # GPT Turbo
 
-OpenAI's GPT Chat Completion API allows you to generate conversational text from a prompt just like the [ChatGPT Plus subscription](https://openai.com/blog/chatgpt-plus). The difference between ChatGPT Plus and the this API is mainly the price. At the time of writing, ChatGPT Plus is a flat US$20 per month, while its API counterpart is US$0.002 per 1K [tokens](https://platform.openai.com/docs/introduction/tokens). This means that if you don't plan on using more than 10M tokens per month (and the limitations listed below), you could potentially save money by using the Chat Completion API instead of the ChatGPT Plus subscription. 
+> Looking for the library? [Click here](./packages/lib/)!
 
-This monorepo contains implementations of the Chat Completion API in different JavaScript environments. The main implementation is the `gpt-turbo` library, which is used by the other implementations and can be used in your own projects. 
+OpenAI's GPT Chat Completion API allows you to generate conversational text from a prompt just like the [ChatGPT Plus subscription](https://openai.com/blog/chatgpt-plus). The difference between ChatGPT Plus and the this API is mainly the price. At the time of writing, ChatGPT Plus is a flat US$20 per month, while its API counterpart is US$0.002 per 1K [tokens](https://platform.openai.com/docs/introduction/tokens) (for the `gpt-3.5-turbo` model). This means that if you don't plan on using more than 10M tokens per month, you could potentially save money by using the Chat Completion API instead of the ChatGPT Plus subscription. If you're not a developer, you can use the [GPT Turbo Web App](https://gpt-turbo-web.chintristan.io/) to interact with these paid models. You'll still need to create an OpenAI account with a credit card to get an API key.
+
+This monorepo contains an isomorphic library and implementations of it in different JavaScript environments. If you're developing a product and want to use GPT Turbo, you'll probably want to check out the [library package](./packages/lib/).
 
 ## Disclaimer
 
-Implementations are provided as-is. I am not responsible for any accidental, incidental, special, consequential, or exemplary damages, including without limitation, damages for loss of profits, goodwill, use, data or other intangible losses, resulting from the use of the implementations. Use at your own risk. [Set limits](https://platform.openai.com/account/billing/limits) on OpenAI's billing page to avoid unexpected charges.
+Implementations and the library are provided as-is. I am not responsible for any accidental, incidental, special, consequential, or exemplary damages, including without limitation, damages for loss of profits, goodwill, use, data or other intangible losses, resulting from the use of the implementations or the library. Use at your own risk. [Set limits](https://platform.openai.com/account/billing/limits) on OpenAI's billing page to avoid unexpected charges.
 
 ## Features
 
@@ -15,7 +17,7 @@ Implementations are provided as-is. I am not responsible for any accidental, inc
 - Keeps track of message history sent to OpenAI's API to enable conversation continuation.
 - Easily access the estimated cost of your conversations before sending them to OpenAI's API.
 - Easily access the estimated cost of the cumulative usage of your conversation as it progresses.
-- Built with entirely with TypeScript
+- Built entirely with TypeScript
 
 ## Pre-requisites
 
@@ -27,8 +29,9 @@ Since this a JavaScript monorepo, you'll need to have [Node.js](https://nodejs.o
 
 Most implementations were made following this guide: [OpenAI Docs: Chat completion](https://platform.openai.com/docs/guides/chat). Check out each of their respective folder for more information on how to use them.
 
-- [Library](./packages/lib/): A JavaScript library that allows you to interact with the Chat Completion API.
+- [Library](./packages/lib/): An isomorphic JavaScript library that allows you to interact with the Chat Completion API.
 - [CLI](./packages/cli/): A command-line interface for interacting with the library. (Built with React!)
+- [Web](./packages/web/): A web app, similar to ChatGPT, for interacting with the library.
 
 ## Development
 

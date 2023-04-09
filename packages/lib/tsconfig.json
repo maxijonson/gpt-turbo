@@ -3,7 +3,6 @@
         "module": "Node16",
         "moduleResolution": "node16",
         "declaration": true,
-        "removeComments": true,
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
         "sourceMap": true,

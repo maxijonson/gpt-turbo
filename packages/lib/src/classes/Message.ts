@@ -16,7 +16,9 @@ export type MessageStreamingStartListener = (message: Message) => void;
 export type MessageStreamingStopListener = (message: Message) => void;
 
 export class Message {
+    /** A UUID generated for this message by the library. */
     public id = uuid();
+
     private _role!: ChatCompletionRequestMessageRoleEnum;
     private _model!: string;
     private _content!: string;
@@ -29,9 +31,11 @@ export class Message {
     private messageStreamingListeners: MessageStreamingListener[] = [];
 
     /**
-     * @param role The role of who this message is from. Either "user", "assistant" or "system". Defaults to "user"
-     * @param content The content of the message. Defaults to an empty string.
-     * @param model The model used for processing this message. This is only used to calculate the cost of the message. Defaults to an empty string. If you don't specify a model, the `cost` will always be `0`.
+     * Creates a new Message instance.
+     *
+     * @param role The role of who this message is from. Either "user", "assistant" or "system".
+     * @param content The content of the message.
+     * @param model The model used for processing this message. This is only used to calculate the cost of the message. If you don't specify a model, the `cost` will always be `0`.
      */
     constructor(
         role: ChatCompletionRequestMessageRoleEnum = "user",
@@ -68,7 +72,7 @@ export class Message {
     }
 
     /**
-     * Add a listener for message content changes
+     * Add a listener for message content changes.
      *
      * @param listener The listener to trigger when `content` changes
      * @returns An unsubscribe function for this `listener`
@@ -90,7 +94,7 @@ export class Message {
     }
 
     /**
-     * Adds a listener for message streaming state changes
+     * Adds a listener for message streaming state changes.
      *
      * @param listener The listener to trigger when `isStreaming` changes
      * @returns An unsubscribe function for this `listener`
@@ -103,7 +107,7 @@ export class Message {
     /**
      * Adds a listener for message streaming start.
      *
-     * **Note: ** Internally, this creates a new function wrapping your passed `listener` and passes it to `onMessageStreamingUpdate`.
+     * **Note:** Internally, this creates a new function wrapping your passed `listener` and passes it to `onMessageStreamingUpdate`.
      * For this reason, you cannot remove a listener using `offMessageStreaming(listener)`.
      * Instead, use the returned function to unsubscribe the listener properly.
      *
@@ -207,6 +211,7 @@ export class Message {
         }
     }
 
+    /** The role of who this message is from. */
     get role() {
         return this._role;
     }
@@ -215,6 +220,7 @@ export class Message {
         this._role = role;
     }
 
+    /** The model used to generate this message. */
     get model() {
         return this._model;
     }
@@ -223,6 +229,7 @@ export class Message {
         this._model = model;
     }
 
+    /** The content of the message. */
     get content() {
         return this._content;
     }
@@ -236,6 +243,7 @@ export class Message {
         this.notifyMessageUpdate();
     }
 
+    /** The flags detected by OpenAI's moderation API. Only set after calling `moderate`. */
     get flags() {
         return this._flags?.slice() ?? null;
     }
@@ -244,10 +252,12 @@ export class Message {
         this._flags = flags;
     }
 
+    /** Whether the message is flagged by OpenAI's moderation API. Always `false` unless `moderate` has been called. */
     get isFlagged() {
         return (this.flags?.length ?? 0) > 0;
     }
 
+    /** The size of the message's content, in tokens. */
     get size(): number {
         if (this._size) {
             return this._size;
@@ -261,6 +271,7 @@ export class Message {
         this._size = size;
     }
 
+    /** The estimated cost of the message's content. */
     get cost(): number {
         if (this._cost) {
             return this._cost;
@@ -278,6 +289,7 @@ export class Message {
         this._cost = cost;
     }
 
+    /** Whether the message is currently being streamed. */
     get isStreaming() {
         return this._isStreaming;
     }

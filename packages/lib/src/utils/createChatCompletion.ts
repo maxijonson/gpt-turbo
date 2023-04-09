@@ -1,36 +1,31 @@
 import { ENDPOINT_CHATCOMPLETION } from "../index.js";
-import base64Encode from "./base64Encode.js";
+import getRequestHeaders from "./getRequestHeaders.js";
+import getRequestUrl from "./getRequestUrl.js";
 import {
     CreateChatCompletionRequest,
     RequestOptions,
     CreateChatCompletionResponse,
 } from "./types.js";
 
+/**
+ * Sends a Create Chat Completion request to the OpenAI API.
+ *
+ * @param chatCompletionRequestParams The Create Chat Completion parameters.
+ * @param options Options to pass for the HTTP request.
+ * @returns The response from the OpenAI API. A `ReadableStream` if `chatCompletionRequestParams.stream` is set to `true` in the request, otherwise a JSON object.
+ */
 export default async <T extends CreateChatCompletionRequest>(
     { apiKey, ...chatCompletionRequest }: T,
     { headers: optHeaders = {}, proxy }: RequestOptions = {}
 ): Promise<
     T["stream"] extends true ? ReadableStream : CreateChatCompletionResponse
 > => {
-    let url = new URL(ENDPOINT_CHATCOMPLETION);
-    const headers: Record<string, string> = {
-        ...optHeaders,
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-    };
-
-    if (proxy) {
-        url = new URL(
-            url.pathname,
-            `${proxy.protocol || "http"}://${proxy.host}:${proxy.port || 80}`
-        );
-        if (proxy.auth) {
-            const auth = base64Encode(
-                `${proxy.auth.username}:${proxy.auth.password}`
-            );
-            headers["Proxy-Authorization"] = `Basic ${auth}`;
-        }
-    }
+    const headers: Record<string, string> = getRequestHeaders(
+        apiKey,
+        optHeaders,
+        proxy
+    );
+    const url = getRequestUrl(ENDPOINT_CHATCOMPLETION, proxy);
 
     const response = await fetch(url, {
         method: "POST",

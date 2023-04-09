@@ -15,6 +15,38 @@ export type HandleChatCompletionOptions = Omit<PromptOptions, "stream">;
 export type AddMessageListener = (message: Message) => void;
 export type RemoveMessageListener = (message: Message) => void;
 
+export interface RequestOptionsProxy {
+    /**
+     * The hostname or IP address of the proxy server.
+     *
+     * Example: `proxy.example.com` or `127.0.0.1`
+     */
+    host: string;
+
+    /**
+     * The port number of the proxy server.
+     *
+     * Default: `80`
+     */
+    port?: number;
+
+    /**
+     * The HTTP protocol to use.
+     */
+    protocol?: "http" | "https";
+
+    /**
+     * HTTP Basic credentials for the proxy server.
+     *
+     * A header will be added to the request: \
+     * `Proxy-Authorization: Basic ${base64(username:password)}`
+     */
+    auth?: {
+        username: string;
+        password: string;
+    };
+}
+
 export interface RequestOptions {
     /**
      * Additional headers to send with the request.
@@ -29,37 +61,7 @@ export interface RequestOptions {
      * Example request with proxy:\
      * `https://my.proxy.com:1337/https://api.openai.com/v1/chat/completions`
      */
-    proxy?: {
-        /**
-         * The hostname or IP address of the proxy server.
-         *
-         * Example: `proxy.example.com` or `127.0.0.1`
-         */
-        host: string;
-
-        /**
-         * The port number of the proxy server.
-         *
-         * Default: `80`
-         */
-        port?: number;
-
-        /**
-         * The HTTP protocol to use.
-         */
-        protocol?: "http" | "https";
-
-        /**
-         * HTTP Basic credentials for the proxy server.
-         *
-         * A header will be added to the request: \
-         * `Proxy-Authorization: Basic ${base64(username:password)}`
-         */
-        auth?: {
-            username: string;
-            password: string;
-        };
-    };
+    proxy?: RequestOptionsProxy;
 }
 
 export interface CreateChatCompletionMessage {
@@ -223,8 +225,19 @@ export interface CreateModerationRequest {
 }
 
 export interface CreateModerationResponse {
+    /**
+     * The ID of the request.
+     */
     id: string;
+
+    /**
+     * The moderation model used to classify the text.
+     */
     model: string;
+
+    /**
+     * The flagged categories and their scores.
+     */
     results: [
         {
             categories: {
@@ -248,4 +261,27 @@ export interface CreateModerationResponse {
             flagged: boolean;
         }
     ];
+}
+
+export interface CreateDryChatCompletionConfig {
+    /**
+     * The model to use for the completion.
+     *
+     * @default "gpt-3.5-turbo"
+     */
+    model?: string;
+
+    /**
+     * The delay before the first chunk is sent.
+     *
+     * @default 500
+     */
+    initialDelay?: number;
+
+    /**
+     * The delay between each chunk.
+     *
+     * @default 50
+     */
+    chunkDelay?: number;
 }
