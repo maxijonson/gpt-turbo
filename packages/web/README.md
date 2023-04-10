@@ -1,5 +1,11 @@
 # GPT Turbo - Web
 
+<center>
+
+  [![https://gpt-turbo-web.chintristan.io/](https://img.shields.io/github/package-json/v/maxijonson/gpt-turbo?color=brightgreen&filename=packages%2Fweb%2Fpackage.json&label=gpt-turbo-web&logo=react)](https://gpt-turbo-web.chintristan.io/)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+</center>
+
 A Web app, very similar to ChatGPT, that interacts with the gpt-turbo library. The main difference between this and the official ChatGPT website is that you can decide which GPT model to use, just like the OpenAI playground.
 
 ## Conversation and Settings Storage
