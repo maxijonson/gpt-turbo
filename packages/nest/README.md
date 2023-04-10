@@ -7,6 +7,10 @@
 
 A NestJS app that interacts with the gpt-turbo library.
 
+## Disclaimer
+
+This implementation of GPT Turbo is only a proof of concept. It is only intended to show GPT Turbo's compatibility with the framework. A lot of features are intentionally left unsecured for the sake of simplicity. **This implementation is not intended for production use.**
+
 ## Installation
 
 *Run these at the mono-repo root. Not this package directory*
@@ -37,7 +41,11 @@ npm run dev
 npm run prod
 ```
 
-## SSL
+## Configuration
+
+The following sections describe how you can configure the app. Note that these steps are optional and the app will run with default settings.
+
+### SSL
 
 This app can be run with or without SSL. By default, it will run without SSL. To run with SSL, you must first generate a `key.pem` and `server.crt` file. You can do this by running the following command:
 
@@ -47,20 +55,25 @@ openssl req -newkey rsa:2048 -new -nodes -keyout key.pem -out csr.pem
 openssl x509 -req -days 365 -in csr.pem -signkey key.pem -out server.crt
 ```
 
-Then, you can run the app with SSL by running the following command:
+Then, you can run the app with SSL by setting the `SSL_PRIVATE_KEY_PATH` and `SSL_CERTIFICATE_PATH` environment variables. These may also be specified in a `.env` file.
 
 ```bash
 # Run the app with SSL by setting the "SSL_PRIVATE_KEY_PATH" and "SSL_CERTIFICATE_PATH" environment variables
 SSL_PRIVATE_KEY_PATH=./key.pem SSL_CERTIFICATE_PATH=./server.crt npm start
 ```
 
-## CORS
+### CORS
 
-By default, CORS is not enabled. To enable it, simply specify the `USE_CORS=true` environment variable.
+By default, CORS is not enabled. To enable it, simply specify the `USE_CORS=true` environment variable. This may also be specified in a `.env` file.
 
 ```bash
 USE_CORS=true npm start
+```
 
-# With SSL
-USE_CORS=true SSL_PRIVATE_KEY_PATH=./key.pem SSL_CERTIFICATE_PATH=./server.crt npm start
+### Swagger
+
+Swagger is enabled by default at the `/swagger` endpoint. To disable it, simply specify the `USE_SWAGGER=false` environment variable. This may also be specified in a `.env` file.
+
+```bash
+USE_SWAGGER=false npm start
 ```

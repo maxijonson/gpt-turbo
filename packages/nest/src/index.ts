@@ -1,11 +1,14 @@
 import fs from "fs";
 import { NestFactory } from "@nestjs/core";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module.js";
 import { HttpsOptions } from "@nestjs/common/interfaces/external/https-options.interface.js";
 import {
     SSL_PRIVATE_KEY_PATH,
     SSL_CERTIFICATE_PATH,
     USE_CORS,
+    USE_SWAGGER,
+    PORT,
 } from "./config/env.js";
 
 const getHttpsOptions = (): HttpsOptions | undefined => {
@@ -44,7 +47,19 @@ const bootstrap = async () => {
     }
     console.info(USE_CORS ? "✅ CORS enabled" : "❌ CORS disabled");
 
-    await app.listen(process.env.PORT || 3000);
+    if (USE_SWAGGER) {
+        const options = new DocumentBuilder()
+            .setTitle("GPT Turbo - Nest")
+            .setDescription("GPT Turbo implementation with NestJS")
+            .setVersion("1.0")
+            .addTag("gpt-turbo")
+            .build();
+        const document = SwaggerModule.createDocument(app, options);
+        SwaggerModule.setup("swagger", app, document);
+    }
+    console.info(USE_SWAGGER ? "✅ Swagger enabled" : "❌ Swagger disabled");
+
+    await app.listen(PORT);
 };
 
 bootstrap();
