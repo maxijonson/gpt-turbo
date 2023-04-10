@@ -1,5 +1,6 @@
 {
     "name": "GPT Turbo",
     "entryPoints": ["src/index.ts"],
-    "out": "docs"
+    "out": "docs",
+    "customCss": "./typedoc.css"
 }
