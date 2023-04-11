@@ -12,7 +12,6 @@ import {
     PORT,
 } from "./config/env.js";
 import { ClassTransformInterceptor } from "./interceptors/class-transform.interceptor.js";
-import { ZodValidationPipe } from "nestjs-zod";
 
 patchNestJsSwagger();
 
@@ -67,8 +66,6 @@ const bootstrap = async () => {
     app.enableShutdownHooks();
 
     app.useGlobalInterceptors(new ClassTransformInterceptor());
-
-    app.useGlobalPipes(new ZodValidationPipe());
 
     await app.listen(PORT);
 };
