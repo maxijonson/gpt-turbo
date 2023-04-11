@@ -15,7 +15,7 @@ export const persistenceConversationSchema = z.object({
     presence_penalty: z.number().optional(),
     max_tokens: z.number().optional(),
     logit_bias: z.record(z.number(), z.number()).optional(),
-    stop: z.string().or(z.array(z.string())).optional(),
+    stop: z.string().or(z.array(z.string())).or(z.null()).optional(),
     temperature: z.number().optional(),
     top_p: z.number().optional(),
     user: z.string().optional(),

@@ -2,7 +2,7 @@ import { Low } from "lowdb";
 import { JSONFile } from "lowdb/node";
 import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { Persistence, persistenceSchema } from "./schemas/persistence.js";
-import { Conversation } from "gpt-turbo";
+import { Conversation, DEFAULT_DISABLEMODERATION } from "gpt-turbo";
 import {
     PersistenceConversation,
     persistenceConversationSchema,
@@ -57,8 +57,11 @@ export class DbService implements OnModuleInit, OnModuleDestroy {
     private async loadConversation(dbConversation: PersistenceConversation) {
         const persistedConversation =
             persistenceConversationSchema.parse(dbConversation);
-        const { messages, disableModeration, ...config } =
-            persistedConversation;
+        const {
+            messages,
+            disableModeration = DEFAULT_DISABLEMODERATION,
+            ...config
+        } = persistedConversation;
         const newConversation = new Conversation({
             ...config,
             disableModeration: true,
