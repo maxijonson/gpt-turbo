@@ -11,7 +11,6 @@ import {
     USE_SWAGGER,
     PORT,
 } from "./config/env.js";
-import { ClassTransformInterceptor } from "./interceptors/class-transform.interceptor.js";
 import { ZodValidationExceptionFilter } from "./filters/zod-validation-exception.filter.js";
 
 patchNestJsSwagger();
@@ -65,8 +64,6 @@ const bootstrap = async () => {
     console.info(USE_SWAGGER ? "✅ Swagger enabled" : "❌ Swagger disabled");
 
     app.enableShutdownHooks();
-
-    app.useGlobalInterceptors(new ClassTransformInterceptor());
 
     app.useGlobalFilters(new ZodValidationExceptionFilter());
 
