@@ -34,7 +34,7 @@ export class DbService implements OnModuleInit, OnModuleDestroy {
         await this.save();
     }
 
-    private async save() {
+    async save() {
         const conversations = this.conversationsService.getConversations();
 
         const persistedConversations: Persistence = {

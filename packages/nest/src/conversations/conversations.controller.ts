@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { ConversationsService } from "./conversations.service.js";
 import {
     CreateConversationDto,
@@ -17,6 +17,7 @@ export class ConversationsController {
 
     @Post()
     @ApiOperation({
+        description: "Create a new conversation",
         requestBody: getRequestBody(
             createConversationDtoSchema,
             "Conversation configuration"
@@ -33,9 +34,10 @@ export class ConversationsController {
 
     @Post(":id")
     @ApiOperation({
+        description: "Add a prompt to the conversation",
         requestBody: getRequestBody(
             promptDtoSchema,
-            "Add a prompt to the conversation"
+            "The prompt to send to the conversation"
         ),
     })
     prompt(
@@ -43,5 +45,13 @@ export class ConversationsController {
         @Param("id", new ZodValidationPipe(uuidSchema)) id: string
     ) {
         return this.conversationsService.prompt(id, prompt);
+    }
+
+    @Get()
+    @ApiOperation({
+        description: "Get all conversations",
+    })
+    getConversations() {
+        return this.conversationsService.getConversations();
     }
 }
