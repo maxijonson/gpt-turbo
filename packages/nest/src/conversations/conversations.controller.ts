@@ -6,7 +6,7 @@ import {
 } from "./dtos/createConversation.dto.js";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import getRequestBody from "../utils/getRequestBody.js";
-import { PromptDto, promptDtoSchema } from "./dtos/prompt.dto.js";
+import { PromptDtoEntity, promptDtoSchema } from "./dtos/prompt.dto.js";
 import { ZodValidationPipe } from "nestjs-zod";
 import { uuidSchema } from "../schemas/uuidSchema.js";
 
@@ -41,7 +41,7 @@ export class ConversationsController {
         ),
     })
     prompt(
-        @Body(new ZodValidationPipe(promptDtoSchema)) { prompt }: PromptDto,
+        @Body() { prompt }: PromptDtoEntity,
         @Param("id", new ZodValidationPipe(uuidSchema)) id: string
     ) {
         return this.conversationsService.prompt(id, prompt);

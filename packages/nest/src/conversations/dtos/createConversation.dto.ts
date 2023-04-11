@@ -5,6 +5,7 @@ import {
     DEFAULT_MODEL,
     DEFAULT_STREAM,
 } from "gpt-turbo";
+import { createZodDto } from "nestjs-zod";
 import { z } from "nestjs-zod/z";
 
 export const createConversationDtoSchema = z.object({
@@ -29,3 +30,7 @@ export const createConversationDtoSchema = z.object({
 });
 
 export type CreateConversationDto = z.infer<typeof createConversationDtoSchema>;
+
+export class CreateConversationDtoEntity extends createZodDto(
+    createConversationDtoSchema
+) {}
