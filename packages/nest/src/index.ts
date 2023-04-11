@@ -1,6 +1,7 @@
 import fs from "fs";
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { patchNestJsSwagger } from "nestjs-zod";
 import { AppModule } from "./app.module.js";
 import { HttpsOptions } from "@nestjs/common/interfaces/external/https-options.interface.js";
 import {
@@ -10,8 +11,10 @@ import {
     USE_SWAGGER,
     PORT,
 } from "./config/env.js";
-import { ZodExceptionFilter } from "./filters/zod-exception.filter.js";
 import { ClassTransformInterceptor } from "./interceptors/class-transform.interceptor.js";
+import { ZodValidationPipe } from "nestjs-zod";
+
+patchNestJsSwagger();
 
 const getHttpsOptions = (): HttpsOptions | undefined => {
     if (!SSL_PRIVATE_KEY_PATH || !SSL_CERTIFICATE_PATH) {
@@ -63,9 +66,9 @@ const bootstrap = async () => {
 
     app.enableShutdownHooks();
 
-    app.useGlobalFilters(new ZodExceptionFilter());
-
     app.useGlobalInterceptors(new ClassTransformInterceptor());
+
+    app.useGlobalPipes(new ZodValidationPipe());
 
     await app.listen(PORT);
 };

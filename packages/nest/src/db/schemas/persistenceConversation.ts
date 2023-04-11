@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "nestjs-zod/z";
 import { persistenceMessageSchema } from "./persistenceMessage.js";
 
 export const persistenceConversationSchema = z.object({

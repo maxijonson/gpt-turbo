@@ -13,8 +13,15 @@ export class ClassTransformInterceptor implements NestInterceptor {
     intercept(_context: ExecutionContext, next: CallHandler): Observable<any> {
         return next.handle().pipe(
             map((data) => {
-                if (data instanceof Object) {
-                    this.handleClassInstances(data);
+                if (Array.isArray(data)) {
+                    return data.map((item) => {
+                        if (item instanceof Object) {
+                            return this.handleClassInstances(item);
+                        }
+                        return item;
+                    });
+                } else if (data instanceof Object) {
+                    return this.handleClassInstances(data);
                 }
                 return data;
             })
@@ -22,33 +29,26 @@ export class ClassTransformInterceptor implements NestInterceptor {
     }
 
     private handleClassInstances(obj: any): void {
-        if (Array.isArray(obj)) {
-            obj.forEach((item) => {
-                if (item instanceof Object) {
-                    this.handleClassInstances(item);
-                }
-            });
-        } else if (obj instanceof Object) {
+        if (obj instanceof Conversation) {
+            return this.handleConversationInstance(obj);
+        } else if (obj instanceof Message) {
+            return this.handleMessageInstance(obj);
+        } else {
             for (const [key, value] of Object.entries(obj)) {
                 if (value instanceof Object) {
-                    this.handleClassInstances(value);
-                }
-
-                if (value instanceof Conversation) {
-                    obj[key] = this.handleConversationInstance(value);
-                } else if (value instanceof Message) {
-                    obj[key] = this.handleMessageInstance(value);
+                    obj[key] = this.handleClassInstances(value);
                 }
             }
         }
+        return obj;
     }
 
     private handleConversationInstance(instance: Conversation): any {
         const { apiKey, ...config } = instance.getConfig();
 
         return {
-            ...config,
             id: instance.id,
+            config,
             messages: instance
                 .getMessages()
                 .map((message) => this.handleMessageInstance(message)),
