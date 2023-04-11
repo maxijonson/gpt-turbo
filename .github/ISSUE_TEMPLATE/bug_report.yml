@@ -15,9 +15,10 @@ body:
       description: Which part of GPT Turbo is affected?
       multiple: true
       options:
-        - 'Library (gpt-turbo)'
-        - 'CLI (gpt-turbo-cli)'
-        - 'Web (gpt-turbo-web)'
+        - "Library (gpt-turbo)"
+        - "CLI (gpt-turbo-cli)"
+        - "Web (gpt-turbo-web)"
+        - "Nest (gpt-turbo-nest)"
     validations:
       required: true
   - type: textarea
@@ -59,5 +60,5 @@ body:
       label: Participation
       description: Are you willing to submit a PR to fix this bug?
       options:
-        - 'Yes'
-        - 'No'
+        - "Yes"
+        - "No"

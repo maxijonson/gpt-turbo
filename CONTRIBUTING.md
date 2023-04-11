@@ -146,10 +146,12 @@ Documentation is an important part of any project. It's what makes it easy for n
 ## Styleguides
 ### Commit Messages
 
-There are no strict rules for commit messages (yet), but it can be useful to prefix them with a tag to indicate what kind of change it is. Here are some examples:
+Since commits are squashed when merged into the `develop` branch, there are no strict rules for commit messages. However, if your PR is pretty big, contains many commits and/or affects multiple packages, it is recommended to use the following prefixes for your commit messages:
 
 - `[library]`: for changes to the library or its documentation.
 - `[cli]`: for changes to the CLI  or its documentation.
+- `[web]`: for changes to the Web  or its documentation.
+- `[nest]`: for changes to the Nest  or its documentation.
 - `[docs]`: for changes to the documentation **not related to the library or one of its implementations**. (e.g. changes to the root README.md file or this contributing guide)
 
 ## Join The Project Team

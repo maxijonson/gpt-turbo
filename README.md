@@ -43,6 +43,7 @@ Most implementations were made following this guide: [OpenAI Docs: Chat completi
 - [Library](./packages/lib/): An isomorphic JavaScript library that allows you to interact with the Chat Completion API.
 - [CLI](./packages/cli/): A command-line interface for interacting with the library. (Built with React!)
 - [Web](./packages/web/): A web app, similar to ChatGPT, for interacting with the library.
+- [Nest](./packages/nest/): A NestJS backend, for interacting with the library via a REST API.
 
 ## Development
 
