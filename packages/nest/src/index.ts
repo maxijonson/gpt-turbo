@@ -10,6 +10,8 @@ import {
     USE_SWAGGER,
     PORT,
 } from "./config/env.js";
+import { ZodExceptionFilter } from "./filters/zod-exception.filter.js";
+import { ClassTransformInterceptor } from "./interceptors/class-transform.interceptor.js";
 
 const getHttpsOptions = (): HttpsOptions | undefined => {
     if (!SSL_PRIVATE_KEY_PATH || !SSL_CERTIFICATE_PATH) {
@@ -58,6 +60,12 @@ const bootstrap = async () => {
         SwaggerModule.setup("swagger", app, document);
     }
     console.info(USE_SWAGGER ? "✅ Swagger enabled" : "❌ Swagger disabled");
+
+    app.enableShutdownHooks();
+
+    app.useGlobalFilters(new ZodExceptionFilter());
+
+    app.useGlobalInterceptors(new ClassTransformInterceptor());
 
     await app.listen(PORT);
 };

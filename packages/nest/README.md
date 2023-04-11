@@ -10,7 +10,9 @@ A NestJS app that interacts with the gpt-turbo library.
 
 ## Disclaimer
 
-This implementation of GPT Turbo is only a proof of concept. It is only intended to show GPT Turbo's compatibility with the framework. A lot of features are intentionally left unsecured for the sake of simplicity. **This implementation is not intended for production use.**
+This implementation of GPT Turbo is only a **proof of concept**. It is only intended to show GPT Turbo's ability to be used in backend applications. A lot of features are intentionally left unsecured for the sake of simplicity. **This implementation is not intended for production use.** 
+
+Furthermore, still in the pursuit of simplicity and minimal setup requirements, this implementation does not use a database. Instead, it uses [`lowdb`](https://www.npmjs.com/package/lowdb), a lightweight JSON database. This means that all of your data will be kept in a JSON file, which is definitely not ideal for production use and would actually be lost everytime it is deployed to some cloud services with an ephermeral file-system, such as Heroku or Render.
 
 ## Installation
 

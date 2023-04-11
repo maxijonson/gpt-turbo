@@ -39,3 +39,4 @@ csr.pem
 server.crt
 
 .env
+db.json
