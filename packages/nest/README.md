@@ -82,3 +82,11 @@ USE_SWAGGER=false npm start
 ```
 
 For streamed conversation prompts (`POST /conversations/{id}`), Swagger will only show the data stream after the stream has ended. It's recommended to use a tool like [Postman](https://www.postman.com/) to test this endpoint.
+
+## Postman Collection
+
+While Swagger is the most up-to-date way of testing the API, since it is generated at runtime, you can also use the Postman collection included this directory: `GPT Turbo - Nest.postman_collection.json`. Bear in mind that this collection is not automatically updated, so it may be out of date. To use it, simply import it into Postman.
+
+The Postman collection includes automated scripts to assign variables so testing is relatively easier than Swagger. For example, after creating a conversation in Postman, the `conversationId` variable will be automatically assigned to the ID of the conversation. This means that you can then use the `conversationId` variable in subsequent requests, such as sending a prompt to the conversation.
+
+Postman is also a great way to test streamed conversation prompts, since Swagger will only show the data stream after the stream has ended.
