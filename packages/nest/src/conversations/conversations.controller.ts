@@ -5,6 +5,7 @@ import {
     NotFoundException,
     Param,
     Post,
+    Put,
     Res,
 } from "@nestjs/common";
 import { ConversationsService } from "./conversations.service.js";
@@ -24,6 +25,11 @@ import { Response } from "express";
 import { z } from "nestjs-zod/z";
 import { conversationDtoSchema } from "./dtos/conversation.dto.js";
 import { messageDtoSchema } from "./dtos/message.dto.js";
+import {
+    RepromptDtoEntity,
+    repromptDtoSchema,
+} from "./dtos/repromptMessage.dto.js";
+import { Message } from "gpt-turbo";
 
 @Controller("conversations")
 @ApiTags("conversations")
@@ -90,30 +96,39 @@ export class ConversationsController {
     ) {
         const message = await this.conversationsService.prompt(id, prompt);
 
-        // Non-streaming message
-        if (!message.isStreaming && message.content) {
-            res.json(messageToJson(message));
-            return;
+        return this.handlePromptResponse(message, res);
+    }
+
+    @Put(":id/messages/:messageId")
+    @UseZodApiOperation(
+        "Reprompt a message",
+        {
+            description: "The prompt to use as new message to the conversation",
+            schema: repromptDtoSchema,
+            required: false,
+        },
+        {
+            status: 200,
+            body: {
+                description: "The message returned by the assistant",
+                schema: messageDtoSchema,
+            },
         }
+    )
+    public async rempromptMessage(
+        @Body() { prompt }: RepromptDtoEntity,
+        @Param("id", new ZodValidationPipe(uuidSchema)) id: string,
+        @Param("messageId", new ZodValidationPipe(uuidSchema))
+        messageId: string,
+        @Res() res: Response
+    ) {
+        const message = await this.conversationsService.reprompt(
+            id,
+            messageId,
+            prompt
+        );
 
-        // Streaming message
-        res.set({
-            "Content-Type": "text/event-stream",
-            "Cache-Control": "no-cache",
-            Connection: "keep-alive",
-        });
-        res.status(200);
-
-        message.onMessageUpdate((_, m) => {
-            const data = JSON.stringify(
-                messageDtoSchema.parse(messageToJson(m))
-            );
-            res.write(`data: ${data}\n\n`);
-        });
-
-        message.onMessageStreamingStop(() => {
-            res.end();
-        });
+        return this.handlePromptResponse(message, res);
     }
 
     @Get()
@@ -166,5 +181,32 @@ export class ConversationsController {
         }
 
         return conversation.getMessages().map(messageToJson);
+    }
+
+    private handlePromptResponse(message: Message, res: Response) {
+        // Non-streaming message
+        if (!message.isStreaming && message.content) {
+            res.json(messageToJson(message));
+            return;
+        }
+
+        // Streaming message
+        res.set({
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            Connection: "keep-alive",
+        });
+        res.status(200);
+
+        message.onMessageUpdate((_, m) => {
+            const data = JSON.stringify(
+                messageDtoSchema.parse(messageToJson(m))
+            );
+            res.write(`data: ${data}\n\n`);
+        });
+
+        message.onMessageStreamingStop(() => {
+            res.end();
+        });
     }
 }

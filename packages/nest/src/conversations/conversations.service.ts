@@ -27,11 +27,28 @@ export class ConversationsService {
         this.conversations = this.conversations.filter((c) => c.id !== id);
     }
 
-    async prompt(id: string, message: string) {
+    prompt(id: string, message: string) {
         const conversation = this.getConversation(id);
         if (!conversation) {
             throw new NotFoundException("Conversation not found");
         }
         return conversation.prompt(message);
+    }
+
+    reprompt(id: string, messageId: string, prompt?: string) {
+        const conversation = this.getConversation(id);
+        if (!conversation) {
+            throw new NotFoundException("Conversation not found");
+        }
+
+        const message = conversation
+            .getMessages()
+            .find((m) => m.id === messageId);
+
+        if (!message) {
+            throw new NotFoundException("Message not found");
+        }
+
+        return conversation.reprompt(message, prompt);
     }
 }
