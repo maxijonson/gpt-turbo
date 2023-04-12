@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Res } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Get,
+    NotFoundException,
+    Param,
+    Post,
+    Res,
+} from "@nestjs/common";
 import { ConversationsService } from "./conversations.service.js";
 import {
     CreateConversationDtoEntity,
@@ -131,6 +139,32 @@ export class ConversationsController {
     public getConversation(
         @Param("id", new ZodValidationPipe(uuidSchema)) id: string
     ) {
-        return this.conversationsService.getConversation(id);
+        const conversation = this.conversationsService.getConversation(id);
+
+        if (!conversation) {
+            throw new NotFoundException("Conversation not found");
+        }
+
+        return conversation;
+    }
+
+    @UseZodApiOperation("Get the messages of a conversation", undefined, {
+        status: 200,
+        body: {
+            description: "The list of messages",
+            schema: z.array(messageDtoSchema),
+        },
+    })
+    @Get(":id/messages")
+    public getConversationMessages(
+        @Param("id", new ZodValidationPipe(uuidSchema)) id: string
+    ) {
+        const conversation = this.conversationsService.getConversation(id);
+
+        if (!conversation) {
+            throw new NotFoundException("Conversation not found");
+        }
+
+        return conversation.getMessages().map(messageToJson);
     }
 }
