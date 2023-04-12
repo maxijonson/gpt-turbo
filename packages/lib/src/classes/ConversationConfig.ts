@@ -34,10 +34,10 @@ export class ConversationConfig {
     public presencePenalty: ConversationConfigChatCompletionOptions["presence_penalty"];
     public maxTokens: ConversationConfigChatCompletionOptions["max_tokens"];
     public logitBias: ConversationConfigChatCompletionOptions["logit_bias"];
-    public stop: ConversationConfigChatCompletionOptions["stop"];
     public temperature: ConversationConfigChatCompletionOptions["temperature"];
     public topP: ConversationConfigChatCompletionOptions["top_p"];
     public user: ConversationConfigChatCompletionOptions["user"];
+    private _stop: ConversationConfigChatCompletionOptions["stop"];
     private _apiKey!: ConversationConfigChatCompletionRequiredOption<"apiKey">;
 
     public disableModeration: ConversationConfigRequiredOption<"disableModeration">;
@@ -79,6 +79,36 @@ export class ConversationConfig {
         this.temperature = temperature;
         this.topP = top_p;
         this.user = user;
+    }
+
+    public get config(): Required<ConversationConfigOptions> {
+        return {
+            context: this.context,
+            dry: this.dry,
+            disableModeration: this.disableModeration,
+        };
+    }
+
+    public get chatCompletionConfig(): Required<
+        Pick<
+            ConversationConfigChatCompletionOptions,
+            "apiKey" | "model" | "stream"
+        >
+    > &
+        ConversationConfigChatCompletionOptions {
+        return {
+            apiKey: this.apiKey,
+            model: this.model,
+            stream: this.stream,
+            frequency_penalty: this.frequencyPenalty,
+            presence_penalty: this.presencePenalty,
+            max_tokens: this.maxTokens,
+            logit_bias: this.logitBias,
+            stop: this.stop,
+            temperature: this.temperature,
+            top_p: this.topP,
+            user: this.user,
+        };
     }
 
     public get apiKey() {
@@ -128,33 +158,25 @@ export class ConversationConfig {
         return this.disableModeration === "soft";
     }
 
-    public get config(): Required<ConversationConfigOptions> {
-        return {
-            context: this.context,
-            dry: this.dry,
-            disableModeration: this.disableModeration,
-        };
+    public get stop() {
+        return this._stop;
     }
 
-    public get chatCompletionConfig(): Required<
-        Pick<
-            ConversationConfigChatCompletionOptions,
-            "apiKey" | "model" | "stream"
-        >
-    > &
-        ConversationConfigChatCompletionOptions {
-        return {
-            apiKey: this.apiKey,
-            model: this.model,
-            stream: this.stream,
-            frequency_penalty: this.frequencyPenalty,
-            presence_penalty: this.presencePenalty,
-            max_tokens: this.maxTokens,
-            logit_bias: this.logitBias,
-            stop: this.stop,
-            temperature: this.temperature,
-            top_p: this.topP,
-            user: this.user,
-        };
+    public set stop(stop) {
+        if (Array.isArray(stop) && !stop.length) {
+            console.warn(
+                "[gpt-turbo] The 'stop' parameter was provided as an empty array, which would cause a Bad Request error from OpenAI. The 'stop' parameter will be set to 'null' instead."
+            );
+            this._stop = null;
+            return;
+        }
+        if (typeof stop === "string" && !stop.trim()) {
+            console.warn(
+                "[gpt-turbo] The 'stop' parameter was provided as an empty string, which would cause a Bad Request error from OpenAI. The 'stop' parameter will be set to 'null' instead."
+            );
+            this._stop = null;
+            return;
+        }
+        this._stop = stop;
     }
 }

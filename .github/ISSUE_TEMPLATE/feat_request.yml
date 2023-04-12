@@ -8,6 +8,17 @@ body:
       value: |
         ## Thanks for taking the time to fill out this feature request!
   - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      description: Which part of GPT Turbo does this feature affect?
+      multiple: true
+      options:
+        - "Library (gpt-turbo)"
+        - "CLI (gpt-turbo-cli)"
+        - "Web (gpt-turbo-web)"
+        - "Nest (gpt-turbo-nest)"
+  - type: dropdown
     id: type
     attributes:
       label: Type

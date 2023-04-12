@@ -18,6 +18,7 @@ body:
         - "Library (gpt-turbo)"
         - "CLI (gpt-turbo-cli)"
         - "Web (gpt-turbo-web)"
+        - "Nest (gpt-turbo-nest)"
     validations:
       required: true
   - type: textarea

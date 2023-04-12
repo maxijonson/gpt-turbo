@@ -194,7 +194,7 @@ export interface CreateChatCompletionRequest {
      * @default null
      * @see {@link https://platform.openai.com/docs/api-reference/chat/create#chat/create-stop Create Chat Completion Request Body - stop}
      */
-    stop?: string | string[];
+    stop?: string | string[] | null;
 
     /**
      * The maximum number of {@link https://platform.openai.com/tokenizer tokens} to generate in the chat completion.
