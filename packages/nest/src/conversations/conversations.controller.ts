@@ -6,11 +6,7 @@ import {
     createConversationResponseDtoSchema,
 } from "./dtos/createConversation.dto.js";
 import { ApiTags } from "@nestjs/swagger";
-import {
-    PromptDtoEntity,
-    promptDtoSchema,
-    promptResponseDtoSchema,
-} from "./dtos/prompt.dto.js";
+import { PromptDtoEntity, promptDtoSchema } from "./dtos/prompt.dto.js";
 import { ZodValidationPipe } from "nestjs-zod";
 import { uuidSchema } from "../schemas/uuidSchema.js";
 import { UseZodApiOperation } from "../decorators/zod-api-operation.decorator.js";
@@ -18,6 +14,8 @@ import { getConversationsResponseDtoSchema } from "./dtos/getConversations.dto.j
 import messageToJson from "../utils/messageToJson.js";
 import { Response } from "express";
 import { z } from "nestjs-zod/z";
+import { conversationDtoSchema } from "./dtos/conversation.dto.js";
+import { messageDtoSchema } from "./dtos/message.dto.js";
 
 @Controller("conversations")
 @ApiTags("conversations")
@@ -64,7 +62,7 @@ export class ConversationsController {
             body: {
                 description:
                     "The message returned by the assistant in a non-streamed response.",
-                schema: promptResponseDtoSchema,
+                schema: messageDtoSchema,
             },
         },
         {
@@ -100,7 +98,7 @@ export class ConversationsController {
 
         message.onMessageUpdate((_, m) => {
             const data = JSON.stringify(
-                promptResponseDtoSchema.parse(messageToJson(m))
+                messageDtoSchema.parse(messageToJson(m))
             );
             res.write(`data: ${data}\n\n`);
         });
@@ -120,5 +118,19 @@ export class ConversationsController {
     })
     public getConversations() {
         return this.conversationsService.getConversations();
+    }
+
+    @Get(":id")
+    @UseZodApiOperation("Get a conversation by ID", undefined, {
+        status: 200,
+        body: {
+            description: "The conversation",
+            schema: conversationDtoSchema,
+        },
+    })
+    public getConversation(
+        @Param("id", new ZodValidationPipe(uuidSchema)) id: string
+    ) {
+        return this.conversationsService.getConversation(id);
     }
 }
