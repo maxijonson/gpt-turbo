@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Res } from "@nestjs/common";
 import { ConversationsService } from "./conversations.service.js";
 import {
     CreateConversationDtoEntity,
@@ -15,6 +15,9 @@ import { ZodValidationPipe } from "nestjs-zod";
 import { uuidSchema } from "../schemas/uuidSchema.js";
 import { UseZodApiOperation } from "../decorators/zod-api-operation.decorator.js";
 import { getConversationsResponseDtoSchema } from "./dtos/getConversations.dto.js";
+import messageToJson from "../utils/messageToJson.js";
+import { Response } from "express";
+import { z } from "nestjs-zod/z";
 
 @Controller("conversations")
 @ApiTags("conversations")
@@ -45,9 +48,13 @@ export class ConversationsController {
         );
     }
 
+    // Intentionally not using @Sse to support both streaming and non-streaming messages from the same endpoint
     @Post(":id")
     @UseZodApiOperation(
-        "Add a prompt to the conversation",
+        {
+            description: "Add a prompt to the conversation",
+            skipClassTransform: true,
+        },
         {
             description: "The prompt to send to the conversation",
             schema: promptDtoSchema,
@@ -55,16 +62,52 @@ export class ConversationsController {
         {
             status: 201,
             body: {
-                description: "The message returned by the assistant",
+                description:
+                    "The message returned by the assistant in a non-streamed response.",
                 schema: promptResponseDtoSchema,
+            },
+        },
+        {
+            status: 200,
+            body: {
+                description:
+                    "The message returned by the assistant in a streamed response.",
+                schema: z.any(),
+                contentType: "text/event-stream",
             },
         }
     )
-    public prompt(
+    public async prompt(
         @Body() { prompt }: PromptDtoEntity,
-        @Param("id", new ZodValidationPipe(uuidSchema)) id: string
+        @Param("id", new ZodValidationPipe(uuidSchema)) id: string,
+        @Res() res: Response
     ) {
-        return this.conversationsService.prompt(id, prompt);
+        const message = await this.conversationsService.prompt(id, prompt);
+
+        // Non-streaming message
+        if (!message.isStreaming && message.content) {
+            res.json(messageToJson(message));
+            return;
+        }
+
+        // Streaming message
+        res.set({
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            Connection: "keep-alive",
+        });
+        res.status(200);
+
+        message.onMessageUpdate((_, m) => {
+            const data = JSON.stringify(
+                promptResponseDtoSchema.parse(messageToJson(m))
+            );
+            res.write(`data: ${data}\n\n`);
+        });
+
+        message.onMessageStreamingStop(() => {
+            res.end();
+        });
     }
 
     @Get()
@@ -75,7 +118,7 @@ export class ConversationsController {
             schema: getConversationsResponseDtoSchema,
         },
     })
-    getConversations() {
+    public getConversations() {
         return this.conversationsService.getConversations();
     }
 }

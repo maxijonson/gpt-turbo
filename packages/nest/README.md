@@ -80,3 +80,5 @@ Swagger is enabled by default at the `/swagger` endpoint. To disable it, simply 
 ```bash
 USE_SWAGGER=false npm start
 ```
+
+For streamed conversation prompts (`POST /conversations/{id}`), Swagger will only show the data stream after the stream has ended. It's recommended to use a tool like [Postman](https://www.postman.com/) to test this endpoint.

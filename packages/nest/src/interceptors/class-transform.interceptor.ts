@@ -7,6 +7,7 @@ import {
 import { Conversation, Message } from "gpt-turbo";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
+import messageToJson from "../utils/messageToJson.js";
 
 @Injectable()
 export class ClassTransformInterceptor implements NestInterceptor {
@@ -28,7 +29,7 @@ export class ClassTransformInterceptor implements NestInterceptor {
         );
     }
 
-    private handleClassInstances(obj: any): void {
+    private handleClassInstances(obj: any) {
         if (obj instanceof Conversation) {
             return this.handleConversationInstance(obj);
         } else if (obj instanceof Message) {
@@ -43,7 +44,7 @@ export class ClassTransformInterceptor implements NestInterceptor {
         return obj;
     }
 
-    private handleConversationInstance(instance: Conversation): any {
+    private handleConversationInstance(instance: Conversation) {
         const { apiKey, ...config } = instance.getConfig();
 
         return {
@@ -59,29 +60,7 @@ export class ClassTransformInterceptor implements NestInterceptor {
         };
     }
 
-    private handleMessageInstance(instance: Message): any {
-        const {
-            content,
-            role,
-            cost,
-            flags,
-            id,
-            isFlagged,
-            isStreaming,
-            model,
-            size,
-        } = instance;
-
-        return {
-            content,
-            role,
-            cost,
-            flags,
-            id,
-            isFlagged,
-            isStreaming,
-            model,
-            size,
-        };
+    private handleMessageInstance(instance: Message) {
+        return messageToJson(instance);
     }
 }

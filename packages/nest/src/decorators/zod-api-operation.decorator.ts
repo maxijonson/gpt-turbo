@@ -7,18 +7,29 @@ import { UseZodResponseValidation } from "./zod-response-validation.decorator.js
 import { ClassTransformInterceptor } from "../interceptors/class-transform.interceptor.js";
 
 export interface ZodApiOperationBody<T> {
-    description?: string;
     schema: ZodType<T>;
+    description?: string;
+    contentType?: string;
 }
 
 export const UseZodApiOperation = <REQ, RES>(
-    description = "",
-    request?: ZodApiOperationBody<REQ>,
+    descriptionOrOptions:
+        | string
+        | { description?: string; skipClassTransform?: boolean } = "",
+    request?: ZodApiOperationBody<REQ> & { required?: boolean },
     ...responses: {
         status?: number;
         body: ZodApiOperationBody<RES>;
     }[]
 ) => {
+    const description =
+        typeof descriptionOrOptions === "string"
+            ? descriptionOrOptions
+            : descriptionOrOptions.description;
+    const skipClassTransform =
+        typeof descriptionOrOptions === "string"
+            ? false
+            : descriptionOrOptions.skipClassTransform;
     const decorators: Array<
         ClassDecorator | MethodDecorator | PropertyDecorator
     > = [];
@@ -29,7 +40,9 @@ export const UseZodApiOperation = <REQ, RES>(
                 description,
                 requestBody: getOpenAPIRequestBody(
                     request.schema,
-                    request.description
+                    request.description,
+                    request.required,
+                    request.contentType
                 ),
             })
         );
@@ -38,20 +51,34 @@ export const UseZodApiOperation = <REQ, RES>(
     }
 
     if (responses.length) {
-        responses.forEach((response) => {
+        responses.forEach(({ body: responseBody, status }) => {
+            const {
+                contentType = "application/json",
+                schema,
+                description,
+            } = responseBody;
+
             decorators.push(
                 ApiResponse({
-                    status: response.status,
-                    schema: zodToOpenAPI(response.body.schema),
-                    description: response.body.description,
-                }),
-                UseZodResponseValidation(response.body.schema, response.status)
+                    status,
+                    description,
+                    content: {
+                        [contentType]: {
+                            schema: zodToOpenAPI(schema),
+                        },
+                    },
+                })
             );
+
+            if (contentType === "application/json") {
+                decorators.push(UseZodResponseValidation(schema, status));
+            }
         });
     }
 
-    return applyDecorators(
-        ...decorators,
-        UseInterceptors(ClassTransformInterceptor)
-    );
+    if (!skipClassTransform) {
+        decorators.push(UseInterceptors(ClassTransformInterceptor));
+    }
+
+    return applyDecorators(...decorators);
 };

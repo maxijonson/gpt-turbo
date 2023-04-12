@@ -19,13 +19,13 @@ export class ZodValidationInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         const response = context.switchToHttp().getResponse<Response>();
 
-        if (response.statusCode !== this.status) {
+        if (this.status && response.statusCode !== this.status) {
             return next.handle();
         }
 
         return next.handle().pipe(
             map((data) => {
-                return this.schema.parse(data);
+                return data ? this.schema.parse(data) : data;
             })
         );
     }

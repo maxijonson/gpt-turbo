@@ -5,12 +5,13 @@ import { ZodType } from "nestjs-zod/z";
 export default (
     schema: ZodType,
     description?: string,
-    required = true
+    required = true,
+    contentType = "application/json"
 ): RequestBodyObject => ({
     description,
     required,
     content: {
-        "application/json": {
+        [contentType]: {
             schema: zodToOpenAPI(schema),
         },
     },
