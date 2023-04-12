@@ -109,7 +109,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"model\": \"gpt-3.5-turbo\",\r\n  \"temperature\": 1,\r\n  \"top_p\": 1,\r\n  \"stream\": true,\r\n  \"stop\": null,\r\n  \"max_tokens\": 2048,\r\n  \"presence_penalty\": 0,\r\n  \"frequency_penalty\": 0,\r\n  \"logit_bias\": {},\r\n  \"user\": \"\",\r\n  \"context\": \"You are a large language model trained by OpenAI. Answer as concisely as possible.\",\r\n  \"dry\": false,\r\n  \"disableModeration\": false,\r\n  \"apiKey\": \"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\"\r\n}",
+							"raw": "{\r\n  \"model\": \"gpt-3.5-turbo\",\r\n  \"temperature\": 1,\r\n  \"top_p\": 1,\r\n  \"stream\": true,\r\n  \"stop\": null,\r\n  \"max_tokens\": 2048,\r\n  \"presence_penalty\": 0,\r\n  \"frequency_penalty\": 0,\r\n  \"logit_bias\": {},\r\n  \"user\": \"\",\r\n  \"context\": \"You are a large language model trained by OpenAI. Answer as concisely as possible.\",\r\n  \"dry\": false,\r\n  \"disableModeration\": false,\r\n  \"apiKey\": \"\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
