@@ -90,3 +90,5 @@ While Swagger is the most up-to-date way of testing the API, since it is generat
 The Postman collection includes automated scripts to assign variables so testing is relatively easier than Swagger. For example, after creating a conversation in Postman, the `conversationId` variable will be automatically assigned to the ID of the conversation. This means that you can then use the `conversationId` variable in subsequent requests, such as sending a prompt to the conversation.
 
 Postman is also a great way to test streamed conversation prompts, since Swagger will only show the data stream after the stream has ended.
+
+**Note: If you want to use your API key with these requests, set them in the collection's variables instead of directly in the body. This has already been setup for you to prevent accidental leaks if you open a PR with this file changed! (as I did when the Nest implementation was first released!)**
