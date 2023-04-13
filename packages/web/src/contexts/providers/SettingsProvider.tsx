@@ -1,4 +1,6 @@
 import React from "react";
+import { DEFAULT_CONTEXT, DEFAULT_DRY, DEFAULT_MODEL } from "gpt-turbo";
+
 import { SettingsContext, SettingsContextValue } from "../SettingsContext";
 import useStorage from "../../hooks/useStorage";
 import { Settings, settingsSchema } from "../../entities/settings";
@@ -16,6 +18,12 @@ export default ({ children }: SettingsProviderProps) => {
         "gpt-turbo-settings",
         {
             apiKey: "",
+            model: DEFAULT_MODEL,
+            context: DEFAULT_CONTEXT,
+            dry: DEFAULT_DRY,
+            disableModeration: "on",
+            stream: true,
+            save: false,
         },
         settingsSchema
     );
