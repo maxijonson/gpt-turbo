@@ -1,8 +1,6 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath, pathToFileURL } from "url";
 import { Client, ClientOptions, Collection } from "discord.js";
 import { Command } from "../utils/types.js";
+import loadCommands from "../utils/loadCommands.js";
 
 export default class GPTTurboClient<Ready extends boolean = boolean>
     extends Client<Ready>
@@ -15,37 +13,9 @@ export default class GPTTurboClient<Ready extends boolean = boolean>
     }
 
     public async init() {
-        const commandsPath = path.join(
-            path.dirname(fileURLToPath(import.meta.url)),
-            "..",
-            "commands"
-        );
+        const commands = await loadCommands();
 
-        const commandFiles = fs
-            .readdirSync(commandsPath)
-            .filter((file) => file.endsWith(".js") || file.endsWith(".ts"));
-
-        for (const file of commandFiles) {
-            const commandName = file.split(".")[0];
-            const command = (
-                await import(
-                    pathToFileURL(
-                        path.join(commandsPath, commandFiles[0])
-                    ).toString()
-                )
-            ).default as Command;
-
-            if (!command) {
-                throw new Error(
-                    `Command "${commandName}" could not be loaded.`
-                );
-            }
-            if (!command.builder || !command.execute) {
-                throw new Error(
-                    `Command "${commandName}" does not have a builder or execute.`
-                );
-            }
-
+        for (const command of commands) {
             this.commands.set(command.builder.name, command);
         }
     }

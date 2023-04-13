@@ -9,6 +9,7 @@ const pingCommand: Command = {
         if (!interaction.isRepliable()) return;
         await interaction.reply("Pong!");
     },
+    private: false,
 };
 
 export default pingCommand;
