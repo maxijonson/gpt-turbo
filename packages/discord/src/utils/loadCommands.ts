@@ -1,10 +1,10 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
-import { Command } from "./types.js";
+import { DiscordSlashCommand } from "./types.js";
 
 export default async () => {
-    const commands: Command[] = [];
+    const commands: DiscordSlashCommand[] = [];
 
     const commandsPath = path.join(
         path.dirname(fileURLToPath(import.meta.url)),
@@ -20,11 +20,9 @@ export default async () => {
         const commandName = file.split(".")[0];
         const command = (
             await import(
-                pathToFileURL(
-                    path.join(commandsPath, commandFiles[0])
-                ).toString()
+                pathToFileURL(path.join(commandsPath, file)).toString()
             )
-        ).default as Command;
+        ).default as DiscordSlashCommand;
 
         if (!command) {
             throw new Error(`Command "${commandName}" could not be loaded.`);
