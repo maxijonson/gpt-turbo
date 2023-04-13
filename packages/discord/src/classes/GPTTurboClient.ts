@@ -15,24 +15,7 @@ export default class GPTTurboClient<
     }
 
     public async init() {
-        const commands = await loadCommands();
-        for (const command of commands) {
-            this.commands.set(command.builder.name, command);
-        }
-
-        const events = await loadEvents();
-        for (const event of events) {
-            this.events.set(event.name, event);
-            this[event.once ? "once" : "on"](event.name, async (...args) => {
-                try {
-                    await event.execute(...args);
-                } catch (error) {
-                    console.error(`Error in event "${event.name}":`);
-                    console.error(error);
-                }
-            });
-        }
-
+        await Promise.all([this.initCommands(), this.initEvents()]);
         await this.login(DISCORD_TOKEN);
     }
 
@@ -46,5 +29,27 @@ export default class GPTTurboClient<
             throw new Error("No events loaded. Did you forget to call init()?");
         }
         return super.login(token);
+    }
+
+    private async initCommands() {
+        const commands = await loadCommands();
+        for (const command of commands) {
+            this.commands.set(command.builder.name, command);
+        }
+    }
+
+    private async initEvents() {
+        const events = await loadEvents();
+        for (const event of events) {
+            this.events.set(event.name, event);
+            this[event.once ? "once" : "on"](event.name, async (...args) => {
+                try {
+                    await event.execute(...args);
+                } catch (error) {
+                    console.error(`Error in event "${event.name}":`);
+                    console.error(error);
+                }
+            });
+        }
     }
 }
