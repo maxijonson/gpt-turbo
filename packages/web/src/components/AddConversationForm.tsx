@@ -1,5 +1,4 @@
 import { useForm } from "@mantine/form";
-import { DEFAULT_CONTEXT, DEFAULT_DRY, DEFAULT_MODEL } from "gpt-turbo";
 import useConversationManager from "../hooks/useConversationManager";
 import {
     Group,
@@ -20,7 +19,7 @@ import React from "react";
 import useSettings from "../hooks/useSettings";
 import usePersistence from "../hooks/usePersistence";
 
-const ModelSelectItem = React.forwardRef<
+export const ModelSelectItem = React.forwardRef<
     HTMLDivElement,
     { label: string; value: string; selected: boolean }
 >(({ label, value, ...restProps }, ref) => {
@@ -58,12 +57,12 @@ export default () => {
     const form = useForm({
         initialValues: {
             apiKey: settings.apiKey,
-            model: DEFAULT_MODEL,
-            context: DEFAULT_CONTEXT,
-            dry: DEFAULT_DRY,
-            disableModeration: "on",
-            stream: true,
-            save: false,
+            model: settings.model,
+            context: settings.context,
+            dry: settings.dry,
+            disableModeration: settings.disableModeration,
+            stream: settings.stream,
+            save: settings.save,
         },
         transformValues: (values) => ({
             ...values,
