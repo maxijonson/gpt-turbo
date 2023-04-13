@@ -1,6 +1,5 @@
 import { DEFAULT_CONTEXT, DEFAULT_DRY, DEFAULT_MODEL } from "gpt-turbo";
 import React from "react";
-
 import makeNotImplemented from "../utils/makeNotImplemented";
 import { Settings } from "../entities/settings";
 
