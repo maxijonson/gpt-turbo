@@ -20,7 +20,6 @@ const interactionCreateEvent = createDiscordEvent(
         try {
             await command.execute(interaction);
         } catch (error) {
-            console.error(error);
             if (interaction.replied || interaction.deferred) {
                 await interaction.followUp({
                     content: "There was an error while executing this command!",
@@ -32,6 +31,7 @@ const interactionCreateEvent = createDiscordEvent(
                     ephemeral: true,
                 });
             }
+            throw error;
         }
     }
 );
