@@ -3,12 +3,11 @@ import { fileURLToPath } from "url";
 import { Collection } from "discord.js";
 import { DiscordSlashCommand } from "../utils/types.js";
 import loadResource from "../utils/loadResource.js";
-import GPTTurboClient from "./GPTTurboClient.js";
 
 export default class CommandManager {
     public commands = new Collection<string, DiscordSlashCommand>();
 
-    constructor(private client: GPTTurboClient) {}
+    constructor() {}
 
     public async init() {
         const commands = await loadResource<DiscordSlashCommand>(

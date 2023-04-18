@@ -45,3 +45,15 @@ npm run dev
 DISCORD_TOKEN=your-token-here DISCORD_CLIENT_ID=your-client-id-here npm start
 DISCORD_TOKEN=your-token-here DISCORD_CLIENT_ID=your-client-id-here npm run dev
 ```
+
+## Whitelisting / Blacklisting
+
+OpenAI has a gray rule on Bring-Your-Own-Key (BYOK) apps. This means that it's not explicitly clear in their usage policies whether or not you're allowed to ask users of you product for their API keys to use with your app. However, some [old forum replies](https://community.openai.com/t/openais-bring-your-own-key-policy/14538/2) from OpenAI staff suggests that it's not allowed. 
+
+> It's different for other implementations of GPT Turbo, as they don't store the API key anywhere else than on the user's machine. ([source](https://community.openai.com/t/openais-bring-your-own-key-policy/14538/4)) This implementation would need to store the API key somewhere other than your machine in order to use it for conversations.
+
+That being said, you'll need to provide your own API key for everyone to use. Because you don't want everyone making it paid calls to OpenAI, I implemented a whitelist and blacklist system for the bot. This means that you can specify a list of users/guilds that are allowed to use the bot, and a list of users/guilds that are not allowed to use the bot. 
+
+This is done through environment variables. Refer to the [`.env.example`](./.env.example) file for more information on how to set this up.
+
+> No matter what the whitelist says, the blacklist will always take precedence.

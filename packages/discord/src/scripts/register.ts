@@ -1,12 +1,18 @@
+import path from "path";
+import { fileURLToPath } from "url";
 import { REST, Routes } from "discord.js";
 import {
     DISCORD_CLIENT_ID,
     DISCORD_TOKEN,
     DISCORD_TEST_SERVER_ID,
 } from "../config/env.js";
-import loadCommands from "../utils/loadCommands.js";
+import loadResource from "../utils/loadResource.js";
+import { DiscordSlashCommand } from "../utils/types.js";
 
-const commands = await loadCommands();
+const commands = await loadResource<DiscordSlashCommand>(
+    path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "commands"),
+    ["builder", "execute"]
+);
 const privateCommands = commands.filter((command) => command.private);
 const publicCommands = commands.filter((command) => !command.private);
 const rest = new REST().setToken(DISCORD_TOKEN);

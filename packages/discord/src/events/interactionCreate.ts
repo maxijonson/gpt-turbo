@@ -6,7 +6,7 @@ const interactionCreateEvent = createDiscordEvent(
     async (interaction) => {
         if (!interaction.isChatInputCommand()) return;
 
-        const command = interaction.client.commands.get(
+        const command = interaction.client.commandManager.commands.get(
             interaction.commandName
         );
 

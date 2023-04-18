@@ -6,7 +6,7 @@ import EventManager from "./EventManager.js";
 export default class GPTTurboClient<
     Ready extends boolean = boolean
 > extends Client<Ready> {
-    public commandManager: CommandManager = new CommandManager(this);
+    public commandManager: CommandManager = new CommandManager();
     public eventManager: EventManager = new EventManager(this);
 
     constructor(options: ClientOptions) {
