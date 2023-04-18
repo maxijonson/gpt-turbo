@@ -9,7 +9,6 @@ const pingCommand: DiscordSlashCommand = {
         if (!interaction.isRepliable()) return;
         await interaction.reply("Pong!");
     },
-    private: false,
 };
 
 export default pingCommand;
