@@ -1,9 +1,6 @@
-import {
-    SlashCommandBuilder,
-    BaseInteraction,
-    Collection,
-    ClientEvents,
-} from "discord.js";
+import { SlashCommandBuilder, BaseInteraction, ClientEvents } from "discord.js";
+import CommandManager from "../classes/CommandManager.ts";
+import EventManager from "../classes/EventManager.ts";
 
 export interface DiscordSlashCommand {
     /**
@@ -37,9 +34,7 @@ export interface DiscordEvent<
 
 declare module "discord.js" {
     interface Client {
-        commands: Collection<string, DiscordSlashCommand>;
-        events: Collection<string, DiscordEvent>;
-
-        init(): Promise<void>;
+        commandManager: CommandManager;
+        eventManager: EventManager;
     }
 }
