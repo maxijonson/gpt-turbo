@@ -1,4 +1,4 @@
-import { ChannelType, Events, italic, userMention } from "discord.js";
+import { ChannelType, Events, Message, italic, userMention } from "discord.js";
 import createDiscordEvent from "../utils/createDiscordEvent.js";
 import { EMPTY_PROMPT_REPLIES } from "../config/constants.js";
 import { Conversation } from "gpt-turbo";
@@ -8,11 +8,9 @@ import {
     GPTTURBO_DRY,
     GPTTURBO_MODEL,
 } from "../config/env.js";
+import getClientDisplayName from "../utils/getClientDisplayName.js";
 
-export default createDiscordEvent(Events.MessageCreate, async (message) => {
-    if (!message.content || message.author.id === message.client.user.id)
-        return;
-
+const handleNewConversation = async (message: Message) => {
     const botMention = userMention(message.client.user.id);
     const isPrompt =
         message.content.startsWith(botMention) ||
@@ -20,10 +18,10 @@ export default createDiscordEvent(Events.MessageCreate, async (message) => {
 
     if (!isPrompt) return;
 
-    const prompt = message.content
-        .replace(botMention, "")
-        .replace(/<@!?\d+>/g, "")
-        .trim();
+    const displayName = getClientDisplayName(message.client, message.guildId);
+    const prompt = message.content.startsWith(botMention)
+        ? message.cleanContent.replace(`@${displayName}`, "").trim()
+        : message.cleanContent;
 
     if (!prompt) {
         const reply =
@@ -55,4 +53,11 @@ export default createDiscordEvent(Events.MessageCreate, async (message) => {
             },
         });
     }
+};
+
+export default createDiscordEvent(Events.MessageCreate, async (message) => {
+    if (!message.content || message.author.id === message.client.user.id)
+        return;
+
+    await handleNewConversation(message);
 });
