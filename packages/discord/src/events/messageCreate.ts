@@ -1,4 +1,4 @@
-import { ChannelType, Events, userMention } from "discord.js";
+import { ChannelType, Events, italic, userMention } from "discord.js";
 import createDiscordEvent from "../utils/createDiscordEvent.js";
 import { EMPTY_PROMPT_REPLIES } from "../config/constants.js";
 import { Conversation } from "gpt-turbo";
@@ -41,8 +41,11 @@ export default createDiscordEvent(Events.MessageCreate, async (message) => {
             dry: !GPTTURBO_APIKEY || GPTTURBO_DRY,
             context: GPTTURBO_CONTEXT,
         });
-        const { content } = await conversation.prompt(prompt);
-        await message.reply(content);
+        const [promptMessage, { content }] = await Promise.all([
+            message.reply(italic("Thinking...")),
+            conversation.prompt(prompt),
+        ]);
+        await promptMessage.edit(content);
     } catch (error) {
         console.error(error);
         await message.reply({
