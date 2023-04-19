@@ -10,6 +10,7 @@ import EventManager from "../classes/EventManager.js";
 export interface DiscordSlashCommand {
     builder: SlashCommandBuilder;
     execute: (interaction: BaseInteraction) => Awaitable<void>;
+    ephemeral?: boolean;
 }
 
 export type DiscordEventType = keyof ClientEvents;

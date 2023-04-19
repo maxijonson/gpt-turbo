@@ -1,12 +1,21 @@
 import dotenv from "dotenv";
 import isValidSnowflake from "../utils/isValidSnowflake.js";
+import { DEFAULT_CONTEXT, DEFAULT_DRY, DEFAULT_MODEL } from "gpt-turbo";
 dotenv.config();
 
 export const DISCORD_TOKEN = process.env.DISCORD_TOKEN!;
 
 export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
 
-export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+export const GPTTURBO_APIKEY = process.env.GPTTURBO_APIKEY;
+
+export const GPTTURBO_MODEL = process.env.GPTTURBO_MODEL || DEFAULT_MODEL;
+
+export const GPTTURBO_DRY = process.env.GPTTURBO_DRY
+    ? process.env.GPTTURBO_DRY === "true"
+    : DEFAULT_DRY;
+
+export const GPTTURBO_CONTEXT = process.env.GPTTURBO_CONTEXT || DEFAULT_CONTEXT;
 
 export const WHITELIST_USERS = (
     process.env.WHITELIST_USERS?.split(",") ?? []

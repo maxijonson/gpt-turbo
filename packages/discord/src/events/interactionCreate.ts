@@ -1,7 +1,7 @@
 import { Events } from "discord.js";
 import createDiscordEvent from "../utils/createDiscordEvent.js";
 
-const interactionCreateEvent = createDiscordEvent(
+export default createDiscordEvent(
     Events.InteractionCreate,
     async (interaction) => {
         if (!interaction.isChatInputCommand()) return;
@@ -18,6 +18,9 @@ const interactionCreateEvent = createDiscordEvent(
         }
 
         try {
+            await interaction.deferReply({
+                ephemeral: command.ephemeral ?? true,
+            });
             await command.execute(interaction);
         } catch (error) {
             if (interaction.replied || interaction.deferred) {
@@ -35,5 +38,3 @@ const interactionCreateEvent = createDiscordEvent(
         }
     }
 );
-
-export default interactionCreateEvent;

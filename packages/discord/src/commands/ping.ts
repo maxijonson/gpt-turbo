@@ -7,8 +7,9 @@ const pingCommand: DiscordSlashCommand = {
         .setDescription("Replies with Pong!"),
     execute: async (interaction) => {
         if (!interaction.isRepliable()) return;
-        await interaction.reply("Pong!");
+        await interaction.followUp("Pong!");
     },
+    ephemeral: true,
 };
 
 export default pingCommand;
