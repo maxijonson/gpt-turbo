@@ -5,33 +5,30 @@ import { ALLOW_DMS } from "../config/env.js";
 import { AccessRuleDeniedReason } from "../utils/types.js";
 
 export default createAccessRule(
-    [Events.InteractionCreate],
+    [Events.InteractionCreate, Events.MessageCreate],
     async (event, ...args) => {
         const isEvent = makeIsEvent(event);
+        let isDM: boolean | null = null;
 
         if (isEvent(Events.InteractionCreate, args)) {
             const [interaction] = args;
+            isDM = interaction.guild === null;
+        }
 
-            if (interaction.inGuild() && interaction.guild) {
-                return {
-                    isAllowed: true,
-                };
-            }
+        if (isEvent(Events.MessageCreate, args)) {
+            const [message] = args;
+            isDM = message.guild === null;
+        }
 
-            if (ALLOW_DMS) {
-                return {
-                    isAllowed: true,
-                };
-            }
-
+        if (!isDM || ALLOW_DMS) {
             return {
-                isAllowed: false,
-                reasons: [AccessRuleDeniedReason.DMsUnauthorized],
+                isAllowed: true,
             };
         }
 
         return {
-            isAllowed: true,
+            isAllowed: false,
+            reasons: [AccessRuleDeniedReason.DMsUnauthorized],
         };
     }
 );

@@ -1,47 +1,49 @@
-import { Events } from "discord.js";
+import { Events, User } from "discord.js";
 import createAccessRule from "../utils/createAccessRule.js";
 import makeIsEvent from "../utils/makeIsEvent.js";
 import { ALLOW_BOTS } from "../config/env.js";
 import { AccessRuleDeniedReason } from "../utils/types.js";
 
 export default createAccessRule(
-    [Events.InteractionCreate],
+    [Events.InteractionCreate, Events.MessageCreate],
     async (event, ...args) => {
         const isEvent = makeIsEvent(event);
+        let user: User | null = null;
 
         if (isEvent(Events.InteractionCreate, args)) {
             const [interaction] = args;
-            const { user } = interaction;
+            user = interaction.user;
+        }
 
-            if (!user.bot) {
-                return {
-                    isAllowed: true,
-                };
-            }
+        if (isEvent(Events.MessageCreate, args)) {
+            const [message] = args;
+            user = message.author;
+        }
 
-            if (ALLOW_BOTS) {
-                if (
-                    Array.isArray(ALLOW_BOTS) &&
-                    !ALLOW_BOTS.includes(user.id)
-                ) {
-                    return {
-                        isAllowed: false,
-                        reasons: [AccessRuleDeniedReason.BotUnauthorized],
-                    };
-                }
-                return {
-                    isAllowed: true,
-                };
-            }
+        if (!user)
+            throw new Error(`No user associated with event. (${event}))`);
 
+        if (!user.bot) {
             return {
-                isAllowed: false,
-                reasons: [AccessRuleDeniedReason.BotsUnauthorized],
+                isAllowed: true,
+            };
+        }
+
+        if (ALLOW_BOTS) {
+            if (Array.isArray(ALLOW_BOTS) && !ALLOW_BOTS.includes(user.id)) {
+                return {
+                    isAllowed: false,
+                    reasons: [AccessRuleDeniedReason.BotUnauthorized],
+                };
+            }
+            return {
+                isAllowed: true,
             };
         }
 
         return {
-            isAllowed: true,
+            isAllowed: false,
+            reasons: [AccessRuleDeniedReason.BotsUnauthorized],
         };
     }
 );
