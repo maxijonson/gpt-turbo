@@ -10,7 +10,8 @@ import {
 } from "../config/env.js";
 
 export default createDiscordEvent(Events.MessageCreate, async (message) => {
-    if (!message.content) return;
+    if (!message.content || message.author.id === message.client.user.id)
+        return;
 
     const botMention = userMention(message.client.user.id);
     const isPrompt =
