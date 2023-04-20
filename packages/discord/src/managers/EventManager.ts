@@ -3,7 +3,7 @@ import { fileURLToPath } from "url";
 import { ClientEvents, Collection, Events } from "discord.js";
 import { DiscordEvent, DiscordEventType } from "../utils/types.js";
 import loadResource from "../utils/loadResource.js";
-import GPTTurboClient from "./GPTTurboClient.js";
+import GPTTurboClient from "../GPTTurboClient.js";
 import AccessRuleManager from "./AccessRuleManager.js";
 import UnauthorizedException from "../exceptions/UnauthorizedException.js";
 import makeIsEvent from "../utils/makeIsEvent.js";

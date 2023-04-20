@@ -1,5 +1,5 @@
 import { GatewayIntentBits, Partials } from "discord.js";
-import GPTTurboClient from "./classes/GPTTurboClient.js";
+import GPTTurboClient from "./GPTTurboClient.js";
 
 new GPTTurboClient({
     intents: [

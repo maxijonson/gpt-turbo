@@ -4,8 +4,9 @@ import {
     ClientEvents,
     Awaitable,
 } from "discord.js";
-import CommandManager from "../classes/CommandManager.js";
-import EventManager from "../classes/EventManager.js";
+import CommandManager from "../managers/CommandManager.js";
+import EventManager from "../managers/EventManager.js";
+import MessageHandler from "../message-handlers/MessageHandler.js";
 
 export interface DiscordSlashCommand {
     builder: SlashCommandBuilder;
@@ -58,5 +59,9 @@ declare module "discord.js" {
     interface Client {
         commandManager: CommandManager;
         eventManager: EventManager;
+
+        handleMessage: (
+            message: Message<boolean>
+        ) => Awaitable<MessageHandler | null>;
     }
 }
