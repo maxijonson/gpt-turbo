@@ -7,6 +7,8 @@ import IncomingMessageHandler from "./message-handlers/IncomingMessageHandler.js
 import MentionHandler from "./message-handlers/MentionHandler.js";
 import GuildReplyHandler from "./message-handlers/GuildReplyHandler.js";
 import ThreadMessageHandler from "./message-handlers/ThreadMessageHandler.js";
+import DMMessageHandler from "./message-handlers/DMMessageHandler.js";
+import DMReplyHandler from "./message-handlers/DMReplyHandler.js";
 
 export default class GPTTurboClient<
     Ready extends boolean = boolean
@@ -21,6 +23,8 @@ export default class GPTTurboClient<
         super(options);
 
         this.messageHandler = new IncomingMessageHandler().setNext(
+            new DMReplyHandler(),
+            new DMMessageHandler(),
             new ThreadMessageHandler(),
             new GuildReplyHandler(),
             new MentionHandler()

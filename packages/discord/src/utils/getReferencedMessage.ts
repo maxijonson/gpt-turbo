@@ -3,11 +3,13 @@ import getMessageById from "./getMessageById.js";
 
 export default async (message: Message<boolean>) => {
     try {
-        const reference = message.reference!;
+        const reference = message.reference;
+        if (!reference?.messageId) {
+            return null;
+        }
         const referencedMessage = await getMessageById(
-            reference.guildId!,
             reference.channelId,
-            reference.messageId!,
+            reference.messageId,
             message.client
         );
 
