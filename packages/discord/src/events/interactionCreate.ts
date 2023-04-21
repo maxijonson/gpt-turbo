@@ -1,5 +1,6 @@
 import { Events } from "discord.js";
 import createDiscordEvent from "../utils/createDiscordEvent.js";
+import MessageHandler from "../message-handlers/MessageHandler.js";
 
 export default createDiscordEvent(
     Events.InteractionCreate,
@@ -14,6 +15,16 @@ export default createDiscordEvent(
             console.error(
                 `No command matching ${interaction.commandName} was found.`
             );
+            return;
+        }
+
+        if (
+            interaction.client.isOnCooldown(interaction.user.id, "interaction")
+        ) {
+            await interaction.reply({
+                content: MessageHandler.COOLDOWN_MESSAGE,
+                ephemeral: true,
+            });
             return;
         }
 
