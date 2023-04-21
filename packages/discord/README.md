@@ -6,7 +6,7 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 </div>
 
-Discord bot powered by the GPT Turbo library.
+Discord bot powered by the GPT Turbo library. Inspired by Discord's very own Clyde AI chat bot.
 
 ## Installation
 
@@ -21,6 +21,13 @@ npm run bootstrap
 
 # Build the library and the Discord bot
 npm run build
+```
+
+*Run these in this package directory*
+
+```bash
+# Register slash commands
+npm run register
 ```
 
 ## Prerequisites
