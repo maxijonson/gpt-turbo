@@ -4,8 +4,9 @@ import CommandManager from "./managers/CommandManager.js";
 import EventManager from "./managers/EventManager.js";
 import MessageHandler from "./message-handlers/MessageHandler.js";
 import IncomingMessageHandler from "./message-handlers/IncomingMessageHandler.js";
-import NewConversationHandler from "./message-handlers/NewConverversationHandler.js";
+import MentionHandler from "./message-handlers/MentionHandler.js";
 import GuildReplyHandler from "./message-handlers/GuildReplyHandler.js";
+import ThreadMessageHandler from "./message-handlers/ThreadMessageHandler.js";
 
 export default class GPTTurboClient<
     Ready extends boolean = boolean
@@ -20,8 +21,9 @@ export default class GPTTurboClient<
         super(options);
 
         this.messageHandler = new IncomingMessageHandler().setNext(
+            new ThreadMessageHandler(),
             new GuildReplyHandler(),
-            new NewConversationHandler()
+            new MentionHandler()
         );
         this.id = this.user?.id ?? DISCORD_CLIENT_ID;
     }

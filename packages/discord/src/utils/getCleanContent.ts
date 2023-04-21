@@ -2,13 +2,14 @@ import { Message, userMention } from "discord.js";
 import getClientDisplayName from "./getClientDisplayName.js";
 
 export default async (message: Message) => {
-    const botMention = userMention(message.client.id);
+    if (!message.content.startsWith(userMention(message.client.id)))
+        return message.cleanContent;
+
     const displayName = await getClientDisplayName(
         message.client,
         message.guildId
     );
+    const sliceLength = `@${displayName}`.length;
 
-    return message.content.startsWith(botMention)
-        ? message.cleanContent.replace(`@${displayName}`, "").trim()
-        : message.cleanContent;
+    return message.cleanContent.slice(sliceLength).trim();
 };

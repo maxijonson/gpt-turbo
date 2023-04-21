@@ -8,6 +8,10 @@
 
 Discord bot powered by the GPT Turbo library.
 
+## Limitations
+
+- I designed this bot to be used without the `MESSAGE_CONTENT` intent, as it is a privileged intent for bots with over 100 servers and I'm unfamiliar with Discord's approval process. This means that the bot will be unable to see conversation messages unless it is mentionned, either directly or through replying to a message with ping enabled (except DMs). This can be annoying, but if you host the bot yourself and enable the `MESSAGE_CONTENT` intent, the bot **should** be able to work without being mentionned.
+
 ## Installation
 
 *Run these at the mono-repo root. Not this package directory*

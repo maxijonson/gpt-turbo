@@ -1,11 +1,12 @@
 import { Awaitable, Message } from "discord.js";
 import BotException from "../exceptions/BotException.js";
+import { MessageRoleException, ModerationException } from "gpt-turbo";
 
 /**
  * Base class for handling potential prompt messages in a chain of responsibility.
  *
  * @remarks
- * The goal of this chain of responsibility is to minimize the amount of checks that need to be done to determine if a MessageHandler can/should handle a message. (i.e. a bunch of if statements before actually handling the message properly)
+ * The goal of this chain of responsibility is to reduce the amount of checks that need to be done to determine if a MessageHandler can/should handle a message. (i.e. a bunch of if statements before actually handling the message properly)
  */
 export default abstract class MessageHandler {
     public abstract get name(): string;
@@ -78,6 +79,15 @@ export default abstract class MessageHandler {
         } catch (error) {
             if (error instanceof BotException) {
                 await message.reply(error.message);
+            } else if (error instanceof ModerationException) {
+                const flags = error.flags.join(", ");
+                await message.reply(
+                    `Your message (or the response) was flagged for ${flags}.`
+                );
+            } else if (error instanceof MessageRoleException) {
+                await message.reply(
+                    "There was an issue with the order of the messages. This can happen when two replies in a row are sent by a user/assistant."
+                );
             } else {
                 console.error(error);
                 await message.reply(
