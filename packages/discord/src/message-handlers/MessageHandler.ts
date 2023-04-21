@@ -1,4 +1,5 @@
 import { Awaitable, Message } from "discord.js";
+import BotException from "../exceptions/BotException.js";
 
 /**
  * Base class for handling potential prompt messages in a chain of responsibility.
@@ -7,6 +8,8 @@ import { Awaitable, Message } from "discord.js";
  * The goal of this chain of responsibility is to minimize the amount of checks that need to be done to determine if a MessageHandler can/should handle a message. (i.e. a bunch of if statements before actually handling the message properly)
  */
 export default abstract class MessageHandler {
+    public abstract get name(): string;
+
     /**
      * The next handler in the chain of responsibility.
      */
@@ -56,18 +59,32 @@ export default abstract class MessageHandler {
     public async handleMessage(
         message: Message
     ): Promise<MessageHandler | null> {
-        if (await this.canHandle(message)) {
-            if (this.subHandler) {
-                const subHandler = await this.subHandler.handleMessage(message);
-                if (subHandler) {
-                    return subHandler;
+        try {
+            if (await this.canHandle(message)) {
+                if (this.subHandler) {
+                    const subHandler = await this.subHandler.handleMessage(
+                        message
+                    );
+                    if (subHandler) {
+                        return subHandler;
+                    }
                 }
+                await this.handle(message);
+                return this;
+            } else if (this.next) {
+                return this.next.handleMessage(message);
             }
-            await this.handle(message);
-            return this;
-        } else if (this.next) {
-            return this.next.handleMessage(message);
+            return null;
+        } catch (error) {
+            if (error instanceof BotException) {
+                await message.reply(error.message);
+            } else {
+                console.error(error);
+                await message.reply(
+                    "There was an error while handling your message. Please try again later or start a new conversation."
+                );
+            }
+            return null;
         }
-        return null;
     }
 }

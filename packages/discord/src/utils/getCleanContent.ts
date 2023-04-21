@@ -2,7 +2,7 @@ import { Message, userMention } from "discord.js";
 import getClientDisplayName from "./getClientDisplayName.js";
 
 export default async (message: Message) => {
-    const botMention = userMention(message.client.user.id);
+    const botMention = userMention(message.client.id);
     const displayName = await getClientDisplayName(
         message.client,
         message.guildId

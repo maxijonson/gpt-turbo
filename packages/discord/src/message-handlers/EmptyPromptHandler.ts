@@ -3,6 +3,10 @@ import MessageHandler from "./MessageHandler.js";
 import getCleanContent from "../utils/getCleanContent.js";
 
 export default class EmptyPromptHandler extends MessageHandler {
+    public get name(): string {
+        return EmptyPromptHandler.name;
+    }
+
     static readonly EMPTY_PROMPT_REPLIES = [
         "Hi! How can I assist you",
         "Hi! How can I help you?",

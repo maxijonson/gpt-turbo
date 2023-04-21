@@ -57,6 +57,7 @@ export interface AccessRule<
 
 declare module "discord.js" {
     interface Client {
+        id: string;
         commandManager: CommandManager;
         eventManager: EventManager;
 

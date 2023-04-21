@@ -1,6 +1,7 @@
 import { AccessRuleDeniedReason } from "../utils/types.js";
+import BotException from "./BotException.js";
 
-export default class UnauthorizedException extends Error {
+export default class UnauthorizedException extends BotException {
     constructor(public reasons: AccessRuleDeniedReason[]) {
         super("Access denied");
         this.name = "UnauthorizedException";

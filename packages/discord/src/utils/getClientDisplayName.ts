@@ -16,10 +16,10 @@ export default async (client: Client, guildId: string | null) => {
     let member: GuildMember | null = null;
     try {
         member =
-            guild.members.cache.get(client.user.id) ??
-            (await guild.members.fetch(client.user.id));
+            guild.members.cache.get(client.id) ??
+            (await guild.members.fetch(client.id));
     } finally {
-        if (!member) throw new Error(`Member ${client.user.id} not found.`);
+        if (!member) throw new Error(`Member ${client.id} not found.`);
     }
 
     return member.displayName;
