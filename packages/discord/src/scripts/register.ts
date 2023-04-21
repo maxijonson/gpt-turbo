@@ -12,10 +12,29 @@ const commands = await loadResource<DiscordSlashCommand>(
 const rest = new REST().setToken(DISCORD_TOKEN);
 
 try {
-    const data: any = await rest.put(
+    const commandsJson = commands.map((command) => command.builder.toJSON());
+
+    const current = (await rest.get(
+        Routes.applicationCommands(DISCORD_CLIENT_ID)
+    )) as object[];
+
+    const hasChanged = commandsJson.some((c) => {
+        const command = current.find(
+            (cc) => (cc as any).name === c.name
+        ) as any;
+        if (!command) return true;
+        return command.description !== c.description;
+    });
+
+    if (!hasChanged) {
+        console.info("No changes detected, exiting.");
+        process.exit();
+    }
+
+    const data = (await rest.put(
         Routes.applicationCommands(DISCORD_CLIENT_ID),
-        { body: commands.map((command) => command.builder.toJSON()) }
-    );
+        { body: commandsJson }
+    )) as object[];
 
     console.info(
         `${
