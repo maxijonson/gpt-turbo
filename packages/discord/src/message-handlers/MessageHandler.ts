@@ -9,6 +9,8 @@ import { MessageRoleException, ModerationException } from "gpt-turbo";
  * The goal of this chain of responsibility is to reduce the amount of checks that need to be done to determine if a MessageHandler can/should handle a message. (i.e. a bunch of if statements before actually handling the message properly)
  */
 export default abstract class MessageHandler {
+    public static readonly COOLDOWN_MESSAGE =
+        "You're on cooldown. Please wait a bit before trying again.";
     public abstract get name(): string;
 
     /**
@@ -58,13 +60,23 @@ export default abstract class MessageHandler {
      * @returns The handler that handled the message, or `null` if no handler could handle the message.
      */
     public async handleMessage(
-        message: Message
+        message: Message,
+        isSubHandler = false
     ): Promise<MessageHandler | null> {
+        if (message.author.id === message.client.id) return null;
         try {
             if (await this.canHandle(message)) {
+                if (
+                    !isSubHandler &&
+                    message.client.isOnCooldown(message.author.id, "message")
+                ) {
+                    await message.reply(MessageHandler.COOLDOWN_MESSAGE);
+                    return null;
+                }
                 if (this.subHandler) {
                     const subHandler = await this.subHandler.handleMessage(
-                        message
+                        message,
+                        true
                     );
                     if (subHandler) {
                         return subHandler;
@@ -94,7 +106,7 @@ export default abstract class MessageHandler {
                     "There was an error while handling your message. Please try again later or start a new conversation."
                 );
             }
-            return null;
+            return this;
         }
     }
 }

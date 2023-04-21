@@ -3,6 +3,8 @@ import MessageHandler from "./MessageHandler.js";
 import getPromptAndReplyMessages from "../utils/getPromptAndReplyMessages.js";
 import { Conversation } from "gpt-turbo";
 import getConversationConfig from "../utils/getConversationConfig.js";
+import BotException from "../exceptions/BotException.js";
+import getCleanContent from "../utils/getCleanContent.js";
 
 export default class DMReplyHandler extends MessageHandler {
     public get name(): string {
@@ -34,16 +36,18 @@ export default class DMReplyHandler extends MessageHandler {
         }
 
         if (messages.length === 0) {
-            return;
+            throw new BotException("No messages found in chain of replies.");
         }
 
         const conversationMessages: {
             content: string;
             role: "user" | "assistant";
-        }[] = messages.map((m) => ({
-            content: m.content,
-            role: m.author.id === message.author.id ? "user" : "assistant",
-        }));
+        }[] = await Promise.all(
+            messages.map(async (m) => ({
+                content: (await getCleanContent(m)) || "Hello",
+                role: m.author.id === message.author.id ? "user" : "assistant",
+            }))
+        );
 
         const conversation = await Conversation.fromMessages(
             conversationMessages,

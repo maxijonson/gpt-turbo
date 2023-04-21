@@ -1,13 +1,13 @@
-import { Message, Awaitable } from "discord.js";
+import { Message, Awaitable, userMention } from "discord.js";
 import MessageHandler from "./MessageHandler.js";
 import { Conversation } from "gpt-turbo";
 import getCleanContent from "../utils/getCleanContent.js";
 import getConversationConfig from "../utils/getConversationConfig.js";
 import EmptyPromptHandler from "./EmptyPromptHandler.js";
 
-export default class DMMentionHandler extends MessageHandler {
+export default class NewConversationHandler extends MessageHandler {
     public get name(): string {
-        return DMMentionHandler.name;
+        return NewConversationHandler.name;
     }
 
     constructor() {
@@ -17,9 +17,10 @@ export default class DMMentionHandler extends MessageHandler {
 
     protected canHandle(message: Message<boolean>): Awaitable<boolean> {
         return (
-            message.channel.isDMBased() &&
-            message.channel.isTextBased() &&
-            !message.reference
+            message.content.startsWith(userMention(message.client.id)) ||
+            (message.channel.isDMBased() &&
+                message.channel.isTextBased() &&
+                !message.reference)
         );
     }
 

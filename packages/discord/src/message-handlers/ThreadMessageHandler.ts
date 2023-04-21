@@ -27,14 +27,14 @@ export default class ThreadMessageHandler extends MessageHandler {
     protected canHandle(message: Message<boolean>): Awaitable<boolean> {
         return (
             message.channel.isThread() &&
-            message.channel.ownerId === message.client.id
+            message.channel.ownerId === message.client.id &&
+            !message.channel.locked
         );
     }
 
     protected async handle(message: Message<boolean>): Promise<void> {
         if (!message.channel.isThread()) return; // Should never happen. Only for type guard.
         const { channel } = message;
-        if (channel.locked) return;
 
         if (
             !message.content &&
@@ -75,7 +75,9 @@ export default class ThreadMessageHandler extends MessageHandler {
                 role: "user" | "assistant";
             }[] = [
                 {
-                    content: await getCleanContent(originalPromptMessage),
+                    content:
+                        (await getCleanContent(originalPromptMessage)) ||
+                        "Hello",
                     role: "user",
                 },
                 {
@@ -103,16 +105,16 @@ export default class ThreadMessageHandler extends MessageHandler {
                     [
                         ThreadMessageHandler.NOT_MENTIONED_MESSAGE,
                         ThreadMessageHandler.NO_CONTENT_MESSAGE,
+                        MessageHandler.COOLDOWN_MESSAGE,
                     ].includes(m.content)
                 ) {
                     continue;
                 }
 
                 if (lastMessage.role === m.role) {
-                    lastMessage.content += `\n${m.content}`;
-                } else {
-                    initialMessages.push(m);
+                    continue;
                 }
+                initialMessages.push(m);
             }
 
             const conversation = await Conversation.fromMessages(

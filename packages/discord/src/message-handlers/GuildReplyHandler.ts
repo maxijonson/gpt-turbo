@@ -27,11 +27,16 @@ export default class ReplyHandler extends MessageHandler {
             return;
         }
 
-        const [originalPrompt, originalReply, prompt] = await Promise.all([
+        // eslint-disable-next-line prefer-const
+        let [originalPrompt, originalReply, prompt] = await Promise.all([
             getCleanContent(originalPromptMessage),
             getCleanContent(originalReplyMessage),
             getCleanContent(message),
         ]);
+        if (!originalPrompt) {
+            originalPrompt = "Hello";
+        }
+
         const slicedOriginalPrompt =
             originalPrompt.length > 100
                 ? `${originalPrompt.slice(0, 97)}...`

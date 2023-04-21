@@ -64,5 +64,11 @@ declare module "discord.js" {
         handleMessage: (
             message: Message<boolean>
         ) => Awaitable<MessageHandler | null>;
+
+        isOnCooldown(
+            id: string,
+            action: string,
+            cooldownAmount?: number
+        ): boolean;
     }
 }
