@@ -7,6 +7,29 @@ export const DISCORD_TOKEN = process.env.DISCORD_TOKEN!;
 
 export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
 
+export const ALLOW_BOTS: string[] | boolean = (() => {
+    const allowBots = process.env.ALLOW_BOTS;
+
+    if (allowBots === "true") {
+        return true;
+    }
+
+    if (allowBots === "false") {
+        return false;
+    }
+
+    if (allowBots) {
+        return allowBots.split(",");
+    }
+
+    return false;
+})();
+
+export const USE_MESSAGE_CONTENT_INTENT =
+    (process.env.USE_MESSAGE_CONTENT_INTENT || "false") === "true";
+
+export const ALLOW_DMS = (process.env.ALLOW_DMS || "false") === "true";
+
 export const GPTTURBO_APIKEY = process.env.GPTTURBO_APIKEY;
 
 export const GPTTURBO_MODEL = process.env.GPTTURBO_MODEL || DEFAULT_MODEL;
@@ -32,26 +55,6 @@ export const WHITELIST_GUILDS = (
 export const BLACKLIST_GUILDS = (
     process.env.BLACKLIST_GUILDS?.split(",") ?? []
 ).filter(Boolean);
-
-export const ALLOW_BOTS: string[] | boolean = (() => {
-    const allowBots = process.env.ALLOW_BOTS;
-
-    if (allowBots === "true") {
-        return true;
-    }
-
-    if (allowBots === "false") {
-        return false;
-    }
-
-    if (allowBots) {
-        return allowBots.split(",");
-    }
-
-    return false;
-})();
-
-export const ALLOW_DMS = (process.env.ALLOW_DMS || "false") === "true";
 
 if (!DISCORD_TOKEN) {
     throw new Error(

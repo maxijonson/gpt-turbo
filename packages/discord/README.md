@@ -8,10 +8,6 @@
 
 Discord bot powered by the GPT Turbo library.
 
-## Limitations
-
-- I designed this bot to be used without the `MESSAGE_CONTENT` intent, as it is a privileged intent for bots with over 100 servers and I'm unfamiliar with Discord's approval process. This means that the bot will be unable to see conversation messages unless it is mentionned, either directly or through replying to a message with ping enabled (except DMs). This can be annoying, but if you host the bot yourself and enable the `MESSAGE_CONTENT` intent, the bot **should** be able to work without being mentionned.
-
 ## Installation
 
 *Run these at the mono-repo root. Not this package directory*
@@ -61,3 +57,21 @@ That being said, you'll need to provide your own API key for everyone to use. Be
 This is done through environment variables. Refer to the [`.env.example`](./.env.example) file for more information on how to set this up.
 
 > No matter what the whitelist says, the blacklist will always take precedence.
+
+## The `MESSAGE_CONTENT` intent
+
+The `MESSAGE_CONTENT` intent is a privileged Discord bot intent that allows bots to read messages that do not directly involve them (i.e. where the bot is not mentioned or being replied to with ping enabled). Developers can enable it at any time on the [Discord Developer Portal](https://discord.com/developers/applications), but bots with over 100 servers need to be approved by Discord to use it.
+
+Fortunately, this bot can work with both the `MESSAGE_CONTENT` intent enabled and disabled. If you have it enabled, you'll need to set the `USE_MESSAGE_CONTENT_INTENT=true` environment variable for the bot to use the intent (on top of enabling it in the Discord Developer Portal). However, keep in mind the bot was designed to work with it disabled first. You may report any issues you encounter with it enabled.
+
+> There are no intent-related limitations in DMs. In DMs, the bot will always create a new conversation when the message is not replying to the bot's previous message.
+
+There are some differences in how the bot works depending on whether or not the intent is enabled:
+- When **disabled**, the user needs to consistently reply to the bot's messages with ping enabled in order for it to work.
+  - Users need to mention the bot in order to start a conversation.
+  - Users need to reply to the bot's initial response **with ping enabled** in order to continue the conversation in a thread.
+  - **Users need to reply to the bot's messages with ping enabled in a thread (created by the bot) in order to continue the conversation in the thread.**
+- When **enabled**, the user doesn't need to reply to the bot'
+  - Users need to mention the bot in order to start a conversation.
+  - Users need to reply to the bot's initial response in order to continue the conversation in a thread.
+  - **Users can send messages in the thread, without the need to reply to the bot's previous message, to continue the conversation in the thread**
