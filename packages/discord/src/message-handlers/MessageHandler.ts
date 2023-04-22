@@ -1,4 +1,4 @@
-import { Awaitable, Message } from "discord.js";
+import { Awaitable, DiscordAPIError, Message } from "discord.js";
 import BotException from "../exceptions/BotException.js";
 import { MessageRoleException, ModerationException } from "gpt-turbo";
 
@@ -100,6 +100,11 @@ export default abstract class MessageHandler {
                 await message.reply(
                     "There was an issue with the order of the messages. This can happen when two replies in a row are sent by a user/assistant."
                 );
+            } else if (error instanceof DiscordAPIError) {
+                switch (error.code) {
+                    case 50001: // Missing access
+                        message.react("🔒");
+                }
             } else {
                 console.error(error);
                 await message.reply(
