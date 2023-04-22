@@ -40,6 +40,9 @@ export const GPTTURBO_DRY = process.env.GPTTURBO_DRY
 
 export const GPTTURBO_CONTEXT = process.env.GPTTURBO_CONTEXT || DEFAULT_CONTEXT;
 
+export const DEFAULT_QUOTA =
+    parseInt(process.env.DEFAULT_QUOTA || "5000") || 5000;
+
 export const MONGO_CONNECTION_STRING =
     process.env.MONGO_CONNECTION_STRING || undefined;
 
