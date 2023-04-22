@@ -7,6 +7,7 @@ import {
 import CommandManager from "../managers/CommandManager.js";
 import EventManager from "../managers/EventManager.js";
 import MessageHandler from "../message-handlers/MessageHandler.js";
+import ConversationManager from "../managers/ConversationManager.js";
 
 export interface DiscordSlashCommand {
     builder: SlashCommandBuilder;
@@ -60,6 +61,7 @@ declare module "discord.js" {
         id: string;
         commandManager: CommandManager;
         eventManager: EventManager;
+        conversationManager: ConversationManager;
 
         handleMessage: (
             message: Message<boolean>

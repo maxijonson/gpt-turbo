@@ -37,7 +37,7 @@ npm run register
 
 ## Running the bot
 
-> If you plan on deploying this bot for yourself, you'll need to set the following permissions: `395137059840`
+> If you plan on deploying this bot for yourself, you'll need to set the following permissions: `397284551744`
 
 *Run these in this package directory*
 

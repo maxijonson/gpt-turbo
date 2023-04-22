@@ -40,6 +40,17 @@ export const GPTTURBO_DRY = process.env.GPTTURBO_DRY
 
 export const GPTTURBO_CONTEXT = process.env.GPTTURBO_CONTEXT || DEFAULT_CONTEXT;
 
+export const MONGO_CONNECTION_STRING =
+    process.env.MONGO_CONNECTION_STRING || undefined;
+
+export const POSTGRES_CONNECTION_STRING =
+    process.env.POSTGRES_CONNECTION_STRING || undefined;
+
+export const POSTGRES_SCHEMA = process.env.POSTGRES_SCHEMA || undefined;
+
+export const MYSQL_CONNECTION_STRING =
+    process.env.MYSQL_CONNECTION_STRING || undefined;
+
 export const WHITELIST_USERS = (
     process.env.WHITELIST_USERS?.split(",") ?? []
 ).filter(Boolean);

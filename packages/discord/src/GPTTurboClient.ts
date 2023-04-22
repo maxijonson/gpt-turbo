@@ -7,13 +7,15 @@ import NewConversationHandler from "./message-handlers/NewConversationHandler.js
 import GuildReplyHandler from "./message-handlers/GuildReplyHandler.js";
 import ThreadMessageHandler from "./message-handlers/ThreadMessageHandler.js";
 import DMReplyHandler from "./message-handlers/DMReplyHandler.js";
+import ConversationManager from "./managers/ConversationManager.js";
 
 export default class GPTTurboClient<
     Ready extends boolean = boolean
 > extends Client<Ready> {
     public id: string;
-    public commandManager: CommandManager = new CommandManager();
+    public commandManager = new CommandManager();
     public eventManager: EventManager = new EventManager(this);
+    public conversationManager = new ConversationManager();
 
     private cooldowns = new Collection<string, Collection<string, number>>();
     private messageHandler: MessageHandler;
