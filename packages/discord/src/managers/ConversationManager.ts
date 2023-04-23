@@ -37,11 +37,15 @@ export default class ConversationManager<
         messages: (
             | { content: string; role: ChatCompletionRequestMessageRoleEnum }
             | string
-        )[]
+        )[],
+        userId: string
     ) {
         const conversation = await Conversation.fromMessages(
             this.getAlternatedMessages(messages),
-            getConversationConfig()
+            {
+                ...getConversationConfig(),
+                user: userId,
+            }
         );
         return conversation.getChatCompletionResponse();
     }

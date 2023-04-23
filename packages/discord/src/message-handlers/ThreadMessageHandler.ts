@@ -68,7 +68,7 @@ export default class ThreadMessageHandler extends MessageHandler {
                 before: message.id,
             });
             const threadMessages = Array.from(threadMessagesIterator.values());
-            const initialMessages: {
+            const messages: {
                 content: string;
                 role: "user" | "assistant";
             }[] = [
@@ -89,8 +89,8 @@ export default class ThreadMessageHandler extends MessageHandler {
             ];
 
             for (const threadMessage of threadMessages.reverse()) {
-                const lastMessage = initialMessages[initialMessages.length - 1];
-                const m: (typeof initialMessages)[number] = {
+                const lastMessage = messages[messages.length - 1];
+                const m: (typeof messages)[number] = {
                     content: await getCleanContent(threadMessage),
                     role:
                         threadMessage.author.id === message.client.id
@@ -112,12 +112,13 @@ export default class ThreadMessageHandler extends MessageHandler {
                 if (lastMessage.role === m.role) {
                     continue;
                 }
-                initialMessages.push(m);
+                messages.push(m);
             }
 
             const [{ content }] = await Promise.all([
                 message.client.conversationManager.getChatCompletion(
-                    initialMessages
+                    messages,
+                    message.author.id
                 ),
                 channel.sendTyping(),
             ]);

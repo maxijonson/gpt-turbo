@@ -41,11 +41,10 @@ export default class ReplyHandler extends MessageHandler {
                 : originalPrompt;
 
         const [{ content }, thread] = await Promise.all([
-            message.client.conversationManager.getChatCompletion([
-                originalPrompt,
-                originalReply,
-                prompt,
-            ]),
+            message.client.conversationManager.getChatCompletion(
+                [originalPrompt, originalReply, prompt],
+                message.author.id
+            ),
             message
                 .startThread({
                     name: slicedOriginalPrompt,

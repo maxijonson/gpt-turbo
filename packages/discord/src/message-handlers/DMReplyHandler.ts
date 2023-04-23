@@ -59,10 +59,10 @@ export default class DMReplyHandler extends MessageHandler {
         ]);
 
         const [{ content }] = await Promise.all([
-            message.client.conversationManager.getChatCompletion([
-                ...conversationMessages,
-                prompt,
-            ]),
+            message.client.conversationManager.getChatCompletion(
+                [...conversationMessages, prompt],
+                message.author.id
+            ),
             message.channel.sendTyping(),
         ]);
 

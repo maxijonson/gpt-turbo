@@ -25,7 +25,10 @@ export default class NewConversationHandler extends MessageHandler {
     protected async handle(message: Message<boolean>): Promise<void> {
         const prompt = await getCleanContent(message);
         const [{ content }] = await Promise.all([
-            message.client.conversationManager.getChatCompletion([prompt]),
+            message.client.conversationManager.getChatCompletion(
+                [prompt],
+                message.author.id
+            ),
             message.channel.sendTyping(),
         ]);
         await message.reply(content);
