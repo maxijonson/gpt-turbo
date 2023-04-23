@@ -37,7 +37,8 @@ npm run register
 
 ## Running the bot
 
-> If you plan on deploying this bot for yourself, you'll need to set the following permissions: `397284551744`
+> If you plan on deploying this bot for yourself, you'll need to set the following permissions: `397284551744`:
+> https://discord.com/api/oauth2/authorize?permissions=397284551744&scope=bot%20applications.commands&client_id=`DISCORD_CLIENT_ID`
 
 *Run these in this package directory*
 

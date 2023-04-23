@@ -8,6 +8,7 @@ import GuildReplyHandler from "./message-handlers/GuildReplyHandler.js";
 import ThreadMessageHandler from "./message-handlers/ThreadMessageHandler.js";
 import DMReplyHandler from "./message-handlers/DMReplyHandler.js";
 import ConversationManager from "./managers/ConversationManager.js";
+import QuotaManager from "./managers/QuotaManager.js";
 
 export default class GPTTurboClient<
     Ready extends boolean = boolean
@@ -15,7 +16,8 @@ export default class GPTTurboClient<
     public id: string;
     public commandManager = new CommandManager();
     public eventManager: EventManager = new EventManager(this);
-    public conversationManager = new ConversationManager();
+    public quotaManager = new QuotaManager();
+    public conversationManager = new ConversationManager(this.quotaManager);
 
     private cooldowns = new Collection<string, Collection<string, number>>();
     private messageHandler: MessageHandler;
@@ -71,7 +73,7 @@ export default class GPTTurboClient<
         await Promise.all([
             this.commandManager.init(),
             this.eventManager.init(),
-            this.conversationManager.init(),
+            this.quotaManager.init(),
         ]);
     }
 }

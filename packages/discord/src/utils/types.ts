@@ -56,6 +56,8 @@ export interface AccessRule<
     ) => Awaitable<AccessRuleResult>;
 }
 
+export type ConversationUser = `discord-${string}`;
+
 declare module "discord.js" {
     interface Client {
         id: string;
