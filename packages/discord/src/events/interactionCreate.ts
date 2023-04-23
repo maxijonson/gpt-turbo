@@ -1,6 +1,7 @@
 import { Events } from "discord.js";
 import createDiscordEvent from "../utils/createDiscordEvent.js";
 import MessageHandler from "../message-handlers/MessageHandler.js";
+import BotException from "../exceptions/BotException.js";
 
 export default createDiscordEvent(
     Events.InteractionCreate,
@@ -34,18 +35,27 @@ export default createDiscordEvent(
             });
             await command.execute(interaction);
         } catch (error) {
+            let content = "There was an error while executing this command!";
+            let rethrow = true;
+
+            if (error instanceof BotException) {
+                content = error.message;
+                rethrow = false;
+            }
+
             if (interaction.replied || interaction.deferred) {
                 await interaction.followUp({
-                    content: "There was an error while executing this command!",
+                    content,
                     ephemeral: true,
                 });
             } else {
                 await interaction.reply({
-                    content: "There was an error while executing this command!",
+                    content,
                     ephemeral: true,
                 });
             }
-            throw error;
+
+            if (rethrow) throw error;
         }
     }
 );

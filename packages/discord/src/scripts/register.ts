@@ -37,9 +37,7 @@ try {
     )) as object[];
 
     console.info(
-        `${
-            data?.length ?? "[UNKNOWN]"
-        } Public slash commands registered successfully.`
+        `${data?.length ?? "[UNKNOWN]"} slash commands registered successfully.`
     );
 } catch (error) {
     console.error(error);

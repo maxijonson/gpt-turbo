@@ -9,6 +9,7 @@ import {
 import { Conversation } from "gpt-turbo";
 import { ConversationUser } from "../utils/types.js";
 import isValidSnowflake from "../utils/isValidSnowflake.js";
+import BotException from "../exceptions/BotException.js";
 
 export type DbType = "mongodb" | "mysql" | "postgres";
 export default class QuotaManager<
@@ -44,6 +45,23 @@ export default class QuotaManager<
         return this.quotas !== null && this.usages !== null;
     }
 
+    public async getQuota(userId: string): Promise<number> {
+        if (!this.isEnabled()) throw new BotException("Quotas are disabled");
+        const id = isValidSnowflake(userId) ? userId : this.parseUserId(userId);
+        const quota =
+            (await this.quotas.get(id)) ??
+            (await this.quotas.get(QuotaManager.DEFAULT_QUOTA_KEY));
+        if (quota === undefined) throw new Error("No default quota found");
+        return quota;
+    }
+
+    public async getUsage(userId: string): Promise<number> {
+        if (!this.isEnabled()) throw new BotException("Quotas are disabled");
+        const id = isValidSnowflake(userId) ? userId : this.parseUserId(userId);
+        const usage = await this.usages.get(id);
+        return usage ?? 0;
+    }
+
     public async isConversationAllowed(
         conversation: Conversation
     ): Promise<boolean> {
@@ -52,18 +70,10 @@ export default class QuotaManager<
         if (!user) throw new Error("No user found in conversation config");
 
         const userId = this.parseUserId(user);
-        const quota =
-            (await this.quotas.get(userId)) ??
-            (await this.quotas.get(QuotaManager.DEFAULT_QUOTA_KEY));
-        if (quota === undefined) throw new Error("No default quota found");
+        const quota = await this.getQuota(userId);
+        const usage = await this.getUsage(userId);
 
-        if (!(await this.usages.has(userId))) {
-            await this.usages.set(userId, 0);
-        }
-        const usage = await this.usages.get(userId);
-        if (usage === undefined) throw new Error("Failed to create usage");
-
-        return usage + conversation.getSize() <= quota;
+        return usage + conversation.getSize() < quota;
     }
 
     public async logUsage(conversation: Conversation) {
@@ -72,11 +82,7 @@ export default class QuotaManager<
         if (!user) throw new Error("No user found in conversation config");
 
         const userId = this.parseUserId(user);
-        if (!(await this.usages.has(userId))) {
-            await this.usages.set(userId, 0);
-        }
-        const usage = await this.usages.get(userId);
-        if (usage === undefined) throw new Error("Failed to create usage");
+        const usage = await this.getUsage(userId);
 
         await this.usages.set(userId, usage + conversation.getSize());
     }

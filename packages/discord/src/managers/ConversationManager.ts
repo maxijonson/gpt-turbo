@@ -27,11 +27,27 @@ export default class ConversationManager {
                 "You have exceeded your quota. Please try again later, if the bot admins reset it."
             );
         }
+        const quota = await this.quotaManager.getQuota(user);
+        const usage = await this.quotaManager.getUsage(user);
+        const minUsage = usage + conversation.getSize();
+        const maxTokens = Math.min(quota - minUsage, 1000);
 
-        const response = await conversation.getChatCompletionResponse();
-        await conversation.addAssistantMessage(response.content);
+        if (maxTokens <= 0) {
+            throw new BotException(
+                "You have exceeded your quota. Please try again later, if the bot admins reset it."
+            );
+        }
 
-        await this.quotaManager.logUsage(conversation);
+        const response = await conversation.getChatCompletionResponse({
+            max_tokens: maxTokens,
+        });
+
+        try {
+            await conversation.addAssistantMessage(response.content);
+        } finally {
+            await this.quotaManager.logUsage(conversation);
+        }
+
         return response;
     }
 

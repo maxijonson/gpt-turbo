@@ -8,6 +8,7 @@ import CommandManager from "../managers/CommandManager.js";
 import EventManager from "../managers/EventManager.js";
 import MessageHandler from "../message-handlers/MessageHandler.js";
 import ConversationManager from "../managers/ConversationManager.js";
+import QuotaManager from "../managers/QuotaManager.js";
 
 export interface DiscordSlashCommand {
     builder: SlashCommandBuilder;
@@ -63,6 +64,7 @@ declare module "discord.js" {
         id: string;
         commandManager: CommandManager;
         eventManager: EventManager;
+        quotaManager: QuotaManager;
         conversationManager: ConversationManager;
 
         handleMessage: (
