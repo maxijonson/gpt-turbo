@@ -29,7 +29,7 @@ export default class ConversationManager {
         }
 
         const response = await conversation.getChatCompletionResponse();
-        conversation.addAssistantMessage(response.content);
+        await conversation.addAssistantMessage(response.content);
 
         await this.quotaManager.logUsage(conversation);
         return response;
