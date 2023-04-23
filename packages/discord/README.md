@@ -70,7 +70,7 @@ This is done through environment variables. Refer to the [`.env.example`](./.env
 
 > The Quota System is opt-in. Specifying a database connection string in your environment variables will enable it automatically. See the [`.env.example`](./.env.example) file for more information.
 
-On top of whitelisting and blacklisting, you can optionally enable the bot's quota system. This system allows you to specify a maximum amount of [tokens](https://openai.com/pricing) that can be used for each allowed user. 
+On top of whitelisting and blacklisting, you can optionally enable the bot's quota system. This system allows you to specify a maximum amount of [tokens](https://openai.com/pricing) that can be used for each allowed user. It uses key-value storage powered by [KeyV](https://github.com/jaredwray/keyv), which is why multiple databases are supported (MongoDB, PostgreSQL and MySQL). 
 
 > If you haven't explicitly set a quota for a user, the bot will use the default quota of 5000 tokens (about $0.01). This can be changed by setting the `DEFAULT_QUOTA` environment variable.
 
