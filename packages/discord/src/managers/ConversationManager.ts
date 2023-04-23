@@ -58,7 +58,7 @@ export default class ConversationManager<
         const conversation = await Conversation.fromMessages(
             this.getAlternatedMessages(messages),
             getConversationConfig({
-                user: userId,
+                user: `discord-${userId}`,
             })
         );
 

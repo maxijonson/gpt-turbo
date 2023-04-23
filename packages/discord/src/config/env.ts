@@ -7,6 +7,8 @@ export const DISCORD_TOKEN = process.env.DISCORD_TOKEN!;
 
 export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
 
+export const ADMINS = (process.env.ADMINS?.split(",") ?? []).filter(Boolean);
+
 export const ALLOW_BOTS: string[] | boolean = (() => {
     const allowBots = process.env.ALLOW_BOTS;
 
@@ -82,7 +84,7 @@ if (!DISCORD_CLIENT_ID) {
     );
 }
 
-for (const userId of [...WHITELIST_USERS, ...BLACKLIST_USERS]) {
+for (const userId of [...WHITELIST_USERS, ...BLACKLIST_USERS, ...ADMINS]) {
     if (!isValidSnowflake(userId)) {
         throw new Error(`"${userId}" is not a valid user ID`);
     }
