@@ -1,17 +1,17 @@
 {
   "name": "root",
   "scripts": {
-    "bootstrap": "lerna bootstrap",
-    "clean": "lerna clean --yes && rm -rf node_modules",
+    "bootstrap": "node ./node_modules/lerna/dist/cli.js bootstrap",
+    "clean": "node ./node_modules/lerna/dist/cli.js clean --yes && rm -rf node_modules",
     "reinstall": "npm run clean && npm i && npm run bootstrap",
-    "dev": "lerna run build --scope \"gpt-turbo\" && lerna watch --scope \"gpt-turbo\" --include-dependencies -- lerna run build --scope=\"gpt-turbo\"",
-    "build": "lerna run build",
-    "lint:strict": "lerna run lint:strict",
-    "lint:fix": "lerna run lint:fix",
-    "release": "npm run build && lerna publish",
-    "release:patch": "npm run build && lerna publish patch --yes",
-    "release:minor": "npm run build && lerna publish minor --yes",
-    "release:major": "npm run build && lerna publish major --yes"
+    "dev": "node ./node_modules/lerna/dist/cli.js run build --scope \"gpt-turbo\" && node ./node_modules/lerna/dist/cli.js watch --scope \"gpt-turbo\" --include-dependencies -- node ./node_modules/lerna/dist/cli.js run build --scope=\"gpt-turbo\"",
+    "build": "node ./node_modules/lerna/dist/cli.js run build",
+    "lint:strict": "node ./node_modules/lerna/dist/cli.js run lint:strict",
+    "lint:fix": "node ./node_modules/lerna/dist/cli.js run lint:fix",
+    "release": "npm run build && node ./node_modules/lerna/dist/cli.js publish",
+    "release:patch": "npm run build && node ./node_modules/lerna/dist/cli.js publish patch --yes",
+    "release:minor": "npm run build && node ./node_modules/lerna/dist/cli.js publish minor --yes",
+    "release:major": "npm run build && node ./node_modules/lerna/dist/cli.js publish major --yes"
   },
   "workspaces": [
     "packages/*"
