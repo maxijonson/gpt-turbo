@@ -13,5 +13,6 @@ export default (
     model: GPTTURBO_MODEL,
     dry: !GPTTURBO_APIKEY || GPTTURBO_DRY,
     context: GPTTURBO_CONTEXT,
+    max_tokens: 1000,
     ...config,
 });

@@ -129,8 +129,10 @@ export default class ThreadMessageHandler extends MessageHandler {
                     error.code === ThreadMessageHandler.STARTER_NOT_FOUND_CODE
                 ) {
                     await this.handleStarterMessageNotFound(channel);
+                    return;
                 }
             }
+            throw error;
         }
     }
 

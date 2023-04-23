@@ -8,29 +8,44 @@ import {
 } from "../config/env.js";
 import { ChatCompletionRequestMessageRoleEnum, Conversation } from "gpt-turbo";
 import getConversationConfig from "../utils/getConversationConfig.js";
+import BotException from "../exceptions/BotException.js";
 
 export type DbType = "mongodb" | "mysql" | "postgres";
 
 export default class ConversationManager<
     QuotaEnabled = false,
     TDbType = QuotaEnabled extends true ? DbType : null,
-    TDb = QuotaEnabled extends true ? Keyv : null
+    TQuotas = QuotaEnabled extends true ? Keyv<number> : null,
+    TUsages = QuotaEnabled extends true ? Keyv<number> : null
 > {
-    public static readonly DEFAULT_QUOTA_KEY = "default";
+    public static readonly DEFAULT_QUOTA_KEY =
+        "__default__gptturbodiscord__quota__";
 
     private dbType: TDbType = null as TDbType;
-    private quotas: TDb = null as TDb;
-    private usages: TDb = null as TDb;
+    private quotas: TQuotas = null as TQuotas;
+    private usages: TUsages = null as TUsages;
 
     constructor() {
-        this.quotas = this.getDb("gpt-turbo-discord-quotas") as TDb;
-        this.usages = this.getDb("gpt-turbo-discord-usages") as TDb;
+        this.quotas = this.getDb("gpt-turbo-discord-quotas") as TQuotas;
+        this.usages = this.getDb("gpt-turbo-discord-usages") as TUsages;
 
         console.info(
             this.dbType
                 ? `Using database: ${this.dbType}`
                 : "Quotas/Usages disabled"
         );
+    }
+
+    public async init() {
+        if (!this.isQuotaEnabled()) return;
+        await this.quotas.set(
+            ConversationManager.DEFAULT_QUOTA_KEY,
+            DEFAULT_QUOTA
+        );
+    }
+
+    public isQuotaEnabled(): this is ConversationManager<true> {
+        return this.quotas !== null && this.usages !== null;
     }
 
     public async getChatCompletion(
@@ -42,21 +57,45 @@ export default class ConversationManager<
     ) {
         const conversation = await Conversation.fromMessages(
             this.getAlternatedMessages(messages),
-            {
-                ...getConversationConfig(),
+            getConversationConfig({
                 user: userId,
-            }
+            })
         );
-        return conversation.getChatCompletionResponse();
-    }
 
-    public async init() {
-        if (!this.isQuotaEnabled()) return;
-        this.quotas.set(ConversationManager.DEFAULT_QUOTA_KEY, DEFAULT_QUOTA);
-    }
+        if (this.isQuotaEnabled()) {
+            const quota =
+                (await this.quotas.get(userId)) ??
+                (await this.quotas.get(ConversationManager.DEFAULT_QUOTA_KEY));
+            if (quota === undefined) throw new Error("No default quota found");
 
-    public isQuotaEnabled(): this is ConversationManager<true> {
-        return this.dbType !== null;
+            if (!(await this.usages.has(userId))) {
+                await this.usages.set(userId, 0);
+            }
+            const usage = await this.usages.get(userId);
+            if (usage === undefined) throw new Error("Failed to create usage");
+
+            const minNextUsage = usage + conversation.getSize();
+            if (minNextUsage >= quota) {
+                throw new BotException("Sorry, You've reached your quota.");
+            }
+        }
+
+        const response = await conversation.getChatCompletionResponse();
+
+        if (this.isQuotaEnabled()) {
+            if (!(await this.usages.has(userId))) {
+                await this.usages.set(userId, 0);
+            }
+            const usage = await this.usages.get(userId);
+            if (usage === undefined)
+                throw new Error("Failed to create usage after response");
+            await this.usages.set(
+                userId,
+                usage + conversation.getSize() + response.size
+            );
+        }
+
+        return response;
     }
 
     private getAlternatedMessages(

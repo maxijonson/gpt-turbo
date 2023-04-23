@@ -71,6 +71,7 @@ export default class GPTTurboClient<
         await Promise.all([
             this.commandManager.init(),
             this.eventManager.init(),
+            this.conversationManager.init(),
         ]);
     }
 }
