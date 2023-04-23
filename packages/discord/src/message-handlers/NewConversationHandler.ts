@@ -1,8 +1,6 @@
 import { Message, Awaitable, userMention } from "discord.js";
 import MessageHandler from "./MessageHandler.js";
-import { Conversation } from "gpt-turbo";
 import getCleanContent from "../utils/getCleanContent.js";
-import getConversationConfig from "../utils/getConversationConfig.js";
 import EmptyPromptHandler from "./EmptyPromptHandler.js";
 
 export default class NewConversationHandler extends MessageHandler {
@@ -26,9 +24,8 @@ export default class NewConversationHandler extends MessageHandler {
 
     protected async handle(message: Message<boolean>): Promise<void> {
         const prompt = await getCleanContent(message);
-        const conversation = new Conversation(getConversationConfig());
         const [{ content }] = await Promise.all([
-            conversation.prompt(prompt),
+            message.client.conversationManager.getChatCompletion([prompt]),
             message.channel.sendTyping(),
         ]);
         await message.reply(content);

@@ -1,10 +1,9 @@
 import { Message, Awaitable } from "discord.js";
 import MessageHandler from "./MessageHandler.js";
 import getPromptAndReplyMessages from "../utils/getPromptAndReplyMessages.js";
-import { Conversation } from "gpt-turbo";
-import getConversationConfig from "../utils/getConversationConfig.js";
 import BotException from "../exceptions/BotException.js";
 import getCleanContent from "../utils/getCleanContent.js";
+import { ChatCompletionRequestMessageRoleEnum } from "gpt-turbo";
 
 export default class DMReplyHandler extends MessageHandler {
     public get name(): string {
@@ -39,22 +38,31 @@ export default class DMReplyHandler extends MessageHandler {
             throw new BotException("No messages found in chain of replies.");
         }
 
-        const conversationMessages: {
-            content: string;
-            role: "user" | "assistant";
-        }[] = await Promise.all(
-            messages.map(async (m) => ({
-                content: (await getCleanContent(m)) || "Hello",
-                role: m.author.id === message.author.id ? "user" : "assistant",
-            }))
-        );
+        const [conversationMessages, prompt] = await Promise.all([
+            Promise.all(
+                messages.map(
+                    async (
+                        m
+                    ): Promise<{
+                        content: string;
+                        role: ChatCompletionRequestMessageRoleEnum;
+                    }> => ({
+                        content: (await getCleanContent(m)) || "Hello",
+                        role:
+                            m.author.id === message.author.id
+                                ? "user"
+                                : "assistant",
+                    })
+                )
+            ),
+            getCleanContent(message),
+        ]);
 
-        const conversation = await Conversation.fromMessages(
-            conversationMessages,
-            getConversationConfig()
-        );
         const [{ content }] = await Promise.all([
-            conversation.prompt(message.content),
+            message.client.conversationManager.getChatCompletion([
+                ...conversationMessages,
+                prompt,
+            ]),
             message.channel.sendTyping(),
         ]);
 

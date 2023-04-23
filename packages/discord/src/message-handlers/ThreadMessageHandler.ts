@@ -7,8 +7,6 @@ import {
 import MessageHandler from "./MessageHandler.js";
 import getPromptAndReplyMessages from "../utils/getPromptAndReplyMessages.js";
 import getCleanContent from "../utils/getCleanContent.js";
-import getConversationConfig from "../utils/getConversationConfig.js";
-import { Conversation } from "gpt-turbo";
 import BotException from "../exceptions/BotException.js";
 
 export default class ThreadMessageHandler extends MessageHandler {
@@ -117,13 +115,10 @@ export default class ThreadMessageHandler extends MessageHandler {
                 initialMessages.push(m);
             }
 
-            const conversation = await Conversation.fromMessages(
-                initialMessages,
-                getConversationConfig()
-            );
-
             const [{ content }] = await Promise.all([
-                conversation.getChatCompletionResponse(),
+                message.client.conversationManager.getChatCompletion(
+                    initialMessages
+                ),
                 channel.sendTyping(),
             ]);
             await channel.send(content);

@@ -1,8 +1,6 @@
 import { Message, Awaitable, ThreadAutoArchiveDuration } from "discord.js";
 import MessageHandler from "./MessageHandler.js";
 import getCleanContent from "../utils/getCleanContent.js";
-import { Conversation } from "gpt-turbo";
-import getConversationConfig from "../utils/getConversationConfig.js";
 import getPromptAndReplyMessages from "../utils/getPromptAndReplyMessages.js";
 
 export default class ReplyHandler extends MessageHandler {
@@ -42,23 +40,25 @@ export default class ReplyHandler extends MessageHandler {
                 ? `${originalPrompt.slice(0, 97)}...`
                 : originalPrompt;
 
-        const [conversation, thread] = await Promise.all([
-            Conversation.fromMessages(
-                [originalPrompt, originalReply],
-                getConversationConfig()
-            ),
-            message.startThread({
-                name: slicedOriginalPrompt,
-                autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
-                rateLimitPerUser: 5,
-                reason: `Reply to "${slicedOriginalPrompt}"`,
-            }),
+        const [{ content }, thread] = await Promise.all([
+            message.client.conversationManager.getChatCompletion([
+                originalPrompt,
+                originalReply,
+                prompt,
+            ]),
+            message
+                .startThread({
+                    name: slicedOriginalPrompt,
+                    autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
+                    rateLimitPerUser: 5,
+                    reason: `Reply to "${slicedOriginalPrompt}"`,
+                })
+                .then((t) => {
+                    t.sendTyping();
+                    return t;
+                }),
         ]);
 
-        const [{ content }] = await Promise.all([
-            conversation.prompt(prompt),
-            thread.sendTyping(),
-        ]);
         await thread.send(content);
     }
 }

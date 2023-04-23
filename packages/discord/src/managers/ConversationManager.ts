@@ -6,6 +6,8 @@ import {
     POSTGRES_SCHEMA,
     DEFAULT_QUOTA,
 } from "../config/env.js";
+import { ChatCompletionRequestMessageRoleEnum, Conversation } from "gpt-turbo";
+import getConversationConfig from "../utils/getConversationConfig.js";
 
 export type DbType = "mongodb" | "mysql" | "postgres";
 
@@ -31,6 +33,19 @@ export default class ConversationManager<
         );
     }
 
+    public async getChatCompletion(
+        messages: (
+            | { content: string; role: ChatCompletionRequestMessageRoleEnum }
+            | string
+        )[]
+    ) {
+        const conversation = await Conversation.fromMessages(
+            this.getAlternatedMessages(messages),
+            getConversationConfig()
+        );
+        return conversation.getChatCompletionResponse();
+    }
+
     public async init() {
         if (!this.isQuotaEnabled()) return;
         this.quotas.set(ConversationManager.DEFAULT_QUOTA_KEY, DEFAULT_QUOTA);
@@ -38,6 +53,33 @@ export default class ConversationManager<
 
     public isQuotaEnabled(): this is ConversationManager<true> {
         return this.dbType !== null;
+    }
+
+    private getAlternatedMessages(
+        messages: (
+            | { content: string; role: ChatCompletionRequestMessageRoleEnum }
+            | string
+        )[]
+    ): { content: string; role: ChatCompletionRequestMessageRoleEnum }[] {
+        const alternatedMessages: {
+            content: string;
+            role: ChatCompletionRequestMessageRoleEnum;
+        }[] = [];
+
+        messages.forEach((message, index) => {
+            alternatedMessages.push({
+                content:
+                    typeof message === "string" ? message : message.content,
+                role:
+                    typeof message === "string"
+                        ? index % 2 === 0
+                            ? "user"
+                            : "assistant"
+                        : message.role,
+            });
+        });
+
+        return alternatedMessages;
     }
 
     private getDb(name: string) {
