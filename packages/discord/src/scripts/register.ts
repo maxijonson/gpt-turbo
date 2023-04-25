@@ -11,19 +11,47 @@ const commands = await loadResource<DiscordSlashCommand>(
 );
 const rest = new REST().setToken(DISCORD_TOKEN);
 
-try {
-    const commandsJson = commands.map((command) => command.builder.toJSON());
+const areOptionsDifferent = (
+    localOptions: any[],
+    remoteOptions: any[]
+): boolean => {
+    if (localOptions.length !== remoteOptions.length) return true;
 
-    const current = (await rest.get(
+    return localOptions.some((localOption) => {
+        const remoteOption = remoteOptions.find(
+            (cc) => (cc as any).name === localOption.name
+        ) as any;
+        if (!remoteOption) return true;
+        const optionsChanged = areOptionsDifferent(
+            localOption.options ?? [],
+            remoteOption.options ?? []
+        );
+        return (
+            optionsChanged ||
+            localOption.description !== remoteOption.description
+        );
+    });
+};
+
+try {
+    const localCommands = commands.map((command) => command.builder.toJSON());
+    const remoteCommands = (await rest.get(
         Routes.applicationCommands(DISCORD_CLIENT_ID)
     )) as object[];
 
-    const hasChanged = commandsJson.some((c) => {
-        const command = current.find(
-            (cc) => (cc as any).name === c.name
+    const hasChanged = localCommands.some((localCommand) => {
+        const remoteCommand = remoteCommands.find(
+            (cc) => (cc as any).name === localCommand.name
         ) as any;
-        if (!command) return true;
-        return command.description !== c.description;
+        if (!remoteCommand) return true;
+        const optionsChanged = areOptionsDifferent(
+            localCommand.options ?? [],
+            remoteCommand.options ?? []
+        );
+        return (
+            optionsChanged ||
+            localCommand.description !== remoteCommand.description
+        );
     });
 
     if (!hasChanged) {
@@ -33,7 +61,7 @@ try {
 
     const data = (await rest.put(
         Routes.applicationCommands(DISCORD_CLIENT_ID),
-        { body: commandsJson }
+        { body: localCommands }
     )) as object[];
 
     console.info(

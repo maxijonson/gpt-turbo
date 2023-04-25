@@ -47,7 +47,7 @@ export default class QuotaManager<
 
     public async getQuota(userId: string): Promise<number> {
         if (!this.isEnabled()) throw new BotException("Quotas are disabled");
-        const id = isValidSnowflake(userId) ? userId : this.parseUserId(userId);
+        const id = this.parseUserId(userId);
         const quota =
             (await this.quotas.get(id)) ??
             (await this.quotas.get(QuotaManager.DEFAULT_QUOTA_KEY));
@@ -55,11 +55,31 @@ export default class QuotaManager<
         return quota;
     }
 
+    public async setQuota(userId: string, quota: number) {
+        if (!this.isEnabled()) throw new BotException("Quotas are disabled");
+        if (quota < 0) throw new BotException("Quota must be positive");
+        const id = this.parseUserId(userId);
+        await this.quotas.set(id, quota);
+    }
+
     public async getUsage(userId: string): Promise<number> {
         if (!this.isEnabled()) throw new BotException("Quotas are disabled");
-        const id = isValidSnowflake(userId) ? userId : this.parseUserId(userId);
+        const id = this.parseUserId(userId);
         const usage = await this.usages.get(id);
         return usage ?? 0;
+    }
+
+    public async setUsage(userId: string, usage: number) {
+        if (!this.isEnabled()) throw new BotException("Quotas are disabled");
+        if (usage < 0) throw new BotException("Usage must be positive");
+        const quota = await this.getQuota(userId);
+        const id = this.parseUserId(userId);
+        await this.usages.set(id, Math.min(usage, quota));
+    }
+
+    public async clearAllUsages() {
+        if (!this.isEnabled()) throw new BotException("Quotas are disabled");
+        await this.usages.clear();
     }
 
     public async isConversationAllowed(
@@ -88,11 +108,13 @@ export default class QuotaManager<
     }
 
     private parseUserId(user: string) {
-        if (!this.isValidUser(user)) throw new Error(`Invalid user: ${user}`);
+        if (isValidSnowflake(user)) return user;
+        if (!this.isValidConversationUser(user))
+            throw new BotException("Invalid user id");
         return user.split("-")[1];
     }
 
-    private isValidUser(user: string): user is ConversationUser {
+    private isValidConversationUser(user: string): user is ConversationUser {
         if (!user.startsWith("discord-")) return false;
         const userId = user.split("-")[1];
         return isValidSnowflake(userId);

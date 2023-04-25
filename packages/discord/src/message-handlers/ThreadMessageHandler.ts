@@ -8,6 +8,7 @@ import MessageHandler from "./MessageHandler.js";
 import getPromptAndReplyMessages from "../utils/getPromptAndReplyMessages.js";
 import getCleanContent from "../utils/getCleanContent.js";
 import BotException from "../exceptions/BotException.js";
+import { COOLDOWN_MESSAGE } from "../config/constants.js";
 
 export default class ThreadMessageHandler extends MessageHandler {
     private static readonly STARTER_NOT_FOUND_CODE = 10008;
@@ -103,7 +104,7 @@ export default class ThreadMessageHandler extends MessageHandler {
                     [
                         ThreadMessageHandler.NOT_MENTIONED_MESSAGE,
                         ThreadMessageHandler.NO_CONTENT_MESSAGE,
-                        MessageHandler.COOLDOWN_MESSAGE,
+                        COOLDOWN_MESSAGE,
                     ].includes(m.content)
                 ) {
                     continue;

@@ -3,15 +3,17 @@ import {
     BaseInteraction,
     ClientEvents,
     Awaitable,
+    SlashCommandSubcommandsOnlyBuilder,
 } from "discord.js";
 import CommandManager from "../managers/CommandManager.js";
 import EventManager from "../managers/EventManager.js";
 import MessageHandler from "../message-handlers/MessageHandler.js";
 import ConversationManager from "../managers/ConversationManager.js";
 import QuotaManager from "../managers/QuotaManager.js";
+import InteractionHandler from "../interaction-handlers/InteractionHandler.js";
 
 export interface DiscordSlashCommand {
-    builder: SlashCommandBuilder;
+    builder: SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder;
     execute: (interaction: BaseInteraction) => Awaitable<void>;
     ephemeral?: boolean;
 }
@@ -70,6 +72,10 @@ declare module "discord.js" {
         handleMessage: (
             message: Message<boolean>
         ) => Awaitable<MessageHandler | null>;
+
+        handleInteraction: (
+            interaction: Interaction
+        ) => Awaitable<InteractionHandler | null>;
 
         isOnCooldown(
             id: string,

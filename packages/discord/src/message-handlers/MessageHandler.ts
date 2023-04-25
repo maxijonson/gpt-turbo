@@ -1,6 +1,7 @@
 import { Awaitable, DiscordAPIError, Message } from "discord.js";
 import BotException from "../exceptions/BotException.js";
 import { MessageRoleException, ModerationException } from "gpt-turbo";
+import { COOLDOWN_MESSAGE } from "../config/constants.js";
 
 /**
  * Base class for handling potential prompt messages in a chain of responsibility.
@@ -9,8 +10,6 @@ import { MessageRoleException, ModerationException } from "gpt-turbo";
  * The goal of this chain of responsibility is to reduce the amount of checks that need to be done to determine if a MessageHandler can/should handle a message. (i.e. a bunch of if statements before actually handling the message properly)
  */
 export default abstract class MessageHandler {
-    public static readonly COOLDOWN_MESSAGE =
-        "You're on cooldown. Please wait a bit before trying again.";
     public abstract get name(): string;
 
     /**
@@ -70,7 +69,7 @@ export default abstract class MessageHandler {
                     !isSubHandler &&
                     message.client.isOnCooldown(message.author.id, "message")
                 ) {
-                    await message.reply(MessageHandler.COOLDOWN_MESSAGE);
+                    await message.reply(COOLDOWN_MESSAGE);
                     return null;
                 }
                 if (this.subHandler) {
