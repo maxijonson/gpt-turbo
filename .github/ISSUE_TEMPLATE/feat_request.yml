@@ -18,6 +18,7 @@ body:
         - "CLI (gpt-turbo-cli)"
         - "Web (gpt-turbo-web)"
         - "Nest (gpt-turbo-nest)"
+        - "Discord (gpt-turbo-discord)"
   - type: dropdown
     id: type
     attributes:

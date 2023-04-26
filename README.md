@@ -45,6 +45,7 @@ Most implementations were made following this guide: [OpenAI Docs: Chat completi
 - [CLI](./packages/cli/): A command-line interface for interacting with the library. (Built with React!)
 - [Web](./packages/web/): A web app, similar to ChatGPT, for interacting with the library.
 - [Nest](./packages/nest/): A NestJS backend, for interacting with the library via a REST API.
+- [Discord](./packages/discord/): A Discord bot powered by the library.
 
 ## Development
 
