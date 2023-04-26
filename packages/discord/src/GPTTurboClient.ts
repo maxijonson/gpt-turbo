@@ -21,8 +21,10 @@ import AdminUsageMenuHandler from "./interaction-handlers/AdminUsageResetMenuHan
 import AdminUsageResetAllHandler from "./interaction-handlers/AdminUsageResetAllHandler.js";
 import AdminUsageResetUserMenuHandler from "./interaction-handlers/AdminUsageResetUserMenuHandler.js";
 import AdminUsageResetUserHandler from "./interaction-handlers/AdminUsageResetUserHandler.js";
-import AdminUsageResetUserShowModalHandler from "./interaction-handlers/AdminUsageResetUserShowModalHandler.js";
-import AdminUsageResetUserIdHandler from "./interaction-handlers/AdminUsageResetUserIdHandler.js";
+import AdminUsageResetUserIdModalHandler from "./interaction-handlers/AdminUsageResetUserIdModalHandler.js";
+import AdminQuotaUserMenuHandler from "./interaction-handlers/AdminQuotaUserMenuHandler.js";
+import AdminQuotaUserIdModalHandler from "./interaction-handlers/AdminQuotaUserIdModalHandler.js";
+import AdminQuotaUserHandler from "./interaction-handlers/AdminQuotaUserHandler.js";
 
 export default class GPTTurboClient<
     Ready extends boolean = boolean
@@ -51,8 +53,11 @@ export default class GPTTurboClient<
             new AdminUsageResetAllHandler(),
             new AdminUsageResetUserMenuHandler(),
             new AdminUsageResetUserHandler(),
-            new AdminUsageResetUserShowModalHandler(),
-            new AdminUsageResetUserIdHandler()
+            new AdminUsageResetUserIdModalHandler(),
+
+            new AdminQuotaUserMenuHandler(),
+            new AdminQuotaUserIdModalHandler(),
+            new AdminQuotaUserHandler()
         );
 
         this.id = this.user?.id ?? DISCORD_CLIENT_ID;

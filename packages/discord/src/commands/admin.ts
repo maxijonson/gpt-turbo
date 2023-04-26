@@ -12,6 +12,7 @@ import { ADMIN_MENU_ID } from "../config/constants.js";
 import AdminUsageMenuHandler from "../interaction-handlers/AdminUsageResetMenuHandler.js";
 import setupInteractionCleanup from "../utils/setupInteractionCleanup.js";
 import reply from "../utils/reply.js";
+import AdminQuotaUserMenuHandler from "../interaction-handlers/AdminQuotaUserMenuHandler.js";
 
 const adminCommand: DiscordSlashCommand = {
     builder: new SlashCommandBuilder()
@@ -42,6 +43,11 @@ const adminCommand: DiscordSlashCommand = {
                                 )
                                 .setEmoji("🔄")
                                 .setValue(AdminUsageMenuHandler.ID),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Manage quotas")
+                                .setDescription("Manage the quotas for a user")
+                                .setEmoji("📊")
+                                .setValue(AdminQuotaUserMenuHandler.ID),
                         ])
                 ),
             ],

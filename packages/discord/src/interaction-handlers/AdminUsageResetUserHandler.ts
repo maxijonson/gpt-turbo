@@ -3,11 +3,13 @@ import {
     Awaitable,
     UserSelectMenuInteraction,
     Colors,
+    ModalSubmitInteraction,
 } from "discord.js";
 import InteractionHandler from "./InteractionHandler.js";
 import isBotAdmin from "../utils/isBotAdmin.js";
 import getHandlerId from "../utils/getHandlerId.js";
 import reply from "../utils/reply.js";
+import { CREATE_USER_ID_INPUT_ID } from "../components/createUserIdInput.js";
 
 export default class AdminUsageResetUserHandler extends InteractionHandler {
     public static readonly ID = getHandlerId(AdminUsageResetUserHandler.name);
@@ -19,22 +21,24 @@ export default class AdminUsageResetUserHandler extends InteractionHandler {
     protected canHandle(interaction: Interaction): Awaitable<boolean> {
         return (
             isBotAdmin(interaction.user.id) &&
-            interaction.isUserSelectMenu() &&
+            (interaction.isUserSelectMenu() || interaction.isModalSubmit()) &&
             interaction.customId === AdminUsageResetUserHandler.ID
         );
     }
 
     protected async handle(
-        interaction: UserSelectMenuInteraction
+        interaction: UserSelectMenuInteraction | ModalSubmitInteraction
     ): Promise<void> {
         const { quotaManager } = interaction.client;
-        const userId = interaction.values[0];
+        const userId = interaction.isModalSubmit()
+            ? interaction.fields.getTextInputValue(CREATE_USER_ID_INPUT_ID)
+            : interaction.values[0];
         await quotaManager.setUsage(userId, 0);
         await reply(interaction, {
             embeds: [
                 {
                     title: "Success",
-                    description: `All usages for this user have been reset.`,
+                    description: `Usage for this user has been reset.`,
                     color: Colors.Green,
                 },
             ],

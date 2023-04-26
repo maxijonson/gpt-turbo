@@ -1,51 +1,53 @@
 import {
     Interaction,
     Awaitable,
-    ButtonInteraction,
-    UserSelectMenuBuilder,
+    StringSelectMenuInteraction,
     ButtonBuilder,
     ButtonStyle,
+    UserSelectMenuBuilder,
 } from "discord.js";
 import InteractionHandler from "./InteractionHandler.js";
 import isBotAdmin from "../utils/isBotAdmin.js";
-import AdminUsageResetUserHandler from "./AdminUsageResetUserHandler.js";
-import AdminUsageResetUserIdModalHandler from "./AdminUsageResetUserIdModalHandler.js";
+import { ADMIN_MENU_ID } from "../config/constants.js";
 import getHandlerId from "../utils/getHandlerId.js";
 import setupInteractionCleanup from "../utils/setupInteractionCleanup.js";
 import reply from "../utils/reply.js";
+import AdminQuotaUserIdModalHandler from "./AdminQuotaUserIdModalHandler.js";
+import AdminQuotaUserHandler from "./AdminQuotaUserHandler.js";
 
-export default class AdminUsageResetUserMenuHandler extends InteractionHandler {
-    public static readonly ID = getHandlerId(
-        AdminUsageResetUserMenuHandler.name
-    );
+export default class AdminQuotaUserMenuHandler extends InteractionHandler {
+    public static readonly ID = getHandlerId(AdminQuotaUserMenuHandler.name);
 
     public get name(): string {
-        return AdminUsageResetUserMenuHandler.name;
+        return AdminQuotaUserMenuHandler.name;
     }
 
     protected canHandle(interaction: Interaction): Awaitable<boolean> {
         return (
             isBotAdmin(interaction.user.id) &&
-            interaction.isButton() &&
-            interaction.customId === AdminUsageResetUserMenuHandler.ID
+            interaction.isStringSelectMenu() &&
+            interaction.customId === ADMIN_MENU_ID &&
+            interaction.values[0] === AdminQuotaUserMenuHandler.ID
         );
     }
 
-    protected async handle(interaction: ButtonInteraction): Promise<void> {
+    protected async handle(
+        interaction: StringSelectMenuInteraction
+    ): Promise<void> {
         await reply(interaction, {
-            content: "Which user would you like to reset the usage of?",
+            content: "Whose quota would like to manage?",
             ephemeral: true,
             components: [
                 this.createMessageActionRow().addComponents(
                     new UserSelectMenuBuilder()
-                        .setCustomId(AdminUsageResetUserHandler.ID)
+                        .setCustomId(AdminQuotaUserHandler.ID)
                         .setPlaceholder("Select a user")
                         .setMinValues(1)
                         .setMaxValues(1)
                 ),
                 this.createMessageActionRow().addComponents(
                     new ButtonBuilder()
-                        .setCustomId(AdminUsageResetUserIdModalHandler.ID)
+                        .setCustomId(AdminQuotaUserIdModalHandler.ID)
                         .setLabel("Enter user ID")
                         .setEmoji("🆔")
                         .setStyle(ButtonStyle.Secondary)

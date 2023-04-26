@@ -45,14 +45,23 @@ export default class QuotaManager<
         return this.quotas !== null && this.usages !== null;
     }
 
+    public async hasQuota(userId: string): Promise<boolean> {
+        if (!this.isEnabled()) throw new BotException("Quotas are disabled");
+        const id = this.parseUserId(userId);
+        return this.quotas.has(id);
+    }
+
+    public async getDefaultQuota(): Promise<number> {
+        if (!this.isEnabled()) throw new BotException("Quotas are disabled");
+        const quota = await this.quotas.get(QuotaManager.DEFAULT_QUOTA_KEY);
+        if (quota === undefined) throw new Error("No default quota found");
+        return quota;
+    }
+
     public async getQuota(userId: string): Promise<number> {
         if (!this.isEnabled()) throw new BotException("Quotas are disabled");
         const id = this.parseUserId(userId);
-        const quota =
-            (await this.quotas.get(id)) ??
-            (await this.quotas.get(QuotaManager.DEFAULT_QUOTA_KEY));
-        if (quota === undefined) throw new Error("No default quota found");
-        return quota;
+        return (await this.quotas.get(id)) ?? (await this.getDefaultQuota());
     }
 
     public async setQuota(userId: string, quota: number) {
@@ -60,6 +69,12 @@ export default class QuotaManager<
         if (quota < 0) throw new BotException("Quota must be positive");
         const id = this.parseUserId(userId);
         await this.quotas.set(id, quota);
+    }
+
+    public async deleteQuota(userId: string) {
+        if (!this.isEnabled()) throw new BotException("Quotas are disabled");
+        const id = this.parseUserId(userId);
+        await this.quotas.delete(id);
     }
 
     public async getUsage(userId: string): Promise<number> {
