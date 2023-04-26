@@ -1,5 +1,11 @@
 import { Colors, Interaction } from "discord.js";
 
+/**
+ * Sets up a collector to automatically delete the interaction after it either interacted with or after it expires.
+ *
+ * @param interaction The interaction to set up the collector for.
+ * @param time The time in milliseconds after which the interaction should expire.
+ */
 export default (interaction: Interaction, time = 60_000) => {
     const collector = interaction.channel?.createMessageComponentCollector({
         filter: (i) => {

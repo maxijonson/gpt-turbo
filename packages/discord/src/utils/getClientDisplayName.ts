@@ -1,5 +1,8 @@
 import { Client, Guild, GuildMember } from "discord.js";
 
+/**
+ * Gets the bot's display name in the guild.
+ */
 export default async (client: Client, guildId: string | null) => {
     if (!client.user) throw new Error("Client user is not defined.");
     if (!guildId) return client.user.username;
