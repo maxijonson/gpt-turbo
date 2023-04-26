@@ -7,6 +7,7 @@ import GPTTurboClient from "../GPTTurboClient.js";
 import AccessRuleManager from "./AccessRuleManager.js";
 import UnauthorizedException from "../exceptions/UnauthorizedException.js";
 import makeIsEvent from "../utils/makeIsEvent.js";
+import reply from "../utils/reply.js";
 
 export default class EventManager {
     public events = new Collection<string, DiscordEvent>();
@@ -64,17 +65,10 @@ export default class EventManager {
             const [interaction] = args;
             if (!interaction.isRepliable()) return;
 
-            if (interaction.replied) {
-                await interaction.followUp({
-                    content: exception.message,
-                    ephemeral: true,
-                });
-            } else {
-                await interaction.reply({
-                    content: exception.message,
-                    ephemeral: true,
-                });
-            }
+            reply(interaction, {
+                content: exception.message,
+                ephemeral: true,
+            });
         }
     }
 

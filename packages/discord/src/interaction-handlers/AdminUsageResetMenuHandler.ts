@@ -12,6 +12,7 @@ import AdminUsageResetAllHandler from "./AdminUsageResetAllHandler.js";
 import AdminUsageResetUserMenuHandler from "./AdminUsageResetUserMenuHandler.js";
 import getHandlerId from "../utils/getHandlerId.js";
 import setupInteractionCleanup from "../utils/setupInteractionCleanup.js";
+import reply from "../utils/reply.js";
 
 export default class AdminUsageMenuHandler extends InteractionHandler {
     public static readonly ID = getHandlerId(AdminUsageMenuHandler.name);
@@ -32,7 +33,7 @@ export default class AdminUsageMenuHandler extends InteractionHandler {
     protected async handle(
         interaction: StringSelectMenuInteraction
     ): Promise<void> {
-        await interaction.reply({
+        await reply(interaction, {
             content: "Whose usage would you like to reset?",
             components: [
                 this.createMessageActionRow().addComponents(

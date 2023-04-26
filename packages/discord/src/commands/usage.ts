@@ -1,5 +1,6 @@
 import { Colors, SlashCommandBuilder } from "discord.js";
 import { DiscordSlashCommand } from "../utils/types.js";
+import reply from "../utils/reply.js";
 
 const tokenFormat = Intl.NumberFormat("en-US");
 const percentFormat = Intl.NumberFormat("en-US", {
@@ -35,7 +36,7 @@ const usageCommand: DiscordSlashCommand = {
             return Colors.Green;
         })();
 
-        await interaction.followUp({
+        await reply(interaction, {
             embeds: [
                 {
                     title: `Usage (${percentString})`,

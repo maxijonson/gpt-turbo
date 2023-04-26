@@ -11,6 +11,7 @@ import BotException from "../exceptions/BotException.js";
 import { ADMIN_MENU_ID } from "../config/constants.js";
 import AdminUsageMenuHandler from "../interaction-handlers/AdminUsageResetMenuHandler.js";
 import setupInteractionCleanup from "../utils/setupInteractionCleanup.js";
+import reply from "../utils/reply.js";
 
 const adminCommand: DiscordSlashCommand = {
     builder: new SlashCommandBuilder()
@@ -24,7 +25,7 @@ const adminCommand: DiscordSlashCommand = {
                 "You are not authorized to use this command."
             );
 
-        interaction.followUp({
+        await reply(interaction, {
             content: "What would you like to do?",
             components: [
                 new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(

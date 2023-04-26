@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import BotException from "../exceptions/BotException.js";
 import { COOLDOWN_MESSAGE } from "../config/constants.js";
+import reply from "../utils/reply.js";
 
 /**
  * Base class for handling potential prompt interactions in a chain of responsibility.
@@ -74,12 +75,10 @@ export default abstract class InteractionHandler {
                         500
                     )
                 ) {
-                    interaction.isRepliable() &&
-                        (await interaction.followUp({
-                            content: COOLDOWN_MESSAGE,
-                            ephemeral: true,
-                        }));
-
+                    await reply(interaction, {
+                        content: COOLDOWN_MESSAGE,
+                        ephemeral: true,
+                    });
                     return null;
                 }
                 if (this.subHandler) {
@@ -99,19 +98,17 @@ export default abstract class InteractionHandler {
             return null;
         } catch (error) {
             if (error instanceof BotException) {
-                interaction.isRepliable() &&
-                    (await interaction.followUp({
-                        content: error.message,
-                        ephemeral: true,
-                    }));
+                await reply(interaction, {
+                    content: error.message,
+                    ephemeral: true,
+                });
             } else {
                 console.error(error);
-                interaction.isRepliable() &&
-                    (await interaction.followUp({
-                        content:
-                            "An error occurred while handling your interaction.",
-                        ephemeral: true,
-                    }));
+                await reply(interaction, {
+                    content:
+                        "An error occurred while handling your interaction.",
+                    ephemeral: true,
+                });
             }
             return this;
         }

@@ -2,6 +2,7 @@ import { Interaction, Awaitable, ButtonInteraction, Colors } from "discord.js";
 import InteractionHandler from "./InteractionHandler.js";
 import isBotAdmin from "../utils/isBotAdmin.js";
 import getHandlerId from "../utils/getHandlerId.js";
+import reply from "../utils/reply.js";
 
 export default class AdminUsageResetAllHandler extends InteractionHandler {
     public static readonly ID = getHandlerId(AdminUsageResetAllHandler.name);
@@ -21,7 +22,7 @@ export default class AdminUsageResetAllHandler extends InteractionHandler {
     protected async handle(interaction: ButtonInteraction): Promise<void> {
         const { quotaManager } = interaction.client;
         await quotaManager.clearAllUsages();
-        await interaction.reply({
+        await reply(interaction, {
             embeds: [
                 {
                     title: "Success",

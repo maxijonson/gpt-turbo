@@ -7,6 +7,7 @@ import {
 import InteractionHandler from "./InteractionHandler.js";
 import isBotAdmin from "../utils/isBotAdmin.js";
 import getHandlerId from "../utils/getHandlerId.js";
+import reply from "../utils/reply.js";
 
 export default class AdminUsageResetUserHandler extends InteractionHandler {
     public static readonly ID = getHandlerId(AdminUsageResetUserHandler.name);
@@ -29,7 +30,7 @@ export default class AdminUsageResetUserHandler extends InteractionHandler {
         const { quotaManager } = interaction.client;
         const userId = interaction.values[0];
         await quotaManager.setUsage(userId, 0);
-        await interaction.reply({
+        await reply(interaction, {
             embeds: [
                 {
                     title: "Success",

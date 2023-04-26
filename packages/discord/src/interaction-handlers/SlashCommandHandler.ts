@@ -5,6 +5,7 @@ import {
 } from "discord.js";
 import InteractionHandler from "./InteractionHandler.js";
 import BotException from "../exceptions/BotException.js";
+import reply from "../utils/reply.js";
 
 export default class SlashCommandHandler extends InteractionHandler {
     public get name(): string {
@@ -43,17 +44,10 @@ export default class SlashCommandHandler extends InteractionHandler {
                 rethrow = false;
             }
 
-            if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({
-                    content,
-                    ephemeral: true,
-                });
-            } else {
-                await interaction.reply({
-                    content,
-                    ephemeral: true,
-                });
-            }
+            await reply(interaction, {
+                content,
+                ephemeral: true,
+            });
 
             if (rethrow) throw error;
         }
