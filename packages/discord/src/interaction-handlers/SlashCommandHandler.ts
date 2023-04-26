@@ -2,6 +2,7 @@ import {
     Interaction,
     Awaitable,
     ChatInputCommandInteraction,
+    Colors,
 } from "discord.js";
 import InteractionHandler from "./InteractionHandler.js";
 import BotException from "../exceptions/BotException.js";
@@ -45,7 +46,13 @@ export default class SlashCommandHandler extends InteractionHandler {
             }
 
             await reply(interaction, {
-                content,
+                embeds: [
+                    {
+                        title: "Error",
+                        description: content,
+                        color: Colors.Red,
+                    },
+                ],
                 ephemeral: true,
             });
 

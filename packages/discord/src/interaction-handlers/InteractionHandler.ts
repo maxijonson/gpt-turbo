@@ -1,6 +1,7 @@
 import {
     ActionRowBuilder,
     Awaitable,
+    Colors,
     Interaction,
     MessageActionRowComponentBuilder,
     ModalActionRowComponentBuilder,
@@ -97,19 +98,24 @@ export default abstract class InteractionHandler {
             }
             return null;
         } catch (error) {
+            let content = "There was an error while handling this interaction!";
+
             if (error instanceof BotException) {
-                await reply(interaction, {
-                    content: error.message,
-                    ephemeral: true,
-                });
+                content = error.message;
             } else {
                 console.error(error);
-                await reply(interaction, {
-                    content:
-                        "An error occurred while handling your interaction.",
-                    ephemeral: true,
-                });
             }
+
+            await reply(interaction, {
+                embeds: [
+                    {
+                        title: "Error",
+                        description: content,
+                        color: Colors.Red,
+                    },
+                ],
+                ephemeral: true,
+            });
             return this;
         }
     }
