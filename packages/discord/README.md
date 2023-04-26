@@ -76,10 +76,11 @@ On top of whitelisting and blacklisting, you can optionally enable the bot's quo
 
 Important things to note about the quota system:
 
-- The usages are never reset automatically. Bot `ADMINS` (see [`.env.example`](./.env.example)) can reset the usages for a user/everyone by using the `usage` command.
-- Bot `ADMINS` can set a per-user quota by using the `quota` command.
+- The usages are never reset automatically. Bot `ADMINS` (see [`.env.example`](./.env.example)) can reset the usages for a user/everyone by using the `admin` slash command.
+- Bot `ADMINS` can set a per-user quota by using the `admin` slash command.
 - The tokens are calculated by `gpt-turbo` using third-party libraries. The calculated tokens may *slightly* differ from OpenAI's actual token count. This shouldn't be too much of an issue for small quotas (e.g. 5000 tokens), but it may be an issue for larger quotas (e.g. 1000000 tokens).
-- The bot will set the `max_tokens` accordingly to prevent the user from going over their quota. So if a user is at 4950/5000 tokens and their current conversation size is 25, the bot will set the `max_tokens` parameter to `25` to prevent them from going over their quota.
+- The bot will set the `max_tokens` accordingly to prevent the user from going over their quota. 
+  - For example: A user's usage is at 5/10 tokens and their current conversation size is 2 tokens, this means whatever prompt is next will incur a cost of at least `5 + 2 = 7` tokens. The bot will set the `max_tokens` parameter to `10 - 7 = 3` tokens to prevent the user from going over their quota. Again, depending on how OpenAI actually respects this parameter, there may be a slight difference in the actual token count.
 
 ## The `MESSAGE_CONTENT` intent
 
