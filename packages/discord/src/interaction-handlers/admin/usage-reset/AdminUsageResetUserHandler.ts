@@ -5,11 +5,11 @@ import {
     Colors,
     ModalSubmitInteraction,
 } from "discord.js";
-import InteractionHandler from "./InteractionHandler.js";
-import isBotAdmin from "../utils/isBotAdmin.js";
-import getHandlerId from "../utils/getHandlerId.js";
-import reply from "../utils/reply.js";
-import { CREATE_USER_ID_INPUT_ID } from "../components/createUserIdInput.js";
+import InteractionHandler from "../../InteractionHandler.js";
+import isBotAdmin from "../../../utils/isBotAdmin.js";
+import getHandlerId from "../../../utils/getHandlerId.js";
+import reply from "../../../utils/reply.js";
+import UserIdModalHandler from "../../UserIdModalHandler.js";
 
 export default class AdminUsageResetUserHandler extends InteractionHandler {
     public static readonly ID = getHandlerId(AdminUsageResetUserHandler.name);
@@ -31,7 +31,7 @@ export default class AdminUsageResetUserHandler extends InteractionHandler {
     ): Promise<void> {
         const { quotaManager } = interaction.client;
         const userId = interaction.isModalSubmit()
-            ? interaction.fields.getTextInputValue(CREATE_USER_ID_INPUT_ID)
+            ? interaction.fields.getTextInputValue(UserIdModalHandler.INPUT_ID)
             : interaction.values[0];
         await quotaManager.setUsage(userId, 0);
         await reply(interaction, {

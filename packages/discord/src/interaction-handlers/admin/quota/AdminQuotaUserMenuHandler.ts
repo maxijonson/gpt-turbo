@@ -2,21 +2,20 @@ import {
     Interaction,
     Awaitable,
     StringSelectMenuInteraction,
-    ButtonBuilder,
-    ButtonStyle,
-    UserSelectMenuBuilder,
 } from "discord.js";
-import InteractionHandler from "./InteractionHandler.js";
-import isBotAdmin from "../utils/isBotAdmin.js";
-import { ADMIN_MENU_ID } from "../config/constants.js";
-import getHandlerId from "../utils/getHandlerId.js";
-import setupInteractionCleanup from "../utils/setupInteractionCleanup.js";
-import reply from "../utils/reply.js";
-import AdminQuotaUserIdModalHandler from "./AdminQuotaUserIdModalHandler.js";
+import InteractionHandler from "../../InteractionHandler.js";
+import isBotAdmin from "../../../utils/isBotAdmin.js";
+import { ADMIN_MENU_ID } from "../../../config/constants.js";
+import getHandlerId from "../../../utils/getHandlerId.js";
+import setupInteractionCleanup from "../../../utils/setupInteractionCleanup.js";
+import reply from "../../../utils/reply.js";
 import AdminQuotaUserHandler from "./AdminQuotaUserHandler.js";
+import UserIdButton from "../../../components/UserIdButton.js";
+import UserSelect from "../../../components/UserSelect.js";
 
 export default class AdminQuotaUserMenuHandler extends InteractionHandler {
     public static readonly ID = getHandlerId(AdminQuotaUserMenuHandler.name);
+    public static readonly USER_ID_MODAL_ID = `${AdminQuotaUserMenuHandler.ID}_user-id-modal`;
 
     public get name(): string {
         return AdminQuotaUserMenuHandler.name;
@@ -39,18 +38,10 @@ export default class AdminQuotaUserMenuHandler extends InteractionHandler {
             ephemeral: true,
             components: [
                 this.createMessageActionRow().addComponents(
-                    new UserSelectMenuBuilder()
-                        .setCustomId(AdminQuotaUserHandler.ID)
-                        .setPlaceholder("Select a user")
-                        .setMinValues(1)
-                        .setMaxValues(1)
+                    new UserSelect(AdminQuotaUserHandler.ID)
                 ),
                 this.createMessageActionRow().addComponents(
-                    new ButtonBuilder()
-                        .setCustomId(AdminQuotaUserIdModalHandler.ID)
-                        .setLabel("Enter user ID")
-                        .setEmoji("🆔")
-                        .setStyle(ButtonStyle.Secondary)
+                    new UserIdButton(AdminQuotaUserMenuHandler.USER_ID_MODAL_ID)
                 ),
             ],
         });

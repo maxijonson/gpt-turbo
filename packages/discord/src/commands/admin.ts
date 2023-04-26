@@ -9,10 +9,10 @@ import { DiscordSlashCommand } from "../utils/types.js";
 import { ADMINS } from "../config/env.js";
 import BotException from "../exceptions/BotException.js";
 import { ADMIN_MENU_ID } from "../config/constants.js";
-import AdminUsageMenuHandler from "../interaction-handlers/AdminUsageResetMenuHandler.js";
+import AdminUsageResetMenuHandler from "../interaction-handlers/admin/usage-reset/AdminUsageResetMenuHandler.js";
 import setupInteractionCleanup from "../utils/setupInteractionCleanup.js";
 import reply from "../utils/reply.js";
-import AdminQuotaUserMenuHandler from "../interaction-handlers/AdminQuotaUserMenuHandler.js";
+import AdminQuotaUserMenuHandler from "../interaction-handlers/admin/quota/AdminQuotaUserMenuHandler.js";
 
 const adminCommand: DiscordSlashCommand = {
     builder: new SlashCommandBuilder()
@@ -42,7 +42,7 @@ const adminCommand: DiscordSlashCommand = {
                                     "Reset the usage of a user or all users."
                                 )
                                 .setEmoji("🔄")
-                                .setValue(AdminUsageMenuHandler.ID),
+                                .setValue(AdminUsageResetMenuHandler.ID),
                             new StringSelectMenuOptionBuilder()
                                 .setLabel("Manage quotas")
                                 .setDescription("Manage the quotas for a user")

@@ -17,14 +17,12 @@ import ConversationManager from "./managers/ConversationManager.js";
 import QuotaManager from "./managers/QuotaManager.js";
 import InteractionHandler from "./interaction-handlers/InteractionHandler.js";
 import SlashCommandHandler from "./interaction-handlers/SlashCommandHandler.js";
-import AdminUsageMenuHandler from "./interaction-handlers/AdminUsageResetMenuHandler.js";
-import AdminUsageResetAllHandler from "./interaction-handlers/AdminUsageResetAllHandler.js";
-import AdminUsageResetUserMenuHandler from "./interaction-handlers/AdminUsageResetUserMenuHandler.js";
-import AdminUsageResetUserHandler from "./interaction-handlers/AdminUsageResetUserHandler.js";
-import AdminUsageResetUserIdModalHandler from "./interaction-handlers/AdminUsageResetUserIdModalHandler.js";
-import AdminQuotaUserMenuHandler from "./interaction-handlers/AdminQuotaUserMenuHandler.js";
-import AdminQuotaUserIdModalHandler from "./interaction-handlers/AdminQuotaUserIdModalHandler.js";
-import AdminQuotaUserHandler from "./interaction-handlers/AdminQuotaUserHandler.js";
+import AdminUsageResetMenuHandler from "./interaction-handlers/admin/usage-reset/AdminUsageResetMenuHandler.js";
+import AdminUsageResetAllHandler from "./interaction-handlers/admin/usage-reset/AdminUsageResetAllHandler.js";
+import AdminUsageResetUserHandler from "./interaction-handlers/admin/usage-reset/AdminUsageResetUserHandler.js";
+import AdminQuotaUserMenuHandler from "./interaction-handlers/admin/quota/AdminQuotaUserMenuHandler.js";
+import AdminQuotaUserHandler from "./interaction-handlers/admin/quota/AdminQuotaUserHandler.js";
+import UserIdModalHandler from "./interaction-handlers/UserIdModalHandler.js";
 
 export default class GPTTurboClient<
     Ready extends boolean = boolean
@@ -49,15 +47,20 @@ export default class GPTTurboClient<
         );
 
         this.interactionHandler = new SlashCommandHandler().setNext(
-            new AdminUsageMenuHandler(),
+            new AdminUsageResetMenuHandler(),
             new AdminUsageResetAllHandler(),
-            new AdminUsageResetUserMenuHandler(),
             new AdminUsageResetUserHandler(),
-            new AdminUsageResetUserIdModalHandler(),
+            new UserIdModalHandler(
+                AdminUsageResetMenuHandler.USER_ID_MODAL_ID,
+                AdminUsageResetUserHandler.ID
+            ),
 
             new AdminQuotaUserMenuHandler(),
-            new AdminQuotaUserIdModalHandler(),
-            new AdminQuotaUserHandler()
+            new AdminQuotaUserHandler(),
+            new UserIdModalHandler(
+                AdminQuotaUserMenuHandler.USER_ID_MODAL_ID,
+                AdminQuotaUserHandler.ID
+            )
         );
 
         this.id = this.user?.id ?? DISCORD_CLIENT_ID;

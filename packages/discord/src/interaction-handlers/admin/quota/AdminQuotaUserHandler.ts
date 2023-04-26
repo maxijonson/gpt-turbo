@@ -14,15 +14,15 @@ import {
     ButtonInteraction,
     TextInputStyle,
 } from "discord.js";
-import InteractionHandler from "./InteractionHandler.js";
-import isBotAdmin from "../utils/isBotAdmin.js";
-import getHandlerId from "../utils/getHandlerId.js";
-import { CREATE_USER_ID_INPUT_ID } from "../components/createUserIdInput.js";
-import reply from "../utils/reply.js";
-import setupInteractionCleanup from "../utils/setupInteractionCleanup.js";
+import InteractionHandler from "../../InteractionHandler.js";
+import isBotAdmin from "../../../utils/isBotAdmin.js";
+import getHandlerId from "../../../utils/getHandlerId.js";
+import reply from "../../../utils/reply.js";
+import setupInteractionCleanup from "../../../utils/setupInteractionCleanup.js";
 import { TextInputBuilder } from "@discordjs/builders";
-import BotException from "../exceptions/BotException.js";
-import { DEFAULT_INTERACTION_WAIT } from "../config/constants.js";
+import BotException from "../../../exceptions/BotException.js";
+import { DEFAULT_INTERACTION_WAIT } from "../../../config/constants.js";
+import UserIdModalHandler from "../../UserIdModalHandler.js";
 
 export default class AdminQuotaUserHandler extends InteractionHandler {
     public static readonly ID = getHandlerId(AdminQuotaUserHandler.name);
@@ -48,7 +48,7 @@ export default class AdminQuotaUserHandler extends InteractionHandler {
     ): Promise<void> {
         const { quotaManager } = interaction.client;
         const userId = interaction.isModalSubmit()
-            ? interaction.fields.getTextInputValue(CREATE_USER_ID_INPUT_ID)
+            ? interaction.fields.getTextInputValue(UserIdModalHandler.INPUT_ID)
             : interaction.values[0];
 
         const quota = await quotaManager.getQuota(userId);
@@ -138,7 +138,7 @@ export default class AdminQuotaUserHandler extends InteractionHandler {
 
         switch (interaction.customId) {
             case AdminQuotaUserHandler.BUTTON_SET_ID:
-                await this.showQuotaSetModal(interaction, userId);
+                await this.showQuotaModal(interaction, userId);
                 break;
             case AdminQuotaUserHandler.BUTTON_RESET_ID:
                 await quotaManager.deleteQuota(userId);
@@ -161,7 +161,7 @@ export default class AdminQuotaUserHandler extends InteractionHandler {
         }
     }
 
-    private async showQuotaSetModal(
+    private async showQuotaModal(
         interaction: ButtonInteraction,
         userId: string
     ) {
@@ -176,7 +176,7 @@ export default class AdminQuotaUserHandler extends InteractionHandler {
                     new TextInputBuilder()
                         .setCustomId(AdminQuotaUserHandler.QUOTA_INPUT_ID)
                         .setLabel("Quota")
-                        .setPlaceholder("10000")
+                        .setPlaceholder(quota.toString())
                         .setRequired(true)
                         .setMinLength(1)
                         .setMaxLength(10)
