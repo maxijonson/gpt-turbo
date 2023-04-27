@@ -13,6 +13,7 @@ Issue: #
   - [ ] CLI
   - [ ] Web
   - [ ] Nest
+  - [ ] Discord
 - [ ] Other: <!-- Please specify -->
 
 ## Type of change
@@ -46,3 +47,8 @@ Issue: #
 ## Description
 
 <!-- Describe your change, the current and new behavior (if applicable)  -->
+
+## Discord User (optional)
+
+<!-- If your PR gets merged, we'll add this username to the "Contributors" role! Make sure to join the Discord beforehand so we can find you! -->
+<!-- Don't forget the #! (e.g. MaxiJonson#1248) -->

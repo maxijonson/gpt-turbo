@@ -10,12 +10,14 @@ import { MessageRoleException } from "../exceptions/index.js";
 import { v4 as uuid } from "uuid";
 import {
     AddMessageListener,
+    ChatCompletionRequestMessageRoleEnum,
     ConversationConfigParameters,
     HandleChatCompletionOptions,
     PromptOptions,
     RemoveMessageListener,
     RequestOptions,
 } from "../utils/types.js";
+import { DEFAULT_DISABLEMODERATION } from "../index.js";
 
 /**
  * A Conversation manages the messages sent to and from the OpenAI API and handles the logic for providing the message history to the API for each prompt.
@@ -103,6 +105,71 @@ export class Conversation {
     private addSystemMessage(message: string) {
         const systemMessage = new Message("system", message, this.config.model);
         return this.addMessage(systemMessage);
+    }
+
+    /**
+     * Creates a new Conversation instance from a list of messages. Useful for loading a conversation from a database.
+     *
+     * @param messages The messages to add to the conversation.
+     * Can be an array of strings (starting from the user prompt and alternating between user/assistant) or an array of objects with a `role` and `content` property.
+     * Regardless of the format, the messages should alternate between user and assistant messages. (or an error will be thrown)
+     * @param config The configuration for this conversation. See {@link ConversationConfigParameters}
+     * @param options The HTTP request options. See {@link RequestOptions}
+     * @param disableInitialModeration Whether to disable moderation for the initial messages. Defaults to `true` to prevent multiple API calls in a short period of time.
+     * @returns The new Conversation instance.
+     */
+    public static async fromMessages(
+        messages: (
+            | {
+                  role: ChatCompletionRequestMessageRoleEnum;
+                  content: string;
+              }
+            | string
+        )[],
+        config: ConversationConfigParameters = {},
+        options: RequestOptions = {},
+        disableInitialModeration: ConversationConfigParameters["disableModeration"] = true
+    ) {
+        const conversation = new Conversation(
+            {
+                ...config,
+                disableModeration: disableInitialModeration,
+            },
+            options
+        );
+
+        let isUserMessage = true;
+        const initialMessages = messages.map((message) => {
+            if (typeof message === "string") {
+                const role = isUserMessage ? "user" : "assistant";
+                isUserMessage = !isUserMessage;
+                return { role, content: message };
+            }
+            return message;
+        });
+
+        for (const message of initialMessages) {
+            switch (message.role) {
+                case "user":
+                    await conversation.addUserMessage(message.content);
+                    break;
+                case "assistant":
+                    await conversation.addAssistantMessage(message.content);
+                    break;
+                case "system":
+                    conversation.setContext(message.content);
+            }
+        }
+
+        conversation.setConfig(
+            {
+                disableModeration:
+                    config.disableModeration || DEFAULT_DISABLEMODERATION,
+            },
+            true
+        );
+
+        return conversation;
     }
 
     /**

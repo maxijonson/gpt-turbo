@@ -149,9 +149,10 @@ Documentation is an important part of any project. It's what makes it easy for n
 Since commits are squashed when merged into the `develop` branch, there are no strict rules for commit messages. However, if your PR is pretty big, contains many commits and/or affects multiple packages, it is recommended to use the following prefixes for your commit messages:
 
 - `[library]`: for changes to the library or its documentation.
-- `[cli]`: for changes to the CLI  or its documentation.
-- `[web]`: for changes to the Web  or its documentation.
-- `[nest]`: for changes to the Nest  or its documentation.
+- `[cli]`: for changes to the CLI implementation or its documentation.
+- `[web]`: for changes to the Web implementation or its documentation.
+- `[nest]`: for changes to the Nest implementation or its documentation.
+- `[discord]`: for changes to the Discord implementation or its documentation.
 - `[docs]`: for changes to the documentation **not related to the library or one of its implementations**. (e.g. changes to the root README.md file or this contributing guide)
 
 ## Join The Project Team
