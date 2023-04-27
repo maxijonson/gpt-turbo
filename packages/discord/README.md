@@ -13,14 +13,8 @@ Discord bot powered by the GPT Turbo library. Inspired by Discord's very own Cly
 *Run these at the mono-repo root. Not this package directory*
 
 ```bash
-# Install mono-repo dependencies
+# Installs mono-repo dependencies, bootstraps packages, and builds packages
 npm install
-
-# Bootstrap the packages
-npm run bootstrap
-
-# Build the library and the Discord bot
-npm run build
 ```
 
 *Run these in this package directory*

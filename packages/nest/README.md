@@ -19,14 +19,8 @@ Furthermore, still in the pursuit of simplicity and minimal setup requirements, 
 *Run these at the mono-repo root. Not this package directory*
 
 ```bash
-# Install mono-repo dependencies
+# Installs mono-repo dependencies, bootstraps packages, and builds packages
 npm install
-
-# Bootstrap the packages
-npm run bootstrap
-
-# Build the library and the Nest app
-npm run build
 ```
 
 ## Running the app

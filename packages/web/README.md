@@ -21,14 +21,8 @@ Due to the nature of local storage, your conversations and settings will be lost
 *Run these at the mono-repo root. Not this package directory*
 
 ```bash
-# Install mono-repo dependencies
+# Installs mono-repo dependencies, bootstraps packages, and builds packages
 npm install
-
-# Bootstrap the packages
-npm run bootstrap
-
-# Build the library and the web app
-npm run build
 ```
 
 ## Usage

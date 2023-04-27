@@ -124,7 +124,7 @@ Follow these steps to get your development environment set up:
 2. Clone your forked repository locally.
 3. Create a new branch for your changes.
 4. Run the following commands at the repository root:
-   1. `npm install`: installs the mono-repo dependencies, bootstraps the packages and builds them.
+   1. `npm install`: installs the mono-repo dependencies, bootstraps packages, and builds them.
    2. (optional) `npm run dev`: if you plan on editing both the library and an implementation, this will watch for changes in the library and automatically rebuild it so that the implementation can use the latest version of the library.
 
 You're now all set to start contributing! Make your changes, commit them and push them to your forked repository. Then, open a pull request to the `develop` branch of the main repository.
