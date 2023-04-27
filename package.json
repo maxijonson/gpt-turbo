@@ -3,7 +3,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "clean": "lerna clean --yes && rm -rf node_modules",
-    "reinstall": "npm run clean && npm i && npm run bootstrap",
+    "reinstall": "npm run clean && npm install",
     "dev": "lerna run build --scope \"gpt-turbo\" && lerna watch --scope \"gpt-turbo\" --include-dependencies -- lerna run build --scope=\"gpt-turbo\"",
     "build": "lerna run build",
     "lint:strict": "lerna run lint:strict",
@@ -11,7 +11,8 @@
     "release": "npm run build && lerna publish",
     "release:patch": "npm run build && lerna publish patch --yes",
     "release:minor": "npm run build && lerna publish minor --yes",
-    "release:major": "npm run build && lerna publish major --yes"
+    "release:major": "npm run build && lerna publish major --yes",
+    "install": "npm run bootstrap && npm run build"
   },
   "workspaces": [
     "packages/*"
