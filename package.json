@@ -6,13 +6,14 @@
     "reinstall": "npm run clean && npm install",
     "dev": "lerna run build --scope \"gpt-turbo\" && lerna watch --scope \"gpt-turbo\" --include-dependencies -- lerna run build --scope=\"gpt-turbo\"",
     "build": "lerna run build",
+    "build:lib": "lerna run build --scope \"gpt-turbo\"",
     "lint:strict": "lerna run lint:strict",
     "lint:fix": "lerna run lint:fix",
     "release": "npm run build && lerna publish",
     "release:patch": "npm run build && lerna publish patch --yes",
     "release:minor": "npm run build && lerna publish minor --yes",
     "release:major": "npm run build && lerna publish major --yes",
-    "install": "npm run bootstrap && npm run build"
+    "install": "npm run bootstrap && npm run build:lib"
   },
   "workspaces": [
     "packages/*"
