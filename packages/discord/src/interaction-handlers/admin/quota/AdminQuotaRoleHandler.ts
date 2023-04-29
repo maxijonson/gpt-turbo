@@ -1,61 +1,45 @@
 import {
     Interaction,
-    Awaitable,
-    ModalSubmitInteraction,
     Colors,
     italic,
     ButtonBuilder,
     ButtonStyle,
-    DiscordjsError,
-    DiscordjsErrorCodes,
-    RepliableInteraction,
-    ModalBuilder,
-    ButtonInteraction,
-    TextInputStyle,
-    RoleSelectMenuInteraction,
+    InteractionResponse,
+    Message,
 } from "discord.js";
-import InteractionHandler from "../../InteractionHandler.js";
-import isBotAdmin from "../../../utils/isBotAdmin.js";
 import getHandlerId from "../../../utils/getHandlerId.js";
 import reply from "../../../utils/reply.js";
-import setupInteractionCleanup from "../../../utils/setupInteractionCleanup.js";
-import { TextInputBuilder } from "@discordjs/builders";
-import BotException from "../../../exceptions/BotException.js";
-import { DEFAULT_INTERACTION_WAIT } from "../../../config/constants.js";
-import SnowflakeModalHandler from "../../SnowflakeModalHandler.js";
+import AdminQuotaSnowflakeHandler from "./AdminQuotaSnowflakeHandler.js";
 
-export default class AdminQuotaRoleHandler extends InteractionHandler {
+export default class AdminQuotaRoleHandler extends AdminQuotaSnowflakeHandler {
     public static readonly ID = getHandlerId(AdminQuotaRoleHandler.name);
-    private static readonly BUTTON_SET_ID = `${AdminQuotaRoleHandler.ID}_button-set`;
-    private static readonly BUTTON_RESET_ID = `${AdminQuotaRoleHandler.ID}_button-reset`;
-    private static readonly MODAL_SET_ID = `${AdminQuotaRoleHandler.ID}_modal-set`;
-    private static readonly QUOTA_INPUT_ID = `${AdminQuotaRoleHandler.ID}_quota-input`;
+
+    constructor() {
+        super(AdminQuotaRoleHandler.ID);
+    }
 
     public get name(): string {
         return AdminQuotaRoleHandler.name;
     }
 
-    protected canHandle(interaction: Interaction): Awaitable<boolean> {
+    protected async getCurrentQuota(
+        interaction: Interaction,
+        roleId: string
+    ): Promise<number> {
+        const { quotaManager } = interaction.client;
         return (
-            isBotAdmin(interaction.user.id) &&
-            (interaction.isRoleSelectMenu() || interaction.isModalSubmit()) &&
-            interaction.customId === AdminQuotaRoleHandler.ID
+            (await quotaManager.getRoleQuota(roleId)) ??
+            (await quotaManager.getDefaultQuota())
         );
     }
 
-    protected async handle(
-        interaction: RoleSelectMenuInteraction | ModalSubmitInteraction
-    ): Promise<void> {
+    protected async getInitialReply(
+        interaction: Interaction,
+        roleId: string
+    ): Promise<Message<boolean> | InteractionResponse<boolean> | null> {
         const { quotaManager } = interaction.client;
-        const roleId = interaction.isModalSubmit()
-            ? interaction.fields.getTextInputValue(
-                  SnowflakeModalHandler.INPUT_ID
-              )
-            : interaction.values[0];
 
-        const quota =
-            (await quotaManager.getRoleQuota(roleId)) ??
-            (await quotaManager.getDefaultQuota());
+        const quota = await this.getCurrentQuota(interaction, roleId);
         const hasQuota = await quotaManager.hasRoleQuota(roleId);
 
         const quotaFormat = Intl.NumberFormat("en-US", {
@@ -71,7 +55,7 @@ export default class AdminQuotaRoleHandler extends InteractionHandler {
 
         const row = this.createMessageActionRow().addComponents(
             new ButtonBuilder()
-                .setCustomId(AdminQuotaRoleHandler.BUTTON_SET_ID)
+                .setCustomId(AdminQuotaSnowflakeHandler.BUTTON_SET_ID)
                 .setLabel("Set Quota")
                 .setStyle(ButtonStyle.Primary)
                 .setEmoji("🔧")
@@ -80,14 +64,14 @@ export default class AdminQuotaRoleHandler extends InteractionHandler {
         if (hasQuota) {
             row.addComponents(
                 new ButtonBuilder()
-                    .setCustomId(AdminQuotaRoleHandler.BUTTON_RESET_ID)
+                    .setCustomId(AdminQuotaSnowflakeHandler.BUTTON_RESET_ID)
                     .setLabel("Reset Quota")
                     .setStyle(ButtonStyle.Primary)
                     .setEmoji("🔄")
             );
         }
 
-        const response = await reply(interaction, {
+        return reply(interaction, {
             ephemeral: true,
             embeds: [
                 {
@@ -104,143 +88,26 @@ export default class AdminQuotaRoleHandler extends InteractionHandler {
             ],
             components: [row],
         });
-
-        if (!response) throw new Error("Failed to send message");
-
-        try {
-            const buttonInteraction = await response.awaitMessageComponent({
-                filter: (i) =>
-                    i.user.id === interaction.user.id &&
-                    [
-                        AdminQuotaRoleHandler.BUTTON_SET_ID,
-                        AdminQuotaRoleHandler.BUTTON_RESET_ID,
-                    ].includes(i.customId),
-                time: DEFAULT_INTERACTION_WAIT,
-            });
-            await response.delete();
-
-            if (!buttonInteraction.isButton())
-                throw new Error("Expected button interaction");
-
-            await this.handleButtonInteraction(buttonInteraction, roleId);
-        } catch (e) {
-            this.handleError(interaction, e);
-        }
     }
 
-    private async handleButtonInteraction(
-        interaction: ButtonInteraction,
+    protected async deleteQuota(
+        interaction: Interaction,
         roleId: string
-    ) {
+    ): Promise<void> {
         const { quotaManager } = interaction.client;
-
-        switch (interaction.customId) {
-            case AdminQuotaRoleHandler.BUTTON_SET_ID:
-                await this.showQuotaModal(interaction, roleId);
-                break;
-            case AdminQuotaRoleHandler.BUTTON_RESET_ID:
-                await quotaManager.deleteRoleQuota(roleId);
-                const quota = await quotaManager.getDefaultQuota();
-                await reply(interaction, {
-                    ephemeral: true,
-                    embeds: [
-                        {
-                            title: "Success",
-                            description: `Quota was reset to ${quota}`,
-                            color: Colors.Green,
-                        },
-                    ],
-                });
-                break;
-            default:
-                throw new Error(
-                    `Unknown button custom id: ${interaction.customId}`
-                );
-        }
+        await quotaManager.deleteRoleQuota(roleId);
     }
 
-    private async showQuotaModal(
-        interaction: ButtonInteraction,
-        roleId: string
-    ) {
-        const { quotaManager } = interaction.client;
-        const quota =
-            (await quotaManager.getRoleQuota(roleId)) ??
-            (await quotaManager.getDefaultQuota());
-
-        const modal = new ModalBuilder()
-            .setCustomId(AdminQuotaRoleHandler.MODAL_SET_ID)
-            .setTitle("Set Role Quota")
-            .addComponents(
-                this.createModalActionRow().addComponents(
-                    new TextInputBuilder()
-                        .setCustomId(AdminQuotaRoleHandler.QUOTA_INPUT_ID)
-                        .setLabel("Quota")
-                        .setPlaceholder(quota.toString())
-                        .setRequired(true)
-                        .setMinLength(1)
-                        .setMaxLength(10)
-                        .setStyle(TextInputStyle.Short)
-                        .setValue(quota.toString())
-                )
-            );
-
-        await interaction.showModal(modal);
-
-        const modalInteraction = await interaction.awaitModalSubmit({
-            filter: (i) =>
-                i.user.id === interaction.user.id &&
-                i.isModalSubmit() &&
-                i.customId === AdminQuotaRoleHandler.MODAL_SET_ID,
-            time: DEFAULT_INTERACTION_WAIT,
-        });
-        await modalInteraction.deferUpdate();
-
-        const quotaInput = modalInteraction.fields.getTextInputValue(
-            AdminQuotaRoleHandler.QUOTA_INPUT_ID
-        );
-        const newQuota = Number(quotaInput);
-
-        if (isNaN(newQuota)) {
-            throw new BotException("Quota must be a number");
-        }
-        if (newQuota < 0) {
-            throw new BotException("Quota must be positive");
-        }
-
-        await quotaManager.setRoleQuota(roleId, newQuota);
-        await reply(interaction, {
-            ephemeral: true,
-            embeds: [
-                {
-                    title: "Success",
-                    description: "New quota set successfully!",
-                    color: Colors.Green,
-                },
-            ],
-        });
+    protected getModalTitle(): string {
+        return "Set Role Quota";
     }
 
-    private handleError(interaction: RepliableInteraction, error: unknown) {
-        if (
-            error instanceof DiscordjsError &&
-            error.code === DiscordjsErrorCodes.InteractionCollectorError
-        ) {
-            setupInteractionCleanup(interaction, { time: 1 });
-        } else if (error instanceof BotException) {
-            reply(interaction, {
-                ephemeral: true,
-                embeds: [
-                    {
-                        title: "Error",
-                        description: error.message,
-                        color: Colors.Red,
-                    },
-                ],
-                components: [],
-            });
-        } else {
-            throw error;
-        }
+    protected async setQuota(
+        interaction: Interaction,
+        roleId: string,
+        quota: number
+    ): Promise<void> {
+        const { quotaManager } = interaction.client;
+        await quotaManager.setRoleQuota(roleId, quota);
     }
 }
