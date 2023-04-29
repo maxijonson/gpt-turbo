@@ -12,7 +12,7 @@ import { ADMIN_MENU_ID } from "../config/constants.js";
 import AdminUsageResetMenuHandler from "../interaction-handlers/admin/usage-reset/AdminUsageResetMenuHandler.js";
 import setupInteractionCleanup from "../utils/setupInteractionCleanup.js";
 import reply from "../utils/reply.js";
-import AdminQuotaUserMenuHandler from "../interaction-handlers/admin/quota/AdminQuotaUserMenuHandler.js";
+import AdminQuotaUserMenuHandler from "../interaction-handlers/admin/quota/AdminQuotaMenuHandler.js";
 
 const adminCommand: DiscordSlashCommand = {
     builder: new SlashCommandBuilder()

@@ -64,9 +64,9 @@ This is done through environment variables. Refer to the [`.env.example`](./.env
 
 > The Quota System is opt-in. Specifying a database connection string in your environment variables will enable it automatically. See the [`.env.example`](./.env.example) file for more information.
 
-On top of whitelisting and blacklisting, you can optionally enable the bot's quota system. This system allows you to specify a maximum amount of [tokens](https://openai.com/pricing) that can be used for each allowed user. It uses key-value storage powered by [KeyV](https://github.com/jaredwray/keyv), which is why multiple databases are supported (MongoDB, PostgreSQL and MySQL). 
+On top of whitelisting and blacklisting, you can optionally enable the bot's quota system. This system allows you to specify a maximum amount of [tokens](https://openai.com/pricing) that can be used for each allowed user or role. It uses key-value storage powered by [KeyV](https://github.com/jaredwray/keyv), which is why multiple databases are supported (MongoDB, PostgreSQL and MySQL).
 
-> If you haven't explicitly set a quota for a user, the bot will use the default quota of 5000 tokens (about $0.01). This can be changed by setting the `DEFAULT_QUOTA` environment variable.
+> If you haven't explicitly set a quota for a user or one of the user's roles, the bot will use the default quota of 5000 tokens (about $0.01). This can be changed by setting the `DEFAULT_QUOTA` environment variable.
 
 Important things to note about the quota system:
 
@@ -75,6 +75,7 @@ Important things to note about the quota system:
 - The tokens are calculated by `gpt-turbo` using third-party libraries. The calculated tokens may *slightly* differ from OpenAI's actual token count. This shouldn't be too much of an issue for small quotas (e.g. 5000 tokens), but it may be an issue for larger quotas (e.g. 1000000 tokens).
 - The bot will set the `max_tokens` accordingly to prevent the user from going over their quota. 
   - For example: A user's usage is at 5/10 tokens and their current conversation size is 2 tokens, this means whatever prompt is next will incur a cost of at least `5 + 2 = 7` tokens. The bot will set the `max_tokens` parameter to `10 - 7 = 3` tokens to prevent the user from going over their quota. Again, depending on how OpenAI actually respects this parameter, there may be a slight difference in the actual token count.
+- User quotas have priority over role quotas.
 
 ## The `MESSAGE_CONTENT` intent
 

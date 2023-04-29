@@ -50,5 +50,5 @@ Issue: #
 
 ## Discord User (optional)
 
-<!-- If your PR gets merged, we'll add this username to the "Contributors" role! Make sure to join the Discord beforehand so we can find you! -->
-<!-- Don't forget the #! (e.g. MaxiJonson#1248) -->
+<!-- If your PR gets merged, we'll add you to the "Contributors" role, which gives you access to a higher token quota to use on the server's bot! Make sure to join the Discord beforehand so we can find you! -->
+<!-- Don't forget the # (e.g. MaxiJonson#1248) -->

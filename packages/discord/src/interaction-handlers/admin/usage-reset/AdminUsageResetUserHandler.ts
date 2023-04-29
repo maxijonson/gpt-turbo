@@ -9,7 +9,7 @@ import InteractionHandler from "../../InteractionHandler.js";
 import isBotAdmin from "../../../utils/isBotAdmin.js";
 import getHandlerId from "../../../utils/getHandlerId.js";
 import reply from "../../../utils/reply.js";
-import UserIdModalHandler from "../../UserIdModalHandler.js";
+import UserIdModalHandler from "../../SnowflakeModalHandler.js";
 
 export default class AdminUsageResetUserHandler extends InteractionHandler {
     public static readonly ID = getHandlerId(AdminUsageResetUserHandler.name);
