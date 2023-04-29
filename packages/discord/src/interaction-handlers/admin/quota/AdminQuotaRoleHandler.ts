@@ -53,8 +53,9 @@ export default class AdminQuotaRoleHandler extends InteractionHandler {
               )
             : interaction.values[0];
 
-        const defaultQuota = await quotaManager.getDefaultQuota();
-        const quota = (await quotaManager.getRoleQuota(roleId)) ?? defaultQuota;
+        const quota =
+            (await quotaManager.getRoleQuota(roleId)) ??
+            (await quotaManager.getDefaultQuota());
         const hasQuota = await quotaManager.hasRoleQuota(roleId);
 
         const quotaFormat = Intl.NumberFormat("en-US", {
@@ -139,13 +140,13 @@ export default class AdminQuotaRoleHandler extends InteractionHandler {
                 break;
             case AdminQuotaRoleHandler.BUTTON_RESET_ID:
                 await quotaManager.deleteRoleQuota(roleId);
-                const defaultQuota = await quotaManager.getDefaultQuota();
+                const quota = await quotaManager.getDefaultQuota();
                 await reply(interaction, {
                     ephemeral: true,
                     embeds: [
                         {
                             title: "Success",
-                            description: `Quota was reset to the default value! (${defaultQuota})`,
+                            description: `Quota was reset to ${quota}`,
                             color: Colors.Green,
                         },
                     ],

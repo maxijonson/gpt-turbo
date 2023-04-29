@@ -22,7 +22,7 @@ import setupInteractionCleanup from "../../../utils/setupInteractionCleanup.js";
 import { TextInputBuilder } from "@discordjs/builders";
 import BotException from "../../../exceptions/BotException.js";
 import { DEFAULT_INTERACTION_WAIT } from "../../../config/constants.js";
-import UserIdModalHandler from "../../SnowflakeModalHandler.js";
+import SnowflakeModalHandler from "../../SnowflakeModalHandler.js";
 
 export default class AdminQuotaUserHandler extends InteractionHandler {
     public static readonly ID = getHandlerId(AdminQuotaUserHandler.name);
@@ -48,7 +48,9 @@ export default class AdminQuotaUserHandler extends InteractionHandler {
     ): Promise<void> {
         const { quotaManager } = interaction.client;
         const userId = interaction.isModalSubmit()
-            ? interaction.fields.getTextInputValue(UserIdModalHandler.INPUT_ID)
+            ? interaction.fields.getTextInputValue(
+                  SnowflakeModalHandler.INPUT_ID
+              )
             : interaction.values[0];
 
         const quota = await quotaManager.getQuota(userId);
@@ -148,13 +150,13 @@ export default class AdminQuotaUserHandler extends InteractionHandler {
                 break;
             case AdminQuotaUserHandler.BUTTON_RESET_ID:
                 await quotaManager.deleteUserQuota(userId);
-                const defaultQuota = await quotaManager.getDefaultQuota();
+                const quota = await quotaManager.getQuota(userId);
                 await reply(interaction, {
                     ephemeral: true,
                     embeds: [
                         {
                             title: "Success",
-                            description: `Quota was reset to the default value! (${defaultQuota})`,
+                            description: `Quota was reset to ${quota}`,
                             color: Colors.Green,
                         },
                     ],
