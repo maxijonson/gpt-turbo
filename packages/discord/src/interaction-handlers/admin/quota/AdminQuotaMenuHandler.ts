@@ -2,6 +2,8 @@ import {
     Interaction,
     Awaitable,
     StringSelectMenuInteraction,
+    ButtonBuilder,
+    ButtonStyle,
 } from "discord.js";
 import InteractionHandler from "../../InteractionHandler.js";
 import isBotAdmin from "../../../utils/isBotAdmin.js";
@@ -12,13 +14,16 @@ import reply from "../../../utils/reply.js";
 import AdminQuotaUserHandler from "./AdminQuotaUserHandler.js";
 import UserIdButton from "../../../components/UserIdButton.js";
 import UserSelect from "../../../components/UserSelect.js";
+import RoleSelect from "../../../components/RoleSelect.js";
+import AdminQuotaRoleHandler from "./AdminQuotaRoleHandler.js";
 
-export default class AdminQuotaUserMenuHandler extends InteractionHandler {
-    public static readonly ID = getHandlerId(AdminQuotaUserMenuHandler.name);
-    public static readonly USER_ID_MODAL_ID = `${AdminQuotaUserMenuHandler.ID}_user-id-modal`;
+export default class AdminQuotaMenuHandler extends InteractionHandler {
+    public static readonly ID = getHandlerId(AdminQuotaMenuHandler.name);
+    public static readonly USER_ID_MODAL_ID = `${AdminQuotaMenuHandler.ID}_user-id-modal`;
+    public static readonly ROLE_ID_MODAL_ID = `${AdminQuotaMenuHandler.ID}_role-id-modal`;
 
     public get name(): string {
-        return AdminQuotaUserMenuHandler.name;
+        return AdminQuotaMenuHandler.name;
     }
 
     protected canHandle(interaction: Interaction): Awaitable<boolean> {
@@ -26,7 +31,7 @@ export default class AdminQuotaUserMenuHandler extends InteractionHandler {
             isBotAdmin(interaction.user.id) &&
             interaction.isStringSelectMenu() &&
             interaction.customId === ADMIN_MENU_ID &&
-            interaction.values[0] === AdminQuotaUserMenuHandler.ID
+            interaction.values[0] === AdminQuotaMenuHandler.ID
         );
     }
 
@@ -41,7 +46,15 @@ export default class AdminQuotaUserMenuHandler extends InteractionHandler {
                     new UserSelect(AdminQuotaUserHandler.ID)
                 ),
                 this.createMessageActionRow().addComponents(
-                    new UserIdButton(AdminQuotaUserMenuHandler.USER_ID_MODAL_ID)
+                    new RoleSelect(AdminQuotaRoleHandler.ID)
+                ),
+                this.createMessageActionRow().addComponents(
+                    new UserIdButton(AdminQuotaMenuHandler.USER_ID_MODAL_ID),
+                    new ButtonBuilder()
+                        .setCustomId(AdminQuotaMenuHandler.ROLE_ID_MODAL_ID)
+                        .setLabel("Enter Role ID")
+                        .setEmoji("🆔")
+                        .setStyle(ButtonStyle.Secondary)
                 ),
             ],
         });

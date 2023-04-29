@@ -16,16 +16,17 @@ const usageCommand: DiscordSlashCommand = {
         if (!interaction.isRepliable()) return;
         const { quotaManager } = interaction.client;
 
-        const [quota, usage] = await Promise.all([
+        const [quota, usage, [quotaRole]] = await Promise.all([
             quotaManager.getQuota(interaction.user.id),
             quotaManager.getUsage(interaction.user.id),
+            quotaManager.getUserQuotaRole(interaction.user.id),
         ]);
-        const left = quota - usage;
+        const remaining = quota - usage;
         const percent = usage / quota;
 
         const quotaTokens = tokenFormat.format(quota);
         const usageTokens = tokenFormat.format(Math.min(usage, quota));
-        const leftTokens = tokenFormat.format(left);
+        const remainingTokens = tokenFormat.format(remaining);
         const percentString = percentFormat.format(Math.min(percent, 1));
 
         const isExceeded = usage >= quota;
@@ -40,10 +41,29 @@ const usageCommand: DiscordSlashCommand = {
             embeds: [
                 {
                     title: `Usage (${percentString})`,
-                    description:
-                        left <= 0
-                            ? `You have used ${usageTokens} tokens out of your ${quotaTokens} quota`
-                            : `You have used ${usageTokens} tokens out of your ${quotaTokens} quota (${leftTokens} left)`,
+                    fields: [
+                        {
+                            name: "Usage",
+                            value: `${usageTokens}`,
+                            inline: true,
+                        },
+                        {
+                            name: "Quota",
+                            value: `${quotaTokens}`,
+                            inline: true,
+                        },
+                        {
+                            name: "Remaining",
+                            value: `${remainingTokens}`,
+                            inline: true,
+                        },
+                    ],
+                    footer:
+                        quotaRole !== null
+                            ? {
+                                  text: `❗ Quota given for having the "${quotaRole.name}" role`,
+                              }
+                            : undefined,
                     color,
                 },
             ],

@@ -20,9 +20,10 @@ import SlashCommandHandler from "./interaction-handlers/SlashCommandHandler.js";
 import AdminUsageResetMenuHandler from "./interaction-handlers/admin/usage-reset/AdminUsageResetMenuHandler.js";
 import AdminUsageResetAllHandler from "./interaction-handlers/admin/usage-reset/AdminUsageResetAllHandler.js";
 import AdminUsageResetUserHandler from "./interaction-handlers/admin/usage-reset/AdminUsageResetUserHandler.js";
-import AdminQuotaUserMenuHandler from "./interaction-handlers/admin/quota/AdminQuotaUserMenuHandler.js";
+import AdminQuotaMenuHandler from "./interaction-handlers/admin/quota/AdminQuotaMenuHandler.js";
 import AdminQuotaUserHandler from "./interaction-handlers/admin/quota/AdminQuotaUserHandler.js";
-import UserIdModalHandler from "./interaction-handlers/UserIdModalHandler.js";
+import SnowflakeModalHandler from "./interaction-handlers/SnowflakeModalHandler.js";
+import AdminQuotaRoleHandler from "./interaction-handlers/admin/quota/AdminQuotaRoleHandler.js";
 
 export default class GPTTurboClient<
     Ready extends boolean = boolean
@@ -30,7 +31,7 @@ export default class GPTTurboClient<
     public id: string;
     public commandManager = new CommandManager();
     public eventManager: EventManager = new EventManager(this);
-    public quotaManager = new QuotaManager();
+    public quotaManager: QuotaManager = new QuotaManager(this);
     public conversationManager = new ConversationManager(this.quotaManager);
 
     private cooldowns = new Collection<string, Collection<string, number>>();
@@ -50,16 +51,27 @@ export default class GPTTurboClient<
             new AdminUsageResetMenuHandler(),
             new AdminUsageResetAllHandler(),
             new AdminUsageResetUserHandler(),
-            new UserIdModalHandler(
+            new SnowflakeModalHandler(
                 AdminUsageResetMenuHandler.USER_ID_MODAL_ID,
-                AdminUsageResetUserHandler.ID
+                AdminUsageResetUserHandler.ID,
+                "Enter User ID",
+                "User ID"
             ),
 
-            new AdminQuotaUserMenuHandler(),
+            new AdminQuotaMenuHandler(),
             new AdminQuotaUserHandler(),
-            new UserIdModalHandler(
-                AdminQuotaUserMenuHandler.USER_ID_MODAL_ID,
-                AdminQuotaUserHandler.ID
+            new SnowflakeModalHandler(
+                AdminQuotaMenuHandler.USER_ID_MODAL_ID,
+                AdminQuotaUserHandler.ID,
+                "Enter User ID",
+                "User ID"
+            ),
+            new AdminQuotaRoleHandler(),
+            new SnowflakeModalHandler(
+                AdminQuotaMenuHandler.ROLE_ID_MODAL_ID,
+                AdminQuotaRoleHandler.ID,
+                "Enter Role ID",
+                "Role ID"
             )
         );
 
@@ -107,7 +119,9 @@ export default class GPTTurboClient<
 
     async login(token = DISCORD_TOKEN) {
         await this.init();
-        return super.login(token);
+        const res = await super.login(token);
+        await this.postInit();
+        return res;
     }
 
     private async init() {
@@ -116,5 +130,9 @@ export default class GPTTurboClient<
             this.eventManager.init(),
             this.quotaManager.init(),
         ]);
+    }
+
+    private async postInit() {
+        await Promise.all([this.quotaManager.postInit()]);
     }
 }

@@ -9,20 +9,23 @@ import InteractionHandler from "./InteractionHandler.js";
 import isBotAdmin from "../utils/isBotAdmin.js";
 import getHandlerId from "../utils/getHandlerId.js";
 
-export default class UserIdModalHandler extends InteractionHandler {
-    public static readonly GENERIC_ID = getHandlerId(UserIdModalHandler.name);
-    public static readonly INPUT_ID = `${UserIdModalHandler.GENERIC_ID}_input`;
+export default class SnowflakeModalHandler extends InteractionHandler {
+    public static readonly GENERIC_ID = getHandlerId(
+        SnowflakeModalHandler.name
+    );
+    public static readonly INPUT_ID = `${SnowflakeModalHandler.GENERIC_ID}_input`;
 
     constructor(
         private id: string,
         private forwardId: string,
-        private title = "Enter User ID"
+        private title = "Enter ID",
+        private label = "ID"
     ) {
         super();
     }
 
     public get name(): string {
-        return UserIdModalHandler.name;
+        return SnowflakeModalHandler.name;
     }
 
     protected canHandle(interaction: Interaction): Awaitable<boolean> {
@@ -43,8 +46,8 @@ export default class UserIdModalHandler extends InteractionHandler {
             .addComponents(
                 this.createModalActionRow().addComponents(
                     new TextInputBuilder()
-                        .setCustomId(UserIdModalHandler.INPUT_ID)
-                        .setLabel("User ID")
+                        .setCustomId(SnowflakeModalHandler.INPUT_ID)
+                        .setLabel(this.label)
                         .setPlaceholder("123456789012345678")
                         .setMinLength(18)
                         .setMaxLength(18)
