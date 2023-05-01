@@ -10,49 +10,47 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 </div>
 
-# GPT Turbo
+## About
 
-> Looking for the library? [Click here](./packages/lib/)!
+> Are you a dev looking for the library? [Click here](./packages/lib/)!
 
-OpenAI's GPT Chat Completion API allows you to generate conversational text from a prompt just like the [ChatGPT Plus subscription](https://openai.com/blog/chatgpt-plus). The difference between ChatGPT Plus and the this API is mainly the price. At the time of writing, ChatGPT Plus is a flat US$20 per month, while its API counterpart is US$0.002 per 1K [tokens](https://platform.openai.com/docs/introduction/tokens) (for the `gpt-3.5-turbo` model). This means that if you don't plan on using more than 10M tokens per month, you could potentially save money by using the Chat Completion API instead of the ChatGPT Plus subscription. If you're not a developer, you can use the [GPT Turbo Web App](https://gpt-turbo-web.chintristan.io/) to interact with these paid models. You'll still need to create an OpenAI account with a credit card to get an API key.
-
-This monorepo contains an isomorphic library and implementations of it in different JavaScript environments. If you're developing a product and want to use GPT Turbo, you'll probably want to check out the [library package](./packages/lib/).
-
-## Disclaimer
-
-Implementations and the library are provided as-is. I am not responsible for any accidental, incidental, special, consequential, or exemplary damages, including without limitation, damages for loss of profits, goodwill, use, data or other intangible losses, resulting from the use of the implementations or the library. Use at your own risk. [Set limits](https://platform.openai.com/account/billing/limits) on OpenAI's billing page to avoid unexpected charges.
+GPT Turbo is a JavaScript library for seamless integration with OpenAI's Chat Completion API. It ensures smooth conversation continuity and message history tracking, perfect for creating conversational AI applications.
 
 ## Features
 
-- Interact with any of OpenAI's Chat Completion models, including **GPT-4**, if you have access to it. 
-  - Full list of models [here](https://platform.openai.com/docs/models/model-endpoint-compatibility)
-- Keeps track of message history sent to OpenAI's API to enable conversation continuation.
-- Easily access the estimated cost of your conversations before sending them to OpenAI's API.
-- Easily access the estimated cost of the cumulative usage of your conversation as it progresses.
-- Built entirely with TypeScript
+🤖 Supports all Chat Completion models, including **GPT-4**. (full list [here](https://platform.openai.com/docs/models/model-endpoint-compatibility))
 
-## Pre-requisites
+💬 Supports both single and streamed completions, just like ChatGPT.
 
-Since Chat Completion models are paid, you'll need an [OpenAI API key](https://platform.openai.com/account/api-keys) and [setup billing information](https://platform.openai.com/account/billing/overview). Make sure to [set a usage limit](https://platform.openai.com/account/billing/limits) to avoid unexpected charges.
+⚙ Tune chat completion parameters, such as temperature, top-p, and frequency penalty.
 
-Since this a JavaScript monorepo, you'll need to have [Node.js](https://nodejs.org/en/) installed.
+🌐 Compatible in both Node.js and the browser.
+
+📜 Keeps track of the conversation history for you, making conversation continuity a breeze.
+
+💰 Estimate the cost and size of conversations before sending them to the API.
+
+💾 Easily persist conversations with serialization and deserialization methods.
+
+💻 Built entirely with TypeScript.
+
+⚔️ Battle-tested in multiple environments. (See [implementations](#implementations))
 
 ## Implementations
 
-Most implementations were made following this guide: [OpenAI Docs: Chat completion](https://platform.openai.com/docs/guides/chat). Check out each of their respective folder for more information on how to use them.
+This repo is a mono-repo containing both the [Library](./packages/lib/) and small projects powered by it. Here's a list of all the projects that were built with the GPT Turbo [Library](./packages/lib/)
 
-- [Library](./packages/lib/): An isomorphic JavaScript library that allows you to interact with the Chat Completion API.
-- [CLI](./packages/cli/): A command-line interface for interacting with the library. (Built with React!)
-- [Web](./packages/web/): A web app, similar to ChatGPT, for interacting with the library.
+- [CLI](./packages/cli/): A command-line interface to chat straight from your terminal.
+- [Web](./packages/web/): A web app, very similar to ChatGPT, for handling chats in the browser.
 - [Nest](./packages/nest/): A NestJS backend, for interacting with the library via a REST API.
-- [Discord](./packages/discord/): A Discord bot powered by the library.
+- [Discord](./packages/discord/): A Discord bot for chatting in Discord servers, similar to Discord's own Clyde AI bot.
 
-## Development
+## Discord
 
-This monorepo uses [Lerna](https://lerna.js.org/) to manage different implementations. Since every implementation rely on the Library, it's a good idea to watch for changes in the Library and automatically build it when changes are detected. To do so, run the following command in the root of the project (here):
+Join the Discord community server [here](https://discord.gg/Aa77KCmwRx)!
 
-```bash
-npm run dev
-```
+## License and Disclaimer
 
-This will watch for changes in the Library and automatically build it when changes are detected, making it available to the other implementations.
+GPT Turbo is licensed under the [MIT License](./LICENSE). 
+
+To prevent accidental charges to your OpenAI account, remember to set billing limits on your OpenAI account!
