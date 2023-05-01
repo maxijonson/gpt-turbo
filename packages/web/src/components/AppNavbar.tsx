@@ -23,7 +23,7 @@ import {
 } from "react-icons/bi";
 import TippedActionIcon from "./TippedActionIcon";
 import { openModal } from "@mantine/modals";
-import Settings from "./Settings";
+import SettingsForm from "./SettingsForm";
 import NavbarConversation from "./NavbarConversation";
 import React from "react";
 import Usage from "./Usage";
@@ -110,7 +110,7 @@ export default () => {
                             tip="Settings"
                             onClick={() =>
                                 openModal({
-                                    children: <Settings />,
+                                    children: <SettingsForm />,
                                     centered: true,
                                     size: "lg",
                                     title: "Settings",
