@@ -5,7 +5,7 @@ export const settingsSchema = z.object({
     model: z.string(),
     context: z.string(),
     dry: z.boolean(),
-    disableModeration: z.boolean().or(z.enum(["on", "soft", "off"])),
+    disableModeration: z.boolean().or(z.literal("soft")),
     stream: z.boolean(),
     save: z.boolean(),
 });
