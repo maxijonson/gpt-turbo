@@ -132,7 +132,9 @@ const saveFile = (() => {
     const savePath = path.normalize(
         typeof save === "string"
             ? save
-            : `gptturbo-conversation-${new Date().toISOString()}`
+            : `gptturbo-conversation-${new Date()
+                  .toISOString()
+                  .replace(/:/g, "-")}`
     );
     return savePath.endsWith(".json") ? savePath : `${savePath}.json`;
 })();

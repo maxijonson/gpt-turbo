@@ -26,8 +26,11 @@ export default ({ children }: ConversationManagerProviderProps) => {
     );
 
     const addConversation = React.useCallback(
-        (conversation: ConversationConfigParameters) => {
-            const newConversation = new Conversation(conversation);
+        (conversation: ConversationConfigParameters | Conversation) => {
+            const newConversation =
+                conversation instanceof Conversation
+                    ? conversation
+                    : new Conversation(conversation);
             setConversations((c) => [...c, newConversation]);
             return newConversation;
         },

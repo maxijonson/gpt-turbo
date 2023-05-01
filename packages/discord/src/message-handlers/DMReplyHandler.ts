@@ -3,7 +3,7 @@ import MessageHandler from "./MessageHandler.js";
 import getPromptAndReplyMessages from "../utils/getPromptAndReplyMessages.js";
 import BotException from "../exceptions/BotException.js";
 import getCleanContent from "../utils/getCleanContent.js";
-import { ChatCompletionRequestMessageRoleEnum } from "gpt-turbo";
+import { MessageModel } from "gpt-turbo";
 
 export default class DMReplyHandler extends MessageHandler {
     public get name(): string {
@@ -41,12 +41,7 @@ export default class DMReplyHandler extends MessageHandler {
         const [conversationMessages, prompt] = await Promise.all([
             Promise.all(
                 messages.map(
-                    async (
-                        m
-                    ): Promise<{
-                        content: string;
-                        role: ChatCompletionRequestMessageRoleEnum;
-                    }> => ({
+                    async (m): Promise<MessageModel> => ({
                         content: (await getCleanContent(m)) || "Hello",
                         role:
                             m.author.id === message.author.id

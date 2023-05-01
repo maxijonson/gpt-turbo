@@ -1,4 +1,4 @@
-import { ChatCompletionRequestMessageRoleEnum, Conversation } from "gpt-turbo";
+import { Conversation, MessageModel } from "gpt-turbo";
 import getConversationConfig from "../utils/getConversationConfig.js";
 import BotException from "../exceptions/BotException.js";
 import QuotaManager from "./QuotaManager.js";
@@ -8,10 +8,7 @@ export default class ConversationManager {
     constructor(private readonly quotaManager: QuotaManager) {}
 
     public async getChatCompletion(
-        messages: (
-            | { content: string; role: ChatCompletionRequestMessageRoleEnum }
-            | string
-        )[],
+        messages: (MessageModel | string)[],
         userId: string
     ) {
         const user: ConversationUser = `discord-${userId}`;
@@ -52,15 +49,9 @@ export default class ConversationManager {
     }
 
     private getAlternatedMessages(
-        messages: (
-            | { content: string; role: ChatCompletionRequestMessageRoleEnum }
-            | string
-        )[]
-    ): { content: string; role: ChatCompletionRequestMessageRoleEnum }[] {
-        const alternatedMessages: {
-            content: string;
-            role: ChatCompletionRequestMessageRoleEnum;
-        }[] = [];
+        messages: (MessageModel | string)[]
+    ): MessageModel[] {
+        const alternatedMessages: MessageModel[] = [];
 
         messages.forEach((message, index) => {
             alternatedMessages.push({

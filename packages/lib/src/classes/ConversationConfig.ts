@@ -6,6 +6,10 @@ import {
     DEFAULT_STREAM,
 } from "../config/constants.js";
 import {
+    ConversationConfigModel,
+    conversationConfigSchema,
+} from "../schemas/conversationConfig.schema.js";
+import {
     ConversationConfigChatCompletionOptions,
     ConversationConfigOptions,
     ConversationConfigParameters,
@@ -79,6 +83,41 @@ export class ConversationConfig {
         this.temperature = temperature;
         this.topP = top_p;
         this.user = user;
+    }
+
+    /**
+     * Creates a new `ConversationConfig` instance from a serialized config.
+     *
+     * @param json The JSON object of a ConversationConfig instance.
+     * @returns A new `ConversationConfig` instance
+     */
+    public static fromJSON(json: ConversationConfigModel) {
+        return new ConversationConfig(conversationConfigSchema.parse(json));
+    }
+
+    /**
+     * Serializes the ConversationConfig to JSON.
+     *
+     * @returns The `ConversationConfig` as a JSON object.
+     */
+    public toJSON(): ConversationConfigModel {
+        const json: ConversationConfigModel = {
+            dry: this.dry,
+            apiKey: this.apiKey,
+            model: this.model,
+            stream: this.stream,
+            disableModeration: this.disableModeration,
+            context: this.context,
+            frequency_penalty: this.frequencyPenalty,
+            presence_penalty: this.presencePenalty,
+            max_tokens: this.maxTokens,
+            logit_bias: this.logitBias,
+            temperature: this.temperature,
+            top_p: this.topP,
+            user: this.user,
+            stop: this.stop,
+        };
+        return conversationConfigSchema.parse(json);
     }
 
     public get config(): Required<ConversationConfigOptions> {

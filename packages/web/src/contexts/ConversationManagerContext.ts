@@ -8,7 +8,7 @@ export interface ConversationManagerContextValue {
     activeConversation: Conversation | null;
     showUsage: boolean;
     addConversation: (
-        conversationConfig: ConversationConfigParameters
+        conversationConfig: ConversationConfigParameters | Conversation
     ) => Conversation;
     removeConversation: (id: string) => void;
     removeAllConversations: () => void;
