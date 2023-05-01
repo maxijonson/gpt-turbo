@@ -1,7 +1,5 @@
 import React from "react";
 import fs from "fs";
-import { Persistence, persistenceSchema } from "../../entities/persistence.js";
-import { PersistenceMessage } from "../../entities/persistenceMessage.js";
 import useConversationManager from "../../hooks/useConversationManager.js";
 import {
     PersistenceContext,
@@ -20,19 +18,7 @@ export default ({ children }: PersistenceProviderProps) => {
 
     const save = React.useCallback(() => {
         if (!conversation || !saveFile) return;
-        const persistedConversations: Persistence = {
-            conversation: {
-                ...conversation.getConfig(),
-                messages: conversation.getMessages().map(
-                    (message): PersistenceMessage => ({
-                        content: message.content,
-                        role: message.role,
-                    })
-                ),
-            },
-        };
-        const parsed = persistenceSchema.parse(persistedConversations);
-        const json = JSON.stringify(parsed);
+        const json = JSON.stringify(conversation.toJSON());
         fs.writeFileSync(saveFile, json);
     }, [conversation, saveFile]);
 
@@ -58,45 +44,7 @@ export default ({ children }: PersistenceProviderProps) => {
             try {
                 const data = fs.readFileSync(loadFile, "utf8");
                 const json = JSON.parse(data);
-                const { conversation: persistedConversation } =
-                    persistenceSchema.parse(json);
-                const { messages, disableModeration, ...config } =
-                    persistedConversation;
-                const newConversation = new Conversation({
-                    ...config,
-                    disableModeration: true,
-                });
-
-                for (const message of messages) {
-                    try {
-                        switch (message.role) {
-                            case "user":
-                                await newConversation.addUserMessage(
-                                    message.content
-                                );
-                                break;
-                            case "assistant":
-                                await newConversation.addAssistantMessage(
-                                    message.content
-                                );
-                                break;
-                            case "system":
-                                newConversation.setContext(message.content);
-                        }
-                    } catch (e) {
-                        console.error(
-                            "Error while loading message",
-                            (e as Error).message
-                        );
-                    }
-                }
-
-                newConversation.setConfig(
-                    {
-                        disableModeration,
-                    },
-                    true
-                );
+                const newConversation = await Conversation.fromJSON(json);
                 setConversation(newConversation);
             } catch (e) {
                 console.error(e);
@@ -117,10 +65,7 @@ export default ({ children }: PersistenceProviderProps) => {
             messageOffs.push(
                 message.onMessageStreamingStop(() => {
                     save();
-                })
-            );
-
-            messageOffs.push(
+                }),
                 message.onMessageUpdate((_, m) => {
                     if (m.isStreaming) return;
                     save();

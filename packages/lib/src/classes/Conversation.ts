@@ -10,7 +10,6 @@ import { MessageRoleException } from "../exceptions/index.js";
 import { v4 as uuid } from "uuid";
 import {
     AddMessageListener,
-    ChatCompletionRequestMessageRoleEnum,
     ConversationConfigParameters,
     HandleChatCompletionOptions,
     PromptOptions,
@@ -18,6 +17,11 @@ import {
     RequestOptions,
 } from "../utils/types.js";
 import { DEFAULT_DISABLEMODERATION } from "../index.js";
+import {
+    ConversationModel,
+    conversationSchema,
+} from "../schemas/conversation.schema.js";
+import { MessageModel } from "../schemas/message.schema.js";
 
 /**
  * A Conversation manages the messages sent to and from the OpenAI API and handles the logic for providing the message history to the API for each prompt.
@@ -40,94 +44,30 @@ export class Conversation {
      * Creates a new Conversation instance.
      *
      * @param config The configuration for this conversation. See {@link ConversationConfigParameters}
-     * @param options The HTTP request options. See {@link RequestOptions}
+     * @param requestOptions The HTTP request options. See {@link RequestOptions}
      */
     constructor(
         config: ConversationConfigParameters = {},
-        options: RequestOptions = {}
+        requestOptions: RequestOptions = {}
     ) {
         this.config = new ConversationConfig(config);
-        this.requestOptions = options;
+        this.requestOptions = requestOptions;
         this.clearMessages();
     }
 
-    private notifyMessageAdded(message: Message) {
-        this.addMessageListeners.forEach((listener) => listener(message));
-    }
-
-    private notifyMessageRemoved(message: Message) {
-        this.removeMessageListeners.forEach((listener) => listener(message));
-    }
-
-    private async addMessage(message: Message) {
-        message.content = message.content.trim();
-
-        if (!message.content && message.role === "user") {
-            throw new Error("User message content cannot be empty.");
-        }
-
-        if (this.config.isModerationEnabled) {
-            const flags = await message.moderate(
-                this.config.apiKey,
-                this.requestOptions
-            );
-            if (this.config.isModerationStrict && flags.length > 0) {
-                throw new ModerationException(flags);
-            }
-        }
-
-        if (message.role === "system") {
-            this.config.context = message.content;
-            if (message.content) {
-                // Update the system message or add it if it doesn't exist.
-                if (this.messages[0]?.role === "system") {
-                    this.messages[0] = message;
-                } else {
-                    this.messages.unshift(message);
-                }
-            } else if (this.messages[0]?.role === "system") {
-                // Remove the system message if it exists and the new content is empty.
-                this.messages.shift();
-            }
-        } else {
-            if (
-                this.messages[this.messages.length - 1]?.role === message.role
-            ) {
-                throw new MessageRoleException();
-            }
-            this.messages.push(message);
-        }
-
-        this.notifyMessageAdded(message);
-        return message;
-    }
-
-    private addSystemMessage(message: string) {
-        const systemMessage = new Message("system", message, this.config.model);
-        return this.addMessage(systemMessage);
-    }
-
     /**
-     * Creates a new Conversation instance from a list of messages. Useful for loading a conversation from a database.
+     * Creates a new Conversation instance from a list of messages.
      *
-     * @param messages The messages to add to the conversation.
-     * Can be an array of strings (starting from the user prompt and alternating between user/assistant) or an array of objects with a `role` and `content` property.
-     * Regardless of the format, the messages should alternate between user and assistant messages. (or an error will be thrown)
+     * @param messages The messages (as JSON) to add to the conversation. See {@link MessageModel}
      * @param config The configuration for this conversation. See {@link ConversationConfigParameters}
-     * @param options The HTTP request options. See {@link RequestOptions}
+     * @param requestOptions The HTTP request options. See {@link RequestOptions}
      * @param disableInitialModeration Whether to disable moderation for the initial messages. Defaults to `true` to prevent multiple API calls in a short period of time.
      * @returns The new Conversation instance.
      */
     public static async fromMessages(
-        messages: (
-            | {
-                  role: ChatCompletionRequestMessageRoleEnum;
-                  content: string;
-              }
-            | string
-        )[],
+        messages: MessageModel[],
         config: ConversationConfigParameters = {},
-        options: RequestOptions = {},
+        requestOptions: RequestOptions = {},
         disableInitialModeration: ConversationConfigParameters["disableModeration"] = true
     ) {
         const conversation = new Conversation(
@@ -135,20 +75,10 @@ export class Conversation {
                 ...config,
                 disableModeration: disableInitialModeration,
             },
-            options
+            requestOptions
         );
 
-        let isUserMessage = true;
-        const initialMessages = messages.map((message) => {
-            if (typeof message === "string") {
-                const role = isUserMessage ? "user" : "assistant";
-                isUserMessage = !isUserMessage;
-                return { role, content: message };
-            }
-            return message;
-        });
-
-        for (const message of initialMessages) {
+        for (const message of messages) {
             switch (message.role) {
                 case "user":
                     await conversation.addUserMessage(message.content);
@@ -158,6 +88,7 @@ export class Conversation {
                     break;
                 case "system":
                     conversation.setContext(message.content);
+                    break;
             }
         }
 
@@ -170,6 +101,55 @@ export class Conversation {
         );
 
         return conversation;
+    }
+
+    /**
+     * Creates a new Conversation instance from a JSON object.
+     *
+     * @param json The JSON object of the Conversation instance.
+     * @param config Overrides for the loaded configuration of this conversation. See {@link ConversationConfigParameters}
+     * @param requestOptions Overrides for the loaded HTTP request options. See {@link RequestOptions}
+     * @param disableInitialModeration Whether to disable moderation for the initial messages. Defaults to `true` to prevent multiple API calls in a short period of time.
+     * @returns The new Conversation instance.
+     */
+    public static async fromJSON(
+        json: ConversationModel,
+        config: ConversationConfigParameters = {},
+        requestOptions: RequestOptions = {},
+        disableInitialModeration: ConversationConfigParameters["disableModeration"] = true
+    ) {
+        const conversationJson = conversationSchema.parse(json);
+        const conversation = await Conversation.fromMessages(
+            conversationJson.messages,
+            {
+                ...(conversationJson.config ?? {}),
+                ...config,
+            },
+            {
+                ...(conversationJson.requestOptions ?? {}),
+                ...requestOptions,
+            },
+            disableInitialModeration
+        );
+
+        if (conversationJson.id) conversation.id = conversationJson.id;
+
+        return conversation;
+    }
+
+    /**
+     * Serializes the `Conversation` to JSON.
+     *
+     * @returns A JSON representation of the `Conversation` instance.
+     */
+    public toJSON(): ConversationModel {
+        const json: ConversationModel = {
+            id: this.id,
+            config: this.config.toJSON(),
+            messages: this.messages.map((message) => message.toJSON()),
+            requestOptions: this.requestOptions,
+        };
+        return conversationSchema.parse(json);
     }
 
     /**
@@ -274,87 +254,6 @@ export class Conversation {
         this.notifyMessageRemoved(removedMessage);
     }
 
-    private async handleStreamedResponse(
-        options: HandleChatCompletionOptions = {},
-        requestOptions: RequestOptions = {}
-    ) {
-        const message = new Message("assistant", "", this.config.model);
-        const messages = this.messages.map(({ role, content }) => ({
-            role,
-            content,
-        }));
-
-        const unsubscribeStreaming = message.onMessageStreamingStop((m) => {
-            this.cumulativeSize += this.getSize() + getMessageSize(m.content);
-            this.cumulativeCost += this.getCost() + m.cost;
-            unsubscribeStreaming();
-        });
-
-        if (this.config.dry) {
-            const response = createDryChatCompletion(
-                this.messages[messages.length - 1]?.content ?? "",
-                {
-                    model: this.config.model,
-                }
-            );
-            message.readContentFromStream(response);
-        } else {
-            createChatCompletion(
-                {
-                    ...this.config.chatCompletionConfig,
-                    ...options,
-                    stream: true,
-                    messages,
-                },
-                {
-                    ...this.requestOptions,
-                    ...requestOptions,
-                }
-            ).then((response) => {
-                // Using .then() to get the message out as soon as possible, since the content is known to be empty at first.
-                // This gives time for client code to subscribe to the streaming events.
-                message.readContentFromStream(response);
-            });
-        }
-
-        return message;
-    }
-
-    private async handleNonStreamedResponse(
-        options: HandleChatCompletionOptions = {},
-        requestOptions: RequestOptions = {}
-    ) {
-        const message = new Message("assistant", "", this.config.model);
-        const messages = this.messages.map(({ role, content }) => ({
-            role,
-            content,
-        }));
-
-        if (this.config.dry) {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            message.content = messages[messages.length - 1]?.content ?? null;
-        } else {
-            const response = await createChatCompletion(
-                {
-                    ...this.config.chatCompletionConfig,
-                    ...options,
-                    stream: false,
-                    messages,
-                },
-                {
-                    ...this.requestOptions,
-                    ...requestOptions,
-                }
-            );
-            message.content = response.choices[0].message?.content ?? "";
-        }
-
-        this.cumulativeSize += this.getSize() + getMessageSize(message.content);
-        this.cumulativeCost += this.getCost() + message.cost;
-
-        return message;
-    }
-
     /**
      * Sends a Create Chat Completion request to the OpenAI API using the current messages stored in the conversation's history.
      *
@@ -370,18 +269,6 @@ export class Conversation {
         return stream
             ? this.handleStreamedResponse(options, requestOptions)
             : this.handleNonStreamedResponse(options, requestOptions);
-    }
-
-    private async getAssistantResponse(
-        options?: PromptOptions,
-        requestOptions?: RequestOptions
-    ) {
-        const completion = await this.getChatCompletionResponse(
-            options,
-            requestOptions
-        );
-        const assistantMessage = await this.addMessage(completion);
-        return assistantMessage;
     }
 
     /**
@@ -542,5 +429,154 @@ export class Conversation {
         if (config.context) {
             this.setContext(config.context);
         }
+    }
+
+    private notifyMessageAdded(message: Message) {
+        this.addMessageListeners.forEach((listener) => listener(message));
+    }
+
+    private notifyMessageRemoved(message: Message) {
+        this.removeMessageListeners.forEach((listener) => listener(message));
+    }
+
+    private async addMessage(message: Message) {
+        message.content = message.content.trim();
+
+        if (!message.content && message.role === "user") {
+            throw new Error("User message content cannot be empty.");
+        }
+
+        if (this.config.isModerationEnabled) {
+            const flags = await message.moderate(
+                this.config.apiKey,
+                this.requestOptions
+            );
+            if (this.config.isModerationStrict && flags.length > 0) {
+                throw new ModerationException(flags);
+            }
+        }
+
+        if (message.role === "system") {
+            this.config.context = message.content;
+            if (message.content) {
+                // Update the system message or add it if it doesn't exist.
+                if (this.messages[0]?.role === "system") {
+                    this.messages[0] = message;
+                } else {
+                    this.messages.unshift(message);
+                }
+            } else if (this.messages[0]?.role === "system") {
+                // Remove the system message if it exists and the new content is empty.
+                this.messages.shift();
+            }
+        } else {
+            if (
+                this.messages[this.messages.length - 1]?.role === message.role
+            ) {
+                throw new MessageRoleException();
+            }
+            this.messages.push(message);
+        }
+
+        this.notifyMessageAdded(message);
+        return message;
+    }
+
+    private addSystemMessage(message: string) {
+        const systemMessage = new Message("system", message, this.config.model);
+        return this.addMessage(systemMessage);
+    }
+
+    private async handleStreamedResponse(
+        options: HandleChatCompletionOptions = {},
+        requestOptions: RequestOptions = {}
+    ) {
+        const message = new Message("assistant", "", this.config.model);
+        const messages = this.messages.map(({ role, content }) => ({
+            role,
+            content,
+        }));
+
+        const unsubscribeStreaming = message.onMessageStreamingStop((m) => {
+            this.cumulativeSize += this.getSize() + getMessageSize(m.content);
+            this.cumulativeCost += this.getCost() + m.cost;
+            unsubscribeStreaming();
+        });
+
+        if (this.config.dry) {
+            const response = createDryChatCompletion(
+                this.messages[messages.length - 1]?.content ?? "",
+                {
+                    model: this.config.model,
+                }
+            );
+            message.readContentFromStream(response);
+        } else {
+            createChatCompletion(
+                {
+                    ...this.config.chatCompletionConfig,
+                    ...options,
+                    stream: true,
+                    messages,
+                },
+                {
+                    ...this.requestOptions,
+                    ...requestOptions,
+                }
+            ).then((response) => {
+                // Using .then() to get the message out as soon as possible, since the content is known to be empty at first.
+                // This gives time for client code to subscribe to the streaming events.
+                message.readContentFromStream(response);
+            });
+        }
+
+        return message;
+    }
+
+    private async handleNonStreamedResponse(
+        options: HandleChatCompletionOptions = {},
+        requestOptions: RequestOptions = {}
+    ) {
+        const message = new Message("assistant", "", this.config.model);
+        const messages = this.messages.map(({ role, content }) => ({
+            role,
+            content,
+        }));
+
+        if (this.config.dry) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            message.content = messages[messages.length - 1]?.content ?? null;
+        } else {
+            const response = await createChatCompletion(
+                {
+                    ...this.config.chatCompletionConfig,
+                    ...options,
+                    stream: false,
+                    messages,
+                },
+                {
+                    ...this.requestOptions,
+                    ...requestOptions,
+                }
+            );
+            message.content = response.choices[0].message?.content ?? "";
+        }
+
+        this.cumulativeSize += this.getSize() + getMessageSize(message.content);
+        this.cumulativeCost += this.getCost() + message.cost;
+
+        return message;
+    }
+
+    private async getAssistantResponse(
+        options?: PromptOptions,
+        requestOptions?: RequestOptions
+    ) {
+        const completion = await this.getChatCompletionResponse(
+            options,
+            requestOptions
+        );
+        const assistantMessage = await this.addMessage(completion);
+        return assistantMessage;
     }
 }

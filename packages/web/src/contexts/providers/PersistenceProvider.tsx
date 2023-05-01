@@ -7,8 +7,7 @@ import useStorage from "../../hooks/useStorage";
 import useConversationManager from "../../hooks/useConversationManager";
 import { Persistence, persistenceSchema } from "../../entities/persistence";
 import { PersistenceConversation } from "../../entities/persistenceConversation";
-import { PersistenceMessage } from "../../entities/persistenceMessage";
-import { Message } from "gpt-turbo";
+import { Conversation, Message } from "gpt-turbo";
 
 interface PersistenceProviderProps {
     children?: React.ReactNode;
@@ -56,14 +55,8 @@ export default ({ children }: PersistenceProviderProps) => {
                     conversation.getMessages().length
             )
             .map((conversation) => ({
-                ...conversation.getConfig(),
+                ...conversation.toJSON(),
                 name: getConversationName(conversation.id),
-                messages: conversation.getMessages().map(
-                    (message): PersistenceMessage => ({
-                        content: message.content,
-                        role: message.role,
-                    })
-                ),
             }));
 
         setPersistence({
@@ -102,48 +95,15 @@ export default ({ children }: PersistenceProviderProps) => {
         const load = async () => {
             let i = -1;
             for (const {
-                messages,
-                disableModeration,
-                ...config
+                name,
+                ...conversationJson
             } of persistence.conversations) {
-                const newConversation = addConversation({
-                    ...config,
-                    disableModeration: true,
-                });
+                const newConversation = addConversation(
+                    await Conversation.fromJSON(conversationJson)
+                );
                 if (++i === 0) setActiveConversation(newConversation.id, true);
                 addPersistedConversationId(newConversation.id);
-                setConversationName(newConversation.id, config.name);
-
-                for (const message of messages) {
-                    try {
-                        switch (message.role) {
-                            case "user":
-                                await newConversation.addUserMessage(
-                                    message.content
-                                );
-                                break;
-                            case "assistant":
-                                await newConversation.addAssistantMessage(
-                                    message.content
-                                );
-                                break;
-                            case "system":
-                                newConversation.setContext(message.content);
-                        }
-                    } catch (e) {
-                        console.error(
-                            "Error while loading message",
-                            (e as Error).message
-                        );
-                    }
-                }
-
-                newConversation.setConfig(
-                    {
-                        disableModeration,
-                    },
-                    true
-                );
+                setConversationName(newConversation.id, name);
             }
         };
         load().then(() => {

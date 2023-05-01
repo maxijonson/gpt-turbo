@@ -10,6 +10,7 @@ import {
     MessageUpdateListener,
 } from "../utils/types.js";
 import createModeration from "../utils/createModeration.js";
+import { MessageModel, messageSchema } from "../schemas/message.schema.js";
 
 /**
  * A message in a Conversation.
@@ -48,17 +49,38 @@ export class Message {
         this.content = content;
     }
 
-    private notifyMessageUpdate() {
-        const content = this.content;
-        this.messageUpdateListeners.forEach((listener) =>
-            listener(content, this)
+    /**
+     * Creates a new `Message` instance from a serialized message.
+     *
+     * @param json The JSON object of the Message instance.
+     * @returns A new `Message` instance
+     */
+    public static fromJSON(json: MessageModel): Message {
+        const messageJson = messageSchema.parse(json);
+        const message = new Message(
+            messageJson.role,
+            messageJson.content,
+            messageJson.model
         );
+        if (messageJson.id) message.id = messageJson.id;
+        if (messageJson.flags) message.flags = messageJson.flags;
+        return message;
     }
 
-    private notifyMessageStreaming() {
-        this.messageStreamingListeners.forEach((listener) => {
-            listener(this.isStreaming, this);
-        });
+    /**
+     * Serializes the message to JSON.
+     *
+     * @returns The `Message` as a JSON object.
+     */
+    public toJSON(): MessageModel {
+        const json: MessageModel = {
+            id: this.id,
+            role: this.role,
+            content: this.content,
+            model: this.model,
+            flags: this.flags,
+        };
+        return messageSchema.parse(json);
     }
 
     /**
@@ -210,6 +232,19 @@ export class Message {
         } finally {
             this.isStreaming = false;
         }
+    }
+
+    private notifyMessageUpdate() {
+        const content = this.content;
+        this.messageUpdateListeners.forEach((listener) =>
+            listener(content, this)
+        );
+    }
+
+    private notifyMessageStreaming() {
+        this.messageStreamingListeners.forEach((listener) => {
+            listener(this.isStreaming, this);
+        });
     }
 
     /** The role of who this message is from. */
