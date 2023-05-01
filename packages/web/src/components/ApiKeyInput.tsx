@@ -8,7 +8,7 @@ interface ApiKeyInputProps {
 export default ({ value, onChange }: ApiKeyInputProps) => {
     return (
         <PasswordInput
-            value={value}
+            value={value || ""}
             onChange={(event) => onChange(event.currentTarget.value)}
             label="OpenAI API Key"
             description={

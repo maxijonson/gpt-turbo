@@ -6,7 +6,11 @@ import { ZodType } from "zod";
 
 const warns = new Set<string>();
 
-export default <T,>(key: string, defaultValue: T, schema?: ZodType<T>) => {
+export default <T,>(
+    key: string,
+    defaultValue: T,
+    schema?: ZodType<T, any, any>
+) => {
     const [valueCheck] = useLocalStorage<T>({
         key: key,
     });
