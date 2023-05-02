@@ -9,17 +9,17 @@ export default (
     optHeaders: Record<string, string> = {},
     proxy?: RequestOptionsProxy
 ) => {
-    const headers: Record<string, string> = {
+    const headers = new Headers({
         ...optHeaders,
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
-    };
+    });
 
     if (proxy && proxy.auth) {
         const auth = base64Encode(
             `${proxy.auth.username}:${proxy.auth.password}`
         );
-        headers["Proxy-Authorization"] = `Basic ${auth}`;
+        headers.set("Proxy-Authorization", `Basic ${auth}`);
     }
 
     return headers;

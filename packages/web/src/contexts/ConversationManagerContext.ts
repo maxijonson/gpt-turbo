@@ -1,4 +1,8 @@
-import { Conversation, ConversationConfigParameters } from "gpt-turbo";
+import {
+    Conversation,
+    ConversationConfigParameters,
+    RequestOptions,
+} from "gpt-turbo";
 import React from "react";
 import makeNotImplemented from "../utils/makeNotImplemented";
 
@@ -8,7 +12,8 @@ export interface ConversationManagerContextValue {
     activeConversation: Conversation | null;
     showUsage: boolean;
     addConversation: (
-        conversationConfig: ConversationConfigParameters | Conversation
+        conversationConfig: ConversationConfigParameters | Conversation,
+        requestOptions?: RequestOptions
     ) => Conversation;
     removeConversation: (id: string) => void;
     removeAllConversations: () => void;

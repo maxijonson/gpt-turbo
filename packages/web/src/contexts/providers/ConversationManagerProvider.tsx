@@ -1,5 +1,9 @@
 import React from "react";
-import { Conversation, ConversationConfigParameters } from "gpt-turbo";
+import {
+    Conversation,
+    ConversationConfigParameters,
+    RequestOptions,
+} from "gpt-turbo";
 import {
     ConversationManagerContext,
     ConversationManagerContextValue,
@@ -26,11 +30,14 @@ export default ({ children }: ConversationManagerProviderProps) => {
     );
 
     const addConversation = React.useCallback(
-        (conversation: ConversationConfigParameters | Conversation) => {
+        (
+            conversation: ConversationConfigParameters | Conversation,
+            requestOptions?: RequestOptions
+        ) => {
             const newConversation =
                 conversation instanceof Conversation
                     ? conversation
-                    : new Conversation(conversation);
+                    : new Conversation(conversation, requestOptions);
             setConversations((c) => [...c, newConversation]);
             return newConversation;
         },

@@ -59,7 +59,7 @@ export interface RequestOptionsProxy {
     /**
      * The port number of the proxy server.
      *
-     * @default 80
+     * @default 80 for HTTP, 443 for HTTPS
      */
     port?: number;
 

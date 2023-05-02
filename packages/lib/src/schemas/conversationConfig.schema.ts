@@ -16,7 +16,12 @@ export const conversationConfigSchema = z.object({
     max_tokens: z.number().optional(),
     presence_penalty: z.number().optional(),
     frequency_penalty: z.number().optional(),
-    logit_bias: z.record(z.number(), z.number()).optional(),
+    logit_bias: z
+        .record(
+            z.string().refine((val) => !isNaN(Number(val))),
+            z.number()
+        )
+        .optional(),
     user: z.string().optional(),
 });
 
