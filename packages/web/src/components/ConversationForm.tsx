@@ -13,7 +13,7 @@ import {
 import useSettings from "../hooks/useSettings";
 import ModelSelectInput from "./ModelSelectInput";
 import DisableModerationInput from "./DisableModerationInput";
-import { CreateChatCompletionRequest } from "gpt-turbo";
+import { CreateChatCompletionRequest, RequestOptionsProxy } from "gpt-turbo";
 import ApiKeyInput from "./ApiKeyInput";
 import DryInput from "./DryInput";
 import StreamInput from "./StreamInput";
@@ -22,6 +22,8 @@ import ContextInput from "./ContextInput";
 import OptionalNumberInput from "./OptionalNumberInput";
 import StopInput from "./StopInput";
 import LogitBiasInput from "./LogitBiasInput";
+import HeadersInput from "./HeadersInput";
+import ProxyInput from "./ProxyInput";
 
 export interface ConversationFormValues {
     save: boolean;
@@ -41,6 +43,9 @@ export interface ConversationFormValues {
     max_tokens: CreateChatCompletionRequest["max_tokens"];
     logit_bias: CreateChatCompletionRequest["logit_bias"];
     user: CreateChatCompletionRequest["user"];
+
+    headers: Record<string, string> | undefined;
+    proxy: RequestOptionsProxy | undefined;
 }
 
 interface ConversationFormProps {
@@ -68,6 +73,9 @@ export default ({ onSubmit }: ConversationFormProps) => {
             max_tokens: settings.max_tokens,
             logit_bias: settings.logit_bias,
             user: settings.user,
+
+            headers: settings.headers,
+            proxy: settings.proxy,
         },
         transformValues: (values): ConversationFormValues => ({
             ...values,
@@ -76,6 +84,7 @@ export default ({ onSubmit }: ConversationFormProps) => {
         }),
     });
     const [showAdvanced, setShowAdvanced] = React.useState(false);
+    const [showRequest, setShowRequest] = React.useState(false);
 
     const handleSubmit = form.onSubmit((values) => {
         onSubmit(values);
@@ -108,7 +117,11 @@ export default ({ onSubmit }: ConversationFormProps) => {
                     label={
                         <Button
                             variant="subtle"
-                            onClick={() => setShowAdvanced(!showAdvanced)}
+                            onClick={() => {
+                                setShowAdvanced(!showAdvanced);
+                                setShowRequest(false);
+                            }}
+                            w={200}
                         >
                             {showAdvanced ? "Hide" : "Show"} Advanced Settings
                         </Button>
@@ -167,6 +180,26 @@ export default ({ onSubmit }: ConversationFormProps) => {
                     </Grid>
                     <StopInput {...form.getInputProps("stop")} />
                     <LogitBiasInput {...form.getInputProps("logit_bias")} />
+                </Collapse>
+                <Divider
+                    mt={0}
+                    labelPosition="center"
+                    label={
+                        <Button
+                            variant="subtle"
+                            onClick={() => {
+                                setShowRequest(!showRequest);
+                                setShowAdvanced(false);
+                            }}
+                            w={200}
+                        >
+                            {showRequest ? "Hide" : "Show"} Request Settings
+                        </Button>
+                    }
+                />
+                <Collapse in={showRequest}>
+                    <ProxyInput {...form.getInputProps("proxy")} />
+                    <HeadersInput {...form.getInputProps("headers")} />
                 </Collapse>
                 <Button type="submit">Submit</Button>
                 {form.values.save && (

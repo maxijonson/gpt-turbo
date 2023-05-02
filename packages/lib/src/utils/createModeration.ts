@@ -18,11 +18,7 @@ export default async (
     { apiKey, input }: CreateModerationRequest,
     { headers: optHeaders = {}, proxy }: RequestOptions
 ): Promise<CreateModerationResponse> => {
-    const headers: Record<string, string> = getRequestHeaders(
-        apiKey,
-        optHeaders,
-        proxy
-    );
+    const headers = getRequestHeaders(apiKey, optHeaders, proxy);
     const url = getRequestUrl(ENDPOINT_MODERATION, proxy);
 
     const response = await fetch(url, {

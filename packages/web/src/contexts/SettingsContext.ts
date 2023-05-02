@@ -35,6 +35,9 @@ export const SettingsContext = React.createContext<SettingsContextValue>({
         max_tokens: Infinity,
         logit_bias: undefined,
         user: "",
+
+        headers: undefined,
+        proxy: undefined,
     },
     setSettings: notImplemented,
     areSettingsLoaded: false,

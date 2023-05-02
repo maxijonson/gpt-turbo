@@ -20,11 +20,7 @@ export default async <T extends CreateChatCompletionRequest>(
 ): Promise<
     T["stream"] extends true ? ReadableStream : CreateChatCompletionResponse
 > => {
-    const headers: Record<string, string> = getRequestHeaders(
-        apiKey,
-        optHeaders,
-        proxy
-    );
+    const headers = getRequestHeaders(apiKey, optHeaders, proxy);
     const url = getRequestUrl(ENDPOINT_CHATCOMPLETION, proxy);
 
     const response = await fetch(url, {

@@ -1,5 +1,6 @@
 import {
     conversationConfigSchema,
+    conversationSchema,
     DEFAULT_CONTEXT,
     DEFAULT_DISABLEMODERATION,
     DEFAULT_DRY,
@@ -28,6 +29,9 @@ export const settingsSchema = z.object({
     max_tokens: conversationConfigSchema.shape.max_tokens,
     logit_bias: conversationConfigSchema.shape.logit_bias,
     user: conversationConfigSchema.shape.user,
+
+    headers: conversationSchema.shape.requestOptions.unwrap().shape.headers,
+    proxy: conversationSchema.shape.requestOptions.unwrap().shape.proxy,
 });
 
 export type Settings = z.infer<typeof settingsSchema>;

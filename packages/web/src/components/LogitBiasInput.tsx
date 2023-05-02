@@ -1,6 +1,7 @@
 import {
     ActionIcon,
     Anchor,
+    Card,
     Group,
     Input,
     NumberInput,
@@ -106,45 +107,49 @@ export default ({ value, onChange }: LogitBiasInputProps) => {
                 </Text>
             }
         >
-            <Stack>
-                {tokens.map(({ token, probability }, index) => (
-                    <Group key={index}>
-                        <NumberInput
-                            value={token}
-                            onChange={(value) => setToken(index, value)}
-                            placeholder="Token ID"
-                            min={0}
-                            sx={{ flexGrow: 1 }}
-                        />
-                        <NumberInput
-                            value={probability}
-                            onChange={(value) => setProbability(index, value)}
-                            placeholder="Probability"
-                            min={-100}
-                            max={100}
-                            sx={{ flexGrow: 1 }}
-                        />
-                        <ActionIcon
-                            color="red"
-                            onClick={() => removeItem(index)}
-                        >
-                            <BsTrash />
-                        </ActionIcon>
-                    </Group>
-                ))}
-            </Stack>
-            <Group position="center" mt="md">
-                <ActionIcon
-                    variant="outline"
-                    color="blue"
-                    onClick={() =>
-                        handlers.append({ token: "", probability: "" })
-                    }
-                    title="Add token"
-                >
-                    <BsPlus />
-                </ActionIcon>
-            </Group>
+            <Card withBorder p="xs">
+                <Stack>
+                    {tokens.map(({ token, probability }, index) => (
+                        <Group key={index} noWrap>
+                            <NumberInput
+                                value={token}
+                                onChange={(value) => setToken(index, value)}
+                                placeholder="Token ID"
+                                min={0}
+                                style={{ flexGrow: 1 }}
+                            />
+                            <NumberInput
+                                value={probability}
+                                onChange={(value) =>
+                                    setProbability(index, value)
+                                }
+                                placeholder="Probability"
+                                min={-100}
+                                max={100}
+                                style={{ flexGrow: 1 }}
+                            />
+                            <ActionIcon
+                                color="red"
+                                onClick={() => removeItem(index)}
+                            >
+                                <BsTrash />
+                            </ActionIcon>
+                        </Group>
+                    ))}
+                </Stack>
+                <Group position="center" mt="md">
+                    <ActionIcon
+                        variant="outline"
+                        color="blue"
+                        onClick={() =>
+                            handlers.append({ token: "", probability: "" })
+                        }
+                        title="Add token"
+                    >
+                        <BsPlus />
+                    </ActionIcon>
+                </Group>
+            </Card>
         </Input.Wrapper>
     );
 };

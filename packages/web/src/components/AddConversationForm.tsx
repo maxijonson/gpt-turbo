@@ -8,8 +8,8 @@ export default () => {
     const { addPersistedConversationId } = usePersistence();
 
     const onSubmit = React.useCallback(
-        ({ save, ...values }: ConversationFormValues) => {
-            const newConversation = addConversation(values);
+        ({ save, headers, proxy, ...values }: ConversationFormValues) => {
+            const newConversation = addConversation(values, { headers, proxy });
             setActiveConversation(newConversation.id, true);
             if (save) {
                 addPersistedConversationId(newConversation.id);
