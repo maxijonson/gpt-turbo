@@ -9,6 +9,7 @@ import {
     Collapse,
     TextInput,
     Grid,
+    Tabs,
 } from "@mantine/core";
 import useSettings from "../hooks/useSettings";
 import ModelSelectInput from "./ModelSelectInput";
@@ -84,7 +85,6 @@ export default ({ onSubmit }: ConversationFormProps) => {
         }),
     });
     const [showAdvanced, setShowAdvanced] = React.useState(false);
-    const [showRequest, setShowRequest] = React.useState(false);
 
     const handleSubmit = form.onSubmit((values) => {
         onSubmit(values);
@@ -93,114 +93,133 @@ export default ({ onSubmit }: ConversationFormProps) => {
     return (
         <form onSubmit={handleSubmit}>
             <Stack>
-                <ApiKeyInput {...form.getInputProps("apiKey")} />
-                <Group>
-                    <ModelSelectInput {...form.getInputProps("model")} />
-                    <Group position="center" sx={{ flexGrow: 1 }}>
-                        <DisableModerationInput
-                            {...form.getInputProps("disableModeration")}
-                        />
-                    </Group>
-                    <Group position="center" noWrap sx={{ flexGrow: 1 }}>
-                        <DryInput
-                            {...form.getInputProps("dry")}
-                            value={!form.values.apiKey || form.values.dry}
-                            readOnly={!form.values.apiKey}
-                        />
-                        <StreamInput {...form.getInputProps("stream")} />
-                        <SaveInput {...form.getInputProps("save")} />
-                    </Group>
-                </Group>
-                <ContextInput {...form.getInputProps("context")} />
-                <Divider
-                    labelPosition="center"
-                    label={
-                        <Button
-                            variant="subtle"
-                            onClick={() => {
-                                setShowAdvanced(!showAdvanced);
-                                setShowRequest(false);
-                            }}
-                            w={200}
-                        >
-                            {showAdvanced ? "Hide" : "Show"} Advanced Settings
-                        </Button>
-                    }
-                />
-                <Collapse in={showAdvanced}>
-                    <Grid align="end">
-                        <Grid.Col span={4}>
-                            <OptionalNumberInput
-                                {...form.getInputProps("max_tokens")}
-                                label="Max Tokens"
-                                step={1}
-                                precision={0}
-                                min={1}
-                                max={Infinity}
+                <Tabs defaultValue="conversation">
+                    <Tabs.List>
+                        <Tabs.Tab value="conversation">Conversation</Tabs.Tab>
+                        <Tabs.Tab value="request">Request</Tabs.Tab>
+                    </Tabs.List>
+                    <Tabs.Panel value="conversation">
+                        <Stack>
+                            <ApiKeyInput {...form.getInputProps("apiKey")} />
+                            <Group>
+                                <ModelSelectInput
+                                    {...form.getInputProps("model")}
+                                />
+                                <Group position="center" sx={{ flexGrow: 1 }}>
+                                    <DisableModerationInput
+                                        {...form.getInputProps(
+                                            "disableModeration"
+                                        )}
+                                    />
+                                </Group>
+                                <Group
+                                    position="center"
+                                    noWrap
+                                    sx={{ flexGrow: 1 }}
+                                >
+                                    <DryInput
+                                        {...form.getInputProps("dry")}
+                                        value={
+                                            !form.values.apiKey ||
+                                            form.values.dry
+                                        }
+                                        readOnly={!form.values.apiKey}
+                                    />
+                                    <StreamInput
+                                        {...form.getInputProps("stream")}
+                                    />
+                                    <SaveInput
+                                        {...form.getInputProps("save")}
+                                    />
+                                </Group>
+                            </Group>
+                            <ContextInput {...form.getInputProps("context")} />
+                            <Divider
+                                labelPosition="center"
+                                label={
+                                    <Button
+                                        variant="subtle"
+                                        onClick={() =>
+                                            setShowAdvanced(!showAdvanced)
+                                        }
+                                        w={200}
+                                    >
+                                        {showAdvanced ? "Hide" : "Show"}{" "}
+                                        Advanced Settings
+                                    </Button>
+                                }
                             />
-                        </Grid.Col>
-                        <Grid.Col span={4}>
-                            <TextInput
-                                {...form.getInputProps("user")}
-                                value={form.values.user || ""}
-                                label="User"
-                            />
-                        </Grid.Col>
-                        <Grid.Col span={4}>
-                            <OptionalNumberInput
-                                {...form.getInputProps("temperature")}
-                                label="Temperature"
-                                max={2}
-                            />
-                        </Grid.Col>
-                    </Grid>
-                    <Grid align="end">
-                        <Grid.Col span={4}>
-                            <OptionalNumberInput
-                                {...form.getInputProps("frequency_penalty")}
-                                label="Frequency Penalty"
-                                min={-2}
-                                max={2}
-                            />
-                        </Grid.Col>
-                        <Grid.Col span={4}>
-                            <OptionalNumberInput
-                                {...form.getInputProps("presence_penalty")}
-                                label="Presence Penalty"
-                                min={-2}
-                                max={2}
-                            />
-                        </Grid.Col>
-                        <Grid.Col span={4}>
-                            <OptionalNumberInput
-                                {...form.getInputProps("top_p")}
-                                label="Top P"
-                            />
-                        </Grid.Col>
-                    </Grid>
-                    <StopInput {...form.getInputProps("stop")} />
-                    <LogitBiasInput {...form.getInputProps("logit_bias")} />
-                </Collapse>
-                <Divider
-                    mt={0}
-                    labelPosition="center"
-                    label={
-                        <Button
-                            variant="subtle"
-                            onClick={() => {
-                                setShowRequest(!showRequest);
-                                setShowAdvanced(false);
-                            }}
-                            w={200}
-                        >
-                            {showRequest ? "Hide" : "Show"} Request Settings
-                        </Button>
-                    }
-                />
-                <Collapse in={showRequest}>
-                    <ProxyInput {...form.getInputProps("proxy")} />
-                    <HeadersInput {...form.getInputProps("headers")} />
-                </Collapse>
+                            <Collapse in={showAdvanced}>
+                                <Grid align="end">
+                                    <Grid.Col span={4}>
+                                        <OptionalNumberInput
+                                            {...form.getInputProps(
+                                                "max_tokens"
+                                            )}
+                                            label="Max Tokens"
+                                            step={1}
+                                            precision={0}
+                                            min={1}
+                                            max={Infinity}
+                                        />
+                                    </Grid.Col>
+                                    <Grid.Col span={4}>
+                                        <TextInput
+                                            {...form.getInputProps("user")}
+                                            value={form.values.user || ""}
+                                            label="User"
+                                        />
+                                    </Grid.Col>
+                                    <Grid.Col span={4}>
+                                        <OptionalNumberInput
+                                            {...form.getInputProps(
+                                                "temperature"
+                                            )}
+                                            label="Temperature"
+                                            max={2}
+                                        />
+                                    </Grid.Col>
+                                </Grid>
+                                <Grid align="end">
+                                    <Grid.Col span={4}>
+                                        <OptionalNumberInput
+                                            {...form.getInputProps(
+                                                "frequency_penalty"
+                                            )}
+                                            label="Frequency Penalty"
+                                            min={-2}
+                                            max={2}
+                                        />
+                                    </Grid.Col>
+                                    <Grid.Col span={4}>
+                                        <OptionalNumberInput
+                                            {...form.getInputProps(
+                                                "presence_penalty"
+                                            )}
+                                            label="Presence Penalty"
+                                            min={-2}
+                                            max={2}
+                                        />
+                                    </Grid.Col>
+                                    <Grid.Col span={4}>
+                                        <OptionalNumberInput
+                                            {...form.getInputProps("top_p")}
+                                            label="Top P"
+                                        />
+                                    </Grid.Col>
+                                </Grid>
+                                <StopInput {...form.getInputProps("stop")} />
+                                <LogitBiasInput
+                                    {...form.getInputProps("logit_bias")}
+                                />
+                            </Collapse>
+                        </Stack>
+                    </Tabs.Panel>
+                    <Tabs.Panel value="request">
+                        <ProxyInput {...form.getInputProps("proxy")} />
+                        <HeadersInput {...form.getInputProps("headers")} />
+                    </Tabs.Panel>
+                </Tabs>
                 <Button type="submit">Submit</Button>
                 {form.values.save && (
                     <Text size="xs" italic align="center">
