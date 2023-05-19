@@ -28,7 +28,7 @@ import NavbarConversation from "./NavbarConversation";
 import React from "react";
 import Usage from "./Usage";
 import { useMediaQuery } from "@mantine/hooks";
-import { BsGithub } from "react-icons/bs";
+import { BsDiscord, BsGithub } from "react-icons/bs";
 
 const useStyles = createStyles(() => ({
     scrollArea: {
@@ -202,6 +202,15 @@ export default () => {
                                 size="xs"
                             >
                                 <BsGithub />
+                            </TippedActionIcon>
+                            <TippedActionIcon
+                                tip="Join Discord server"
+                                onClick={() =>
+                                    window.open("https://discord.gg/Aa77KCmwRx")
+                                }
+                                size="xs"
+                            >
+                                <BsDiscord />
                             </TippedActionIcon>
                         </Group>
                         <Text align="center" size="xs">
