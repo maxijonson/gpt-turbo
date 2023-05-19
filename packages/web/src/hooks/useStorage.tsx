@@ -28,6 +28,40 @@ export default <T,>(
             const result = schema.safeParse(value);
             setValidated(true);
             if (result.success || warns.has(key)) return;
+
+            const {
+                error: { issues },
+            } = result;
+            const invalidTypeIssues = issues.filter(
+                (i) => i.code === "invalid_type"
+            );
+            if (
+                invalidTypeIssues.length > 0 &&
+                defaultValue &&
+                typeof defaultValue === "object" &&
+                value &&
+                typeof value === "object"
+            ) {
+                // Attempt to fix undefined values
+                const repaired = invalidTypeIssues.reduce(
+                    (repairedValue, issue) => {
+                        const path = issue.path.join(".");
+                        const pathValue = (value as Record<string, unknown>)[
+                            path
+                        ];
+                        const pathDefaultValue = (
+                            defaultValue as Record<string, unknown>
+                        )[path];
+                        if (pathValue !== undefined) return repairedValue; // We're only interested in undefined values
+                        (repairedValue as any)[path] = pathDefaultValue;
+                        return repairedValue;
+                    },
+                    { ...value }
+                );
+                setValue(repaired);
+                return;
+            }
+
             warns.add(key);
             console.error(result.error.format());
             notifications.show({
@@ -56,7 +90,16 @@ export default <T,>(
                 autoClose: false,
             });
         }
-    }, [isValueLoaded, key, removeValue, schema, validated, value]);
+    }, [
+        defaultValue,
+        isValueLoaded,
+        key,
+        removeValue,
+        schema,
+        setValue,
+        validated,
+        value,
+    ]);
 
     return {
         value,
