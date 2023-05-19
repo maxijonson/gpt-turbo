@@ -1,6 +1,8 @@
 import React from "react";
 import makeNotImplemented from "../utils/makeNotImplemented";
 import { Persistence } from "../entities/persistence";
+import { PersistenceContext as PersistenceContextEntity } from "../entities/persistenceContext";
+import { PersistencePrompt } from "../entities/persistencePrompt";
 
 export interface PersistenceContextValue {
     persistence: Persistence;
@@ -8,15 +10,25 @@ export interface PersistenceContextValue {
     persistedConversationIds: string[];
     isLoading: boolean;
     hasInit: boolean;
+    saveContext: (context: PersistenceContextEntity) => void;
+    savePrompt: (prompt: PersistencePrompt) => void;
+    removeContext: (contextName: string) => void;
+    removePrompt: (promptName: string) => void;
 }
 
 const notImplemented = makeNotImplemented("PersistenceContext");
 export const PersistenceContext = React.createContext<PersistenceContextValue>({
     persistence: {
         conversations: [],
+        contexts: [],
+        prompts: [],
     },
     addPersistedConversationId: notImplemented,
     persistedConversationIds: [],
     isLoading: false,
     hasInit: true,
+    saveContext: notImplemented,
+    savePrompt: notImplemented,
+    removeContext: notImplemented,
+    removePrompt: notImplemented,
 });

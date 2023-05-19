@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    PersistenceContext,
+    PersistenceContext as PersistenceContextComponent,
     PersistenceContextValue,
 } from "../PersistenceContext";
 import useStorage from "../../hooks/useStorage";
@@ -8,6 +8,8 @@ import useConversationManager from "../../hooks/useConversationManager";
 import { Persistence, persistenceSchema } from "../../entities/persistence";
 import { PersistenceConversation } from "../../entities/persistenceConversation";
 import { Conversation, Message } from "gpt-turbo";
+import { PersistenceContext } from "../../entities/persistenceContext";
+import { PersistencePrompt } from "../../entities/persistencePrompt";
 
 interface PersistenceProviderProps {
     children?: React.ReactNode;
@@ -29,6 +31,8 @@ export default ({ children }: PersistenceProviderProps) => {
         "gpt-turbo-persistence",
         {
             conversations: [],
+            contexts: [],
+            prompts: [],
         },
         persistenceSchema
     );
@@ -47,7 +51,7 @@ export default ({ children }: PersistenceProviderProps) => {
         });
     }, []);
 
-    const save = React.useCallback(() => {
+    const saveConversations = React.useCallback(() => {
         const persistedConversations: PersistenceConversation[] = conversations
             .filter(
                 (conversation) =>
@@ -59,15 +63,74 @@ export default ({ children }: PersistenceProviderProps) => {
                 name: getConversationName(conversation.id),
             }));
 
-        setPersistence({
+        setPersistence((current) => ({
+            ...current,
             conversations: persistedConversations,
-        });
+        }));
     }, [
         conversations,
         getConversationName,
         persistedConversationIds,
         setPersistence,
     ]);
+
+    const saveContext = React.useCallback(
+        (context: PersistenceContext) => {
+            setPersistence((current) => {
+                if (current.contexts.includes(context)) {
+                    return current;
+                }
+                return persistenceSchema.parse({
+                    ...current,
+                    contexts: [...current.contexts, context],
+                });
+            });
+        },
+        [setPersistence]
+    );
+
+    const savePrompt = React.useCallback(
+        (prompt: PersistencePrompt) => {
+            setPersistence((current) => {
+                if (current.prompts.includes(prompt)) {
+                    return current;
+                }
+                return persistenceSchema.parse({
+                    ...current,
+                    prompts: [...current.prompts, prompt],
+                });
+            });
+        },
+        [setPersistence]
+    );
+
+    const removeContext = React.useCallback(
+        (contextName: string) => {
+            setPersistence((current) =>
+                persistenceSchema.parse({
+                    ...current,
+                    contexts: current.contexts.filter(
+                        (c) => c.name !== contextName
+                    ),
+                })
+            );
+        },
+        [setPersistence]
+    );
+
+    const removePrompt = React.useCallback(
+        (promptName: string) => {
+            setPersistence((current) =>
+                persistenceSchema.parse({
+                    ...current,
+                    prompts: current.prompts.filter(
+                        (p) => p.name !== promptName
+                    ),
+                })
+            );
+        },
+        [setPersistence]
+    );
 
     const providerValue = React.useMemo<PersistenceContextValue>(
         () => ({
@@ -76,6 +139,10 @@ export default ({ children }: PersistenceProviderProps) => {
             persistedConversationIds,
             isLoading,
             hasInit,
+            saveContext,
+            savePrompt,
+            removeContext,
+            removePrompt,
         }),
         [
             addPersistedConversationId,
@@ -83,6 +150,10 @@ export default ({ children }: PersistenceProviderProps) => {
             isLoading,
             persistedConversationIds,
             persistence,
+            removeContext,
+            removePrompt,
+            saveContext,
+            savePrompt,
         ]
     );
 
@@ -125,7 +196,7 @@ export default ({ children }: PersistenceProviderProps) => {
     React.useEffect(() => {
         if (isLoading || !hasInit) return;
 
-        save();
+        saveConversations();
 
         const offs = conversations
             .filter((conversation) =>
@@ -137,14 +208,14 @@ export default ({ children }: PersistenceProviderProps) => {
                 const attachMessageListeners = () => (message: Message) => {
                     messageOffs.push(
                         message.onMessageStreamingStop(() => {
-                            save();
+                            saveConversations();
                         })
                     );
 
                     messageOffs.push(
                         message.onMessageUpdate((_, m) => {
                             if (m.isStreaming) return;
-                            save();
+                            saveConversations();
                         })
                     );
                 };
@@ -153,13 +224,13 @@ export default ({ children }: PersistenceProviderProps) => {
 
                 const offMessageAdded = conversation.onMessageAdded(
                     (message) => {
-                        save();
+                        saveConversations();
                         attachMessageListeners()(message);
                     }
                 );
 
                 const offMessageRemoved = conversation.onMessageRemoved(() => {
-                    save();
+                    saveConversations();
                 });
 
                 return () => {
@@ -172,11 +243,17 @@ export default ({ children }: PersistenceProviderProps) => {
         return () => {
             offs.forEach((off) => off());
         };
-    }, [conversations, hasInit, isLoading, persistedConversationIds, save]);
+    }, [
+        conversations,
+        hasInit,
+        isLoading,
+        persistedConversationIds,
+        saveConversations,
+    ]);
 
     return (
-        <PersistenceContext.Provider value={providerValue}>
+        <PersistenceContextComponent.Provider value={providerValue}>
             {children}
-        </PersistenceContext.Provider>
+        </PersistenceContextComponent.Provider>
     );
 };

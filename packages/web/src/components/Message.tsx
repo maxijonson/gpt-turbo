@@ -2,6 +2,7 @@ import {
     Avatar,
     Card,
     Group,
+    Modal,
     Stack,
     Text,
     Textarea,
@@ -10,14 +11,23 @@ import {
 } from "@mantine/core";
 import { Message } from "gpt-turbo";
 import { SiOpenai } from "react-icons/si";
-import { BiCheck, BiCog, BiEdit, BiRefresh, BiUser, BiX } from "react-icons/bi";
+import {
+    BiCheck,
+    BiCog,
+    BiEdit,
+    BiRefresh,
+    BiSave,
+    BiUser,
+    BiX,
+} from "react-icons/bi";
 import React from "react";
 import TippedActionIcon from "./TippedActionIcon";
 import { useForm } from "@mantine/form";
 import useConversationManager from "../hooks/useConversationManager";
 import { notifications } from "@mantine/notifications";
 import CodeBlock, { LANGUAGES, Language } from "./CodeBlock";
-import { useMediaQuery } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
+import SavePromptModalBody from "./SavePromptModalBody";
 
 interface MessageProps {
     message: Message;
@@ -50,6 +60,10 @@ export default ({ message }: MessageProps) => {
         },
     });
     const editFormRef = React.useRef<HTMLFormElement>(null);
+    const [
+        showSavePromptModal,
+        { open: openSavePromptModal, close: closeSavePromptModal },
+    ] = useDisclosure(false);
 
     const theme = useMantineTheme();
     const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
@@ -188,41 +202,63 @@ export default ({ message }: MessageProps) => {
         }
 
         return (
-            <TippedActionIcon onClick={() => setIsEditing(true)}>
-                <BiEdit />
-            </TippedActionIcon>
+            <>
+                <TippedActionIcon onClick={() => setIsEditing(true)}>
+                    <BiEdit />
+                </TippedActionIcon>
+                <TippedActionIcon onClick={openSavePromptModal}>
+                    <BiSave />
+                </TippedActionIcon>
+            </>
         );
-    }, [form, isEditing, message.role, reprompt]);
+    }, [form, isEditing, message.role, openSavePromptModal, reprompt]);
 
     return (
-        <Group noWrap className={classes.root} spacing={isSm ? "xs" : "sm"}>
-            <div style={{ alignSelf: "start" }}>
-                <Avatar color={color} size={isSm ? "sm" : "md"}>
-                    <Sender />
-                </Avatar>
-            </div>
-            <Card shadow="sm" style={{ flexGrow: 1 }}>
-                <Stack p={0}>
-                    {isEditing ? (
-                        <form ref={editFormRef} onSubmit={onSubmit}>
-                            <Textarea
-                                {...form.getInputProps("content")}
-                                autosize
-                                minRows={1}
-                                maxRows={8}
-                                w="100%"
-                            />
-                        </form>
-                    ) : (
-                        MessageContent
-                    )}
-                </Stack>
-            </Card>
-            {
-                <Stack sx={{ alignSelf: "start" }} className="message-actions">
-                    {Actions}
-                </Stack>
-            }
-        </Group>
+        <>
+            <Group noWrap className={classes.root} spacing={isSm ? "xs" : "sm"}>
+                <div style={{ alignSelf: "start" }}>
+                    <Avatar color={color} size={isSm ? "sm" : "md"}>
+                        <Sender />
+                    </Avatar>
+                </div>
+                <Card shadow="sm" style={{ flexGrow: 1 }}>
+                    <Stack p={0}>
+                        {isEditing ? (
+                            <form ref={editFormRef} onSubmit={onSubmit}>
+                                <Textarea
+                                    {...form.getInputProps("content")}
+                                    autosize
+                                    minRows={1}
+                                    maxRows={8}
+                                    w="100%"
+                                />
+                            </form>
+                        ) : (
+                            MessageContent
+                        )}
+                    </Stack>
+                </Card>
+                {
+                    <Stack
+                        sx={{ alignSelf: "start" }}
+                        className="message-actions"
+                    >
+                        {Actions}
+                    </Stack>
+                }
+            </Group>
+            <Modal
+                opened={showSavePromptModal}
+                onClose={closeSavePromptModal}
+                title="Save Prompt"
+                centered
+            >
+                <SavePromptModalBody
+                    mode="prompt"
+                    close={closeSavePromptModal}
+                    value={message.content}
+                />
+            </Modal>
+        </>
     );
 };
