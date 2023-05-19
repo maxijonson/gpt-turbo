@@ -1,4 +1,11 @@
-import { ActionIcon, Container, Group, Loader, Textarea } from "@mantine/core";
+import {
+    Container,
+    Group,
+    Loader,
+    Modal,
+    ScrollArea,
+    Textarea,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import useConversationManager from "../hooks/useConversationManager";
 import { notifications } from "@mantine/notifications";
@@ -6,12 +13,16 @@ import React from "react";
 import PromptUsage from "./PromptUsage";
 import {
     useClickOutside,
+    useDisclosure,
     useFocusReturn,
     useFocusWithin,
     useMergedRef,
     useOs,
 } from "@mantine/hooks";
-import { BiPaperPlane } from "react-icons/bi";
+import { BiFolder, BiPaperPlane } from "react-icons/bi";
+import TippedActionIcon from "./TippedActionIcon";
+import SavedPromptsModalBody from "./SavedPromptsModalBody";
+import usePersistence from "../hooks/usePersistence";
 
 export default () => {
     const { activeConversation: conversation, showUsage } =
@@ -22,6 +33,15 @@ export default () => {
         },
     });
     const [isStreaming, setIsStreaming] = React.useState(false);
+
+    const {
+        persistence: { prompts },
+    } = usePersistence();
+    const [
+        showSavedPromptsModal,
+        { open: openSavedPromptsModal, close: closeSavedPromptsModal },
+    ] = useDisclosure(false);
+    const actionsRef = React.useRef<HTMLDivElement>(null);
 
     const [shouldReturnFocus, setShouldReturnFocus] = React.useState(false);
     const { ref: focusWithinRef, focused } = useFocusWithin({
@@ -78,44 +98,83 @@ export default () => {
     if (!conversation) return <Loader />;
 
     return (
-        <Container w="100%">
-            <Group>
-                <form
-                    onSubmit={handleSubmit}
-                    style={{ flexGrow: 1 }}
-                    ref={formRef}
-                >
-                    <Textarea
-                        {...form.getInputProps("prompt")}
-                        ref={textAreaRefs}
-                        disabled={isStreaming}
-                        autosize
-                        minRows={1}
-                        maxRows={8}
-                        w="100%"
-                        placeholder="Ask away..."
-                        rightSection={
-                            <ActionIcon
-                                onClick={() => formRef.current?.requestSubmit()}
-                            >
-                                <BiPaperPlane />
-                            </ActionIcon>
-                        }
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                                e.preventDefault();
-                                formRef.current?.requestSubmit();
+        <>
+            <Container w="100%">
+                <Group>
+                    <form
+                        onSubmit={handleSubmit}
+                        style={{ flexGrow: 1 }}
+                        ref={formRef}
+                    >
+                        <Textarea
+                            {...form.getInputProps("prompt")}
+                            ref={textAreaRefs}
+                            disabled={isStreaming}
+                            autosize
+                            minRows={1}
+                            maxRows={8}
+                            w="100%"
+                            placeholder="Ask away..."
+                            rightSection={
+                                <Group
+                                    ref={actionsRef}
+                                    noWrap
+                                    spacing="xs"
+                                    pr="xs"
+                                >
+                                    {prompts.length > 0 && (
+                                        <TippedActionIcon
+                                            variant="transparent"
+                                            tip="Saved Prompts"
+                                            onClick={openSavedPromptsModal}
+                                        >
+                                            <BiFolder />
+                                        </TippedActionIcon>
+                                    )}
+                                    <TippedActionIcon
+                                        variant="transparent"
+                                        tip="Send"
+                                        onClick={() =>
+                                            formRef.current?.requestSubmit()
+                                        }
+                                    >
+                                        <BiPaperPlane />
+                                    </TippedActionIcon>
+                                </Group>
                             }
-                        }}
-                    />
-                </form>
-                {showUsage && (
-                    <PromptUsage
-                        conversation={conversation}
-                        prompt={form.values.prompt}
-                    />
-                )}
-            </Group>
-        </Container>
+                            rightSectionWidth={actionsRef.current?.clientWidth}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    formRef.current?.requestSubmit();
+                                }
+                            }}
+                        />
+                    </form>
+                    {showUsage && (
+                        <PromptUsage
+                            conversation={conversation}
+                            prompt={form.values.prompt}
+                        />
+                    )}
+                </Group>
+            </Container>
+            <Modal
+                opened={showSavedPromptsModal}
+                onClose={closeSavedPromptsModal}
+                title="Saved Prompts"
+                centered
+                scrollAreaComponent={ScrollArea.Autosize}
+                size="lg"
+            >
+                <SavedPromptsModalBody
+                    mode="prompt"
+                    close={closeSavedPromptsModal}
+                    onSelect={(value) => {
+                        form.setFieldValue("prompt", value);
+                    }}
+                />
+            </Modal>
+        </>
     );
 };

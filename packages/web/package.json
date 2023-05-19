@@ -9,6 +9,7 @@
         "lint": "eslint --ext .ts,.tsx src",
         "lint:strict": "npm run lint -- --max-warnings 0",
         "lint:fix": "npm run lint -- --fix",
+        "tscheck": "tsc --noEmit",
         "build": "npm run lint:strict && rimraf dist && vite build",
         "dev": "vite",
         "preview": "npm run build && vite preview"
