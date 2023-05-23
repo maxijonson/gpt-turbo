@@ -5,7 +5,6 @@ import {
     Group,
     MediaQuery,
     Navbar,
-    ScrollArea,
     Stack,
     Text,
     createStyles,
@@ -24,18 +23,13 @@ import {
 import TippedActionIcon from "./TippedActionIcon";
 import { openModal } from "@mantine/modals";
 import SettingsForm from "./SettingsForm";
-import NavbarConversation from "./NavbarConversation";
 import React from "react";
 import Usage from "./Usage";
 import { useMediaQuery } from "@mantine/hooks";
 import { BsDiscord, BsGithub } from "react-icons/bs";
+import NavbarConversations from "./NavbarConversations";
 
 const useStyles = createStyles(() => ({
-    scrollArea: {
-        "& > div": {
-            display: "block !important",
-        },
-    },
     burger: {
         position: "absolute",
         top: 0,
@@ -165,22 +159,7 @@ export default () => {
                     <Divider my="xs" />
                 </Navbar.Section>
                 <Navbar.Section grow h={0}>
-                    <ScrollArea
-                        h="100%"
-                        classNames={{
-                            viewport: classes.scrollArea,
-                        }}
-                    >
-                        <Stack spacing="xs">
-                            {conversations.map((conversation) => (
-                                <NavbarConversation
-                                    key={conversation.id}
-                                    conversation={conversation}
-                                    onClick={closeNavbar}
-                                />
-                            ))}
-                        </Stack>
-                    </ScrollArea>
+                    <NavbarConversations onConversationSelect={closeNavbar} />
                 </Navbar.Section>
                 {activeConversation && showUsage && (
                     <Navbar.Section>

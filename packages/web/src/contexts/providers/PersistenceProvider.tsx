@@ -22,6 +22,8 @@ export default ({ children }: PersistenceProviderProps) => {
         setActiveConversation,
         getConversationName,
         setConversationName,
+        getConversationLastEdit,
+        setConversationLastEdit,
     } = useConversationManager();
     const {
         value: persistence,
@@ -61,6 +63,7 @@ export default ({ children }: PersistenceProviderProps) => {
             .map((conversation) => ({
                 ...conversation.toJSON(),
                 name: getConversationName(conversation.id),
+                lastEdited: getConversationLastEdit(conversation.id),
             }));
 
         setPersistence((current) => ({
@@ -69,6 +72,7 @@ export default ({ children }: PersistenceProviderProps) => {
         }));
     }, [
         conversations,
+        getConversationLastEdit,
         getConversationName,
         persistedConversationIds,
         setPersistence,
@@ -167,6 +171,7 @@ export default ({ children }: PersistenceProviderProps) => {
             let i = -1;
             for (const {
                 name,
+                lastEdited,
                 ...conversationJson
             } of persistence.conversations) {
                 const newConversation = addConversation(
@@ -175,6 +180,7 @@ export default ({ children }: PersistenceProviderProps) => {
                 if (++i === 0) setActiveConversation(newConversation.id, true);
                 addPersistedConversationId(newConversation.id);
                 setConversationName(newConversation.id, name);
+                setConversationLastEdit(newConversation.id, lastEdited);
             }
         };
         load().then(() => {
@@ -189,6 +195,7 @@ export default ({ children }: PersistenceProviderProps) => {
         isPersistenceLoaded,
         persistence,
         setActiveConversation,
+        setConversationLastEdit,
         setConversationName,
     ]);
 
