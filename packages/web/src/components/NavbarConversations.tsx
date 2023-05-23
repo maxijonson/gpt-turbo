@@ -1,7 +1,17 @@
-import { Divider, ScrollArea, Stack, Text, createStyles } from "@mantine/core";
+import {
+    Divider,
+    Group,
+    ScrollArea,
+    Stack,
+    Text,
+    createStyles,
+} from "@mantine/core";
 import NavbarConversation from "./NavbarConversation";
 import useConversationManager from "../hooks/useConversationManager";
 import React from "react";
+import TippedActionIcon from "./TippedActionIcon";
+import { BiTrash } from "react-icons/bi";
+import { useTimeout } from "@mantine/hooks";
 
 interface NavbarConversationsProps {
     onConversationSelect?: () => void;
@@ -64,8 +74,16 @@ export default ({
     onConversationSelect = () => {},
 }: NavbarConversationsProps) => {
     const { classes } = useStyles();
-    const { conversations: allConversations, getConversationLastEdit } =
-        useConversationManager();
+    const {
+        conversations: allConversations,
+        getConversationLastEdit,
+        removeConversation,
+    } = useConversationManager();
+    const [deleteConfirmation, setdeleteConfirmation] = React.useState<
+        string | null
+    >(null);
+    const { start: startUnconfirmDelete, clear: clearUnconfirmDelete } =
+        useTimeout(() => setdeleteConfirmation(null), 3000);
 
     const conversationGroups = React.useMemo(() => {
         return allConversations
@@ -84,6 +102,27 @@ export default ({
             }, {} as Record<string, typeof allConversations>);
     }, [allConversations, getConversationLastEdit]);
 
+    const makeDeleteGroup = React.useCallback(
+        (group: string) => () => {
+            if (deleteConfirmation === group) {
+                conversationGroups[group].forEach((c) =>
+                    removeConversation(c.id)
+                );
+            } else {
+                clearUnconfirmDelete();
+                setdeleteConfirmation(group);
+                startUnconfirmDelete();
+            }
+        },
+        [
+            clearUnconfirmDelete,
+            conversationGroups,
+            deleteConfirmation,
+            removeConversation,
+            startUnconfirmDelete,
+        ]
+    );
+
     return (
         <ScrollArea
             h="100%"
@@ -95,14 +134,40 @@ export default ({
                 {Object.entries(conversationGroups).map(
                     ([relativeDate, conversations]) => (
                         <Stack key={relativeDate} spacing="xs">
-                            <Divider
-                                labelPosition="center"
-                                label={
-                                    <Text size="xs" weight={700} opacity={0.7}>
-                                        {relativeDate}
-                                    </Text>
-                                }
-                            />
+                            <Group>
+                                <Divider
+                                    sx={{ flexGrow: 1 }}
+                                    label={
+                                        <Text
+                                            size="xs"
+                                            weight={700}
+                                            opacity={0.7}
+                                        >
+                                            {relativeDate}
+                                        </Text>
+                                    }
+                                />
+                                <TippedActionIcon
+                                    onClick={makeDeleteGroup(relativeDate)}
+                                    variant={
+                                        deleteConfirmation === relativeDate
+                                            ? "filled"
+                                            : undefined
+                                    }
+                                    color={
+                                        deleteConfirmation === relativeDate
+                                            ? "red"
+                                            : undefined
+                                    }
+                                    tip={
+                                        relativeDate === "Older"
+                                            ? "Delete all older conversations"
+                                            : `Delete all conversations from ${relativeDate.toLowerCase()}`
+                                    }
+                                >
+                                    <BiTrash />
+                                </TippedActionIcon>
+                            </Group>
                             {conversations.map((conversation) => (
                                 <NavbarConversation
                                     key={conversation.id}
