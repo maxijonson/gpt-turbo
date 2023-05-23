@@ -20,9 +20,14 @@ export default ({ children }: ConversationManagerProviderProps) => {
         []
     );
     const [activeId, setActiveId] = React.useState<string | null>(null);
+
     const [conversationNames, setConversationNames] = React.useState<
         Map<string, string>
     >(new Map());
+    const [conversationLastEdits, setconversationLastEdits] = React.useState<
+        Map<string, number>
+    >(new Map());
+
     const { value: showUsage, setValue: setShowUsage } = useStorage(
         "gpt-turbo-showusage",
         true,
@@ -39,6 +44,11 @@ export default ({ children }: ConversationManagerProviderProps) => {
                     ? conversation
                     : new Conversation(conversation, requestOptions);
             setConversations((c) => [...c, newConversation]);
+            setconversationLastEdits((c) => {
+                const newMap = new Map(c);
+                newMap.set(newConversation.id, Date.now());
+                return newMap;
+            });
             return newConversation;
         },
         []
@@ -86,11 +96,29 @@ export default ({ children }: ConversationManagerProviderProps) => {
         [conversationNames]
     );
 
+    const getConversationLastEdit = React.useCallback(
+        (id: string) => {
+            return conversationLastEdits.get(id) ?? Date.now();
+        },
+        [conversationLastEdits]
+    );
+
     const setConversationName = React.useCallback(
         (id: string, name: string) => {
             setConversationNames((c) => {
                 const newMap = new Map(c);
                 newMap.set(id, name);
+                return newMap;
+            });
+        },
+        []
+    );
+
+    const setConversationLastEdit = React.useCallback(
+        (id: string, lastEdit = Date.now()) => {
+            setconversationLastEdits((c) => {
+                const newMap = new Map(c);
+                newMap.set(id, lastEdit);
                 return newMap;
             });
         },
@@ -110,16 +138,20 @@ export default ({ children }: ConversationManagerProviderProps) => {
             setActiveConversation,
             getConversationName,
             setConversationName,
+            getConversationLastEdit,
+            setConversationLastEdit,
             setShowUsage,
         }),
         [
             activeId,
             addConversation,
             conversations,
+            getConversationLastEdit,
             getConversationName,
             removeAllConversations,
             removeConversation,
             setActiveConversation,
+            setConversationLastEdit,
             setConversationName,
             setShowUsage,
             showUsage,

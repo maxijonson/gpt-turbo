@@ -20,6 +20,8 @@ export interface ConversationManagerContextValue {
     setActiveConversation: (id: string | null, force?: boolean) => void;
     getConversationName: (id: string) => string;
     setConversationName: (id: string, name: string) => void;
+    getConversationLastEdit: (id: string) => number;
+    setConversationLastEdit: (id: string, lastEdit?: number) => void;
     setShowUsage: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -36,5 +38,7 @@ export const ConversationManagerContext =
         setActiveConversation: notImplemented,
         getConversationName: notImplemented,
         setConversationName: notImplemented,
+        getConversationLastEdit: notImplemented,
+        setConversationLastEdit: notImplemented,
         setShowUsage: notImplemented,
     });

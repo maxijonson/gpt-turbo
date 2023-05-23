@@ -25,8 +25,11 @@ import SavedPromptsModalBody from "./SavedPromptsModalBody";
 import usePersistence from "../hooks/usePersistence";
 
 export default () => {
-    const { activeConversation: conversation, showUsage } =
-        useConversationManager();
+    const {
+        activeConversation: conversation,
+        showUsage,
+        setConversationLastEdit,
+    } = useConversationManager();
     const form = useForm({
         initialValues: {
             prompt: "",
@@ -71,6 +74,7 @@ export default () => {
         form.reset();
         try {
             const message = await conversation.prompt(values.prompt);
+            setConversationLastEdit(conversation.id);
             if (message) {
                 message.onMessageStreamingUpdate((isStreaming) => {
                     setIsStreaming(isStreaming);
