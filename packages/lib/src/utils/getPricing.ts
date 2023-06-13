@@ -7,7 +7,8 @@ import { PRICING_TABLE } from "../config/constants.js";
  */
 export default (model: string) => {
     if (!model) return PRICING_TABLE["unknown"];
-    if (model.startsWith("gpt-3.5")) return PRICING_TABLE["3.5"];
+    if (model.startsWith("gpt-3.5-turbo-16k")) return PRICING_TABLE["3.5-16k"];
+    if (model.startsWith("gpt-3.5-turbo")) return PRICING_TABLE["3.5"];
     if (model.startsWith("gpt-4-32k")) return PRICING_TABLE["4-32k"];
     if (model.startsWith("gpt-4")) return PRICING_TABLE["4"];
     return PRICING_TABLE["unknown"];
