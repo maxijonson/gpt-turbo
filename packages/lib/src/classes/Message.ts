@@ -23,7 +23,14 @@ export class Message {
 
     private _role!: ChatCompletionRequestMessageRoleEnum;
     private _model!: string;
-    private _content!: string;
+    private _content!: string | null;
+    private _name: string | undefined;
+    private _functionCall:
+        | {
+              name: string;
+              arguments: Record<string, any>;
+          }
+        | undefined;
     private _flags: string[] | null = null;
     private _size: number | null = null;
     private _cost: number | null = null;
@@ -41,7 +48,7 @@ export class Message {
      */
     constructor(
         role: ChatCompletionRequestMessageRoleEnum = "user",
-        content = "",
+        content: string | null = "",
         model = ""
     ) {
         this.role = role;
@@ -78,6 +85,8 @@ export class Message {
             role: this.role,
             content: this.content,
             model: this.model,
+            name: this._name,
+            function_call: this._functionCall,
             flags: this.flags,
         };
         return messageSchema.parse(json);
@@ -207,6 +216,9 @@ export class Message {
             const reader = response.getReader();
             const decoder = new TextDecoder();
 
+            let functionCallName = "";
+            let functionCallArguments = "";
+
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
@@ -219,9 +231,29 @@ export class Message {
                             JSON.parse(chunk);
                         const content =
                             json?.choices?.[0]?.delta?.content ?? null;
+                        const functionCall =
+                            json?.choices?.[0]?.delta?.function_call ?? null;
 
-                        if (!content) continue;
-                        this.content += json.choices[0].delta.content;
+                        if (functionCall) {
+                            const { name, arguments: argsStr } = functionCall;
+                            functionCallName += name ?? "";
+                            functionCallArguments += argsStr ?? "";
+
+                            let args = this.functionCall
+                                ? { ...this.functionCall.arguments }
+                                : {};
+                            try {
+                                args = JSON.parse(functionCallArguments);
+                            } finally {
+                                this.functionCall = {
+                                    name: functionCallName,
+                                    arguments: args,
+                                };
+                            }
+                        } else {
+                            if (!content) continue;
+                            this.content += content;
+                        }
                     } catch {
                         continue;
                     }
@@ -232,6 +264,52 @@ export class Message {
         } finally {
             this.isStreaming = false;
         }
+    }
+
+    /**
+     * Whether the message is a function call by the assistant
+     */
+    public isFunctionCall(): this is Message & {
+        role: "assistant";
+        content: null;
+        functionCall: {
+            name: string;
+            arguments: Record<string, any>;
+        };
+    } {
+        return (
+            this.role === "assistant" &&
+            this.content === null &&
+            this.functionCall !== undefined
+        );
+    }
+
+    /**
+     * Whether the message is a function call result by the user
+     */
+    public isFunction(): this is Message & {
+        role: "function";
+        name: string;
+        content: string;
+    } {
+        return this.role === "function" && this.name !== undefined;
+    }
+
+    /**
+     * Whether the message is a regular chat completion message
+     */
+    public isCompletion(): this is Message & {
+        role: Exclude<ChatCompletionRequestMessageRoleEnum, "function">;
+        content: string;
+        functionCall: undefined;
+        name: undefined;
+    } {
+        return (
+            this.role !== "function" &&
+            this.content !== null &&
+            this.functionCall === undefined &&
+            this.name === undefined
+        );
     }
 
     private notifyMessageUpdate() {
@@ -279,6 +357,26 @@ export class Message {
         this.notifyMessageUpdate();
     }
 
+    get name() {
+        return this._name;
+    }
+
+    set name(name) {
+        this._name = name;
+    }
+
+    get functionCall() {
+        return this._functionCall;
+    }
+
+    set functionCall(functionCall) {
+        this._functionCall = functionCall;
+        this.flags = null;
+        this.size = null;
+        this.cost = null;
+        this.content = null; // also call notifyMessageUpdate() to notify listeners
+    }
+
     /** The flags detected by OpenAI's moderation API. Only set after calling `moderate`. */
     get flags() {
         return this._flags?.slice() ?? null;
@@ -297,6 +395,10 @@ export class Message {
     get size(): number {
         if (this._size) {
             return this._size;
+        }
+        // FIXME: Find out how the size is calculated for messages with function calls
+        if (this._content === null) {
+            return 0;
         }
         const s = getMessageSize(this._content);
         this.size = s;

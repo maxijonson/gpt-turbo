@@ -2,7 +2,6 @@ import { ConversationConfig } from "./ConversationConfig.js";
 import {
     createChatCompletion,
     createDryChatCompletion,
-    getMessageSize,
 } from "../utils/index.js";
 import { ModerationException } from "../exceptions/ModerationException.js";
 import { Message } from "./Message.js";
@@ -11,6 +10,8 @@ import { v4 as uuid } from "uuid";
 import {
     AddMessageListener,
     ConversationConfigParameters,
+    CreateChatCompletionFunctionCallMessage,
+    CreateChatCompletionFunctionMessage,
     HandleChatCompletionOptions,
     PromptOptions,
     RemoveMessageListener,
@@ -81,13 +82,37 @@ export class Conversation {
         for (const message of messages) {
             switch (message.role) {
                 case "user":
+                    if (message.content === null)
+                        throw new Error("User message content cannot be null.");
                     await conversation.addUserMessage(message.content);
                     break;
                 case "assistant":
-                    await conversation.addAssistantMessage(message.content);
+                    if (message.content === null) {
+                        if (!message.function_call)
+                            throw new Error("Function call must be provided.");
+                        await conversation.addFunctionCallMessage(
+                            message.function_call
+                        );
+                    } else {
+                        await conversation.addAssistantMessage(message.content);
+                    }
                     break;
                 case "system":
+                    if (message.content === null)
+                        throw new Error("Context cannot be null.");
                     conversation.setContext(message.content);
+                    break;
+                case "function":
+                    if (!message.name)
+                        throw new Error("Function name must be specified.");
+                    if (message.content === null)
+                        throw new Error(
+                            "Function message content cannot be null."
+                        );
+                    await conversation.addFunctionMessage(
+                        message.content,
+                        message.name
+                    );
                     break;
             }
         }
@@ -164,6 +189,9 @@ export class Conversation {
             message,
             this.config.model
         );
+        if (!assistantMessage.isCompletion()) {
+            throw new Error("Not a completion message.");
+        }
         return this.addMessage(assistantMessage);
     }
 
@@ -175,7 +203,39 @@ export class Conversation {
      */
     public addUserMessage(message: string) {
         const userMessage = new Message("user", message, this.config.model);
+        if (!userMessage.isCompletion()) {
+            throw new Error("Not a completion message.");
+        }
         return this.addMessage(userMessage);
+    }
+
+    public addFunctionCallMessage(functionCall: {
+        name: string;
+        arguments: Record<string, any>;
+    }) {
+        const functionCallMessage = new Message(
+            "assistant",
+            null,
+            this.config.model
+        );
+        functionCallMessage.functionCall = functionCall;
+        if (!functionCallMessage.isFunctionCall()) {
+            throw new Error("Not a function call message.");
+        }
+        return this.addMessage(functionCallMessage);
+    }
+
+    public addFunctionMessage(message: string, name: string) {
+        const functionMessage = new Message(
+            "function",
+            message,
+            this.config.model
+        );
+        functionMessage.name = name;
+        if (!functionMessage.isFunction()) {
+            throw new Error("Not a function message.");
+        }
+        return this.addMessage(functionMessage);
     }
 
     /**
@@ -335,13 +395,16 @@ export class Conversation {
         if (fromIndex === -1) {
             throw new Error(`Message with ID "${id}" not found.`);
         }
-        const from = this.messages[fromIndex];
 
         // Find the previous user message
-        const previousUserMessageIndex =
-            from.role === "user" ? fromIndex : fromIndex - 1;
-        const previousUserMessage = this.messages[previousUserMessageIndex];
-        if (!previousUserMessage) {
+        let previousUserMessageIndex = fromIndex;
+        let previousUserMessage = this.messages[previousUserMessageIndex];
+        while (previousUserMessage.role !== "user") {
+            previousUserMessageIndex--;
+            if (previousUserMessageIndex < 0) break;
+            previousUserMessage = this.messages[previousUserMessageIndex];
+        }
+        if (previousUserMessage?.role !== "user") {
             throw new Error(
                 `Could not find a previous user message to reprompt from (${id}).`
             );
@@ -355,7 +418,7 @@ export class Conversation {
         // Remove all messages after the previous user message
         this.messages
             .slice(previousUserMessageIndex + 1)
-            .forEach((m) => this.removeMessage(m));
+            .forEach(this.removeMessage);
 
         try {
             // Get the new assistant response
@@ -366,6 +429,39 @@ export class Conversation {
             return assistantMessage;
         } catch (e) {
             this.removeMessage(previousUserMessage);
+            throw e;
+        }
+    }
+
+    /**
+     * Sends the result of a user-evaluated function call to the GPT model and gets the assistant's response.
+     * This method should usually be called after receiving a function_call message from the assistant (using `getChatCompletionResponse()` or `prompt()`) and evaluating your own function with the provided arguments from that message.
+     *
+     * @param name The name of the function used to generate the result. This function must be defined in the `functions` config option.
+     * @param result The result of the function call. If the result is anything other than a string, it will be JSON stringified. Since `result` can be anything, the `T` template is provided for your typing convenience, but is not used internally
+     * @param options Additional options to pass to the Create Chat Completion API endpoint. This overrides the config passed to the constructor.
+     * @param requestOptions Additional options to pass for the HTTP request. This overrides the config passed to the constructor.
+     * @returns The assistant's response as a [`Message`](./Message.js) instance.
+     */
+    public async functionPrompt<T = any>(
+        name: string,
+        result: T,
+        options?: PromptOptions,
+        requestOptions?: RequestOptions
+    ) {
+        const functionMessage = await this.addFunctionMessage(
+            typeof result === "string" ? result : JSON.stringify(result),
+            name
+        );
+
+        try {
+            const assistantMessage = await this.getAssistantResponse(
+                options,
+                requestOptions
+            );
+            return assistantMessage;
+        } catch (e) {
+            this.removeMessage(functionMessage);
             throw e;
         }
     }
@@ -440,7 +536,9 @@ export class Conversation {
     }
 
     private async addMessage(message: Message) {
-        message.content = message.content.trim();
+        if (message.isCompletion() || message.isFunction()) {
+            message.content = message.content.trim();
+        }
 
         if (!message.content && message.role === "user") {
             throw new Error("User message content cannot be empty.");
@@ -457,7 +555,7 @@ export class Conversation {
         }
 
         if (message.role === "system") {
-            this.config.context = message.content;
+            this.config.context = message.content ?? "";
             if (message.content) {
                 // Update the system message or add it if it doesn't exist.
                 if (this.messages[0]?.role === "system") {
@@ -492,14 +590,14 @@ export class Conversation {
         requestOptions: RequestOptions = {}
     ) {
         const message = new Message("assistant", "", this.config.model);
-        const messages = this.messages.map(({ role, content }) => ({
-            role,
-            content,
-        }));
+        const messages = this.getCreateChatCompletionMessages();
 
         const unsubscribeStreaming = message.onMessageStreamingStop((m) => {
-            this.cumulativeSize += this.getSize() + getMessageSize(m.content);
-            this.cumulativeCost += this.getCost() + m.cost;
+            // FIXME: Find out how the size is calculated for messages with function calls, fix in Message class and remove this condition
+            if (message.isFunctionCall()) {
+                this.cumulativeSize += this.getSize() + m.size;
+                this.cumulativeCost += this.getCost() + m.cost;
+            }
             unsubscribeStreaming();
         });
 
@@ -538,10 +636,7 @@ export class Conversation {
         requestOptions: RequestOptions = {}
     ) {
         const message = new Message("assistant", "", this.config.model);
-        const messages = this.messages.map(({ role, content }) => ({
-            role,
-            content,
-        }));
+        const messages = this.getCreateChatCompletionMessages();
 
         if (this.config.dry) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -559,11 +654,29 @@ export class Conversation {
                     ...requestOptions,
                 }
             );
-            message.content = response.choices[0].message?.content ?? "";
+            const responseMessage = response.choices[0].message;
+            message.content = responseMessage.content;
+            if (responseMessage.function_call) {
+                try {
+                    message.functionCall = {
+                        name: responseMessage.function_call.name,
+                        arguments: JSON.parse(
+                            responseMessage.function_call.arguments
+                        ),
+                    };
+                } catch {
+                    throw new Error(
+                        "Assistant did not generate valid JSON arguments."
+                    );
+                }
+            }
         }
 
-        this.cumulativeSize += this.getSize() + getMessageSize(message.content);
-        this.cumulativeCost += this.getCost() + message.cost;
+        // FIXME: Find out how the size is calculated for messages with function calls, fix in Message class and remove this condition
+        if (message.isFunctionCall()) {
+            this.cumulativeSize += this.getSize() + message.size;
+            this.cumulativeCost += this.getCost() + message.cost;
+        }
 
         return message;
     }
@@ -578,5 +691,41 @@ export class Conversation {
         );
         const assistantMessage = await this.addMessage(completion);
         return assistantMessage;
+    }
+
+    private getCreateChatCompletionMessages() {
+        return this.messages.map((message) => {
+            if (message.isFunctionCall()) {
+                const m: CreateChatCompletionFunctionCallMessage = {
+                    role: message.role,
+                    content: message.content,
+                    function_call: {
+                        name: message.functionCall.name,
+                        arguments: JSON.stringify(
+                            message.functionCall.arguments
+                        ),
+                    },
+                };
+                return m;
+            }
+
+            if (message.isFunction()) {
+                const m: CreateChatCompletionFunctionMessage = {
+                    content: message.content,
+                    name: message.name,
+                    role: message.role,
+                };
+                return m;
+            }
+
+            if (message.isCompletion()) {
+                return {
+                    content: message.content,
+                    role: message.role,
+                };
+            }
+
+            throw new Error("Message type not recognized.");
+        });
     }
 }
