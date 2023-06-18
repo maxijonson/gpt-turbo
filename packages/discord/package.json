@@ -1,6 +1,6 @@
 {
     "name": "gpt-turbo-discord",
-    "version": "3.5.2",
+    "version": "4.0.0",
     "description": "Discord bot powered by the GPT Turbo library",
     "main": "dist/index.js",
     "type": "module",
@@ -68,7 +68,7 @@
         "@keyv/postgres": "^1.4.4",
         "discord.js": "^14.9.0",
         "dotenv": "^16.0.3",
-        "gpt-turbo": "^3.5.2",
+        "gpt-turbo": "^4.0.0",
         "keyv": "^4.5.2"
     }
 }
