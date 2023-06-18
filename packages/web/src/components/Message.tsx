@@ -20,6 +20,7 @@ import {
     BiUser,
     BiX,
 } from "react-icons/bi";
+import { AiOutlineFunction } from "react-icons/ai";
 import React from "react";
 import TippedActionIcon from "./TippedActionIcon";
 import { useForm } from "@mantine/form";
@@ -56,7 +57,7 @@ export default ({ message }: MessageProps) => {
     const [isEditing, setIsEditing] = React.useState(false);
     const form = useForm({
         initialValues: {
-            content: message.content,
+            content: message.content ?? "",
         },
     });
     const editFormRef = React.useRef<HTMLFormElement>(null);
@@ -95,6 +96,8 @@ export default ({ message }: MessageProps) => {
                 return SiOpenai;
             case "user":
                 return BiUser;
+            case "function":
+                return AiOutlineFunction;
             case "system":
             default:
                 return BiCog;
@@ -107,14 +110,33 @@ export default ({ message }: MessageProps) => {
                 return "teal";
             case "user":
                 return "blue";
+            case "function":
+                return "cyan";
             case "system":
             default:
                 return "gray";
         }
     })();
 
+    const messageContent = (() => {
+        if (message.isCompletion()) {
+            return message.content;
+        }
+        if (message.isFunction()) {
+            return `${message.name}() => ${message.content}`;
+        }
+        if (message.isFunctionCall()) {
+            const { name, arguments: args } = message.functionCall;
+            const parameters = Object.entries(args)
+                .map(([param, value]) => `${param}=${value}`)
+                .join(", ");
+            return `${name}(${parameters})`;
+        }
+        return "[Unknown message type]";
+    })();
+
     const MessageContent = React.useMemo(() => {
-        const lines = message.content.split("\n");
+        const lines = messageContent.split("\n");
         const output: JSX.Element[] = [];
 
         let isCode = false;
@@ -168,12 +190,12 @@ export default ({ message }: MessageProps) => {
         }
 
         return output;
-    }, [message.content, message.isFlagged]);
+    }, [message, messageContent]);
 
     const Actions = React.useMemo(() => {
         if (message.role === "system") return null;
 
-        if (message.role === "assistant") {
+        if (message.role === "assistant" || message.role === "function") {
             return (
                 <TippedActionIcon onClick={() => reprompt()}>
                     <BiRefresh />
@@ -253,11 +275,13 @@ export default ({ message }: MessageProps) => {
                 title="Save Prompt"
                 centered
             >
-                <SavePromptModalBody
-                    mode="prompt"
-                    close={closeSavePromptModal}
-                    value={message.content}
-                />
+                {message.content && (
+                    <SavePromptModalBody
+                        mode="prompt"
+                        close={closeSavePromptModal}
+                        value={message.content}
+                    />
+                )}
             </Modal>
         </>
     );

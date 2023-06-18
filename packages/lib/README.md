@@ -47,13 +47,13 @@ const conversation = new Conversation({
 });
 
 const response = await conversation.prompt("How can I make my code more efficient than a droid army?");
-process.stdout.write(`Response: `);
-const unsubscribe = response.onMessageUpdate((content) => {
-    process.stdout.write(content);
+const unsubscribeUpdate = response.onMessageUpdate((content) => {
+    console.log(content);
 });
 
-response.onStreamingStop(() => {
-    unsubscribe();
+const unsubscribeStop = response.onStreamingStop(() => {
+    unsubscribeUpdate();
+    unsubscribeStop();
 });
 ```
 
@@ -145,6 +145,105 @@ const conversation = new Conversation({ apiKey: "sk-1234" });
 const first = await conversation.prompt("We do not grant you the rank of Master."); // "How can you do this?!"
 const second = await conversation.prompt("Take a seat, young Skywalker."); // "I will slaughter padawans!"
 const edit = await conversation.reprompt(first, "We grant you the rank of Master.");
+```
+
+### Function Calling
+
+> ⚠ Function calling is relatively new and the implementation in this library may change as more is discovered about it.
+>
+> Limitations (of the GPT Turbo library) with function calling:
+> - Token count is not currently calculated for assistant function calls and context. This means the cost of function calls are not taken into account at the moment. This will be fixed in a future release, as I learn more about how function call tokens are calculated by OpenAI.
+> - Function calls are not currently supported in dry mode. There is no planned support for this in the near future.
+> - While this feature is typed, it may not be as strongly typed as you'd expect. In other words, there's no strict type checking against the function name and arguments against the definition you gave to the configuration's `functions` property. This may or may not be improved in the future, depending on how relevant strong typing is for this feature without sacrificing usability.
+
+You can use OpenAI's Function Calling feature with GPT Turbo through the `functionPrompt` method. Just define your functions in the conversation configuration (or during prompting) just like you would normally with the Chat Completion API. 
+
+⚠ Unless you configure `functions_call` to explicitly call a function by name (which by default does not, it uses `auto`), make sure you also plan for standard chat completions in your code. To help with detecting which type of response you got, the `Message` class exposes two (type-guarded!) functions: `isFunctionCall` and `isCompletion`.
+
+> At the time of writing, Function Calling is not supported on the latest version of the GPT model. In this example, we'll use the `gpt-3.5-turbo-0613` model, but the standard `gpt-3.5-turbo` model might work at the time you're reading this.
+
+```ts
+const locateJedi = (jedi, locationType = "planet") => {
+    return {
+        name: jedi,
+        location: locationType === "planet" ? "Tatooine" : "Mos Eisley",
+    };
+};
+
+const conversation = new Conversation({
+    apiKey: /** Your API key */,
+    model: "gpt-3.5-turbo-0613",
+    functions: [
+        {
+            name: "locateJedi",
+            description: "Returns the current location of a Jedi",
+            parameters: {
+                type: "object",
+                properties: {
+                    jedi: {
+                        type: "string",
+                        description: "The name of the Jedi to locate",
+                    },
+                    locationType: {
+                        type: "string",
+                        enum: ["planet", "city"],
+                    },
+                },
+                required: ["jedi"],
+            },
+        },
+    ],
+});
+
+const r1 = await conversation.prompt("Where can I find Obi-Wan Kenobi?");
+
+if (r1.isCompletion()) {
+    console.info(r1.content);
+} else if (r1.isFunctionCall()) {
+    const { jedi, locationType } = r1.functionCall.arguments;
+    const r2 = await conversation.functionPrompt(
+        r1.functionCall.name,
+        locateJedi(jedi, locationType)
+    );
+    console.info(r2.content); // "Obi-Wan Kenobi can be found on Tatooine."
+}
+```
+
+For streamed completions and function calls, it gets a bit more complicated, but still supported! Hopefully, a better flow will be implemented in the future.
+
+```ts
+const conversation = new Conversation({ /* ... */, stream: true });
+
+const r1 = await conversation.prompt("In which city is Obi-Wan Kenobi?");
+
+const unsubscribeUpdates = r1.onMessageUpdate((_, message) => {
+    if (!message.isCompletion()) {
+        return;
+    }
+    console.info(message.content);
+});
+
+const unsubscribeStop = r1.onMessageStreamingStop(async (message) => {
+    if (message.isFunctionCall()) {
+        const { jedi, locationType } = message.functionCall.arguments;
+        const r2 = await conversation.functionPrompt(
+            message.functionCall.name,
+            locateJedi(jedi, locationType)
+        );
+
+        const unsubscribeFunctionUpdate = r2.onMessageUpdate((content) => {
+            console.info(content); // "Obi-Wan Kenobi is located in the city of Mos Eisley."
+        });
+
+        const unsubscribeFunctionStop = r2.onMessageStreamingStop(() => {
+            unsubscribeFunctionUpdate();
+            unsubscribeFunctionStop();
+        });
+    }
+
+    unsubscribeUpdates();
+    unsubscribeStop();
+});
 ```
 
 ## Documentation

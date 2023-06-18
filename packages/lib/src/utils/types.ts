@@ -2,6 +2,7 @@
 import { Conversation } from "../classes/Conversation.js";
 import { ConversationConfig } from "../classes/ConversationConfig.js";
 import { Message } from "../classes/Message.js";
+import { JsonSchemaObject } from "../schemas/jsonSchema.schema.js";
 
 /**
  * Supported values for the `role` property of a message.
@@ -9,7 +10,8 @@ import { Message } from "../classes/Message.js";
 export type ChatCompletionRequestMessageRoleEnum =
     | "user"
     | "system"
-    | "assistant";
+    | "assistant"
+    | "function";
 
 /**
  * Overridable {@link CreateChatCompletionRequest} properties of a {@link Conversation}'s config for a single prompt.
@@ -120,12 +122,75 @@ export interface CreateChatCompletionMessage {
      *
      * @see {@link ChatCompletionRequestMessageRoleEnum}
      */
-    role: ChatCompletionRequestMessageRoleEnum;
+    role: Exclude<ChatCompletionRequestMessageRoleEnum, "function">;
 
     /**
      * The message content.
      */
     content: string;
+
+    function_call?: undefined;
+    name?: undefined;
+}
+
+export type CompletionMessage = Message & {
+    role: Exclude<ChatCompletionRequestMessageRoleEnum, "function">;
+    content: string;
+    functionCall: undefined;
+    name: undefined;
+};
+
+/**
+ * A function_call-related message in OpenAI's chat format.
+ *
+ * @see {@link https://platform.openai.com/docs/api-reference/chat/create#chat/create-messages Create Chat Completion Request Body - messages}
+ */
+export interface CreateChatCompletionFunctionCallMessage {
+    role: Extract<ChatCompletionRequestMessageRoleEnum, "assistant">;
+    content: null;
+    function_call: {
+        name: string;
+        arguments: string;
+    };
+
+    name?: undefined;
+}
+
+export type FunctionCallMessage = Message & {
+    role: "assistant";
+    content: null;
+    functionCall: {
+        name: string;
+        arguments: Record<string, any>;
+    };
+};
+
+/**
+ * A function-related message in OpenAI's chat format.
+ *
+ * @see {@link https://platform.openai.com/docs/api-reference/chat/create#chat/create-messages Create Chat Completion Request Body - messages}
+ */
+export interface CreateChatCompletionFunctionMessage {
+    role: Extract<ChatCompletionRequestMessageRoleEnum, "function">;
+    content: string;
+    name: string;
+
+    function_call?: undefined;
+}
+
+export type FunctionMessage = Message & {
+    role: "function";
+    name: string;
+    content: string;
+};
+
+/**
+ * A function that can be called by the model.
+ */
+export interface CreateChatCompletionFunction {
+    name: string;
+    description?: string;
+    parameters?: JsonSchemaObject;
 }
 
 /**
@@ -157,7 +222,25 @@ export interface CreateChatCompletionRequest {
      *
      * @see {@link https://platform.openai.com/docs/api-reference/chat/create#chat/create-messages Create Chat Completion Request Body - messages}
      */
-    messages: CreateChatCompletionMessage[];
+    messages: (
+        | CreateChatCompletionMessage
+        | CreateChatCompletionFunctionCallMessage
+        | CreateChatCompletionFunctionMessage
+    )[];
+
+    /**
+     * A list of functions the model may generate JSON inputs for.
+     *
+     * @see {@link https://platform.openai.com/docs/api-reference/chat/create#chat/create-functions Create Chat Completion Request Body - functions}
+     */
+    functions?: CreateChatCompletionFunction[];
+
+    /**
+     * Controls how the model responds to function calls. "none" means the model does not call a function, and responds to the end-user. "auto" means the model can pick between an end-user or calling a function. Specifying a particular function via `{"name":\ "my_function"}` forces the model to call that function. "none" is the default when no functions are present. "auto" is the default if functions are present.
+     *
+     * @see {@link https://platform.openai.com/docs/api-reference/chat/create#chat/create-function_call Create Chat Completion Request Body - function_call}
+     */
+    function_call?: "none" | "auto" | { name: string };
 
     /**
      * What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
@@ -300,7 +383,10 @@ export interface CreateChatCompletionResponse {
             /**
              * The assistant's response to the prompt.
              */
-            message: CreateChatCompletionMessage;
+            message:
+                | CreateChatCompletionMessage
+                | CreateChatCompletionFunctionCallMessage
+                | CreateChatCompletionFunctionMessage;
 
             /**
              * The reason the chat completion ended. Always "stop" for non-streamed completions.
@@ -347,7 +433,9 @@ export interface CreateChatCompletionStreamResponse {
             /**
              * A token representing part of the assistant's response to the prompt.
              */
-            delta: CreateChatCompletionMessage;
+            delta:
+                | CreateChatCompletionMessage
+                | CreateChatCompletionFunctionCallMessage;
 
             /**
              * The reason the chat completion ended. `null` when streaming, otherwise "stop".
@@ -517,7 +605,7 @@ export type MessageUpdateListener = (
     /**
      * The new content of the message.
      */
-    content: string,
+    content: string | null,
 
     /**
      * The {@link Message message} instance that was updated.

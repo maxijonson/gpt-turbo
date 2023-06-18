@@ -29,7 +29,23 @@ export default (messages: Message[], maxWidth: number, maxHeight: number) => {
         const msgs = messages.slice();
         for (let i = 0; i < msgs.length; i++) {
             const message = msgs[i];
-            const messageHeight = getMessageHeight(message.content, maxWidth);
+            const messageContent = (() => {
+                if (message.isCompletion()) {
+                    return message.content;
+                }
+                if (message.isFunction()) {
+                    return `${message.name}() => ${message.content}`;
+                }
+                if (message.isFunctionCall()) {
+                    const { name, arguments: args } = message.functionCall;
+                    const parameters = Object.entries(args)
+                        .map(([param, value]) => `${param}=${value}`)
+                        .join(", ");
+                    return `${name}(${parameters})`;
+                }
+                return "[Unknown message type]";
+            })();
+            const messageHeight = getMessageHeight(messageContent, maxWidth);
             const isHuge = messageHeight > maxHeight;
             const isOverflowing = pageHeight + messageHeight > maxHeight;
 
@@ -37,7 +53,7 @@ export default (messages: Message[], maxWidth: number, maxHeight: number) => {
             if (isHuge) {
                 const remainingHeight = maxHeight - pageHeight;
                 const [firstMessageContent, secondMessageContent] =
-                    splitMessage(message.content, maxWidth, remainingHeight);
+                    splitMessage(messageContent, maxWidth, remainingHeight);
 
                 if (firstMessageContent.length && secondMessageContent.length) {
                     msgs[i] = new Message(
