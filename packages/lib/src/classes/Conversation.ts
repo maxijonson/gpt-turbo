@@ -418,7 +418,7 @@ export class Conversation {
         // Remove all messages after the previous user message
         this.messages
             .slice(previousUserMessageIndex + 1)
-            .forEach(this.removeMessage);
+            .forEach((m) => this.removeMessage(m));
 
         try {
             // Get the new assistant response
