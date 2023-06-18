@@ -39,6 +39,9 @@ export default class ConversationManager {
             max_tokens: maxTokens,
         });
 
+        // Should never happen, since we're not using functions. But this check provides type guards.
+        if (!response.isCompletion()) throw new Error("Not a completion");
+
         try {
             await conversation.addAssistantMessage(response.content);
         } finally {
