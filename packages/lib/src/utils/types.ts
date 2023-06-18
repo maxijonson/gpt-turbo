@@ -133,6 +133,13 @@ export interface CreateChatCompletionMessage {
     name?: undefined;
 }
 
+export type CompletionMessage = Message & {
+    role: Exclude<ChatCompletionRequestMessageRoleEnum, "function">;
+    content: string;
+    functionCall: undefined;
+    name: undefined;
+};
+
 /**
  * A function_call-related message in OpenAI's chat format.
  *
@@ -149,6 +156,15 @@ export interface CreateChatCompletionFunctionCallMessage {
     name?: undefined;
 }
 
+export type FunctionCallMessage = Message & {
+    role: "assistant";
+    content: null;
+    functionCall: {
+        name: string;
+        arguments: Record<string, any>;
+    };
+};
+
 /**
  * A function-related message in OpenAI's chat format.
  *
@@ -161,6 +177,12 @@ export interface CreateChatCompletionFunctionMessage {
 
     function_call?: undefined;
 }
+
+export type FunctionMessage = Message & {
+    role: "function";
+    name: string;
+    content: string;
+};
 
 /**
  * A function that can be called by the model.

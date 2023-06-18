@@ -8,6 +8,9 @@ import {
     MessageStreamingStartListener,
     MessageStreamingStopListener,
     MessageUpdateListener,
+    FunctionCallMessage,
+    FunctionMessage,
+    CompletionMessage,
 } from "../utils/types.js";
 import createModeration from "../utils/createModeration.js";
 import { MessageModel, messageSchema } from "../schemas/message.schema.js";
@@ -269,14 +272,7 @@ export class Message {
     /**
      * Whether the message is a function call by the assistant
      */
-    public isFunctionCall(): this is Message & {
-        role: "assistant";
-        content: null;
-        functionCall: {
-            name: string;
-            arguments: Record<string, any>;
-        };
-    } {
+    public isFunctionCall(): this is FunctionCallMessage {
         return (
             this.role === "assistant" &&
             this.content === null &&
@@ -287,23 +283,14 @@ export class Message {
     /**
      * Whether the message is a function call result by the user
      */
-    public isFunction(): this is Message & {
-        role: "function";
-        name: string;
-        content: string;
-    } {
+    public isFunction(): this is FunctionMessage {
         return this.role === "function" && this.name !== undefined;
     }
 
     /**
      * Whether the message is a regular chat completion message
      */
-    public isCompletion(): this is Message & {
-        role: Exclude<ChatCompletionRequestMessageRoleEnum, "function">;
-        content: string;
-        functionCall: undefined;
-        name: undefined;
-    } {
+    public isCompletion(): this is CompletionMessage {
         return (
             this.role !== "function" &&
             this.content !== null &&
