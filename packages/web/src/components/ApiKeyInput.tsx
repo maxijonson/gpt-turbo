@@ -5,7 +5,7 @@ interface ApiKeyInputProps {
     onChange: (value: string) => void;
 }
 
-export default ({ value, onChange }: ApiKeyInputProps) => {
+const ApiKeyInput = ({ value, onChange }: ApiKeyInputProps) => {
     return (
         <PasswordInput
             value={value || ""}
@@ -25,3 +25,5 @@ export default ({ value, onChange }: ApiKeyInputProps) => {
         />
     );
 };
+
+export default ApiKeyInput;

@@ -6,7 +6,7 @@ import { ZodType } from "zod";
 
 const warns = new Set<string>();
 
-export default <T,>(
+const useStorage = <T,>(
     key: string,
     defaultValue: T,
     schema?: ZodType<T, any, any>
@@ -108,3 +108,5 @@ export default <T,>(
         isValueLoaded,
     };
 };
+
+export default useStorage;

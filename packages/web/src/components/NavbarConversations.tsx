@@ -70,7 +70,7 @@ const getRelativeDate = (target: number) => {
     }
 };
 
-export default ({
+const NavbarConversations = ({
     onConversationSelect = () => {},
 }: NavbarConversationsProps) => {
     const { classes } = useStyles();
@@ -182,3 +182,5 @@ export default ({
         </ScrollArea>
     );
 };
+
+export default NavbarConversations;

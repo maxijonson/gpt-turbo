@@ -15,7 +15,7 @@ interface PersistenceProviderProps {
     children?: React.ReactNode;
 }
 
-export default ({ children }: PersistenceProviderProps) => {
+const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
     const {
         conversations,
         addConversation,
@@ -264,3 +264,5 @@ export default ({ children }: PersistenceProviderProps) => {
         </PersistenceContextComponent.Provider>
     );
 };
+
+export default PersistenceProvider;

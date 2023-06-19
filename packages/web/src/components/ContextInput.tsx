@@ -11,7 +11,7 @@ interface ContextInputProps {
     onChange: (value: string) => void;
 }
 
-export default ({ value, onChange }: ContextInputProps) => {
+const ContextInput = ({ value, onChange }: ContextInputProps) => {
     const {
         persistence: { contexts },
     } = usePersistence();
@@ -81,3 +81,5 @@ export default ({ value, onChange }: ContextInputProps) => {
         </>
     );
 };
+
+export default ContextInput;

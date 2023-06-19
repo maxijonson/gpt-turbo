@@ -6,7 +6,7 @@ interface DisableModerationInputProps {
     onChange: (value: boolean | "soft") => void;
 }
 
-export default (props: DisableModerationInputProps) => {
+const DisableModerationInput = (props: DisableModerationInputProps) => {
     const onChange = React.useCallback(
         (value: string) => {
             if (value === "soft") return props.onChange("soft");
@@ -37,3 +37,5 @@ export default (props: DisableModerationInputProps) => {
         </Input.Wrapper>
     );
 };
+
+export default DisableModerationInput;

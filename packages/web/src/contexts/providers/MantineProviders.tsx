@@ -12,7 +12,7 @@ interface MantineProvidersProps {
     children?: React.ReactNode;
 }
 
-export default ({ children }: MantineProvidersProps) => {
+const MantineProviders = ({ children }: MantineProvidersProps) => {
     const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
         key: "gpt-turbo-colorscheme",
         defaultValue: useColorScheme(),
@@ -37,3 +37,5 @@ export default ({ children }: MantineProvidersProps) => {
         </ColorSchemeProvider>
     );
 };
+
+export default MantineProviders;

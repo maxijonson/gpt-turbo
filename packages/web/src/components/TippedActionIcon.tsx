@@ -26,7 +26,7 @@ interface TippedActionIconProps {
     position?: FloatingPosition;
 }
 
-export default ({
+const TippedActionIcon = ({
     children,
     onClick,
     tip,
@@ -54,3 +54,5 @@ export default ({
         </Tooltip>
     );
 };
+
+export default TippedActionIcon;

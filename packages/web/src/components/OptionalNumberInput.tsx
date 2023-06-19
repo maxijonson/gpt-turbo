@@ -11,7 +11,7 @@ interface OptionalNumberInputProps {
     max?: number;
 }
 
-export default ({
+const OptionalNumberInput = ({
     value,
     onChange,
     label,
@@ -42,3 +42,5 @@ export default ({
         />
     );
 };
+
+export default OptionalNumberInput;

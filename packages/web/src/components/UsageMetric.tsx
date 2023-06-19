@@ -6,7 +6,7 @@ interface UsageMetricProps {
     description: React.ReactNode;
 }
 
-export default ({ label, value, description }: UsageMetricProps) => {
+const UsageMetric = ({ label, value, description }: UsageMetricProps) => {
     return (
         <Tooltip label={description} position="right" withArrow arrowSize={8}>
             <Group>
@@ -18,3 +18,5 @@ export default ({ label, value, description }: UsageMetricProps) => {
         </Tooltip>
     );
 };
+
+export default UsageMetric;

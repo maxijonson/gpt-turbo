@@ -5,7 +5,11 @@ module.exports = {
         tsconfigRootDir: __dirname,
         sourceType: "module",
     },
-    plugins: ["@typescript-eslint/eslint-plugin", "react-hooks"],
+    plugins: [
+        "react-refresh",
+        "@typescript-eslint/eslint-plugin",
+        "react-hooks",
+    ],
     extends: [
         "plugin:@typescript-eslint/recommended",
         "plugin:prettier/recommended",
@@ -63,5 +67,7 @@ module.exports = {
 
         "react-hooks/rules-of-hooks": "error",
         "react-hooks/exhaustive-deps": "warn",
+
+        "react-refresh/only-export-components": "warn",
     },
 };

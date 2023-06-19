@@ -8,7 +8,7 @@ interface UsageProps {
     conversation: Conversation;
 }
 
-export default ({ conversation }: UsageProps) => {
+const Usage = ({ conversation }: UsageProps) => {
     const { getConversationName } = useConversationManager();
 
     const metrics: {
@@ -59,3 +59,5 @@ export default ({ conversation }: UsageProps) => {
         </Stack>
     );
 };
+
+export default Usage;

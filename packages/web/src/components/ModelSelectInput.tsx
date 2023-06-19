@@ -1,43 +1,13 @@
 import React from "react";
-import { Select, Stack, Text, useMantineTheme } from "@mantine/core";
+import { Select } from "@mantine/core";
+import ModelSelectItem from "./ModelSelectItem";
 
 interface ModelSelectInputProps {
     value: string;
     onChange: (value: string) => void;
 }
 
-const ModelSelectItem = React.forwardRef<
-    HTMLDivElement,
-    { label: string; value: string; selected: boolean }
->(({ label, value, ...restProps }, ref) => {
-    const theme = useMantineTheme();
-    const { selected } = restProps;
-
-    const subColor = (() => {
-        const dark = theme.colorScheme === "dark";
-
-        if (dark && selected) {
-            return theme.colors.gray[4];
-        } else if (dark && !selected) {
-            return theme.colors.gray[6];
-        } else if (selected) {
-            return theme.colors.gray[3];
-        } else {
-            return theme.colors.gray[6];
-        }
-    })();
-
-    return (
-        <Stack ref={ref} spacing={0} p="xs" {...restProps}>
-            <Text>{label}</Text>
-            <Text size="xs" color={subColor}>
-                {value}
-            </Text>
-        </Stack>
-    );
-});
-
-export default ({ value, onChange }: ModelSelectInputProps) => {
+const ModelSelectInput = ({ value, onChange }: ModelSelectInputProps) => {
     const [modelOptions, setModelOptions] = React.useState([
         { label: "GPT 3.5", value: "gpt-3.5-turbo" },
         { label: "GPT 4", value: "gpt-4" },
@@ -65,3 +35,5 @@ export default ({ value, onChange }: ModelSelectInputProps) => {
         />
     );
 };
+
+export default ModelSelectInput;

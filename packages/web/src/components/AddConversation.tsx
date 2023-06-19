@@ -19,7 +19,7 @@ const useStyles = createStyles((theme) => ({
     },
 }));
 
-export default () => {
+const AddConversation = () => {
     const { classes } = useStyles();
 
     return (
@@ -41,3 +41,5 @@ export default () => {
         </Container>
     );
 };
+
+export default AddConversation;

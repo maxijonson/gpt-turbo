@@ -7,7 +7,7 @@ interface SettingsProviderProps {
     children?: React.ReactNode;
 }
 
-export default ({ children }: SettingsProviderProps) => {
+const SettingsProvider = ({ children }: SettingsProviderProps) => {
     const {
         value: settings,
         setValue: setSettings,
@@ -46,3 +46,5 @@ export default ({ children }: SettingsProviderProps) => {
         </SettingsContext.Provider>
     );
 };
+
+export default SettingsProvider;

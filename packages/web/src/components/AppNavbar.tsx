@@ -38,7 +38,7 @@ const useStyles = createStyles(() => ({
     },
 }));
 
-export default () => {
+const AppNavbar = () => {
     const {
         conversations,
         activeConversation,
@@ -204,3 +204,5 @@ export default () => {
         </>
     );
 };
+
+export default AppNavbar;

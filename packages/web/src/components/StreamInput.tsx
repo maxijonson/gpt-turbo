@@ -5,7 +5,7 @@ interface StreamInputProps {
     onChange: (value: boolean) => void;
 }
 
-export default ({ value, onChange }: StreamInputProps) => {
+const StreamInput = ({ value, onChange }: StreamInputProps) => {
     return (
         <Input.Wrapper label="Stream">
             <Switch
@@ -15,3 +15,5 @@ export default ({ value, onChange }: StreamInputProps) => {
         </Input.Wrapper>
     );
 };
+
+export default StreamInput;

@@ -1,4 +1,4 @@
-import { Group, Tooltip } from "@mantine/core";
+import { Group } from "@mantine/core";
 import { Conversation } from "gpt-turbo";
 import React from "react";
 import { BiSave, BiTestTube } from "react-icons/bi";
@@ -16,29 +16,17 @@ import {
 } from "react-icons/bs";
 import { TbCircleDashed } from "react-icons/tb";
 import usePersistence from "../hooks/usePersistence";
+import NavbarConverationInfoIcon from "./NavbarConverationInfoIcon";
 
 interface NavbarConversationInfoProps {
     conversation: Conversation;
 }
 
-const Icon = ({
-    IconType,
-    label,
-}: {
-    IconType: React.ReactNode;
-    label: string;
-}) => {
-    if (IconType === null) return null;
-    return (
-        <Tooltip label={label} withArrow>
-            <div>{IconType}</div>
-        </Tooltip>
-    );
-};
-
 const SIZE = 14;
 
-export default ({ conversation }: NavbarConversationInfoProps) => {
+const NavbarConversationInfo = ({
+    conversation,
+}: NavbarConversationInfoProps) => {
     const { model, dry, disableModeration, stream } = conversation.getConfig();
     const { persistedConversationIds } = usePersistence();
 
@@ -74,9 +62,12 @@ export default ({ conversation }: NavbarConversationInfoProps) => {
 
     return (
         <Group spacing="xs" align="center">
-            <Icon IconType={Model} label={model} />
-            <Icon IconType={Dry} label={dry ? "Dry run" : "Live"} />
-            <Icon
+            <NavbarConverationInfoIcon IconType={Model} label={model} />
+            <NavbarConverationInfoIcon
+                IconType={Dry}
+                label={dry ? "Dry run" : "Live"}
+            />
+            <NavbarConverationInfoIcon
                 IconType={DisableModeration}
                 label={
                     disableModeration === "soft"
@@ -86,11 +77,16 @@ export default ({ conversation }: NavbarConversationInfoProps) => {
                         : "Moderation enabled"
                 }
             />
-            <Icon IconType={Stream} label={stream ? "Stream" : "No stream"} />
-            <Icon
+            <NavbarConverationInfoIcon
+                IconType={Stream}
+                label={stream ? "Stream" : "No stream"}
+            />
+            <NavbarConverationInfoIcon
                 IconType={Persisted}
                 label={persisted ? "Saved" : "Not Saved"}
             />
         </Group>
     );
 };
+
+export default NavbarConversationInfo;

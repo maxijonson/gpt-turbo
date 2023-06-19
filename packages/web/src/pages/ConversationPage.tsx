@@ -4,7 +4,7 @@ import useConversationManager from "../hooks/useConversationManager";
 import Messages from "../components/Messages";
 import Prompt from "../components/Prompt";
 
-export default () => {
+const ConversationPage = () => {
     const { activeConversation } = useConversationManager();
 
     if (!activeConversation) {
@@ -19,3 +19,5 @@ export default () => {
         </Stack>
     );
 };
+
+export default ConversationPage;

@@ -47,7 +47,7 @@ const getValueFromHeaders = (value: Header[]) => {
     }, {} as Record<string, string>);
 };
 
-export default ({ value, onChange }: HeadersInputProps) => {
+const HeadersInput = ({ value, onChange }: HeadersInputProps) => {
     const [headers, handlers] = useListState<Header>(getInitialHeaders(value));
 
     const setHeader = React.useCallback(
@@ -134,3 +134,5 @@ export default ({ value, onChange }: HeadersInputProps) => {
         </Input.Wrapper>
     );
 };
+
+export default HeadersInput;

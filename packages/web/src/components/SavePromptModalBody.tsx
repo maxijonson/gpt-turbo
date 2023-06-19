@@ -11,7 +11,11 @@ interface SaveContextModalBodyProps {
     mode: "context" | "prompt";
 }
 
-export default ({ value, close, mode }: SaveContextModalBodyProps) => {
+const SavePromptModalBody = ({
+    value,
+    close,
+    mode,
+}: SaveContextModalBodyProps) => {
     const {
         saveContext,
         savePrompt,
@@ -79,3 +83,5 @@ export default ({ value, close, mode }: SaveContextModalBodyProps) => {
         </form>
     );
 };
+
+export default SavePromptModalBody;

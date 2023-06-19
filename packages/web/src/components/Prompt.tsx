@@ -24,7 +24,7 @@ import TippedActionIcon from "./TippedActionIcon";
 import SavedPromptsModalBody from "./SavedPromptsModalBody";
 import usePersistence from "../hooks/usePersistence";
 
-export default () => {
+const Prompt = () => {
     const {
         activeConversation: conversation,
         showUsage,
@@ -182,3 +182,5 @@ export default () => {
         </>
     );
 };
+
+export default Prompt;
