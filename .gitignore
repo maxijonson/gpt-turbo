@@ -3,3 +3,4 @@ dist
 .env
 gptturbo-conversation-*.json
 .DS_Store
+.vscode
