@@ -3,7 +3,7 @@ import React from "react";
 import usePersistence from "../hooks/usePersistence";
 import ConversationForm, { ConversationFormValues } from "./ConversationForm";
 
-export default () => {
+const AddConversationForm = () => {
     const { addConversation, setActiveConversation } = useConversationManager();
     const { addPersistedConversationId } = usePersistence();
 
@@ -20,3 +20,5 @@ export default () => {
 
     return <ConversationForm onSubmit={onSubmit} />;
 };
+
+export default AddConversationForm;

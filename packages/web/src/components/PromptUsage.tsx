@@ -8,7 +8,7 @@ interface PromptUsageProps {
     conversation: Conversation;
 }
 
-export default ({ prompt, conversation }: PromptUsageProps) => {
+const PromptUsage = ({ prompt, conversation }: PromptUsageProps) => {
     const [mode, setMode] = React.useState<"size" | "value">("size");
 
     const usageDisplay =
@@ -58,3 +58,5 @@ export default ({ prompt, conversation }: PromptUsageProps) => {
         </Tooltip>
     );
 };
+
+export default PromptUsage;

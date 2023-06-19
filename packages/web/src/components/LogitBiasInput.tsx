@@ -57,7 +57,7 @@ const getValueFromTokens = (value: LogitBias[]) => {
     }, {} as Record<string, number>);
 };
 
-export default ({ value, onChange }: LogitBiasInputProps) => {
+const LogitBiasInput = ({ value, onChange }: LogitBiasInputProps) => {
     const [tokens, handlers] = useListState<LogitBias>(getInitialTokens(value));
 
     const setToken = React.useCallback(
@@ -153,3 +153,5 @@ export default ({ value, onChange }: LogitBiasInputProps) => {
         </Input.Wrapper>
     );
 };
+
+export default LogitBiasInput;

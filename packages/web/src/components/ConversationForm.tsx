@@ -53,7 +53,7 @@ interface ConversationFormProps {
     onSubmit: (values: ConversationFormValues) => void;
 }
 
-export default ({ onSubmit }: ConversationFormProps) => {
+const ConversationForm = ({ onSubmit }: ConversationFormProps) => {
     const { settings } = useSettings();
     const form = useForm({
         initialValues: {
@@ -233,3 +233,5 @@ export default ({ onSubmit }: ConversationFormProps) => {
         </form>
     );
 };
+
+export default ConversationForm;

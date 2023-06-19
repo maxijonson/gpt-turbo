@@ -18,7 +18,7 @@ const useStyles = createStyles(() => ({
     },
 }));
 
-export default () => {
+const Messages = () => {
     const { activeConversation: conversation } = useConversationManager();
     const [messages, setMessages] = React.useState(
         conversation?.getMessages() ?? []
@@ -117,3 +117,5 @@ export default () => {
         </Container>
     );
 };
+
+export default Messages;

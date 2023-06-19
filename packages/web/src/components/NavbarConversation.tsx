@@ -61,7 +61,10 @@ const useStyles = createStyles((theme, { isActive }: { isActive: boolean }) => {
     };
 });
 
-export default ({ conversation, onClick }: NavbarConversationProps) => {
+const NavbarConversation = ({
+    conversation,
+    onClick,
+}: NavbarConversationProps) => {
     const {
         activeConversation,
         setActiveConversation,
@@ -221,3 +224,5 @@ export default ({ conversation, onClick }: NavbarConversationProps) => {
         </Anchor>
     );
 };
+
+export default NavbarConversation;

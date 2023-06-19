@@ -4,7 +4,7 @@ import React from "react";
 import useSettings from "../hooks/useSettings";
 import ConversationForm, { ConversationFormValues } from "./ConversationForm";
 
-export default () => {
+const SettingsForm = () => {
     const { setSettings } = useSettings();
 
     const onSubmit = React.useCallback(
@@ -21,3 +21,5 @@ export default () => {
         </Container>
     );
 };
+
+export default SettingsForm;

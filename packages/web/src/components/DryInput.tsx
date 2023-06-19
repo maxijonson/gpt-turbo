@@ -6,7 +6,7 @@ interface DryInputProps {
     readOnly?: boolean;
 }
 
-export default ({ value, onChange, readOnly }: DryInputProps) => {
+const DryInput = ({ value, onChange, readOnly }: DryInputProps) => {
     return (
         <Tooltip
             label="Dry mode is enabled when no API key is specified"
@@ -22,3 +22,5 @@ export default ({ value, onChange, readOnly }: DryInputProps) => {
         </Tooltip>
     );
 };
+
+export default DryInput;

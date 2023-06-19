@@ -26,9 +26,11 @@ import TippedActionIcon from "./TippedActionIcon";
 import { useForm } from "@mantine/form";
 import useConversationManager from "../hooks/useConversationManager";
 import { notifications } from "@mantine/notifications";
-import CodeBlock, { LANGUAGES, Language } from "./CodeBlock";
+import CodeBlock from "./CodeBlock";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import SavePromptModalBody from "./SavePromptModalBody";
+import { CODE_LANGUAGES } from "../config/constants";
+import { CodeLanguage } from "../utils/types";
 
 interface MessageProps {
     message: Message;
@@ -51,7 +53,7 @@ const useStyles = createStyles((theme) => ({
     },
 }));
 
-export default ({ message }: MessageProps) => {
+const MessageComponent = ({ message }: MessageProps) => {
     const { activeConversation: conversation } = useConversationManager();
     const { classes } = useStyles();
     const [isEditing, setIsEditing] = React.useState(false);
@@ -140,7 +142,7 @@ export default ({ message }: MessageProps) => {
         const output: JSX.Element[] = [];
 
         let isCode = false;
-        let language: Language | null = null;
+        let language: CodeLanguage | null = null;
         let codeLines: string[] = [];
 
         for (let i = 0; i < lines.length; i++) {
@@ -149,7 +151,7 @@ export default ({ message }: MessageProps) => {
             if (!isCode && line.startsWith("```")) {
                 isCode = true;
                 language =
-                    LANGUAGES.find((l) =>
+                    CODE_LANGUAGES.find((l) =>
                         line.slice(3).toLocaleLowerCase().includes(l)
                     ) || null;
                 output.push(
@@ -286,3 +288,5 @@ export default ({ message }: MessageProps) => {
         </>
     );
 };
+
+export default MessageComponent;

@@ -9,49 +9,13 @@ import {
 import { Prism } from "@mantine/prism";
 import { BiCheck } from "react-icons/bi";
 import { RxClipboard } from "react-icons/rx";
+import { CodeLanguage } from "../utils/types";
 
-export const LANGUAGES = [
-    "markup",
-    "bash",
-    "clike",
-    "c",
-    "cpp",
-    "css",
-    "javascript",
-    "jsx",
-    "coffeescript",
-    "actionscript",
-    "css-extr",
-    "diff",
-    "git",
-    "go",
-    "graphql",
-    "handlebars",
-    "json",
-    "less",
-    "makefile",
-    "markdown",
-    "objectivec",
-    "ocaml",
-    "python",
-    "reason",
-    "sass",
-    "scss",
-    "sql",
-    "stylus",
-    "tsx",
-    "typescript",
-    "wasm",
-    "yaml",
-] as const;
-
-export type Language = (typeof LANGUAGES)[number];
-
-export default ({
+const CodeBlock = ({
     language,
     children,
 }: {
-    language: Language | null;
+    language: CodeLanguage | null;
     children: string;
 }) => {
     return language ? (
@@ -100,3 +64,5 @@ export default ({
         </Card>
     );
 };
+
+export default CodeBlock;

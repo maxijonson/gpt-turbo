@@ -10,7 +10,11 @@ interface SavedContextsModalBodyProps {
     mode: "context" | "prompt";
 }
 
-export default ({ close, onSelect, mode }: SavedContextsModalBodyProps) => {
+const SavedPromptsModalBody = ({
+    close,
+    onSelect,
+    mode,
+}: SavedContextsModalBodyProps) => {
     const {
         removeContext,
         removePrompt,
@@ -62,3 +66,5 @@ export default ({ close, onSelect, mode }: SavedContextsModalBodyProps) => {
         </Stack>
     );
 };
+
+export default SavedPromptsModalBody;

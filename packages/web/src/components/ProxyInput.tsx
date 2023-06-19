@@ -18,7 +18,7 @@ interface ProxyInputProps {
     onChange: (value: RequestOptionsProxy | undefined) => void;
 }
 
-export default ({ value, onChange }: ProxyInputProps) => {
+const ProxyInput = ({ value, onChange }: ProxyInputProps) => {
     const form = useForm({
         initialValues: {
             host: value?.host ?? "",
@@ -94,3 +94,5 @@ export default ({ value, onChange }: ProxyInputProps) => {
         </Input.Wrapper>
     );
 };
+
+export default ProxyInput;

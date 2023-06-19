@@ -15,7 +15,9 @@ interface ConversationManagerProviderProps {
     children?: React.ReactNode;
 }
 
-export default ({ children }: ConversationManagerProviderProps) => {
+const ConversationManagerProvider = ({
+    children,
+}: ConversationManagerProviderProps) => {
     const [conversations, setConversations] = React.useState<Conversation[]>(
         []
     );
@@ -164,3 +166,5 @@ export default ({ children }: ConversationManagerProviderProps) => {
         </ConversationManagerContext.Provider>
     );
 };
+
+export default ConversationManagerProvider;

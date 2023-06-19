@@ -7,7 +7,7 @@ interface ProviderProps {
     children?: React.ReactNode;
 }
 
-export default ({ children }: ProviderProps) => {
+const Provider = ({ children }: ProviderProps) => {
     return (
         <SettingsProvider>
             <ConversationManagerProvider>
@@ -18,3 +18,5 @@ export default ({ children }: ProviderProps) => {
         </SettingsProvider>
     );
 };
+
+export default Provider;

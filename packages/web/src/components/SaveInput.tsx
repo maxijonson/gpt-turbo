@@ -5,7 +5,7 @@ interface SaveInputProps {
     onChange: (value: boolean) => void;
 }
 
-export default ({ value, onChange }: SaveInputProps) => {
+const SaveInput = ({ value, onChange }: SaveInputProps) => {
     return (
         <Input.Wrapper label="Save">
             <Switch
@@ -15,3 +15,5 @@ export default ({ value, onChange }: SaveInputProps) => {
         </Input.Wrapper>
     );
 };
+
+export default SaveInput;

@@ -22,10 +22,7 @@ export interface AppCatcherState {
     hasError: boolean;
 }
 
-export default class AppCatcher extends React.Component<
-    AppCatcherProps,
-    AppCatcherState
-> {
+class AppCatcher extends React.Component<AppCatcherProps, AppCatcherState> {
     constructor(props: AppCatcherProps) {
         super(props);
         this.state = { hasError: false };
@@ -132,3 +129,5 @@ export default class AppCatcher extends React.Component<
         );
     }
 }
+
+export default AppCatcher;

@@ -4,7 +4,7 @@ import ConversationPage from "../pages/ConversationPage";
 import useSettings from "../hooks/useSettings";
 import usePersistence from "../hooks/usePersistence";
 
-export default () => {
+const App = () => {
     const { areSettingsLoaded } = useSettings();
     const { isLoading: isLoadingPersistence, hasInit: hasInitPersistence } =
         usePersistence();
@@ -29,3 +29,5 @@ export default () => {
         </AppShell>
     );
 };
+
+export default App;

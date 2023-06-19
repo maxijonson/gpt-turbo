@@ -6,7 +6,7 @@ interface StopInputProps {
     onChange: (value: string[] | undefined) => void;
 }
 
-export default ({ value, onChange }: StopInputProps) => {
+const StopInput = ({ value, onChange }: StopInputProps) => {
     const [data, setData] = React.useState([".", "6.", "11.", "Human:"]);
 
     const inputValue = (() => {
@@ -44,3 +44,5 @@ export default ({ value, onChange }: StopInputProps) => {
         />
     );
 };
+
+export default StopInput;
