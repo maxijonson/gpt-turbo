@@ -13,6 +13,7 @@ export const persistenceSchema = z.object({
         const names = prompts.map((p) => p.name.toLowerCase());
         return names.length === new Set(names).size;
     }, "Prompt names must be unique"),
+    functionsWarning: z.boolean().default(true),
 });
 
 export type Persistence = z.infer<typeof persistenceSchema>;

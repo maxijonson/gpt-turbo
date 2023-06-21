@@ -14,6 +14,7 @@ export interface PersistenceContextValue {
     savePrompt: (prompt: PersistencePrompt) => void;
     removeContext: (contextName: string) => void;
     removePrompt: (promptName: string) => void;
+    dismissFunctionsWarning: () => void;
 }
 
 const notImplemented = makeNotImplemented("PersistenceContext");
@@ -22,6 +23,7 @@ export const PersistenceContext = React.createContext<PersistenceContextValue>({
         conversations: [],
         contexts: [],
         prompts: [],
+        functionsWarning: true,
     },
     addPersistedConversationId: notImplemented,
     persistedConversationIds: [],
@@ -31,4 +33,5 @@ export const PersistenceContext = React.createContext<PersistenceContextValue>({
     savePrompt: notImplemented,
     removeContext: notImplemented,
     removePrompt: notImplemented,
+    dismissFunctionsWarning: notImplemented,
 });

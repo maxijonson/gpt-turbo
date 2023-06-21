@@ -8,8 +8,6 @@ import useConversationManager from "../../hooks/useConversationManager";
 import { Persistence, persistenceSchema } from "../../entities/persistence";
 import { PersistenceConversation } from "../../entities/persistenceConversation";
 import { Conversation, Message } from "gpt-turbo";
-import { PersistenceContext } from "../../entities/persistenceContext";
-import { PersistencePrompt } from "../../entities/persistencePrompt";
 
 interface PersistenceProviderProps {
     children?: React.ReactNode;
@@ -35,6 +33,7 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
             conversations: [],
             contexts: [],
             prompts: [],
+            functionsWarning: true,
         },
         persistenceSchema
     );
@@ -43,7 +42,9 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
     const [isLoading, setIsLoading] = React.useState(false);
     const [hasInit, setHasInit] = React.useState(false);
 
-    const addPersistedConversationId = React.useCallback((id: string) => {
+    const addPersistedConversationId = React.useCallback<
+        PersistenceContextValue["addPersistedConversationId"]
+    >((id) => {
         setPersistedConversationIds((current) => {
             if (current.includes(id)) {
                 return current;
@@ -78,8 +79,10 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         setPersistence,
     ]);
 
-    const saveContext = React.useCallback(
-        (context: PersistenceContext) => {
+    const saveContext = React.useCallback<
+        PersistenceContextValue["saveContext"]
+    >(
+        (context) => {
             setPersistence((current) => {
                 if (current.contexts.includes(context)) {
                     return current;
@@ -93,8 +96,8 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         [setPersistence]
     );
 
-    const savePrompt = React.useCallback(
-        (prompt: PersistencePrompt) => {
+    const savePrompt = React.useCallback<PersistenceContextValue["savePrompt"]>(
+        (prompt) => {
             setPersistence((current) => {
                 if (current.prompts.includes(prompt)) {
                     return current;
@@ -108,8 +111,10 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         [setPersistence]
     );
 
-    const removeContext = React.useCallback(
-        (contextName: string) => {
+    const removeContext = React.useCallback<
+        PersistenceContextValue["removeContext"]
+    >(
+        (contextName) => {
             setPersistence((current) =>
                 persistenceSchema.parse({
                     ...current,
@@ -122,8 +127,10 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         [setPersistence]
     );
 
-    const removePrompt = React.useCallback(
-        (promptName: string) => {
+    const removePrompt = React.useCallback<
+        PersistenceContextValue["removePrompt"]
+    >(
+        (promptName) => {
             setPersistence((current) =>
                 persistenceSchema.parse({
                     ...current,
@@ -136,6 +143,17 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         [setPersistence]
     );
 
+    const dismissFunctionsWarning = React.useCallback<
+        PersistenceContextValue["dismissFunctionsWarning"]
+    >(() => {
+        setPersistence((current) =>
+            persistenceSchema.parse({
+                ...current,
+                functionsWarning: false,
+            })
+        );
+    }, [setPersistence]);
+
     const providerValue = React.useMemo<PersistenceContextValue>(
         () => ({
             persistence,
@@ -147,6 +165,7 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
             savePrompt,
             removeContext,
             removePrompt,
+            dismissFunctionsWarning,
         }),
         [
             addPersistedConversationId,
@@ -158,6 +177,7 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
             removePrompt,
             saveContext,
             savePrompt,
+            dismissFunctionsWarning,
         ]
     );
 
