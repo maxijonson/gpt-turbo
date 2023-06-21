@@ -2,7 +2,8 @@ import { Container } from "@mantine/core";
 import { closeAllModals } from "@mantine/modals";
 import React from "react";
 import useSettings from "../hooks/useSettings";
-import ConversationForm, { ConversationFormValues } from "./ConversationForm";
+import ConversationForm from "./ConversationForm";
+import { ConversationFormValues } from "../contexts/ConversationFormContext";
 
 const SettingsForm = () => {
     const { setSettings } = useSettings();

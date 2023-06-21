@@ -1,7 +1,8 @@
 import useConversationManager from "../hooks/useConversationManager";
 import React from "react";
 import usePersistence from "../hooks/usePersistence";
-import ConversationForm, { ConversationFormValues } from "./ConversationForm";
+import ConversationForm from "./ConversationForm";
+import { ConversationFormValues } from "../contexts/ConversationFormContext";
 
 const AddConversationForm = () => {
     const { addConversation, setActiveConversation } = useConversationManager();
