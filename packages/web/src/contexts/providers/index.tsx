@@ -11,9 +11,9 @@ const Provider = ({ children }: ProviderProps) => {
     return (
         <SettingsProvider>
             <ConversationManagerProvider>
-                <MantineProviders>
-                    <PersistenceProvider>{children}</PersistenceProvider>
-                </MantineProviders>
+                <PersistenceProvider>
+                    <MantineProviders>{children}</MantineProviders>
+                </PersistenceProvider>
             </ConversationManagerProvider>
         </SettingsProvider>
     );

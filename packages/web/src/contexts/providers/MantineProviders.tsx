@@ -27,7 +27,7 @@ const MantineProviders = ({ children }: MantineProvidersProps) => {
             toggleColorScheme={toggleColorScheme}
         >
             <MantineProvider
-                theme={{ colorScheme }}
+                theme={{ colorScheme, loader: "dots" }}
                 withGlobalStyles
                 withNormalizeCSS
             >
