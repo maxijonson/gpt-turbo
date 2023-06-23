@@ -3,7 +3,7 @@ import FunctionsWarning from "./FunctionsWarning";
 
 const ConversationFormFunctionsTab = () => {
     return (
-        <Stack mt="xs">
+        <Stack>
             <FunctionsWarning />
         </Stack>
     );

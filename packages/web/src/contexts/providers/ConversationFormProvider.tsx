@@ -50,7 +50,9 @@ const ConversationFormProvider = ({
 
     return (
         <ConversationFormContext.Provider form={form}>
-            <form onSubmit={handleSubmit}>{children}</form>
+            <form onSubmit={handleSubmit} style={{ height: "100%" }}>
+                {children}
+            </form>
         </ConversationFormContext.Provider>
     );
 };

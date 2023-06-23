@@ -8,18 +8,10 @@ import {
     Stack,
     Text,
     createStyles,
-    useMantineColorScheme,
     useMantineTheme,
 } from "@mantine/core";
 import useConversationManager from "../hooks/useConversationManager";
-import {
-    BiCog,
-    BiDollar,
-    BiMoon,
-    BiPlus,
-    BiSun,
-    BiTrash,
-} from "react-icons/bi";
+import { BiCog, BiPlus } from "react-icons/bi";
 import TippedActionIcon from "./TippedActionIcon";
 import { openModal } from "@mantine/modals";
 import SettingsForm from "./SettingsForm";
@@ -28,6 +20,7 @@ import Usage from "./Usage";
 import { useMediaQuery } from "@mantine/hooks";
 import { BsDiscord, BsGithub } from "react-icons/bs";
 import NavbarConversations from "./NavbarConversations";
+import { AiOutlineFunction } from "react-icons/ai";
 
 const useStyles = createStyles(() => ({
     burger: {
@@ -39,40 +32,17 @@ const useStyles = createStyles(() => ({
 }));
 
 const AppNavbar = () => {
-    const {
-        conversations,
-        activeConversation,
-        setActiveConversation,
-        removeAllConversations,
-        showUsage,
-        setShowUsage,
-    } = useConversationManager();
+    const { activeConversation, setActiveConversation, showUsage } =
+        useConversationManager();
     const { classes } = useStyles();
-    const [isClearingAll, setIsClearingAll] = React.useState(false);
-    const { colorScheme, toggleColorScheme } = useMantineColorScheme();
     const theme = useMantineTheme();
 
     const [opened, setOpened] = React.useState(false);
     const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
 
-    const dark = colorScheme === "dark";
-
     const closeNavbar = React.useCallback(() => {
         setOpened(false);
     }, []);
-
-    const onClearAllClick = React.useCallback(() => {
-        if (isClearingAll) {
-            removeAllConversations();
-        }
-        setIsClearingAll((c) => !c);
-
-        if (!isClearingAll) {
-            setTimeout(() => {
-                setIsClearingAll(false);
-            }, 3000);
-        }
-    }, [isClearingAll, removeAllConversations]);
 
     return (
         <>
@@ -105,6 +75,7 @@ const AppNavbar = () => {
                             onClick={() =>
                                 openModal({
                                     children: <SettingsForm />,
+                                    fullScreen: isSm,
                                     centered: true,
                                     size: "lg",
                                     title: "Settings",
@@ -112,13 +83,6 @@ const AppNavbar = () => {
                             }
                         >
                             <BiCog />
-                        </TippedActionIcon>
-                        <TippedActionIcon
-                            tip={dark ? "Light mode" : "Dark mode"}
-                            variant="outline"
-                            onClick={() => toggleColorScheme()}
-                        >
-                            {dark ? <BiSun /> : <BiMoon />}
                         </TippedActionIcon>
                         {activeConversation && (
                             <TippedActionIcon
@@ -132,29 +96,12 @@ const AppNavbar = () => {
                                 <BiPlus />
                             </TippedActionIcon>
                         )}
-                        {conversations.length && (
-                            <TippedActionIcon
-                                variant={isClearingAll ? "filled" : "outline"}
-                                color={isClearingAll ? "red" : "gray"}
-                                tip={
-                                    isClearingAll
-                                        ? "Confirm"
-                                        : "Clear all conversations"
-                                }
-                                onClick={onClearAllClick}
-                            >
-                                <BiTrash />
-                            </TippedActionIcon>
-                        )}
-                        {activeConversation && (
-                            <TippedActionIcon
-                                tip={showUsage ? "Hide usage" : "Show usage"}
-                                variant="outline"
-                                onClick={() => setShowUsage((c) => !c)}
-                            >
-                                <BiDollar />
-                            </TippedActionIcon>
-                        )}
+                        <TippedActionIcon
+                            tip="Functions Library"
+                            variant="outline"
+                        >
+                            <AiOutlineFunction />
+                        </TippedActionIcon>
                     </Group>
                     <Divider my="xs" />
                 </Navbar.Section>

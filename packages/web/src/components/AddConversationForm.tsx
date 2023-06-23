@@ -19,7 +19,7 @@ const AddConversationForm = () => {
         [addConversation, addPersistedConversationId, setActiveConversation]
     );
 
-    return <ConversationForm onSubmit={onSubmit} />;
+    return <ConversationForm onSubmit={onSubmit} hideAppSettings />;
 };
 
 export default AddConversationForm;

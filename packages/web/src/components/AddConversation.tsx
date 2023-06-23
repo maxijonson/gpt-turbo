@@ -11,10 +11,12 @@ import AddConversationForm from "./AddConversationForm";
 const useStyles = createStyles((theme) => ({
     card: {
         width: "100%",
+        height: "100%",
 
         [theme.fn.largerThan("sm")]: {
             width: 620,
             maxWidth: "100%",
+            height: "unset",
         },
     },
 }));
@@ -23,7 +25,7 @@ const AddConversation = () => {
     const { classes } = useStyles();
 
     return (
-        <Container h="100%">
+        <Container h="100%" p={0} m={0} fluid>
             <Center h="100%">
                 <Card
                     className={classes.card}
@@ -32,8 +34,10 @@ const AddConversation = () => {
                     radius="md"
                     withBorder
                 >
-                    <Stack w="100%">
-                        <Title align="center">New Conversation</Title>
+                    <Stack w="100%" h="100%">
+                        <Title order={4} align="center">
+                            New Conversation
+                        </Title>
                         <AddConversationForm />
                     </Stack>
                 </Card>

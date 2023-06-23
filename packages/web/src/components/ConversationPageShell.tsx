@@ -1,16 +1,20 @@
-import { AppShell } from "@mantine/core";
-import AppNavbar from "./AppNavbar";
+import { AppShell, useMantineTheme } from "@mantine/core";
+import ConversationNavbar from "./ConversationNavbar";
+import { useMediaQuery } from "@mantine/hooks";
 
 interface ConversationPageShellProps {
     children?: React.ReactNode;
 }
 
 const ConversationPageShell = ({ children }: ConversationPageShellProps) => {
+    const theme = useMantineTheme();
+    const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
+
     return (
         <AppShell
-            padding="md"
+            padding={isSm ? 0 : "md"}
             navbarOffsetBreakpoint="sm"
-            navbar={<AppNavbar />}
+            navbar={<ConversationNavbar />}
             sx={(theme) => ({
                 backgroundColor:
                     theme.colorScheme === "dark"

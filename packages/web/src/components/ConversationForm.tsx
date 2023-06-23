@@ -1,4 +1,4 @@
-import { Stack, Text, Button, Tabs } from "@mantine/core";
+import { Stack, Text, Button, Tabs, Box } from "@mantine/core";
 import ConversationFormProvider, {
     ConversationFormProviderProps,
 } from "../contexts/providers/ConversationFormProvider";
@@ -6,48 +6,83 @@ import ConversationFormConversationTab from "./ConversationFormConversationTab";
 import ConversationFormRequestTab from "./ConversationFormRequestTab";
 import ConversationFormFunctionsTab from "./ConversationFormFunctionsTab";
 import useConversationForm from "../hooks/useConversationForm";
+import AppSettings from "./AppSettings";
+import React from "react";
 
-interface ConversationFormProps {
-    onSubmit: ConversationFormProviderProps["onSubmit"];
+interface ConversationFormProvidedProps {
+    hideAppSettings?: boolean;
 }
 
-const ConversationFormProvided = () => {
+type ConversationFormProps = ConversationFormProvidedProps & {
+    onSubmit: ConversationFormProviderProps["onSubmit"];
+};
+
+type ConversationFormTab = "conversation" | "request" | "functions" | "app";
+
+const ConversationFormProvided = ({
+    hideAppSettings = false,
+}: ConversationFormProvidedProps) => {
     const form = useConversationForm();
+    const [currentTab, setCurrentTab] =
+        React.useState<ConversationFormTab>("conversation");
 
     return (
-        <Stack>
-            <Tabs defaultValue="conversation">
+        <Stack justify="space-between" h="100%">
+            <Tabs
+                value={currentTab}
+                onTabChange={(tab) =>
+                    setCurrentTab(
+                        (tab as ConversationFormTab) ?? "conversation"
+                    )
+                }
+            >
                 <Tabs.List>
                     <Tabs.Tab value="conversation">Conversation</Tabs.Tab>
                     <Tabs.Tab value="request">Request</Tabs.Tab>
                     <Tabs.Tab value="functions">Functions</Tabs.Tab>
+                    {!hideAppSettings && (
+                        <Tabs.Tab value="app">App Settings</Tabs.Tab>
+                    )}
                 </Tabs.List>
-                <Tabs.Panel value="conversation">
+                <Tabs.Panel value="conversation" pt="md">
                     <ConversationFormConversationTab />
                 </Tabs.Panel>
-                <Tabs.Panel value="request">
+                <Tabs.Panel value="request" pt="md">
                     <ConversationFormRequestTab />
                 </Tabs.Panel>
-                <Tabs.Panel value="functions">
+                <Tabs.Panel value="functions" pt="md">
                     <ConversationFormFunctionsTab />
                 </Tabs.Panel>
+                <Tabs.Panel value="app" pt="md">
+                    <AppSettings />
+                </Tabs.Panel>
             </Tabs>
-            <Button type="submit">Submit</Button>
-            {form.values.save && (
-                <Text size="xs" italic align="center">
-                    This conversation will be saved to your browser's local
-                    storage, along with your API key, if specified. Make sure
-                    that you trust the device you are using and that you are not
-                    using a shared device.
-                </Text>
+            {currentTab !== "app" && (
+                <Box>
+                    <Button type="submit" fullWidth>
+                        Submit
+                    </Button>
+                    {form.values.save && (
+                        <Text size="xs" italic align="center">
+                            This conversation will be saved to your browser's
+                            local storage, along with your API key, if
+                            specified. Make sure that you trust the device you
+                            are using and that you are not using a shared
+                            device.
+                        </Text>
+                    )}
+                </Box>
             )}
         </Stack>
     );
 };
 
-const ConversationForm = ({ onSubmit }: ConversationFormProps) => (
+const ConversationForm = ({
+    onSubmit,
+    ...conversationFormProvidedProps
+}: ConversationFormProps) => (
     <ConversationFormProvider onSubmit={onSubmit}>
-        <ConversationFormProvided />
+        <ConversationFormProvided {...conversationFormProvidedProps} />
     </ConversationFormProvider>
 );
 
