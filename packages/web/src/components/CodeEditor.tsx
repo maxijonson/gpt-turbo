@@ -68,7 +68,6 @@ const CodeEditor = ({ value, onChange, name, parameters }: CodeEditorProps) => {
         },
         [editor]
     );
-
     const handleUpdate = React.useCallback(
         ({
             editor,
@@ -77,7 +76,7 @@ const CodeEditor = ({ value, onChange, name, parameters }: CodeEditorProps) => {
             editor: Editor;
             transaction: Transaction;
         }) => {
-            if (!editor) return;
+            if (!editor?.isFocused) return;
             if (transaction.docChanged) {
                 const text = editor.getText();
                 onChange(text.length > 0 ? text : undefined);
@@ -103,6 +102,14 @@ const CodeEditor = ({ value, onChange, name, parameters }: CodeEditorProps) => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [editor, contentType, editor?.getText()]);
+
+    // Restores the editor's content to the value prop when the editor is not focused. Usually on first render because the editor's content is empty on first render, no matter the value.
+    React.useEffect(() => {
+        if (!editor) return;
+        if (editor.isFocused) return;
+        editor.commands.setContent(value ?? "");
+        editor.commands.setCodeBlock();
+    }, [editor, value]);
 
     return (
         <RichTextEditor editor={editor} className={classes.editor}>

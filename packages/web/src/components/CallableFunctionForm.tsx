@@ -5,16 +5,19 @@ import CallableFunctionFormProvider, {
 import React from "react";
 import useCallableFunctionForm from "../hooks/useCallableFunctionForm";
 import CallableFunctionDisplayNameInput from "./CallableFunctionDisplayNameInput";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import CallableFunctionFormCode from "./CallableFunctionFormCode";
 import CallableFunctionFormParameters from "./CallableFunctionFormParameters";
 import OptionalTextInput from "./OptionalTextInput";
-import usePersistence from "../hooks/usePersistence";
-import getErrorInfo from "../utils/getErrorInfo";
 
 interface CallableFunctionFormProvidedProps {
     error?: string | null;
 }
+
+type CallableFunctionFormProps = CallableFunctionFormProvidedProps & {
+    onSubmit: CallableFunctionFormProviderProps["onSubmit"];
+    id?: string;
+};
 
 const CallableFunctionFormProvided = ({
     error = null,
@@ -50,7 +53,7 @@ const CallableFunctionFormProvided = ({
                 <Button component={Link} to="/functions" variant="outline">
                     Cancel
                 </Button>
-                <Button type="submit">Create</Button>
+                <Button type="submit">Submit</Button>
             </Group>
             {error && (
                 <Text color="red" align="right">
@@ -61,27 +64,13 @@ const CallableFunctionFormProvided = ({
     );
 };
 
-const CallableFunctionForm = () => {
-    const { saveCallableFunction } = usePersistence();
-    const navigate = useNavigate();
-    const [error, setError] = React.useState<string | null>(null);
-
-    const onSubmit = React.useCallback<
-        CallableFunctionFormProviderProps["onSubmit"]
-    >(
-        (values) => {
-            try {
-                saveCallableFunction(values);
-                navigate("/functions");
-            } catch (e) {
-                setError(getErrorInfo(e).message);
-            }
-        },
-        [navigate, saveCallableFunction]
-    );
-
+const CallableFunctionForm = ({
+    onSubmit,
+    id,
+    error,
+}: CallableFunctionFormProps) => {
     return (
-        <CallableFunctionFormProvider onSubmit={onSubmit}>
+        <CallableFunctionFormProvider onSubmit={onSubmit} id={id}>
             <CallableFunctionFormProvided error={error} />
         </CallableFunctionFormProvider>
     );

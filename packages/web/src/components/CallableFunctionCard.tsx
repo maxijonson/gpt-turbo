@@ -45,7 +45,7 @@ const CallableFunctionCard = ({ fn }: CallableFunctionCardProps) => {
     return (
         <Card
             component={Link}
-            to={`/functions/${fn.id}`}
+            to={`/functions/edit/${fn.id}`}
             key={fn.id}
             withBorder
             shadow="md"

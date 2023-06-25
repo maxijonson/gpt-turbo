@@ -47,6 +47,8 @@ export interface CallableFunctionParameterFormProps {
         jsonSchema: any;
         required: boolean;
     }) => void;
+    onClose?: () => void;
+    parameter?: z.infer<typeof callableFunctionParameterFormSchema> | null;
 }
 
 const callableFunctionParameterFormSchema = jsonSchemaBaseSchema.extend({
@@ -67,10 +69,10 @@ const callableFunctionParameterFormSchema = jsonSchemaBaseSchema.extend({
 
 const CallableFunctionParameterForm = ({
     onSubmit,
+    onClose = () => {},
+    parameter = null,
 }: CallableFunctionParameterFormProps) => {
-    const parameterBaseForm = useForm<
-        z.infer<typeof callableFunctionParameterFormSchema>
-    >({
+    const form = useForm<z.infer<typeof callableFunctionParameterFormSchema>>({
         initialValues: {
             name: "",
             jsonSchema: JSON.stringify({ type: "string" }, null, 2),
@@ -107,45 +109,45 @@ const CallableFunctionParameterForm = ({
         (type: CallableFunctionParameterType) => {
             setParameterType(type);
 
-            const jsonSchema = (() => {
+            const nextJson = (() => {
                 switch (type) {
                     case "string":
-                        return JSON.stringify({ type: "string" }, null, 2);
+                        return { type: "string" };
                     case "number":
-                        return JSON.stringify({ type: "number" }, null, 2);
+                        return { type: "number" };
                     case "boolean":
-                        return JSON.stringify({ type: "boolean" }, null, 2);
+                        return { type: "boolean" };
                     case "null":
-                        return JSON.stringify({ type: "null" }, null, 2);
+                        return { type: "null" };
                     case "enum":
-                        return JSON.stringify({ enum: [] }, null, 2);
+                        return { enum: [] };
                     case "const":
-                        return JSON.stringify({ const: null }, null, 2);
+                        return { const: null };
                     case "object":
-                        return JSON.stringify({ type: "object" }, null, 2);
+                        return { type: "object" };
                     case "array":
-                        return JSON.stringify({ type: "array" }, null, 2);
+                        return { type: "array" };
                 }
             })();
 
-            if (jsonSchema) {
-                parameterBaseForm.setFieldValue("jsonSchema", jsonSchema);
+            if (nextJson) {
+                form.setFieldValue(
+                    "jsonSchema",
+                    JSON.stringify(nextJson, null, 2)
+                );
             }
         },
-        [parameterBaseForm]
+        [form]
     );
 
-    const handleSubmit = parameterBaseForm.onSubmit(
+    const handleSubmit = form.onSubmit(
         ({ name, jsonSchema, required, ...jsonSchemaBase }) => {
             let parsedJsonSchema: any;
             try {
                 parsedJsonSchema = JSON.parse(jsonSchema);
                 parameterTypeSchema.parse(parsedJsonSchema);
             } catch (e) {
-                parameterBaseForm.setFieldError(
-                    "jsonSchema",
-                    getErrorInfo(e).message
-                );
+                form.setFieldError("jsonSchema", getErrorInfo(e).message);
                 return;
             }
 
@@ -160,6 +162,49 @@ const CallableFunctionParameterForm = ({
         }
     );
 
+    // Update form values with the props.parameter
+    React.useEffect(() => {
+        if (form.isDirty() || !parameter) return;
+        form.setFieldValue("name", parameter.name);
+        form.setFieldValue("required", parameter.required);
+
+        const json = JSON.parse(parameter.jsonSchema);
+        const type = (() => {
+            if (json.type) {
+                return json.type;
+            } else if (json.enum) {
+                return "enum";
+            } else if (json.const) {
+                return "const";
+            }
+            return "unknown";
+        })();
+        setParameterType(type);
+
+        form.setFieldValue("title", json.title);
+        json.title = undefined;
+
+        form.setFieldValue("description", json.description);
+        json.description = undefined;
+
+        form.setFieldValue("default", json.default);
+        json.default = undefined;
+
+        form.setFieldValue("readOnly", json.readOnly);
+        json.readOnly = undefined;
+
+        form.setFieldValue("writeOnly", json.writeOnly);
+        json.writeOnly = undefined;
+
+        form.setFieldValue("deprecated", json.deprecated);
+        json.deprecated = undefined;
+
+        form.setFieldValue("$comment", json.$comment);
+        json.$comment = undefined;
+
+        form.setFieldValue("jsonSchema", JSON.stringify(json, null, 2));
+    }, [form, parameter]);
+
     return (
         <form
             onSubmit={(e) => {
@@ -170,7 +215,7 @@ const CallableFunctionParameterForm = ({
             <Stack spacing="sm">
                 <Group noWrap grow>
                     <TextInput
-                        {...parameterBaseForm.getInputProps("name")}
+                        {...form.getInputProps("name")}
                         label="Parameter Name"
                         withAsterisk
                     />
@@ -196,41 +241,43 @@ const CallableFunctionParameterForm = ({
                     />
                     <Input.Wrapper label="Required">
                         <Switch
-                            {...parameterBaseForm.getInputProps("required")}
+                            {...form.getInputProps("required", {
+                                type: "checkbox",
+                            })}
                         />
                     </Input.Wrapper>
                 </Group>
                 <Divider label="Base" labelPosition="center" />
                 <Group noWrap grow>
                     <OptionalTextInput
-                        {...parameterBaseForm.getInputProps("title")}
+                        {...form.getInputProps("title")}
                         label="Title"
                     />
                     <OptionalTextInput
-                        {...parameterBaseForm.getInputProps("default")}
+                        {...form.getInputProps("default")}
                         label="Default"
                     />
                 </Group>
                 <OptionalTextInput
-                    {...parameterBaseForm.getInputProps("description")}
+                    {...form.getInputProps("description")}
                     label="Description"
                 />
                 <Group noWrap grow>
                     <OptionalBooleanInput
-                        {...parameterBaseForm.getInputProps("readOnly")}
+                        {...form.getInputProps("readOnly")}
                         label="Read Only"
                     />
                     <OptionalBooleanInput
-                        {...parameterBaseForm.getInputProps("writeOnly")}
+                        {...form.getInputProps("writeOnly")}
                         label="Write Only"
                     />
                     <OptionalBooleanInput
-                        {...parameterBaseForm.getInputProps("deprecated")}
+                        {...form.getInputProps("deprecated")}
                         label="Deprecated"
                     />
                 </Group>
                 <OptionalTextInput
-                    {...parameterBaseForm.getInputProps("$comment")}
+                    {...form.getInputProps("$comment")}
                     label="Comment"
                 />
                 <Divider
@@ -253,7 +300,7 @@ const CallableFunctionParameterForm = ({
                     and they will still be validated.
                 </Alert>
                 <JsonInput
-                    {...parameterBaseForm.getInputProps("jsonSchema")}
+                    {...form.getInputProps("jsonSchema")}
                     label="JSON Schema"
                     formatOnBlur
                     autosize
@@ -271,7 +318,10 @@ const CallableFunctionParameterForm = ({
                         </Text>
                     }
                 />
-                <Group grow>
+                <Group position="right">
+                    <Button variant="outline" onClick={onClose}>
+                        Cancel
+                    </Button>
                     <Button type="submit">Submit</Button>
                 </Group>
             </Stack>

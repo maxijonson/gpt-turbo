@@ -8,7 +8,7 @@ const CallableFunctionsList = () => {
     } = usePersistence();
 
     return (
-        <SimpleGrid cols={3}>
+        <SimpleGrid cols={2}>
             {functions.map((fn) => (
                 <CallableFunctionCard key={fn.id} fn={fn} />
             ))}

@@ -118,7 +118,9 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         (fn) => {
             const next = persistenceSchema.parse({
                 ...persistence,
-                functions: [...persistence.functions, fn],
+                functions: persistence.functions
+                    .filter((f) => f.id !== fn.id)
+                    .concat(fn),
             });
             setPersistence(next);
         },

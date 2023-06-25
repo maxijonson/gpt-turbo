@@ -1,13 +1,4 @@
-import {
-    Group,
-    Title,
-    Button,
-    Modal,
-    Card,
-    Badge,
-    Stack,
-    Kbd,
-} from "@mantine/core";
+import { Group, Title, Modal, Badge, Stack, Center } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { BiPlus } from "react-icons/bi";
 import CallableFunctionParameterForm, {
@@ -23,6 +14,9 @@ const CallableFunctionFormParameters = () => {
         showParameterModal,
         { open: openParameterModal, close: closeParameterModal },
     ] = useDisclosure();
+    const [editParameterName, setEditParameterName] = React.useState<
+        string | null
+    >(null);
 
     const parameters = React.useMemo(() => {
         const currentParameters = form.values.parameters ?? {
@@ -43,6 +37,32 @@ const CallableFunctionFormParameters = () => {
             })
         );
     }, [form.values.parameters]);
+
+    const editParameter = React.useMemo(() => {
+        if (!editParameterName) return null;
+        const currentParameters = form.values.parameters ?? {
+            type: "object",
+            properties: {},
+            required: [],
+        };
+
+        const properties =
+            currentParameters.properties?.[editParameterName] ?? null;
+        if (!properties) return null;
+
+        return {
+            name: editParameterName,
+            required: (currentParameters.required ?? []).includes(
+                editParameterName
+            ),
+            jsonSchema: JSON.stringify(properties, null, 2),
+        };
+    }, [editParameterName, form.values.parameters]);
+
+    const handleCloseModal = React.useCallback(() => {
+        closeParameterModal();
+        setEditParameterName(null);
+    }, [closeParameterModal]);
 
     const onParameterSubmit = React.useCallback<
         CallableFunctionParameterFormProps["onSubmit"]
@@ -69,51 +89,64 @@ const CallableFunctionFormParameters = () => {
                 next.required.push(parameter.name);
             }
 
+            if (editParameterName && editParameterName !== parameter.name) {
+                delete next.properties[editParameterName];
+                next.required = next.required.filter(
+                    (name) => name !== editParameterName
+                );
+            }
+
             form.setFieldValue("parameters", {
                 ...next,
                 required: next.required.length > 0 ? next.required : undefined,
             });
-            closeParameterModal();
+            handleCloseModal();
         },
-        [form, closeParameterModal]
+        [editParameterName, form, handleCloseModal]
     );
 
     return (
         <>
             <Stack>
+                <Title order={3}>Parameters</Title>
                 <Group>
-                    <Title order={3}>Parameters</Title>
-                    <Button
-                        size="xs"
+                    {parameters.map((parameter) => (
+                        <Badge
+                            key={parameter.name}
+                            variant="filled"
+                            sx={{ textTransform: "unset", cursor: "pointer" }}
+                            onClick={() => setEditParameterName(parameter.name)}
+                        >
+                            {parameter.name}
+                            {parameter.required ? "" : "?"}: {parameter.type}
+                        </Badge>
+                    ))}
+                    <Badge
                         variant="outline"
-                        leftIcon={<BiPlus />}
+                        leftSection={
+                            <Center>
+                                <BiPlus />
+                            </Center>
+                        }
+                        sx={{ cursor: "pointer" }}
                         onClick={openParameterModal}
                     >
                         Add
-                    </Button>
-                </Group>
-                <Group>
-                    {parameters.map((parameter) => (
-                        <Card key={parameter.name} withBorder shadow="md">
-                            <Group noWrap spacing="xs">
-                                <Kbd>{parameter.name}</Kbd>
-                                <Badge color="blue">
-                                    {parameter.type}
-                                    {parameter.required ? "" : "?"}
-                                </Badge>
-                            </Group>
-                        </Card>
-                    ))}
+                    </Badge>
                 </Group>
             </Stack>
             <Modal
                 title="Function Parameter"
-                opened={showParameterModal}
-                onClose={closeParameterModal}
+                opened={showParameterModal || !!editParameter}
+                onClose={handleCloseModal}
                 centered
                 size="lg"
             >
-                <CallableFunctionParameterForm onSubmit={onParameterSubmit} />
+                <CallableFunctionParameterForm
+                    onSubmit={onParameterSubmit}
+                    onClose={handleCloseModal}
+                    parameter={editParameter}
+                />
             </Modal>
         </>
     );
