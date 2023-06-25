@@ -41,7 +41,7 @@ const SavedPromptsModalBody = ({
                         >
                             <Accordion.Control>{item.name}</Accordion.Control>
                             <TippedActionIcon
-                                position="left"
+                                tipPosition="left"
                                 tip="Delete"
                                 color="red"
                                 onClick={() => remove(item.name)}
@@ -49,7 +49,7 @@ const SavedPromptsModalBody = ({
                                 <BiTrash />
                             </TippedActionIcon>
                             <TippedActionIcon
-                                position="left"
+                                tipPosition="left"
                                 tip="Use"
                                 onClick={() => {
                                     onSelect(item.value);

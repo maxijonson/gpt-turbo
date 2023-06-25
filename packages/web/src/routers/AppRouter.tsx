@@ -9,11 +9,17 @@ import ContentLoader from "../components/ContentLoader";
 import { Text } from "@mantine/core";
 
 const ConversationPage = React.lazy(() => import("../pages/ConversationPage"));
+const FunctionsPage = React.lazy(() => import("../pages/FunctionsPage"));
+const FunctionEditorPage = React.lazy(
+    () => import("../pages/FunctionEditorPage")
+);
 
 const router = createBrowserRouter(
     createRoutesFromElements(
         <>
             <Route path="/" element={<ConversationPage />} />
+            <Route path="/functions" element={<FunctionsPage />} />
+            <Route path="/functions/create" element={<FunctionEditorPage />} />
         </>
     )
 );

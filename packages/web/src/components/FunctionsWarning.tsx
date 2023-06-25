@@ -44,6 +44,13 @@ const FunctionsWarning = ({ children }: FunctionsWarningProps) => {
                     terms of functionnality and are not intended to be used for
                     anything other than simple procedures.
                 </List.Item>
+                <List.Item>
+                    Functions are saved in your browsers local storage along
+                    with the rest of stored data such as conversations and
+                    settings. Because local storage is limited, you should not
+                    store too many functions or write functions that are too
+                    long.
+                </List.Item>
             </List>
             <Center mt="xs">
                 <Button onClick={dismissFunctionsWarning}>

@@ -3,6 +3,7 @@ import makeNotImplemented from "../utils/makeNotImplemented";
 import { Persistence } from "../entities/persistence";
 import { PersistenceContext as PersistenceContextEntity } from "../entities/persistenceContext";
 import { PersistencePrompt } from "../entities/persistencePrompt";
+import { PersistenceCallableFunction } from "../entities/persistenceCallableFunction";
 
 export interface PersistenceContextValue {
     persistence: Persistence;
@@ -12,6 +13,7 @@ export interface PersistenceContextValue {
     hasInit: boolean;
     saveContext: (context: PersistenceContextEntity) => void;
     savePrompt: (prompt: PersistencePrompt) => void;
+    saveCallableFunction: (fn: PersistenceCallableFunction) => void;
     removeContext: (contextName: string) => void;
     removePrompt: (promptName: string) => void;
     dismissFunctionsWarning: () => void;
@@ -24,6 +26,7 @@ export const PersistenceContext = React.createContext<PersistenceContextValue>({
         contexts: [],
         prompts: [],
         functionsWarning: true,
+        functions: [],
     },
     addPersistedConversationId: notImplemented,
     persistedConversationIds: [],
@@ -31,6 +34,7 @@ export const PersistenceContext = React.createContext<PersistenceContextValue>({
     hasInit: true,
     saveContext: notImplemented,
     savePrompt: notImplemented,
+    saveCallableFunction: notImplemented,
     removeContext: notImplemented,
     removePrompt: notImplemented,
     dismissFunctionsWarning: notImplemented,

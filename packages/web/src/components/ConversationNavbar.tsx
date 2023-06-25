@@ -21,6 +21,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { BsDiscord, BsGithub } from "react-icons/bs";
 import NavbarConversations from "./NavbarConversations";
 import { AiOutlineFunction } from "react-icons/ai";
+import { Link } from "react-router-dom";
 
 const useStyles = createStyles(() => ({
     burger: {
@@ -97,6 +98,8 @@ const AppNavbar = () => {
                             </TippedActionIcon>
                         )}
                         <TippedActionIcon
+                            component={Link}
+                            to="/functions"
                             tip="Functions Library"
                             variant="outline"
                         >

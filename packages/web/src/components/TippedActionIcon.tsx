@@ -1,56 +1,31 @@
-import {
-    ActionIcon,
-    MantineColor,
-    MantineNumberSize,
-    Tooltip,
-    Variants,
-} from "@mantine/core";
+import { ActionIcon, ActionIconProps, Tooltip } from "@mantine/core";
 import { FloatingPosition } from "@mantine/core/lib/Floating";
-import { MouseEventHandler } from "react";
 
-interface TippedActionIconProps {
-    children?: React.ReactNode;
-    onClick?: MouseEventHandler<HTMLButtonElement>;
+interface TippedActionIconBaseProps {
     tip?: string;
-    variant?: Variants<
-        | "subtle"
-        | "filled"
-        | "outline"
-        | "light"
-        | "default"
-        | "transparent"
-        | "gradient"
-    >;
-    color?: MantineColor;
-    size?: MantineNumberSize;
-    position?: FloatingPosition;
+    tipPosition?: FloatingPosition;
 }
 
-const TippedActionIcon = ({
-    children,
-    onClick,
+type TippedActionIconActionIconProps<C = "button"> =
+    import("@mantine/utils").PolymorphicComponentProps<C, ActionIconProps>;
+
+type TippedActionIconProps<C = "button"> = TippedActionIconBaseProps &
+    TippedActionIconActionIconProps<C>;
+
+const TippedActionIcon = <C = "button",>({
     tip,
-    variant,
-    color,
-    size,
-    position,
-}: TippedActionIconProps) => {
+    tipPosition,
+    ...actionIconProps
+}: TippedActionIconProps<C>) => {
     return (
         <Tooltip
             label={tip}
             withArrow
             openDelay={1000}
             hidden={!tip}
-            position={position}
+            position={tipPosition}
         >
-            <ActionIcon
-                variant={variant}
-                color={color}
-                onClick={onClick}
-                size={size}
-            >
-                {children}
-            </ActionIcon>
+            <ActionIcon {...actionIconProps} />
         </Tooltip>
     );
 };

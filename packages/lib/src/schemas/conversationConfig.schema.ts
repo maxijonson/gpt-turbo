@@ -27,7 +27,14 @@ export const conversationConfigSchema = z.object({
     functions: z
         .array(
             z.object({
-                name: z.string().min(1),
+                name: z
+                    .string()
+                    .min(1)
+                    .max(64)
+                    .regex(
+                        /^[a-zA-Z0-9_-]+$/,
+                        "Function name can only contain letters, numbers, underscores, and dashes."
+                    ),
                 description: z.string().min(1).optional(),
                 properties: jsonSchemaObjectSchema.optional(),
             })

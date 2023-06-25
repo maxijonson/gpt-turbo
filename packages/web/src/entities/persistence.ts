@@ -2,6 +2,7 @@ import { z } from "zod";
 import { persistenceConversationSchema } from "./persistenceConversation";
 import { persistenceContextSchema } from "./persistenceContext";
 import { persistencePromptSchema } from "./persistencePrompt";
+import { persistenceCallableFunctionSchema } from "./persistenceCallableFunction";
 
 export const persistenceSchema = z.object({
     conversations: z.array(persistenceConversationSchema),
@@ -14,6 +15,14 @@ export const persistenceSchema = z.object({
         return names.length === new Set(names).size;
     }, "Prompt names must be unique"),
     functionsWarning: z.boolean().default(true),
+    functions: z
+        .array(persistenceCallableFunctionSchema)
+        .refine((functions) => {
+            const displayNames = functions.map((f) =>
+                f.displayName.toLowerCase()
+            );
+            return displayNames.length === new Set(displayNames).size;
+        }, "Function display names must be unique"),
 });
 
 export type Persistence = z.infer<typeof persistenceSchema>;

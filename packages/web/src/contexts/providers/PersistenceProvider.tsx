@@ -34,6 +34,7 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
             contexts: [],
             prompts: [],
             functionsWarning: true,
+            functions: [],
         },
         persistenceSchema
     );
@@ -111,6 +112,19 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         [setPersistence]
     );
 
+    const saveCallableFunction = React.useCallback<
+        PersistenceContextValue["saveCallableFunction"]
+    >(
+        (fn) => {
+            const next = persistenceSchema.parse({
+                ...persistence,
+                functions: [...persistence.functions, fn],
+            });
+            setPersistence(next);
+        },
+        [persistence, setPersistence]
+    );
+
     const removeContext = React.useCallback<
         PersistenceContextValue["removeContext"]
     >(
@@ -163,20 +177,22 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
             hasInit,
             saveContext,
             savePrompt,
+            saveCallableFunction,
             removeContext,
             removePrompt,
             dismissFunctionsWarning,
         }),
         [
-            addPersistedConversationId,
-            hasInit,
-            isLoading,
-            persistedConversationIds,
             persistence,
-            removeContext,
-            removePrompt,
+            addPersistedConversationId,
+            persistedConversationIds,
+            isLoading,
+            hasInit,
             saveContext,
             savePrompt,
+            saveCallableFunction,
+            removeContext,
+            removePrompt,
             dismissFunctionsWarning,
         ]
     );
