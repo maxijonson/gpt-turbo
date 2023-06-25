@@ -11,7 +11,7 @@ const FunctionEditorPage = () => {
                 component={Link}
                 to="/functions"
                 leftIcon={<BiArrowBack />}
-                variant="outline"
+                variant="subtle"
             >
                 Back to library
             </Button>
