@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { messageSchema } from "./message.schema.js";
 import { conversationConfigSchema } from "./conversationConfig.schema.js";
+import { callableFunctionSchema } from "./callableFunction.schema.js";
 
 /**
  * A JSON representation of a Conversation instance.
@@ -9,6 +10,7 @@ export const conversationSchema = z.object({
     id: z.string().uuid().optional(),
     messages: z.array(messageSchema),
     config: conversationConfigSchema.optional(),
+    functions: z.array(callableFunctionSchema),
     requestOptions: z
         .object({
             headers: z.record(z.string(), z.string()).optional(),

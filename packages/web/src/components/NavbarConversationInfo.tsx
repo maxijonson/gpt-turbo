@@ -4,6 +4,7 @@ import React from "react";
 import { BiSave, BiTestTube } from "react-icons/bi";
 import {
     Bs3CircleFill,
+    Bs3SquareFill,
     Bs4CircleFill,
     Bs4SquareFill,
     BsBroadcast,
@@ -33,7 +34,10 @@ const NavbarConversationInfo = ({
     const persisted = persistedConversationIds.includes(conversation.id);
 
     const Model = (() => {
-        if (model.startsWith("gpt-3.5")) return <Bs3CircleFill size={SIZE} />;
+        if (model.startsWith("gpt-3.5-turbo-16k"))
+            return <Bs3SquareFill size={SIZE} />;
+        if (model.startsWith("gpt-3.5-turbo"))
+            return <Bs3CircleFill size={SIZE} />;
         if (model.startsWith("gpt-4-32k")) return <Bs4SquareFill size={SIZE} />;
         if (model.startsWith("gpt-4")) return <Bs4CircleFill size={SIZE} />;
         return <BsQuestionCircleFill size={SIZE} />;

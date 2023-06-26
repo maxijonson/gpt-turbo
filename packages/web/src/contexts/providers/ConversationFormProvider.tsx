@@ -34,6 +34,8 @@ const ConversationFormProvider = ({
             logit_bias: settings.logit_bias,
             user: settings.user,
 
+            functionIds: settings.functionIds,
+
             headers: settings.headers,
             proxy: settings.proxy,
         },

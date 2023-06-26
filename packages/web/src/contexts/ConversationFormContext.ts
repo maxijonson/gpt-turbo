@@ -20,6 +20,8 @@ export interface ConversationFormValues {
     logit_bias: CreateChatCompletionRequest["logit_bias"];
     user: CreateChatCompletionRequest["user"];
 
+    functionIds: string[];
+
     headers: Record<string, string> | undefined;
     proxy: RequestOptionsProxy | undefined;
 }

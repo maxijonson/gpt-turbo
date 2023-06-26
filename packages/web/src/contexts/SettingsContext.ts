@@ -36,6 +36,8 @@ export const SettingsContext = React.createContext<SettingsContextValue>({
         logit_bias: undefined,
         user: "",
 
+        functionIds: [],
+
         headers: undefined,
         proxy: undefined,
     },

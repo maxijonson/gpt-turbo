@@ -559,7 +559,7 @@ export interface CreateDryChatCompletionConfig {
  */
 export type ConversationConfigChatCompletionOptions = Omit<
     Partial<CreateChatCompletionRequest>,
-    "messages"
+    "messages" | "functions"
 >;
 
 /**

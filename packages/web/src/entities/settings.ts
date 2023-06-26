@@ -30,6 +30,8 @@ export const settingsSchema = z.object({
     logit_bias: conversationConfigSchema.shape.logit_bias,
     user: conversationConfigSchema.shape.user,
 
+    functionIds: z.array(z.string()).default([]),
+
     headers: conversationSchema.shape.requestOptions.unwrap().shape.headers,
     proxy: conversationSchema.shape.requestOptions.unwrap().shape.proxy,
 });
