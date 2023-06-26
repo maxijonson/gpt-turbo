@@ -6,24 +6,18 @@ import CallableFunctionForm from "../components/CallableFunctionForm";
 import React from "react";
 import { CallableFunctionFormProviderProps } from "../contexts/providers/CallableFunctionFormProvider";
 import usePersistence from "../hooks/usePersistence";
-import getErrorInfo from "../utils/getErrorInfo";
 
 const FunctionEditorPage = () => {
     const { saveCallableFunction } = usePersistence();
     const { id } = useParams();
     const navigate = useNavigate();
-    const [error, setError] = React.useState<string | null>(null);
 
     const onSubmit = React.useCallback<
         CallableFunctionFormProviderProps["onSubmit"]
     >(
         (values) => {
-            try {
-                saveCallableFunction(values);
-                navigate("/functions");
-            } catch (e) {
-                setError(getErrorInfo(e).message);
-            }
+            saveCallableFunction(values);
+            navigate("/functions");
         },
         [navigate, saveCallableFunction]
     );
@@ -39,11 +33,7 @@ const FunctionEditorPage = () => {
                 Back to library
             </Button>
             <FunctionsWarning>
-                <CallableFunctionForm
-                    onSubmit={onSubmit}
-                    error={error}
-                    id={id}
-                />
+                <CallableFunctionForm onSubmit={onSubmit} id={id} />
             </FunctionsWarning>
         </Container>
     );

@@ -7,6 +7,8 @@ import {
 import { persistenceCallableFunctionSchema } from "../../entities/persistenceCallableFunction";
 import usePersistence from "../../hooks/usePersistence";
 import React from "react";
+import { ZodError } from "zod";
+import getErrorInfo from "../../utils/getErrorInfo";
 
 export interface CallableFunctionFormProviderProps {
     children: React.ReactNode;
@@ -23,7 +25,7 @@ const CallableFunctionFormProvider = ({
     const form = CallableFunctionFormContext.useForm({
         initialValues: {
             id: uuid(),
-            displayName: "Untitled Function",
+            displayName: "",
             name: "",
         },
         validate: zodResolver(persistenceCallableFunctionSchema),
@@ -31,7 +33,18 @@ const CallableFunctionFormProvider = ({
     });
 
     const handleSubmit = form.onSubmit(async (values) => {
-        await onSubmit(values);
+        try {
+            await onSubmit(values);
+        } catch (e) {
+            if (e instanceof ZodError && (e.issues[0] as any).params?.field) {
+                form.setFieldError(
+                    (e.issues[0] as any).params?.field,
+                    getErrorInfo(e).message
+                );
+                return;
+            }
+            throw e;
+        }
     });
 
     React.useEffect(() => {

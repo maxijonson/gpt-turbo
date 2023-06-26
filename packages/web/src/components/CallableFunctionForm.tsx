@@ -1,52 +1,41 @@
-import { Box, Button, Group, Stack, Text, TextInput } from "@mantine/core";
+import { Button, Group, Stack, TextInput } from "@mantine/core";
 import CallableFunctionFormProvider, {
     CallableFunctionFormProviderProps,
 } from "../contexts/providers/CallableFunctionFormProvider";
-import React from "react";
 import useCallableFunctionForm from "../hooks/useCallableFunctionForm";
-import CallableFunctionDisplayNameInput from "./CallableFunctionDisplayNameInput";
 import { Link } from "react-router-dom";
 import CallableFunctionFormCode from "./CallableFunctionFormCode";
 import CallableFunctionFormParameters from "./CallableFunctionFormParameters";
 import OptionalTextInput from "./OptionalTextInput";
 
-interface CallableFunctionFormProvidedProps {
-    error?: string | null;
-}
-
-type CallableFunctionFormProps = CallableFunctionFormProvidedProps & {
+interface CallableFunctionFormProps {
     onSubmit: CallableFunctionFormProviderProps["onSubmit"];
     id?: string;
-};
+}
 
-const CallableFunctionFormProvided = ({
-    error = null,
-}: CallableFunctionFormProvidedProps) => {
+const CallableFunctionFormProvided = () => {
     const form = useCallableFunctionForm();
 
     return (
         <Stack pt="md">
-            <CallableFunctionDisplayNameInput
-                {...form.getInputProps("displayName")}
-                validate={() => form.validateField("displayName")}
-            />
-            <Group align="start" noWrap grow>
-                <Box>
-                    <TextInput
-                        {...form.getInputProps("name")}
-                        label="Name"
-                        description="This is the name used by the AI assistant"
-                        withAsterisk
-                    />
-                </Box>
-                <Box miw={575}>
-                    <OptionalTextInput
-                        {...form.getInputProps("description")}
-                        label="Description"
-                        description="While optionnal, a description is strongly recommended to help the assistant know what this function does"
-                    />
-                </Box>
+            <Group noWrap grow>
+                <TextInput
+                    {...form.getInputProps("displayName")}
+                    label="Display Name"
+                    description="This name is used by this website"
+                />
+                <TextInput
+                    {...form.getInputProps("name")}
+                    label="Name"
+                    description="This name is used by the assistant"
+                    withAsterisk
+                />
             </Group>
+            <OptionalTextInput
+                {...form.getInputProps("description")}
+                label="Description"
+                description="While optionnal, a description is strongly recommended to help the assistant know what this function does"
+            />
             <CallableFunctionFormParameters />
             <CallableFunctionFormCode />
             <Group position="right">
@@ -55,23 +44,14 @@ const CallableFunctionFormProvided = ({
                 </Button>
                 <Button type="submit">Submit</Button>
             </Group>
-            {error && (
-                <Text color="red" align="right">
-                    {error}
-                </Text>
-            )}
         </Stack>
     );
 };
 
-const CallableFunctionForm = ({
-    onSubmit,
-    id,
-    error,
-}: CallableFunctionFormProps) => {
+const CallableFunctionForm = ({ onSubmit, id }: CallableFunctionFormProps) => {
     return (
         <CallableFunctionFormProvider onSubmit={onSubmit} id={id}>
-            <CallableFunctionFormProvided error={error} />
+            <CallableFunctionFormProvided />
         </CallableFunctionFormProvider>
     );
 };

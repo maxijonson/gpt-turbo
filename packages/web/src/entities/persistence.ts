@@ -15,14 +15,18 @@ export const persistenceSchema = z.object({
         return names.length === new Set(names).size;
     }, "Prompt names must be unique"),
     functionsWarning: z.boolean().default(true),
-    functions: z
-        .array(persistenceCallableFunctionSchema)
-        .refine((functions) => {
+    functions: z.array(persistenceCallableFunctionSchema).refine(
+        (functions) => {
             const displayNames = functions.map((f) =>
                 f.displayName.toLowerCase()
             );
             return displayNames.length === new Set(displayNames).size;
-        }, "Function display names must be unique"),
+        },
+        {
+            message: "Function display names must be unique",
+            params: { field: "displayName" },
+        }
+    ),
 });
 
 export type Persistence = z.infer<typeof persistenceSchema>;
