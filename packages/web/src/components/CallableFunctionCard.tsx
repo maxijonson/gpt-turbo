@@ -1,13 +1,13 @@
 import { Card, Code, Text, Title } from "@mantine/core";
 import { PersistenceCallableFunction } from "../entities/persistenceCallableFunction";
 import React from "react";
-import { Link } from "react-router-dom";
 
 interface CallableFunctionCardProps {
     fn: PersistenceCallableFunction;
+    onClick?: () => void;
 }
 
-const CallableFunctionCard = ({ fn }: CallableFunctionCardProps) => {
+const CallableFunctionCard = ({ fn, onClick }: CallableFunctionCardProps) => {
     const parameters = React.useMemo(() => {
         if (!fn.parameters?.properties) return [];
         const params = Object.entries(fn.parameters.properties).map(
@@ -44,11 +44,12 @@ const CallableFunctionCard = ({ fn }: CallableFunctionCardProps) => {
 
     return (
         <Card
-            component={Link}
-            to={`/functions/edit/${fn.id}`}
-            key={fn.id}
             withBorder
             shadow="md"
+            onClick={onClick}
+            sx={{
+                cursor: onClick ? "pointer" : "default",
+            }}
         >
             <Title order={4}>{fn.displayName}</Title>
             <Text>{fn.description}</Text>
