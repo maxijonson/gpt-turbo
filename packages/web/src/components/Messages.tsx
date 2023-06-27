@@ -9,6 +9,8 @@ import useConversationManager from "../hooks/useConversationManager";
 import Message from "./Message";
 import React from "react";
 import { useMediaQuery } from "@mantine/hooks";
+import usePersistence from "../hooks/usePersistence";
+import { FunctionCallMessage } from "gpt-turbo";
 
 const useStyles = createStyles(() => ({
     scrollArea: {
@@ -23,6 +25,9 @@ const Messages = () => {
     const [messages, setMessages] = React.useState(
         conversation?.getMessages() ?? []
     );
+    const {
+        persistence: { functions },
+    } = usePersistence();
     const viewport = React.useRef<HTMLDivElement>(null);
     const [isSticky, setIsSticky] = React.useState(true);
     const { classes } = useStyles();
@@ -47,13 +52,43 @@ const Messages = () => {
         []
     );
 
+    const handleFunctionCall = React.useCallback(
+        (message: FunctionCallMessage) => {
+            if (!conversation) return;
+            const { name, arguments: args } = message.functionCall;
+            const persistedFn = functions.find((f) => f.name === name);
+            if (!persistedFn?.code) return;
+
+            const { argNames, argValues } = Object.keys(
+                persistedFn.parameters?.properties ?? {}
+            ).reduce(
+                (acc, key) => {
+                    acc.argNames.push(key);
+                    acc.argValues.push(args[key] ?? undefined);
+                    return acc;
+                },
+                {
+                    argNames: [],
+                    argValues: [],
+                } as { argNames: string[]; argValues: any[] }
+            );
+            const fn = new Function(...argNames, persistedFn.code);
+
+            const result = fn(...argValues);
+            if (result === undefined) return;
+
+            conversation.functionPrompt(name, result);
+        },
+        [conversation, functions]
+    );
+
     React.useEffect(() => {
         scrollToBottom();
     }, [scrollToBottom, conversation]);
 
     React.useEffect(() => {
         if (!conversation) return;
-        const unsubscribeMessageUpdate: (() => void)[] = [];
+        const unsubscribes: (() => void)[] = [];
         const unsubscribeMessageAdded = conversation.onMessageAdded(
             (message) => {
                 if (message.role === "system") return;
@@ -63,20 +98,33 @@ const Messages = () => {
 
                 if (message.role !== "assistant") return;
 
-                unsubscribeMessageUpdate.push(
+                unsubscribes.push(
                     message.onMessageUpdate(() => {
                         setMessages((messages) => [...messages]); // Force re-render by creating a new array
                         if (isSticky) scrollToBottom();
                     })
                 );
+
+                const isStreaming = conversation.getConfig().stream;
+                if (isStreaming) {
+                    const unsubscribeStreamingStop =
+                        message.onMessageStreamingStop((message) => {
+                            unsubscribeStreamingStop();
+                            if (!message.isFunctionCall()) return;
+                            handleFunctionCall(message);
+                        });
+                    unsubscribes.push(unsubscribeStreamingStop);
+                } else if (message.isFunctionCall()) {
+                    handleFunctionCall(message);
+                }
             }
         );
 
         return () => {
             unsubscribeMessageAdded();
-            unsubscribeMessageUpdate.forEach((unsubscribe) => unsubscribe());
+            unsubscribes.forEach((unsubscribe) => unsubscribe());
         };
-    }, [conversation, isSticky, scrollToBottom]);
+    }, [conversation, functions, handleFunctionCall, isSticky, scrollToBottom]);
 
     React.useEffect(() => {
         if (!conversation) return;

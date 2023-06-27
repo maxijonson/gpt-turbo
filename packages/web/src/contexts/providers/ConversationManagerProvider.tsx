@@ -36,6 +36,11 @@ const ConversationManagerProvider = ({
         z.boolean()
     );
 
+    const activeConversation = React.useMemo(
+        () => conversations.find((c) => c.id === activeId) ?? null,
+        [activeId, conversations]
+    );
+
     const addConversation = React.useCallback(
         (
             conversation: ConversationConfigParameters | Conversation,
@@ -131,8 +136,7 @@ const ConversationManagerProvider = ({
         () => ({
             conversations: Array.from(conversations.values()),
             activeId,
-            activeConversation:
-                conversations.find((c) => c.id === activeId) ?? null,
+            activeConversation,
             showUsage,
             addConversation,
             removeConversation,
@@ -145,6 +149,7 @@ const ConversationManagerProvider = ({
             setShowUsage,
         }),
         [
+            activeConversation,
             activeId,
             addConversation,
             conversations,

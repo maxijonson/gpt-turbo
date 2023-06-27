@@ -132,7 +132,7 @@ const MessageComponent = ({ message }: MessageProps) => {
             return message.content;
         }
         if (message.isFunction()) {
-            return `${message.name}() => ${message.content}`;
+            return `${message.name} => ${message.content}`;
         }
         if (message.isFunctionCall()) {
             const { name, arguments: args } = message.functionCall;
