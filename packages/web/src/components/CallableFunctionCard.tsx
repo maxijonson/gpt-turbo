@@ -1,58 +1,56 @@
-import { Card, Code, Text, Title } from "@mantine/core";
-import { PersistenceCallableFunction } from "../entities/persistenceCallableFunction";
+import { Card, Code, Text, Title, createStyles } from "@mantine/core";
 import React from "react";
+import { CallableFunction } from "gpt-turbo";
+import useCallableFunctions from "../hooks/useCallableFunctions";
 
 interface CallableFunctionCardProps {
-    fn: PersistenceCallableFunction;
+    fn: CallableFunction;
     onClick?: () => void;
 }
 
+const useStyles = createStyles(
+    (theme, { clickable }: { clickable: boolean }) => ({
+        card: {
+            cursor: clickable ? "pointer" : "default",
+            transition:
+                "box-shadow 100ms ease-in, background-color 100ms ease-in",
+
+            "&:hover": {
+                boxShadow: theme.shadows.md,
+                backgroundColor: theme.colors.gray[0],
+            },
+        },
+    })
+);
+
 const CallableFunctionCard = ({ fn, onClick }: CallableFunctionCardProps) => {
-    const parameters = React.useMemo(() => {
-        if (!fn.parameters?.properties) return [];
-        const params = Object.entries(fn.parameters.properties).map(
-            ([name, parameter]: [string, any]) => {
-                const type = (() => {
-                    if (parameter.type) return parameter.type as string;
-                    if (parameter.enum) return "enum";
-                    if (parameter.const) return "const";
-                    return "unknown";
-                })();
-                const required = (fn.parameters?.required ?? []).includes(name);
-                return { name, required, type };
-            }
-        );
-        return params.sort((a, b) => {
-            if (a.required && !b.required) return -1;
-            if (!a.required && b.required) return 1;
-            return 0;
-        });
-    }, [fn.parameters]);
+    const { getCallableFunctionDisplayName } = useCallableFunctions();
+    const { classes } = useStyles({ clickable: !!onClick });
 
     const signature = React.useMemo(() => {
+        const parameters = [
+            ...fn.requiredParameters,
+            ...fn.optionalParameters,
+        ].map((parameter) => ({
+            name: parameter.name,
+            type: parameter.type,
+            required: fn.requiredParameters.includes(parameter),
+        }));
+
         let signature = `${fn.name}(`;
         signature += parameters
-            .map((param) => {
-                return `${param.name}${param.required ? "" : "?"}: ${
-                    param.type
-                }`;
+            .map(({ name, required, type }) => {
+                return `${name}${required ? "" : "?"}: ${type}`;
             })
             .join(", ");
         signature += ")";
         return signature;
-    }, [fn.name, parameters]);
+    }, [fn.name, fn.optionalParameters, fn.requiredParameters]);
 
     return (
-        <Card
-            withBorder
-            shadow="md"
-            onClick={onClick}
-            sx={{
-                cursor: onClick ? "pointer" : "default",
-            }}
-        >
-            <Title order={4}>{fn.displayName}</Title>
-            <Text>{fn.description}</Text>
+        <Card className={classes.card} withBorder onClick={onClick}>
+            <Title order={4}>{getCallableFunctionDisplayName(fn.id)}</Title>
+            {fn.description && <Text>{fn.description}</Text>}
             <Code>{signature}</Code>
         </Card>
     );

@@ -4,20 +4,17 @@ import useConversationManager from "../hooks/useConversationManager";
 import Messages from "../components/Messages";
 import Prompt from "../components/Prompt";
 import usePersistence from "../hooks/usePersistence";
-import useSettings from "../hooks/useSettings";
 import ContentLoader from "../components/ContentLoader";
 import ConversationPageShell from "../components/ConversationPageShell";
 
 const ConversationPage = () => {
     const { activeConversation } = useConversationManager();
-    const { areSettingsLoaded } = useSettings();
-    const { isLoading: isLoadingPersistence, hasInit: hasInitPersistence } =
-        usePersistence();
+    const { hasInit: hasPersistenceInit } = usePersistence();
 
-    if (!areSettingsLoaded || isLoadingPersistence || !hasInitPersistence) {
+    if (!hasPersistenceInit) {
         return (
             <ContentLoader size="xl">
-                <Text size="xl">Loading Persistence</Text>
+                <Text size="xl">Loading Saved Data</Text>
             </ContentLoader>
         );
     }

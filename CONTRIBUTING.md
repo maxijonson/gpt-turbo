@@ -149,7 +149,8 @@ A lot of code style rules are enforced by Prettier. The same `.prettierrc` is us
 
 - Use arrow functions (`() => {}`) instead of `function` keyword. The only exception is when using `function` is necessary (e.g. when using `this`).
 - **Never** use `var`. Use `const` by default, and `let` when reassignment is necessary.
-- Do not use index files to export multiple files. Simply import the file you need directly.
+- Do not use index files to export multiple files. Simply import the file you need directly. (preferably with relative paths)
+  - Exceptions for the library, since index file help making sure everything is exported for consumers of the package. Implementations do not need to have everything exposed like the library. The point of this code style rule is not to use index files as a way to write shorter imports. Most IDE's will auto-import files without you having to write a single import. Use this handy feature instead!
 
 Overall, try to keep consistency with the existing codebase, even if it's not how you would have done it. Your code should be undistinguishable from the rest of the code (i.e. it shouldn't be obvious that someone else wrote a piece of code without looking at the git history). If you think a piece of code can be improved, open an issue or a pull request to discuss it.
 

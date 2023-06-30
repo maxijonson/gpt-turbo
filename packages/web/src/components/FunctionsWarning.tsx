@@ -1,18 +1,16 @@
 import { Alert, List, Anchor, Center, Button } from "@mantine/core";
 import { FaExclamationTriangle } from "react-icons/fa";
-import usePersistence from "../hooks/usePersistence";
-
-// const f = new Function("a", "b", "return a - b");
-// console.log(f(2, 1));
+import useCallableFunctions from "../hooks/useCallableFunctions";
 
 interface FunctionsWarningProps {
     children?: React.ReactNode;
 }
 
 const FunctionsWarning = ({ children }: FunctionsWarningProps) => {
-    const { dismissFunctionsWarning, persistence } = usePersistence();
+    const { dismissFunctionsWarning, showFunctionsWarning } =
+        useCallableFunctions();
 
-    if (!persistence.functionsWarning) return <>{children}</>;
+    if (!showFunctionsWarning) return <>{children}</>;
 
     return (
         <Alert

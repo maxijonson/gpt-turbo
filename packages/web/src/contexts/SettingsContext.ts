@@ -12,7 +12,6 @@ import { Settings } from "../entities/settings";
 export interface SettingsContextValue {
     settings: Settings;
     setSettings: (settings: Settings) => void;
-    areSettingsLoaded: boolean;
 }
 
 const notImplemented = makeNotImplemented("SettingsContext");
@@ -42,5 +41,4 @@ export const SettingsContext = React.createContext<SettingsContextValue>({
         proxy: undefined,
     },
     setSettings: notImplemented,
-    areSettingsLoaded: false,
 });

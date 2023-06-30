@@ -1,4 +1,4 @@
-import { Box, Group, Title, Anchor, Text } from "@mantine/core";
+import { Box, Group, Title, Anchor, Text, Collapse } from "@mantine/core";
 import { FaQuestion } from "react-icons/fa";
 import CodeEditor from "./CodeEditor";
 import TippedActionIcon from "./TippedActionIcon";
@@ -54,7 +54,7 @@ const CallableFunctionFormCode = () => {
                     <FaQuestion size={12} />
                 </TippedActionIcon>
             </Group>
-            {showHelp && (
+            <Collapse in={showHelp}>
                 <Box>
                     <Text>
                         You may write an optionnal JavaScript function{" "}
@@ -90,7 +90,7 @@ const CallableFunctionFormCode = () => {
                         assistant to get a message back from it.
                     </Text>
                 </Box>
-            )}
+            </Collapse>
             <CodeEditor
                 value={form.values.code}
                 onChange={(value) => form.setFieldValue("code", value)}

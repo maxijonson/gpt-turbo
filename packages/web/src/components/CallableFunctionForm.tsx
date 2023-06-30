@@ -23,6 +23,7 @@ const CallableFunctionFormProvided = () => {
                     {...form.getInputProps("displayName")}
                     label="Display Name"
                     description="This name is used by this website"
+                    withAsterisk
                 />
                 <TextInput
                     {...form.getInputProps("name")}

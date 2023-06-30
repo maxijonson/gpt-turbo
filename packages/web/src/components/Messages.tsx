@@ -9,8 +9,8 @@ import useConversationManager from "../hooks/useConversationManager";
 import Message from "./Message";
 import React from "react";
 import { useMediaQuery } from "@mantine/hooks";
-import usePersistence from "../hooks/usePersistence";
-import { FunctionCallMessage } from "gpt-turbo";
+import { CallableFunction, FunctionCallMessage } from "gpt-turbo";
+import useCallableFunctions from "../hooks/useCallableFunctions";
 
 const useStyles = createStyles(() => ({
     scrollArea: {
@@ -25,9 +25,7 @@ const Messages = () => {
     const [messages, setMessages] = React.useState(
         conversation?.getMessages() ?? []
     );
-    const {
-        persistence: { functions },
-    } = usePersistence();
+    const { callFunction } = useCallableFunctions();
     const viewport = React.useRef<HTMLDivElement>(null);
     const [isSticky, setIsSticky] = React.useState(true);
     const { classes } = useStyles();
@@ -53,33 +51,19 @@ const Messages = () => {
     );
 
     const handleFunctionCall = React.useCallback(
-        (message: FunctionCallMessage) => {
+        async (message: FunctionCallMessage, fns: CallableFunction[]) => {
             if (!conversation) return;
             const { name, arguments: args } = message.functionCall;
-            const persistedFn = functions.find((f) => f.name === name);
-            if (!persistedFn?.code) return;
 
-            const { argNames, argValues } = Object.keys(
-                persistedFn.parameters?.properties ?? {}
-            ).reduce(
-                (acc, key) => {
-                    acc.argNames.push(key);
-                    acc.argValues.push(args[key] ?? undefined);
-                    return acc;
-                },
-                {
-                    argNames: [],
-                    argValues: [],
-                } as { argNames: string[]; argValues: any[] }
-            );
-            const fn = new Function(...argNames, persistedFn.code);
+            const fn = fns.find((f) => f.name === name);
+            if (!fn) return;
 
-            const result = fn(...argValues);
+            const result = await callFunction(fn.id, args);
             if (result === undefined) return;
 
             conversation.functionPrompt(name, result);
         },
-        [conversation, functions]
+        [callFunction, conversation]
     );
 
     React.useEffect(() => {
@@ -111,11 +95,14 @@ const Messages = () => {
                         message.onMessageStreamingStop((message) => {
                             unsubscribeStreamingStop();
                             if (!message.isFunctionCall()) return;
-                            handleFunctionCall(message);
+                            handleFunctionCall(
+                                message,
+                                conversation.getFunctions()
+                            );
                         });
                     unsubscribes.push(unsubscribeStreamingStop);
                 } else if (message.isFunctionCall()) {
-                    handleFunctionCall(message);
+                    handleFunctionCall(message, conversation.getFunctions());
                 }
             }
         );
@@ -124,7 +111,7 @@ const Messages = () => {
             unsubscribeMessageAdded();
             unsubscribes.forEach((unsubscribe) => unsubscribe());
         };
-    }, [conversation, functions, handleFunctionCall, isSticky, scrollToBottom]);
+    }, [conversation, handleFunctionCall, isSticky, scrollToBottom]);
 
     React.useEffect(() => {
         if (!conversation) return;

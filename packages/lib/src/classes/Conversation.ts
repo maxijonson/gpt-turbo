@@ -10,9 +10,6 @@ import { v4 as uuid } from "uuid";
 import {
     AddMessageListener,
     ConversationConfigParameters,
-    CreateChatCompletionFunction,
-    CreateChatCompletionFunctionCallMessage,
-    CreateChatCompletionFunctionMessage,
     HandleChatCompletionOptions,
     PromptOptions,
     RemoveMessageListener,
@@ -738,49 +735,11 @@ export class Conversation {
     }
 
     private getCreateChatCompletionMessages() {
-        return this.messages.map((message) => {
-            if (message.isFunctionCall()) {
-                const m: CreateChatCompletionFunctionCallMessage = {
-                    role: message.role,
-                    content: message.content,
-                    function_call: {
-                        name: message.functionCall.name,
-                        arguments: JSON.stringify(
-                            message.functionCall.arguments
-                        ),
-                    },
-                };
-                return m;
-            }
-
-            if (message.isFunction()) {
-                const m: CreateChatCompletionFunctionMessage = {
-                    content: message.content,
-                    name: message.name,
-                    role: message.role,
-                };
-                return m;
-            }
-
-            if (message.isCompletion()) {
-                return {
-                    content: message.content,
-                    role: message.role,
-                };
-            }
-
-            throw new Error("Message type not recognized.");
-        });
+        return this.messages.map((message) => message.chatCompletionMessage);
     }
 
-    private getCreateChatCompletionFunctions():
-        | CreateChatCompletionFunction[]
-        | undefined {
+    private getCreateChatCompletionFunctions() {
         if (this.functions.length === 0) return undefined;
-        return this.functions.map((fn) => ({
-            name: fn.name,
-            description: fn.description,
-            parameters: fn.parameters,
-        }));
+        return this.functions.map((fn) => fn.chatCompletionFunction);
     }
 }

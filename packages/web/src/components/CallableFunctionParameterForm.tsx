@@ -248,6 +248,11 @@ const CallableFunctionParameterForm = ({
                     </Input.Wrapper>
                 </Group>
                 <Divider label="Base" labelPosition="center" />
+                <OptionalTextInput
+                    {...form.getInputProps("description")}
+                    label="Description"
+                    description="This is where you should describe to the AI what this parameter is for."
+                />
                 <Group noWrap grow>
                     <OptionalTextInput
                         {...form.getInputProps("title")}
@@ -258,10 +263,6 @@ const CallableFunctionParameterForm = ({
                         label="Default"
                     />
                 </Group>
-                <OptionalTextInput
-                    {...form.getInputProps("description")}
-                    label="Description"
-                />
                 <Group noWrap grow>
                     <OptionalBooleanInput
                         {...form.getInputProps("readOnly")}

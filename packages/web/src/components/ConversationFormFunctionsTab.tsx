@@ -1,14 +1,13 @@
 import { Button, Center, Chip, Divider, Group, Stack } from "@mantine/core";
 import FunctionsWarning from "./FunctionsWarning";
-import usePersistence from "../hooks/usePersistence";
 import useConversationForm from "../hooks/useConversationForm";
 import { AiOutlineFunction } from "react-icons/ai";
 import { Link } from "react-router-dom";
+import useCallableFunctions from "../hooks/useCallableFunctions";
 
 const ConversationFormFunctionsTab = () => {
-    const {
-        persistence: { functions },
-    } = usePersistence();
+    const { callableFunctions, getCallableFunctionDisplayName } =
+        useCallableFunctions();
     const form = useConversationForm();
 
     return (
@@ -24,7 +23,7 @@ const ConversationFormFunctionsTab = () => {
                         Go to functions library
                     </Button>
                 </Center>
-                {functions.length > 0 && (
+                {callableFunctions.length > 0 && (
                     <>
                         <Divider
                             label="Select Conversation Functions"
@@ -35,9 +34,9 @@ const ConversationFormFunctionsTab = () => {
                             multiple
                         >
                             <Group position="center">
-                                {functions.map((fn) => (
+                                {callableFunctions.map((fn) => (
                                     <Chip key={fn.id} value={fn.id}>
-                                        {fn.displayName}
+                                        {getCallableFunctionDisplayName(fn.id)}
                                     </Chip>
                                 ))}
                             </Group>

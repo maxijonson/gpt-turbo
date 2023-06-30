@@ -5,10 +5,8 @@ import {
     CallableFunctionFormValues,
 } from "../CallableFunctionFormContext";
 import { persistenceCallableFunctionSchema } from "../../entities/persistenceCallableFunction";
-import usePersistence from "../../hooks/usePersistence";
 import React from "react";
-import { ZodError } from "zod";
-import getErrorInfo from "../../utils/getErrorInfo";
+import useCallableFunctions from "../../hooks/useCallableFunctions";
 
 export interface CallableFunctionFormProviderProps {
     children: React.ReactNode;
@@ -21,7 +19,11 @@ const CallableFunctionFormProvider = ({
     onSubmit,
     id,
 }: CallableFunctionFormProviderProps) => {
-    const { persistence } = usePersistence();
+    const {
+        callableFunctions,
+        getCallableFunctionDisplayName,
+        getCallableFunctionCode,
+    } = useCallableFunctions();
     const form = CallableFunctionFormContext.useForm({
         initialValues: {
             id: uuid(),
@@ -33,26 +35,46 @@ const CallableFunctionFormProvider = ({
     });
 
     const handleSubmit = form.onSubmit(async (values) => {
-        try {
-            await onSubmit(values);
-        } catch (e) {
-            if (e instanceof ZodError && (e.issues[0] as any).params?.field) {
-                form.setFieldError(
-                    (e.issues[0] as any).params?.field,
-                    getErrorInfo(e).message
-                );
-                return;
-            }
-            throw e;
+        const existingName = callableFunctions.find(
+            (f) => f.id !== values.id && f.name === values.name
+        );
+        const existingDisplayName = callableFunctions.find(
+            (f) =>
+                f.id !== values.id &&
+                getCallableFunctionDisplayName(f.id) === values.displayName
+        );
+
+        if (existingName) {
+            form.setFieldError("name", "This name is already used");
         }
+
+        if (existingDisplayName) {
+            form.setFieldError(
+                "displayName",
+                "This display name is already used"
+            );
+        }
+
+        if (existingName || existingDisplayName) return;
+        await onSubmit(values);
     });
 
     React.useEffect(() => {
         if (id === form.values.id) return;
-        const callableFunction = persistence.functions.find((f) => f.id === id);
+        const callableFunction = callableFunctions.find((f) => f.id === id);
         if (!callableFunction) return;
-        form.setValues(callableFunction);
-    }, [form, id, persistence.functions]);
+        form.setValues({
+            ...callableFunction.toJSON(),
+            displayName: getCallableFunctionDisplayName(callableFunction.id),
+            code: getCallableFunctionCode(callableFunction.id),
+        });
+    }, [
+        callableFunctions,
+        form,
+        getCallableFunctionCode,
+        getCallableFunctionDisplayName,
+        id,
+    ]);
 
     return (
         <CallableFunctionFormContext.Provider form={form}>

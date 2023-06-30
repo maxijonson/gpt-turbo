@@ -8,11 +8,7 @@ interface SettingsProviderProps {
 }
 
 const SettingsProvider = ({ children }: SettingsProviderProps) => {
-    const {
-        value: settings,
-        setValue: setSettings,
-        isValueLoaded: areSettingsLoaded,
-    } = useStorage<Settings>(
+    const { value: settings, setValue: setSettings } = useStorage<Settings>(
         "gpt-turbo-settings",
         settingsSchema.parse({}),
         settingsSchema
@@ -35,9 +31,8 @@ const SettingsProvider = ({ children }: SettingsProviderProps) => {
         () => ({
             settings,
             setSettings: handleSetSettings,
-            areSettingsLoaded,
         }),
-        [handleSetSettings, settings, areSettingsLoaded]
+        [handleSetSettings, settings]
     );
 
     return (

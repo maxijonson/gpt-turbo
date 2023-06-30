@@ -3,10 +3,12 @@ import React from "react";
 import usePersistence from "../hooks/usePersistence";
 import ConversationForm from "./ConversationForm";
 import { ConversationFormValues } from "../contexts/ConversationFormContext";
+import useCallableFunctions from "../hooks/useCallableFunctions";
 
 const AddConversationForm = () => {
     const { addConversation, setActiveConversation } = useConversationManager();
-    const { addPersistedConversationId, persistence } = usePersistence();
+    const { getCallableFunction } = useCallableFunctions();
+    const { addPersistedConversationId } = usePersistence();
 
     const onSubmit = React.useCallback(
         ({
@@ -20,13 +22,7 @@ const AddConversationForm = () => {
             setActiveConversation(newConversation.id, true);
 
             functionIds.forEach((id) => {
-                const callableFunction = persistence.functions.find(
-                    (fn) => fn.id === id
-                );
-                if (!callableFunction) {
-                    console.warn("Function not found", id);
-                    return;
-                }
+                const callableFunction = getCallableFunction(id);
                 newConversation.addFunction(callableFunction);
             });
 
@@ -37,7 +33,7 @@ const AddConversationForm = () => {
         [
             addConversation,
             addPersistedConversationId,
-            persistence.functions,
+            getCallableFunction,
             setActiveConversation,
         ]
     );

@@ -1,17 +1,15 @@
 import { SimpleGrid } from "@mantine/core";
-import usePersistence from "../hooks/usePersistence";
 import CallableFunctionCard from "./CallableFunctionCard";
 import { useNavigate } from "react-router-dom";
+import useCallableFunctions from "../hooks/useCallableFunctions";
 
 const CallableFunctionsList = () => {
-    const {
-        persistence: { functions },
-    } = usePersistence();
+    const { callableFunctions } = useCallableFunctions();
     const navigate = useNavigate();
 
     return (
         <SimpleGrid cols={2}>
-            {functions.map((fn) => (
+            {callableFunctions.map((fn) => (
                 <CallableFunctionCard
                     key={fn.id}
                     fn={fn}

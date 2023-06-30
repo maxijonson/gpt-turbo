@@ -13,15 +13,13 @@ import {
 import useConversationManager from "../hooks/useConversationManager";
 import { BiCog, BiPlus } from "react-icons/bi";
 import TippedActionIcon from "./TippedActionIcon";
-import { openModal } from "@mantine/modals";
-import SettingsForm from "./SettingsForm";
-import React from "react";
 import Usage from "./Usage";
-import { useMediaQuery } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { BsDiscord, BsGithub } from "react-icons/bs";
 import NavbarConversations from "./NavbarConversations";
 import { AiOutlineFunction } from "react-icons/ai";
 import { Link } from "react-router-dom";
+import SettingsFormModal from "./SettingsFormModal";
 
 const useStyles = createStyles(() => ({
     burger: {
@@ -37,13 +35,12 @@ const AppNavbar = () => {
         useConversationManager();
     const { classes } = useStyles();
     const theme = useMantineTheme();
+    const [navbarOpened, { close: closeNavbar, toggle: toggleNavbar }] =
+        useDisclosure();
+    const [settingsOpened, { open: openSettings, close: closeSettings }] =
+        useDisclosure();
 
-    const [opened, setOpened] = React.useState(false);
     const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
-
-    const closeNavbar = React.useCallback(() => {
-        setOpened(false);
-    }, []);
 
     return (
         <>
@@ -55,8 +52,8 @@ const AppNavbar = () => {
             >
                 <Burger
                     className={classes.burger}
-                    opened={opened}
-                    onClick={() => setOpened((c) => !c)}
+                    opened={navbarOpened}
+                    onClick={toggleNavbar}
                     size="sm"
                     mt="xs"
                     mr="sm"
@@ -66,22 +63,14 @@ const AppNavbar = () => {
                 width={{ sm: 300 }}
                 p="xs"
                 hiddenBreakpoint="sm"
-                hidden={isSm && !opened}
+                hidden={isSm && !navbarOpened}
             >
                 <Navbar.Section>
                     <Group position="center">
                         <TippedActionIcon
                             variant="outline"
-                            tip="Settings"
-                            onClick={() =>
-                                openModal({
-                                    children: <SettingsForm />,
-                                    fullScreen: isSm,
-                                    centered: true,
-                                    size: "lg",
-                                    title: "Settings",
-                                })
-                            }
+                            tip="Default Conversation Settings"
+                            onClick={openSettings}
                         >
                             <BiCog />
                         </TippedActionIcon>
@@ -151,6 +140,10 @@ const AppNavbar = () => {
                     </Stack>
                 </Navbar.Section>
             </Navbar>
+            <SettingsFormModal
+                opened={settingsOpened}
+                onClose={closeSettings}
+            />
         </>
     );
 };

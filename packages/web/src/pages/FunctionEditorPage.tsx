@@ -5,21 +5,21 @@ import FunctionsWarning from "../components/FunctionsWarning";
 import CallableFunctionForm from "../components/CallableFunctionForm";
 import React from "react";
 import { CallableFunctionFormProviderProps } from "../contexts/providers/CallableFunctionFormProvider";
-import usePersistence from "../hooks/usePersistence";
+import useCallableFunctions from "../hooks/useCallableFunctions";
 
 const FunctionEditorPage = () => {
-    const { saveCallableFunction } = usePersistence();
+    const { addCallableFunction } = useCallableFunctions();
     const { id } = useParams();
     const navigate = useNavigate();
 
     const onSubmit = React.useCallback<
         CallableFunctionFormProviderProps["onSubmit"]
     >(
-        (values) => {
-            saveCallableFunction(values);
+        ({ displayName, code, ...config }) => {
+            addCallableFunction(config, displayName, code);
             navigate("/functions");
         },
-        [navigate, saveCallableFunction]
+        [addCallableFunction, navigate]
     );
 
     return (

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { javascriptIdentifierSchema } from "./javascriptIdentifier.schema.js";
 
 // The following Zod schemas are all based on the JSON Schema specification and may not be complete:
 // https://json-schema.org/understanding-json-schema/reference/index.html
@@ -151,7 +152,12 @@ export type JsonSchema =
 export const jsonSchemaSchema: z.ZodType<JsonSchema> = z.union([
     baseJsonSchemaSchema,
     baseJsonSchemaObjectSchema.extend({
-        properties: z.record(z.lazy(() => jsonSchemaSchema)).optional(),
+        properties: z
+            .record(
+                javascriptIdentifierSchema,
+                z.lazy(() => jsonSchemaSchema)
+            )
+            .optional(),
         patternProperties: z.record(z.lazy(() => jsonSchemaSchema)).optional(),
         additionalProperties: z
             .union([z.boolean(), z.lazy(() => jsonSchemaSchema)])
@@ -169,7 +175,9 @@ export const jsonSchemaSchema: z.ZodType<JsonSchema> = z.union([
 // -------------------- Object --------------------
 
 export const jsonSchemaObjectSchema = baseJsonSchemaObjectSchema.extend({
-    properties: z.record(jsonSchemaSchema).optional(),
+    properties: z
+        .record(javascriptIdentifierSchema, jsonSchemaSchema)
+        .optional(),
     patternProperties: z.record(jsonSchemaSchema).optional(),
     additionalProperties: z.union([z.boolean(), jsonSchemaSchema]).optional(),
 });
