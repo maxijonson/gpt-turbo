@@ -107,7 +107,9 @@ const CodeEditor = ({ value, onChange, name, parameters }: CodeEditorProps) => {
     React.useEffect(() => {
         if (!editor) return;
         if (editor.isFocused) return;
-        editor.commands.setContent(value ?? "");
+        editor.commands.setContent(value ?? "", false, {
+            preserveWhitespace: "full",
+        });
         editor.commands.setCodeBlock();
     }, [editor, value]);
 
