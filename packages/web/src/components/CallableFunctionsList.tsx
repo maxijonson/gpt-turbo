@@ -1,10 +1,15 @@
 import { SimpleGrid } from "@mantine/core";
 import CallableFunctionCard from "./CallableFunctionCard";
 import { useNavigate } from "react-router-dom";
-import useCallableFunctions from "../hooks/useCallableFunctions";
+import { CallableFunction } from "gpt-turbo";
 
-const CallableFunctionsList = () => {
-    const { callableFunctions } = useCallableFunctions();
+interface CallableFunctionsListProps {
+    callableFunctions: CallableFunction[];
+}
+
+const CallableFunctionsList = ({
+    callableFunctions,
+}: CallableFunctionsListProps) => {
     const navigate = useNavigate();
 
     return (
