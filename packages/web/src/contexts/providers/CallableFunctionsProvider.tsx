@@ -177,6 +177,22 @@ const CallableFunctionsProvider = ({
         ]
     );
 
+    const deleteCallableFunction = React.useCallback<
+        CallableFunctionsContextValue["deleteCallableFunction"]
+    >((id) => {
+        setCallableFunctions((callableFunctions) =>
+            callableFunctions.filter((fn) => fn.id !== id)
+        );
+        setFunctionDisplayNames((functionDisplayNames) => {
+            const { [id]: _, ...rest } = functionDisplayNames;
+            return rest;
+        });
+        setFunctionCodes((functionCodes) => {
+            const { [id]: _, ...rest } = functionCodes;
+            return rest;
+        });
+    }, []);
+
     const providerValue = React.useMemo<CallableFunctionsContextValue>(
         () => ({
             callableFunctions,
@@ -187,6 +203,7 @@ const CallableFunctionsProvider = ({
             getCallableFunctionCode,
             dismissFunctionsWarning,
             callFunction,
+            deleteCallableFunction,
         }),
         [
             callableFunctions,
@@ -197,6 +214,7 @@ const CallableFunctionsProvider = ({
             getCallableFunctionDisplayName,
             dismissFunctionsWarning,
             callFunction,
+            deleteCallableFunction,
         ]
     );
 

@@ -19,6 +19,7 @@ export interface CallableFunctionsContextValue {
         id: string,
         args: Record<string, unknown>
     ) => Promise<unknown | undefined>;
+    deleteCallableFunction: (id: string) => void;
 }
 
 const notImplemented = makeNotImplemented("CallableFunctionsContext");
@@ -33,4 +34,5 @@ export const CallableFunctionsContext =
         getCallableFunctionCode: notImplemented,
         dismissFunctionsWarning: notImplemented,
         callFunction: notImplemented,
+        deleteCallableFunction: notImplemented,
     });
