@@ -4,6 +4,7 @@ import {
     Divider,
     Group,
     MediaQuery,
+    Modal,
     Navbar,
     Stack,
     Text,
@@ -20,6 +21,9 @@ import NavbarConversations from "./NavbarConversations";
 import { AiOutlineFunction } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import SettingsFormModal from "./SettingsFormModal";
+import { FaRegQuestionCircle } from "react-icons/fa";
+import About from "./About";
+import { DISCORD_SERVER_INVITE } from "../config/constants";
 
 const useStyles = createStyles(() => ({
     burger: {
@@ -39,6 +43,7 @@ const AppNavbar = () => {
         useDisclosure();
     const [settingsOpened, { open: openSettings, close: closeSettings }] =
         useDisclosure();
+    const [showAbout, { open: openAbout, close: closeAbout }] = useDisclosure();
 
     const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
 
@@ -111,24 +116,28 @@ const AppNavbar = () => {
                     <Stack spacing={0} p={0}>
                         <Group position="center">
                             <TippedActionIcon
+                                component="a"
                                 tip="View source code"
-                                onClick={() =>
-                                    window.open(
-                                        "https://github.com/maxijonson/gpt-turbo/tree/develop/packages/web"
-                                    )
-                                }
+                                href="https://github.com/maxijonson/gpt-turbo/tree/develop/packages/web"
                                 size="xs"
                             >
                                 <BsGithub />
                             </TippedActionIcon>
                             <TippedActionIcon
+                                component="a"
+                                href={DISCORD_SERVER_INVITE}
+                                target="_blank"
                                 tip="Join Discord server"
-                                onClick={() =>
-                                    window.open("https://discord.gg/Aa77KCmwRx")
-                                }
                                 size="xs"
                             >
                                 <BsDiscord />
+                            </TippedActionIcon>
+                            <TippedActionIcon
+                                tip="About this project"
+                                onClick={openAbout}
+                                size="xs"
+                            >
+                                <FaRegQuestionCircle />
                             </TippedActionIcon>
                         </Group>
                         <Text align="center" size="xs">
@@ -144,6 +153,15 @@ const AppNavbar = () => {
                 opened={settingsOpened}
                 onClose={closeSettings}
             />
+            <Modal
+                opened={showAbout}
+                onClose={closeAbout}
+                size="lg"
+                centered
+                withCloseButton={false}
+            >
+                <About />
+            </Modal>
         </>
     );
 };
