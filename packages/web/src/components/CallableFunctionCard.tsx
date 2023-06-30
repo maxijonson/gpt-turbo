@@ -1,6 +1,7 @@
 import {
     ActionIcon,
     Card,
+    CardProps,
     Code,
     Group,
     Menu,
@@ -16,11 +17,14 @@ import { useNavigate } from "react-router-dom";
 import { modals } from "@mantine/modals";
 import { BsTrash } from "react-icons/bs";
 
-interface CallableFunctionCardProps {
+type CallableFunctionCardProps = Omit<CardProps, "children"> & {
     fn: CallableFunction;
-}
+};
 
-const CallableFunctionCard = ({ fn }: CallableFunctionCardProps) => {
+const CallableFunctionCard = ({
+    fn,
+    ...cardProps
+}: CallableFunctionCardProps) => {
     const navigate = useNavigate();
     const {
         getCallableFunctionDisplayName,
@@ -139,7 +143,7 @@ const CallableFunctionCard = ({ fn }: CallableFunctionCardProps) => {
     }, [deleteCallableFunction, fn.id, getCallableFunctionDisplayName]);
 
     return (
-        <Card withBorder>
+        <Card withBorder {...cardProps}>
             <Card.Section withBorder inheritPadding py="xs">
                 <Group position="apart">
                     <Title order={4}>

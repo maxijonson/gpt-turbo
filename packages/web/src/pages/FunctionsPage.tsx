@@ -1,11 +1,19 @@
-import { Autocomplete, Button, Container, Group, Title } from "@mantine/core";
+import {
+    Autocomplete,
+    Button,
+    Container,
+    Group,
+    SimpleGrid,
+    Title,
+    Transition,
+} from "@mantine/core";
 import { BiArrowBack, BiPlus, BiSearch } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import FunctionsWarning from "../components/FunctionsWarning";
-import CallableFunctionsList from "../components/CallableFunctionsList";
 import { useInputState } from "@mantine/hooks";
 import React from "react";
 import useCallableFunctions from "../hooks/useCallableFunctions";
+import CallableFunctionCard from "../components/CallableFunctionCard";
 
 const FunctionsPage = () => {
     const { callableFunctions, getCallableFunctionDisplayName } =
@@ -72,9 +80,19 @@ const FunctionsPage = () => {
                         </Button>
                     </Group>
                 </Group>
-                <CallableFunctionsList
-                    callableFunctions={filteredCallableFunctions}
-                />
+                <SimpleGrid cols={2}>
+                    {callableFunctions.map((fn) => (
+                        <Transition
+                            key={fn.id}
+                            transition="pop"
+                            mounted={filteredCallableFunctions.includes(fn)}
+                        >
+                            {(styles) => (
+                                <CallableFunctionCard fn={fn} style={styles} />
+                            )}
+                        </Transition>
+                    ))}
+                </SimpleGrid>
             </FunctionsWarning>
         </Container>
     );
