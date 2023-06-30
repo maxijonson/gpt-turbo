@@ -12,10 +12,16 @@ import {
 import React from "react";
 import { CallableFunction } from "gpt-turbo";
 import useCallableFunctions from "../hooks/useCallableFunctions";
-import { BiDotsVerticalRounded, BiDuplicate, BiEdit } from "react-icons/bi";
+import {
+    BiDotsVerticalRounded,
+    BiDuplicate,
+    BiEdit,
+    BiExport,
+} from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { modals } from "@mantine/modals";
 import { BsTrash } from "react-icons/bs";
+import { callableFunctionExportschema } from "../entities/callableFunctionExport";
 
 type CallableFunctionCardProps = Omit<CardProps, "children"> & {
     fn: CallableFunction;
@@ -70,8 +76,7 @@ const CallableFunctionCard = ({
                     (fn) => getCallableFunctionDisplayName(fn.id) === copy
                 )
             ) {
-                i++;
-                copy = `${displayName} (${i})`;
+                copy = `${displayName} (${i++})`;
             }
             return copy;
         })();
@@ -80,8 +85,7 @@ const CallableFunctionCard = ({
             let i = 1;
             let copy = `${fn.name}${i}`;
             while (callableFunctions.some((fn) => fn.name === copy)) {
-                i++;
-                copy = `${fn.name}${i}`;
+                copy = `${fn.name}${i++}`;
             }
             return copy;
         })();
@@ -142,6 +146,23 @@ const CallableFunctionCard = ({
         });
     }, [deleteCallableFunction, fn.id, getCallableFunctionDisplayName]);
 
+    const onExport = React.useCallback(() => {
+        const data = JSON.stringify(
+            callableFunctionExportschema.parse({
+                callableFunction: fn.toJSON(),
+                code: getCallableFunctionCode(fn.id),
+                displayName: getCallableFunctionDisplayName(fn.id),
+            })
+        );
+        const blob = new Blob([data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${fn.id}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [fn, getCallableFunctionCode, getCallableFunctionDisplayName]);
+
     return (
         <Card withBorder {...cardProps}>
             <Card.Section withBorder inheritPadding py="xs">
@@ -168,6 +189,9 @@ const CallableFunctionCard = ({
                                 icon={<BiDuplicate />}
                             >
                                 Duplicate
+                            </Menu.Item>
+                            <Menu.Item onClick={onExport} icon={<BiExport />}>
+                                Export
                             </Menu.Item>
                             <Menu.Item
                                 onClick={onDelete}
