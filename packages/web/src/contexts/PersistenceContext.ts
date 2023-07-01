@@ -22,6 +22,7 @@ export const PersistenceContext = React.createContext<PersistenceContextValue>({
         contexts: [],
         prompts: [],
         functionsWarning: true,
+        functionsImportWarning: true,
         functions: [],
     },
     addPersistedConversationId: notImplemented,
