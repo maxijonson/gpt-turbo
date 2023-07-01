@@ -6,7 +6,7 @@ import { v4 as uuid } from "uuid";
 import { CallableFunctionObject } from "./CallableFunctionParameters/CallableFunctionObject.js";
 import { CreateChatCompletionFunction } from "../utils/types.js";
 import { CallableFunctionParameter } from "./CallableFunctionParameters/CallableFunctionParameter.js";
-import { JsonSchema } from "../index.js";
+import { JsonSchema, JsonSchemaObject } from "../index.js";
 
 export class CallableFunction {
     /**
@@ -28,13 +28,21 @@ export class CallableFunction {
         /**
          * The initial parameters of the callable function.
          */
-        parameters?: CallableFunctionObject
+        parameters?: CallableFunctionObject | JsonSchemaObject
     ) {
-        this._parameters =
-            parameters ??
-            new CallableFunctionObject(
+        if (!parameters) {
+            this._parameters = new CallableFunctionObject(
                 `__CallableFunction__${name}__parameters__`
             );
+        } else {
+            this._parameters =
+                parameters instanceof CallableFunctionObject
+                    ? parameters
+                    : CallableFunctionObject.fromJSON(
+                          `__CallableFunction__${name}__parameters__`,
+                          parameters
+                      );
+        }
     }
 
     /**

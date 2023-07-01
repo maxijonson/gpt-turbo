@@ -33,7 +33,7 @@ export class Conversation {
      */
     public id = uuid();
 
-    private config: ConversationConfig;
+    private config!: ConversationConfig;
     private requestOptions: RequestOptions;
     private messages: Message[] = [];
     private functions: CallableFunction[] = [];
@@ -52,7 +52,7 @@ export class Conversation {
         config: ConversationConfigParameters = {},
         requestOptions: RequestOptions = {}
     ) {
-        this.config = new ConversationConfig(config);
+        this.setConfig(config);
         this.requestOptions = requestOptions;
         this.clearMessages();
     }
@@ -269,14 +269,32 @@ export class Conversation {
     }
 
     /**
+     * Removes a callable function from the conversation.
+     *
+     * @param idOrFn Either the ID of the function, the function itself, or the function model.
+     */
+    public removeFunction(
+        idOrFn: string | CallableFunction | CallableFunctionModel
+    ) {
+        const id = typeof idOrFn === "string" ? idOrFn : idOrFn.id;
+        const removedFn = this.functions.find((fn) => fn.id === id);
+        if (!removedFn) return;
+        this.functions = this.functions.filter((fn) => fn.id !== id);
+    }
+
+    /**
      * Adds a function to the conversation. This function can be "called" by the assistant, generating a function call message.
      *
      * @param fn The function to add to the conversation.
      */
     public addFunction(fn: CallableFunction | CallableFunctionModel) {
-        this.functions.push(
-            fn instanceof CallableFunction ? fn : CallableFunction.fromJSON(fn)
-        );
+        this.functions = this.functions
+            .filter((f) => f.name === fn.name || f.id === fn.id)
+            .concat(
+                fn instanceof CallableFunction
+                    ? fn
+                    : CallableFunction.fromJSON(fn)
+            );
     }
 
     /**
@@ -563,6 +581,10 @@ export class Conversation {
         this.config = new ConversationConfig(newConfig);
         if (config.context) {
             this.setContext(config.context);
+        }
+        if (config.functions) {
+            if (!merge) this.functions = [];
+            config.functions.forEach((fn) => this.addFunction(fn));
         }
     }
 
