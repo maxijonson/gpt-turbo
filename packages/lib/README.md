@@ -154,15 +154,14 @@ const edit = await conversation.reprompt(first, "We grant you the rank of Master
 > Limitations (of the GPT Turbo library) with function calling:
 > - Token count is not currently calculated for assistant function calls and context. This means the cost of function calls are not taken into account at the moment. This will be fixed in a future release, as I learn more about how function call tokens are calculated by OpenAI.
 > - Function calls are not currently supported in dry mode. There is no planned support for this in the near future.
-> - While this feature is typed, it may not be as strongly typed as you'd expect. In other words, there's no strict type checking against the function name and arguments against the definition you gave to the configuration's `functions` property. This may or may not be improved in the future, depending on how relevant strong typing is for this feature without sacrificing usability.
 
-You can use OpenAI's Function Calling feature with GPT Turbo through the `functionPrompt` method. Just define your functions in the conversation configuration (or during prompting) just like you would normally with the Chat Completion API. 
+You can use OpenAI's Function Calling feature with GPT Turbo through the `functionPrompt` method. Just define your functions in the conversation configuration just like you would normally with the Chat Completion API. 
 
 ⚠ Unless you configure `functions_call` to explicitly call a function by name (which by default does not, it uses `auto`), make sure you also plan for standard chat completions in your code. To help with detecting which type of response you got, the `Message` class exposes two (type-guarded!) functions: `isFunctionCall` and `isCompletion`.
 
-> At the time of writing, Function Calling is not supported on the latest version of the GPT model. In this example, we'll use the `gpt-3.5-turbo-0613` model, but the standard `gpt-3.5-turbo` model might work at the time you're reading this.
-
 ```ts
+import { Conversation, CallableFunction, CallableFunctionString, CallableFunctionObject } from "gpt-turbo";
+
 const locateJedi = (jedi, locationType = "planet") => {
     return {
         name: jedi,
@@ -170,30 +169,15 @@ const locateJedi = (jedi, locationType = "planet") => {
     };
 };
 
+const locateJediFn = new CallableFunction("locateJedi", "Returns the current location of a Jedi")
+locateJediFn.addParameter(new CallableFunctionString("jedi", "The name of the Jedi to locate"), true);
+locateJediFn.addParameter(new CallableFunctionString("locationType", { enum: ["planet", "city"] }));
+
 const conversation = new Conversation({
     apiKey: /** Your API key */,
-    model: "gpt-3.5-turbo-0613",
-    functions: [
-        {
-            name: "locateJedi",
-            description: "Returns the current location of a Jedi",
-            parameters: {
-                type: "object",
-                properties: {
-                    jedi: {
-                        type: "string",
-                        description: "The name of the Jedi to locate",
-                    },
-                    locationType: {
-                        type: "string",
-                        enum: ["planet", "city"],
-                    },
-                },
-                required: ["jedi"],
-            },
-        },
-    ],
+    model: "gpt-3.5-turbo",
 });
+conversation.addFunction(locateJediFn);
 
 const r1 = await conversation.prompt("Where can I find Obi-Wan Kenobi?");
 
@@ -213,6 +197,7 @@ For streamed completions and function calls, it gets a bit more complicated, but
 
 ```ts
 const conversation = new Conversation({ /* ... */, stream: true });
+conversation.addFunction(locateJediFn);
 
 const r1 = await conversation.prompt("In which city is Obi-Wan Kenobi?");
 
@@ -245,6 +230,93 @@ const unsubscribeStop = r1.onMessageStreamingStop(async (message) => {
     unsubscribeStop();
 });
 ```
+
+There are a lot of ways to create a callable function. Here are **some** of the ways we could've created the `locateJediFn` callable function. While the one we used above is the most verbose, it might not suit all use cases.
+
+```ts
+const name = "locateJedi";
+const description = "Returns the current location of a Jedi";
+
+// The one we used above
+const locateJediFn = new CallableFunction(name, description)
+locateJediFn.addParameter(new CallableFunctionString("jedi", "The name of the Jedi to locate"), true);
+locateJediFn.addParameter(new CallableFunctionString("locationType", { enum: ["planet", "city"] }));
+
+// Create the parameters using CallableFunctionObject. we're passing a random name to the object because it is generally required for the parameters, but it won't be used in this case. Notice the "addProperty" instead of "addParameter" method.
+const parameters = new CallableFunctionObject("some_random_name");
+parameters.addProperty(new CallableFunctionString("jedi", "The name of the Jedi to locate"), true);
+parameters.addProperty(new CallableFunctionString("locationType", { enum: ["planet", "city"] }));
+const locateJediFn = new CallableFunction(name, description, parameters);
+
+// Using a JSON Object Schema to define the parameters. This complex structure almost looks like what the library will send to the API in the end.
+const locateJediFn = new CallableFunction(name, description, {
+    type: "object",
+    properties: {
+        jedi: {
+            type: "string",
+            description: "The name of the Jedi to locate",
+        },
+        locationType: {
+            type: "string",
+            enum: ["planet", "city"],
+        },
+    },
+    required: ["jedi"],
+});
+
+// Using CallableFunction.fromJSON. This is the same object that will be sent to the API in the end. This is what the Web implmentation of GPT Turbo uses, since it loads functions from the local storage as JSON objects.
+const locateJediFn = CallableFunction.fromJSON({
+    name,
+    description,
+    parameters: {
+        type: "object",
+        properties: {
+            jedi: {
+                type: "string",
+                description: "The name of the Jedi to locate",
+            },
+            locationType: {
+                type: "string",
+                enum: ["planet", "city"],
+            },
+        },
+        required: ["jedi"],
+    },
+});
+
+// Finally, you also can totally ignore the CallableFunction class and pass your raw functions to the Conversation constructor
+const conversation = new Conversation({ apiKey: /** ... */, functions: [{
+    name,
+    description,
+    parameters: {
+        type: "object",
+        properties: {
+            jedi: {
+                type: "string",
+                description: "The name of the Jedi to locate",
+            },
+            locationType: {
+                type: "string",
+                enum: ["planet", "city"],
+            },
+        },
+        required: ["jedi"],
+    },
+}] })
+```
+
+Just like every other class in this library, the `CallableFunction` and subclasses of `CallableFunctionParameter` all have a `toJSON` method and `fromJSON` static method. Each `CallableFunctionParameter` subclass also have Zod schemas exported so that you can validate their JSON representation. Here are all subclasses of `CallableFunctionParameter`:
+
+- `CallableFunctionString`
+- `CallableFunctionNumber`
+- `CallableFunctionBoolean`
+- `CallableFunctionObject`
+- `CallableFunctionArray`
+- `CallableFunctionEnum`
+- `CallableFunctionConst`
+- `CallableFunctionNull`
+
+There is also a `CallableFunctionParameterFactory.fromJSON` method which is used internally by the `CallableFunctionObject` and `CallableFunctionArray` classes to create their properties/items dynamically from a JSON object.
 
 ## Documentation
 
