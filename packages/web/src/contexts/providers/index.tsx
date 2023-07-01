@@ -1,3 +1,4 @@
+import CallableFunctionsProvider from "./CallableFunctionsProvider";
 import ConversationManagerProvider from "./ConversationManagerProvider";
 import MantineProviders from "./MantineProviders";
 import PersistenceProvider from "./PersistenceProvider";
@@ -9,13 +10,15 @@ interface ProviderProps {
 
 const Provider = ({ children }: ProviderProps) => {
     return (
-        <SettingsProvider>
-            <ConversationManagerProvider>
-                <MantineProviders>
-                    <PersistenceProvider>{children}</PersistenceProvider>
-                </MantineProviders>
-            </ConversationManagerProvider>
-        </SettingsProvider>
+        <MantineProviders>
+            <SettingsProvider>
+                <ConversationManagerProvider>
+                    <CallableFunctionsProvider>
+                        <PersistenceProvider>{children}</PersistenceProvider>
+                    </CallableFunctionsProvider>
+                </ConversationManagerProvider>
+            </SettingsProvider>
+        </MantineProviders>
     );
 };
 

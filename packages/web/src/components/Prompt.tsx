@@ -23,6 +23,7 @@ import { BiFolder, BiPaperPlane } from "react-icons/bi";
 import TippedActionIcon from "./TippedActionIcon";
 import SavedPromptsModalBody from "./SavedPromptsModalBody";
 import usePersistence from "../hooks/usePersistence";
+import getErrorInfo from "../utils/getErrorInfo";
 
 const Prompt = () => {
     const {
@@ -85,9 +86,10 @@ const Prompt = () => {
             }
         } catch (e) {
             console.error(e);
+            const { title, message } = getErrorInfo(e);
             notifications.show({
-                title: "Prompt error",
-                message: (e as any).message ?? "Unknown error",
+                title: `Prompt error - ${title}`,
+                message,
                 color: "red",
             });
         }

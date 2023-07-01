@@ -32,3 +32,5 @@ export const CODE_LANGUAGES = [
     "wasm",
     "yaml",
 ] as const;
+
+export const DISCORD_SERVER_INVITE = "https://discord.gg/Aa77KCmwRx";

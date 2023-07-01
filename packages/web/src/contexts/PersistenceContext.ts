@@ -8,7 +8,6 @@ export interface PersistenceContextValue {
     persistence: Persistence;
     addPersistedConversationId: (id: string) => void;
     persistedConversationIds: string[];
-    isLoading: boolean;
     hasInit: boolean;
     saveContext: (context: PersistenceContextEntity) => void;
     savePrompt: (prompt: PersistencePrompt) => void;
@@ -22,10 +21,12 @@ export const PersistenceContext = React.createContext<PersistenceContextValue>({
         conversations: [],
         contexts: [],
         prompts: [],
+        functionsWarning: true,
+        functionsImportWarning: true,
+        functions: [],
     },
     addPersistedConversationId: notImplemented,
     persistedConversationIds: [],
-    isLoading: false,
     hasInit: true,
     saveContext: notImplemented,
     savePrompt: notImplemented,

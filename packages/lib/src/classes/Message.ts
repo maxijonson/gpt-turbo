@@ -11,6 +11,9 @@ import {
     FunctionCallMessage,
     FunctionMessage,
     CompletionMessage,
+    CreateChatCompletionMessage,
+    CreateChatCompletionFunctionCallMessage,
+    CreateChatCompletionFunctionMessage,
 } from "../utils/types.js";
 import createModeration from "../utils/createModeration.js";
 import { MessageModel, messageSchema } from "../schemas/message.schema.js";
@@ -423,5 +426,41 @@ export class Message {
         this._isStreaming = isStreaming;
 
         this.notifyMessageStreaming();
+    }
+
+    /**
+     * JSON definition of the message as consumed by OpenAI's API.
+     */
+    get chatCompletionMessage():
+        | CreateChatCompletionMessage
+        | CreateChatCompletionFunctionCallMessage
+        | CreateChatCompletionFunctionMessage {
+        if (this.isFunctionCall()) {
+            return {
+                role: this.role,
+                content: this.content,
+                function_call: {
+                    name: this.functionCall.name,
+                    arguments: JSON.stringify(this.functionCall.arguments),
+                },
+            } satisfies CreateChatCompletionFunctionCallMessage;
+        }
+
+        if (this.isFunction()) {
+            return {
+                content: this.content,
+                name: this.name,
+                role: this.role,
+            } satisfies CreateChatCompletionFunctionMessage;
+        }
+
+        if (this.isCompletion()) {
+            return {
+                content: this.content,
+                role: this.role,
+            } satisfies CreateChatCompletionMessage;
+        }
+
+        throw new Error("Message type not recognized.");
     }
 }

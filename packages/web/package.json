@@ -52,16 +52,26 @@
     ],
     "dependencies": {
         "@emotion/react": "^11.10.6",
-        "@mantine/core": "^6.0.5",
-        "@mantine/form": "^6.0.5",
-        "@mantine/hooks": "^6.0.5",
-        "@mantine/modals": "^6.0.5",
-        "@mantine/notifications": "^6.0.5",
-        "@mantine/prism": "^6.0.5",
+        "@mantine/core": "^6.0.14",
+        "@mantine/form": "^6.0.14",
+        "@mantine/hooks": "^6.0.14",
+        "@mantine/modals": "^6.0.14",
+        "@mantine/notifications": "^6.0.14",
+        "@mantine/prism": "^6.0.14",
+        "@mantine/tiptap": "^6.0.14",
+        "@mantine/dropzone": "6.0.14",
+        "@tabler/icons-react": "^2.22.0",
+        "@tiptap/extension-code-block-lowlight": "^2.0.3",
+        "@tiptap/extension-link": "^2.0.3",
+        "@tiptap/pm": "^2.0.3",
+        "@tiptap/react": "^2.0.3",
+        "@tiptap/starter-kit": "^2.0.3",
         "gpt-turbo": "^4.0.0",
+        "lowlight": "^2.9.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-icons": "^4.8.0",
+        "react-router-dom": "^6.13.0",
         "zod": "^3.21.4"
     },
     "devDependencies": {
@@ -79,6 +89,6 @@
         "typescript": "^4.9.3",
         "vite": "^4.0.0",
         "vite-plugin-eslint": "^1.8.1",
-        "vite-plugin-pwa": "^0.14.7"
+        "vite-plugin-pwa": "^0.16.4"
     }
 }

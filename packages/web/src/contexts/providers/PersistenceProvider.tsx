@@ -8,8 +8,8 @@ import useConversationManager from "../../hooks/useConversationManager";
 import { Persistence, persistenceSchema } from "../../entities/persistence";
 import { PersistenceConversation } from "../../entities/persistenceConversation";
 import { Conversation, Message } from "gpt-turbo";
-import { PersistenceContext } from "../../entities/persistenceContext";
-import { PersistencePrompt } from "../../entities/persistencePrompt";
+import useCallableFunctions from "../../hooks/useCallableFunctions";
+import { PersistenceCallableFunction } from "../../entities/persistenceCallableFunction";
 
 interface PersistenceProviderProps {
     children?: React.ReactNode;
@@ -25,30 +25,43 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         getConversationLastEdit,
         setConversationLastEdit,
     } = useConversationManager();
+
     const {
-        value: persistence,
-        setValue: setPersistence,
-        isValueLoaded: isPersistenceLoaded,
-    } = useStorage<Persistence>(
-        "gpt-turbo-persistence",
-        {
-            conversations: [],
-            contexts: [],
-            prompts: [],
-        },
-        persistenceSchema
-    );
+        callableFunctions,
+        showFunctionsWarning,
+        showFunctionsImportWarning,
+        addCallableFunction,
+        getCallableFunctionDisplayName,
+        getCallableFunctionCode,
+        dismissFunctionsWarning,
+        dismissFunctionsImportWarning,
+    } = useCallableFunctions();
+
+    const { value: persistence, setValue: setPersistence } =
+        useStorage<Persistence>(
+            "gpt-turbo-persistence",
+            {
+                conversations: [],
+                contexts: [],
+                prompts: [],
+                functionsWarning: true,
+                functionsImportWarning: true,
+                functions: [],
+            },
+            persistenceSchema
+        );
+
     const [persistedConversationIds, setPersistedConversationIds] =
         React.useState<string[]>([]);
-    const [isLoading, setIsLoading] = React.useState(false);
     const [hasInit, setHasInit] = React.useState(false);
 
-    const addPersistedConversationId = React.useCallback((id: string) => {
+    const addPersistedConversationId = React.useCallback<
+        PersistenceContextValue["addPersistedConversationId"]
+    >((id) => {
         setPersistedConversationIds((current) => {
             if (current.includes(id)) {
                 return current;
             }
-
             return [...current, id];
         });
     }, []);
@@ -64,7 +77,11 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
                 ...conversation.toJSON(),
                 name: getConversationName(conversation.id),
                 lastEdited: getConversationLastEdit(conversation.id),
-            }));
+            }))
+            .filter(
+                (conversation, index, self) =>
+                    self.findIndex((c) => c.id === conversation.id) === index
+            );
 
         setPersistence((current) => ({
             ...current,
@@ -78,8 +95,10 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         setPersistence,
     ]);
 
-    const saveContext = React.useCallback(
-        (context: PersistenceContext) => {
+    const saveContext = React.useCallback<
+        PersistenceContextValue["saveContext"]
+    >(
+        (context) => {
             setPersistence((current) => {
                 if (current.contexts.includes(context)) {
                     return current;
@@ -93,8 +112,8 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         [setPersistence]
     );
 
-    const savePrompt = React.useCallback(
-        (prompt: PersistencePrompt) => {
+    const savePrompt = React.useCallback<PersistenceContextValue["savePrompt"]>(
+        (prompt) => {
             setPersistence((current) => {
                 if (current.prompts.includes(prompt)) {
                     return current;
@@ -108,8 +127,48 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         [setPersistence]
     );
 
-    const removeContext = React.useCallback(
-        (contextName: string) => {
+    const saveCallableFunctions = React.useCallback(() => {
+        const persistedCallableFunctions: PersistenceCallableFunction[] =
+            callableFunctions
+                .map((fn) => ({
+                    ...fn.toJSON(),
+                    displayName: getCallableFunctionDisplayName(fn.id),
+                    code: getCallableFunctionCode(fn.id),
+                }))
+                .filter(
+                    (fn, index, self) =>
+                        self.findIndex((c) => c.id === fn.id) === index
+                );
+
+        setPersistence((current) => ({
+            ...current,
+            functions: persistedCallableFunctions,
+        }));
+    }, [
+        callableFunctions,
+        getCallableFunctionCode,
+        getCallableFunctionDisplayName,
+        setPersistence,
+    ]);
+
+    const saveFunctionsWarning = React.useCallback(() => {
+        setPersistence((current) => ({
+            ...current,
+            functionsWarning: showFunctionsWarning,
+        }));
+    }, [setPersistence, showFunctionsWarning]);
+
+    const saveFunctionsImportWarning = React.useCallback(() => {
+        setPersistence((current) => ({
+            ...current,
+            functionsImportWarning: showFunctionsImportWarning,
+        }));
+    }, [setPersistence, showFunctionsImportWarning]);
+
+    const removeContext = React.useCallback<
+        PersistenceContextValue["removeContext"]
+    >(
+        (contextName) => {
             setPersistence((current) =>
                 persistenceSchema.parse({
                     ...current,
@@ -122,8 +181,10 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         [setPersistence]
     );
 
-    const removePrompt = React.useCallback(
-        (promptName: string) => {
+    const removePrompt = React.useCallback<
+        PersistenceContextValue["removePrompt"]
+    >(
+        (promptName) => {
             setPersistence((current) =>
                 persistenceSchema.parse({
                     ...current,
@@ -141,7 +202,6 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
             persistence,
             addPersistedConversationId,
             persistedConversationIds,
-            isLoading,
             hasInit,
             saveContext,
             savePrompt,
@@ -149,51 +209,72 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
             removePrompt,
         }),
         [
-            addPersistedConversationId,
-            hasInit,
-            isLoading,
-            persistedConversationIds,
             persistence,
-            removeContext,
-            removePrompt,
+            addPersistedConversationId,
+            persistedConversationIds,
+            hasInit,
             saveContext,
             savePrompt,
+            removeContext,
+            removePrompt,
         ]
     );
 
-    // Load persisted conversations
+    // Load persisted conversations/functions
+    const isAlreadyLoading = React.useRef(false);
     React.useEffect(() => {
-        if (!isPersistenceLoaded || isLoading || hasInit) return;
-        if (!persistence.conversations.length) return setHasInit(true);
+        if (hasInit || isAlreadyLoading.current) return;
+        isAlreadyLoading.current = true;
 
-        setIsLoading(true);
-        const load = async () => {
-            let i = -1;
-            for (const {
-                name,
-                lastEdited,
-                ...conversationJson
-            } of persistence.conversations) {
+        const loadConversations = async () => {
+            for (let i = 0; i < persistence.conversations.length; i++) {
+                const { name, lastEdited, ...conversationJson } =
+                    persistence.conversations[i];
                 const newConversation = addConversation(
                     await Conversation.fromJSON(conversationJson)
                 );
-                if (++i === 0) setActiveConversation(newConversation.id, true);
+                if (i === 0) setActiveConversation(newConversation.id, true);
                 addPersistedConversationId(newConversation.id);
                 setConversationName(newConversation.id, name);
                 setConversationLastEdit(newConversation.id, lastEdited);
             }
         };
+
+        const loadCallableFunctions = () => {
+            for (const {
+                displayName,
+                code,
+                ...callableFunctionJson
+            } of persistence.functions) {
+                addCallableFunction(callableFunctionJson, displayName, code);
+            }
+
+            if (!persistence.functionsWarning) {
+                dismissFunctionsWarning();
+            }
+
+            if (!persistence.functionsImportWarning) {
+                dismissFunctionsImportWarning();
+            }
+        };
+
+        const load = async () => {
+            await Promise.all([loadConversations(), loadCallableFunctions()]);
+        };
         load().then(() => {
-            setIsLoading(false);
             setHasInit(true);
         });
     }, [
+        addCallableFunction,
         addConversation,
         addPersistedConversationId,
+        dismissFunctionsImportWarning,
+        dismissFunctionsWarning,
         hasInit,
-        isLoading,
-        isPersistenceLoaded,
-        persistence,
+        persistence.conversations,
+        persistence.functions,
+        persistence.functionsImportWarning,
+        persistence.functionsWarning,
         setActiveConversation,
         setConversationLastEdit,
         setConversationName,
@@ -201,7 +282,7 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
 
     // Save conversations on change
     React.useEffect(() => {
-        if (isLoading || !hasInit) return;
+        if (!hasInit) return;
 
         saveConversations();
 
@@ -250,13 +331,25 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         return () => {
             offs.forEach((off) => off());
         };
-    }, [
-        conversations,
-        hasInit,
-        isLoading,
-        persistedConversationIds,
-        saveConversations,
-    ]);
+    }, [conversations, hasInit, persistedConversationIds, saveConversations]);
+
+    // Save callable functions on change
+    React.useEffect(() => {
+        if (!hasInit) return;
+        saveCallableFunctions();
+    }, [hasInit, saveCallableFunctions]);
+
+    // Save show functions warning on change
+    React.useEffect(() => {
+        if (!hasInit) return;
+        saveFunctionsWarning();
+    }, [hasInit, saveFunctionsWarning]);
+
+    // Save show functions import warning on change
+    React.useEffect(() => {
+        if (!hasInit) return;
+        saveFunctionsImportWarning();
+    }, [hasInit, saveFunctionsImportWarning]);
 
     return (
         <PersistenceContextComponent.Provider value={providerValue}>

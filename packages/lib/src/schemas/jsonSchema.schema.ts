@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { javascriptIdentifierSchema } from "./javascriptIdentifier.schema.js";
 
 // The following Zod schemas are all based on the JSON Schema specification and may not be complete:
 // https://json-schema.org/understanding-json-schema/reference/index.html
@@ -25,27 +26,29 @@ export const jsonSchemaStringSchema = jsonSchemaBaseSchema.extend({
     maxLength: z.number().optional(),
     pattern: z.string().optional(),
     enum: z.array(z.string()).optional(),
-    format: z.union([
-        z.literal("date-time"),
-        z.literal("time"),
-        z.literal("date"),
-        z.literal("duration"),
-        z.literal("email"),
-        z.literal("idn-email"),
-        z.literal("hostname"),
-        z.literal("idn-hostname"),
-        z.literal("ipv4"),
-        z.literal("ipv6"),
-        z.literal("uuid"),
-        z.literal("uri"),
-        z.literal("uri-reference"),
-        z.literal("iri"),
-        z.literal("iri-reference"),
-        z.literal("uri-template"),
-        z.literal("json-pointer"),
-        z.literal("relative-json-pointer"),
-        z.literal("regex"),
-    ]),
+    format: z
+        .union([
+            z.literal("date-time"),
+            z.literal("time"),
+            z.literal("date"),
+            z.literal("duration"),
+            z.literal("email"),
+            z.literal("idn-email"),
+            z.literal("hostname"),
+            z.literal("idn-hostname"),
+            z.literal("ipv4"),
+            z.literal("ipv6"),
+            z.literal("uuid"),
+            z.literal("uri"),
+            z.literal("uri-reference"),
+            z.literal("iri"),
+            z.literal("iri-reference"),
+            z.literal("uri-template"),
+            z.literal("json-pointer"),
+            z.literal("relative-json-pointer"),
+            z.literal("regex"),
+        ])
+        .optional(),
 });
 
 export type JsonSchemaString = z.infer<typeof jsonSchemaStringSchema>;
@@ -149,7 +152,12 @@ export type JsonSchema =
 export const jsonSchemaSchema: z.ZodType<JsonSchema> = z.union([
     baseJsonSchemaSchema,
     baseJsonSchemaObjectSchema.extend({
-        properties: z.record(z.lazy(() => jsonSchemaSchema)).optional(),
+        properties: z
+            .record(
+                javascriptIdentifierSchema,
+                z.lazy(() => jsonSchemaSchema)
+            )
+            .optional(),
         patternProperties: z.record(z.lazy(() => jsonSchemaSchema)).optional(),
         additionalProperties: z
             .union([z.boolean(), z.lazy(() => jsonSchemaSchema)])
@@ -167,7 +175,9 @@ export const jsonSchemaSchema: z.ZodType<JsonSchema> = z.union([
 // -------------------- Object --------------------
 
 export const jsonSchemaObjectSchema = baseJsonSchemaObjectSchema.extend({
-    properties: z.record(jsonSchemaSchema).optional(),
+    properties: z
+        .record(javascriptIdentifierSchema, jsonSchemaSchema)
+        .optional(),
     patternProperties: z.record(jsonSchemaSchema).optional(),
     additionalProperties: z.union([z.boolean(), jsonSchemaSchema]).optional(),
 });

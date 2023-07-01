@@ -4,30 +4,26 @@ import {
     Divider,
     Group,
     MediaQuery,
+    Modal,
     Navbar,
     Stack,
     Text,
     createStyles,
-    useMantineColorScheme,
     useMantineTheme,
 } from "@mantine/core";
 import useConversationManager from "../hooks/useConversationManager";
-import {
-    BiCog,
-    BiDollar,
-    BiMoon,
-    BiPlus,
-    BiSun,
-    BiTrash,
-} from "react-icons/bi";
+import { BiCog, BiPlus } from "react-icons/bi";
 import TippedActionIcon from "./TippedActionIcon";
-import { openModal } from "@mantine/modals";
-import SettingsForm from "./SettingsForm";
-import React from "react";
 import Usage from "./Usage";
-import { useMediaQuery } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { BsDiscord, BsGithub } from "react-icons/bs";
 import NavbarConversations from "./NavbarConversations";
+import { AiOutlineFunction } from "react-icons/ai";
+import { Link } from "react-router-dom";
+import SettingsFormModal from "./SettingsFormModal";
+import { FaRegQuestionCircle } from "react-icons/fa";
+import About from "./About";
+import { DISCORD_SERVER_INVITE } from "../config/constants";
 
 const useStyles = createStyles(() => ({
     burger: {
@@ -39,40 +35,17 @@ const useStyles = createStyles(() => ({
 }));
 
 const AppNavbar = () => {
-    const {
-        conversations,
-        activeConversation,
-        setActiveConversation,
-        removeAllConversations,
-        showUsage,
-        setShowUsage,
-    } = useConversationManager();
+    const { activeConversation, setActiveConversation, showUsage } =
+        useConversationManager();
     const { classes } = useStyles();
-    const [isClearingAll, setIsClearingAll] = React.useState(false);
-    const { colorScheme, toggleColorScheme } = useMantineColorScheme();
     const theme = useMantineTheme();
+    const [navbarOpened, { close: closeNavbar, toggle: toggleNavbar }] =
+        useDisclosure();
+    const [settingsOpened, { open: openSettings, close: closeSettings }] =
+        useDisclosure();
+    const [showAbout, { open: openAbout, close: closeAbout }] = useDisclosure();
 
-    const [opened, setOpened] = React.useState(false);
     const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
-
-    const dark = colorScheme === "dark";
-
-    const closeNavbar = React.useCallback(() => {
-        setOpened(false);
-    }, []);
-
-    const onClearAllClick = React.useCallback(() => {
-        if (isClearingAll) {
-            removeAllConversations();
-        }
-        setIsClearingAll((c) => !c);
-
-        if (!isClearingAll) {
-            setTimeout(() => {
-                setIsClearingAll(false);
-            }, 3000);
-        }
-    }, [isClearingAll, removeAllConversations]);
 
     return (
         <>
@@ -84,8 +57,8 @@ const AppNavbar = () => {
             >
                 <Burger
                     className={classes.burger}
-                    opened={opened}
-                    onClick={() => setOpened((c) => !c)}
+                    opened={navbarOpened}
+                    onClick={toggleNavbar}
                     size="sm"
                     mt="xs"
                     mr="sm"
@@ -95,30 +68,16 @@ const AppNavbar = () => {
                 width={{ sm: 300 }}
                 p="xs"
                 hiddenBreakpoint="sm"
-                hidden={isSm && !opened}
+                hidden={isSm && !navbarOpened}
             >
                 <Navbar.Section>
                     <Group position="center">
                         <TippedActionIcon
                             variant="outline"
-                            tip="Settings"
-                            onClick={() =>
-                                openModal({
-                                    children: <SettingsForm />,
-                                    centered: true,
-                                    size: "lg",
-                                    title: "Settings",
-                                })
-                            }
+                            tip="Default Conversation Settings"
+                            onClick={openSettings}
                         >
                             <BiCog />
-                        </TippedActionIcon>
-                        <TippedActionIcon
-                            tip={dark ? "Light mode" : "Dark mode"}
-                            variant="outline"
-                            onClick={() => toggleColorScheme()}
-                        >
-                            {dark ? <BiSun /> : <BiMoon />}
                         </TippedActionIcon>
                         {activeConversation && (
                             <TippedActionIcon
@@ -132,29 +91,14 @@ const AppNavbar = () => {
                                 <BiPlus />
                             </TippedActionIcon>
                         )}
-                        {conversations.length && (
-                            <TippedActionIcon
-                                variant={isClearingAll ? "filled" : "outline"}
-                                color={isClearingAll ? "red" : "gray"}
-                                tip={
-                                    isClearingAll
-                                        ? "Confirm"
-                                        : "Clear all conversations"
-                                }
-                                onClick={onClearAllClick}
-                            >
-                                <BiTrash />
-                            </TippedActionIcon>
-                        )}
-                        {activeConversation && (
-                            <TippedActionIcon
-                                tip={showUsage ? "Hide usage" : "Show usage"}
-                                variant="outline"
-                                onClick={() => setShowUsage((c) => !c)}
-                            >
-                                <BiDollar />
-                            </TippedActionIcon>
-                        )}
+                        <TippedActionIcon
+                            component={Link}
+                            to="/functions"
+                            tip="Functions Library"
+                            variant="outline"
+                        >
+                            <AiOutlineFunction />
+                        </TippedActionIcon>
                     </Group>
                     <Divider my="xs" />
                 </Navbar.Section>
@@ -172,24 +116,28 @@ const AppNavbar = () => {
                     <Stack spacing={0} p={0}>
                         <Group position="center">
                             <TippedActionIcon
+                                component="a"
                                 tip="View source code"
-                                onClick={() =>
-                                    window.open(
-                                        "https://github.com/maxijonson/gpt-turbo/tree/develop/packages/web"
-                                    )
-                                }
+                                href="https://github.com/maxijonson/gpt-turbo/tree/develop/packages/web"
                                 size="xs"
                             >
                                 <BsGithub />
                             </TippedActionIcon>
                             <TippedActionIcon
+                                component="a"
+                                href={DISCORD_SERVER_INVITE}
+                                target="_blank"
                                 tip="Join Discord server"
-                                onClick={() =>
-                                    window.open("https://discord.gg/Aa77KCmwRx")
-                                }
                                 size="xs"
                             >
                                 <BsDiscord />
+                            </TippedActionIcon>
+                            <TippedActionIcon
+                                tip="About this project"
+                                onClick={openAbout}
+                                size="xs"
+                            >
+                                <FaRegQuestionCircle />
                             </TippedActionIcon>
                         </Group>
                         <Text align="center" size="xs">
@@ -201,6 +149,19 @@ const AppNavbar = () => {
                     </Stack>
                 </Navbar.Section>
             </Navbar>
+            <SettingsFormModal
+                opened={settingsOpened}
+                onClose={closeSettings}
+            />
+            <Modal
+                opened={showAbout}
+                onClose={closeAbout}
+                size="lg"
+                centered
+                withCloseButton={false}
+            >
+                <About />
+            </Modal>
         </>
     );
 };

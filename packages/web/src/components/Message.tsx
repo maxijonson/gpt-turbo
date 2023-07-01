@@ -1,6 +1,7 @@
 import {
     Avatar,
     Card,
+    Code,
     Group,
     Modal,
     Stack,
@@ -31,6 +32,7 @@ import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import SavePromptModalBody from "./SavePromptModalBody";
 import { CODE_LANGUAGES } from "../config/constants";
 import { CodeLanguage } from "../utils/types";
+import getErrorInfo from "../utils/getErrorInfo";
 
 interface MessageProps {
     message: Message;
@@ -77,9 +79,10 @@ const MessageComponent = ({ message }: MessageProps) => {
                 await conversation?.reprompt(message, newPrompt);
             } catch (e) {
                 console.error(e);
+                const { title, message } = getErrorInfo(e);
                 notifications.show({
-                    title: "Prompt error",
-                    message: (e as any).message ?? "Unknown error",
+                    title: `Prompt error - ${title}`,
+                    message,
                     color: "red",
                 });
             }
@@ -107,13 +110,17 @@ const MessageComponent = ({ message }: MessageProps) => {
     })();
 
     const color = (() => {
+        if (message.isFunctionCall()) {
+            return "orange";
+        }
+
         switch (message.role) {
             case "assistant":
                 return "teal";
             case "user":
                 return "blue";
             case "function":
-                return "cyan";
+                return "grape";
             case "system":
             default:
                 return "gray";
@@ -125,7 +132,7 @@ const MessageComponent = ({ message }: MessageProps) => {
             return message.content;
         }
         if (message.isFunction()) {
-            return `${message.name}() => ${message.content}`;
+            return `${message.name} => ${message.content}`;
         }
         if (message.isFunctionCall()) {
             const { name, arguments: args } = message.functionCall;
@@ -184,10 +191,14 @@ const MessageComponent = ({ message }: MessageProps) => {
                 continue;
             }
 
+            const Component = message.isFunctionCall() ? Code : Text;
             output.push(
-                <Text key={i} color={message.isFlagged ? "orange" : undefined}>
+                <Component
+                    key={i}
+                    color={message.isFlagged ? "orange" : undefined}
+                >
                     {line}
-                </Text>
+                </Component>
             );
         }
 

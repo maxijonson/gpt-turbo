@@ -41,7 +41,6 @@ export class ConversationConfig {
     public temperature: ConversationConfigChatCompletionOptions["temperature"];
     public topP: ConversationConfigChatCompletionOptions["top_p"];
     public user: ConversationConfigChatCompletionOptions["user"];
-    public functions: ConversationConfigChatCompletionOptions["functions"];
     public functionCall: ConversationConfigChatCompletionOptions["function_call"];
     private _stop: ConversationConfigChatCompletionOptions["stop"];
     private _apiKey!: ConversationConfigChatCompletionRequiredOption<"apiKey">;
@@ -68,7 +67,6 @@ export class ConversationConfig {
             temperature,
             top_p,
             user,
-            functions,
             function_call,
         } = chatCompletionConfig;
 
@@ -87,7 +85,6 @@ export class ConversationConfig {
         this.temperature = temperature;
         this.topP = top_p;
         this.user = user;
-        this.functions = functions;
         this.functionCall = function_call;
     }
 
@@ -122,7 +119,6 @@ export class ConversationConfig {
             top_p: this.topP,
             user: this.user,
             stop: this.stop,
-            functions: this.functions,
             function_call: this.functionCall,
         };
         return conversationConfigSchema.parse(json);
@@ -155,7 +151,6 @@ export class ConversationConfig {
             temperature: this.temperature,
             top_p: this.topP,
             user: this.user,
-            functions: this.functions,
             function_call: this.functionCall,
         };
     }
