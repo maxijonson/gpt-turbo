@@ -1,4 +1,5 @@
 import { zodResolver } from "@mantine/form";
+import { v4 as uuid } from "uuid";
 import {
     CallableFunctionFormContext,
     CallableFunctionFormValues,
@@ -6,7 +7,6 @@ import {
 import { persistenceCallableFunctionSchema } from "../../entities/persistenceCallableFunction";
 import React from "react";
 import useCallableFunctions from "../../hooks/useCallableFunctions";
-import { randomId } from "@mantine/hooks";
 
 export interface CallableFunctionFormProviderProps {
     children: React.ReactNode;
@@ -26,7 +26,7 @@ const CallableFunctionFormProvider = ({
     } = useCallableFunctions();
     const form = CallableFunctionFormContext.useForm({
         initialValues: {
-            id: randomId(),
+            id: uuid(),
             displayName: "",
             name: "",
         },
