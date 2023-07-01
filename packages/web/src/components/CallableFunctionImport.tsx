@@ -11,7 +11,7 @@ import {
     Stack,
     Text,
 } from "@mantine/core";
-import { randomId } from "@mantine/hooks";
+import { v4 as uuid } from "uuid";
 import { BiX } from "react-icons/bi";
 import TippedActionIcon from "./TippedActionIcon";
 import getFunctionSignature from "../utils/getFunctionSignature";
@@ -38,9 +38,7 @@ const CallableFunctionImport = ({ onImport }: CallableFunctionImportProps) => {
         return (
             <CallableFunctionImportDropzone
                 onDrop={(fns) => {
-                    setImportedFns(
-                        fns.map((fn) => ({ ...fn, id: randomId() }))
-                    );
+                    setImportedFns(fns.map((fn) => ({ ...fn, id: uuid() })));
                 }}
             />
         );
