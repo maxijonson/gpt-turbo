@@ -29,10 +29,12 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
     const {
         callableFunctions,
         showFunctionsWarning,
+        showFunctionsImportWarning,
         addCallableFunction,
         getCallableFunctionDisplayName,
         getCallableFunctionCode,
         dismissFunctionsWarning,
+        dismissFunctionsImportWarning,
     } = useCallableFunctions();
 
     const { value: persistence, setValue: setPersistence } =
@@ -43,6 +45,7 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
                 contexts: [],
                 prompts: [],
                 functionsWarning: true,
+                functionsImportWarning: true,
                 functions: [],
             },
             persistenceSchema
@@ -148,12 +151,19 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         setPersistence,
     ]);
 
-    const saveFunctionWarning = React.useCallback(() => {
+    const saveFunctionsWarning = React.useCallback(() => {
         setPersistence((current) => ({
             ...current,
             functionsWarning: showFunctionsWarning,
         }));
     }, [setPersistence, showFunctionsWarning]);
+
+    const saveFunctionsImportWarning = React.useCallback(() => {
+        setPersistence((current) => ({
+            ...current,
+            functionsImportWarning: showFunctionsImportWarning,
+        }));
+    }, [setPersistence, showFunctionsImportWarning]);
 
     const removeContext = React.useCallback<
         PersistenceContextValue["removeContext"]
@@ -242,6 +252,10 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
             if (!persistence.functionsWarning) {
                 dismissFunctionsWarning();
             }
+
+            if (!persistence.functionsImportWarning) {
+                dismissFunctionsImportWarning();
+            }
         };
 
         const load = async () => {
@@ -254,10 +268,12 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         addCallableFunction,
         addConversation,
         addPersistedConversationId,
+        dismissFunctionsImportWarning,
         dismissFunctionsWarning,
         hasInit,
         persistence.conversations,
         persistence.functions,
+        persistence.functionsImportWarning,
         persistence.functionsWarning,
         setActiveConversation,
         setConversationLastEdit,
@@ -326,8 +342,14 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
     // Save show functions warning on change
     React.useEffect(() => {
         if (!hasInit) return;
-        saveFunctionWarning();
-    }, [hasInit, saveFunctionWarning]);
+        saveFunctionsWarning();
+    }, [hasInit, saveFunctionsWarning]);
+
+    // Save show functions import warning on change
+    React.useEffect(() => {
+        if (!hasInit) return;
+        saveFunctionsImportWarning();
+    }, [hasInit, saveFunctionsImportWarning]);
 
     return (
         <PersistenceContextComponent.Provider value={providerValue}>

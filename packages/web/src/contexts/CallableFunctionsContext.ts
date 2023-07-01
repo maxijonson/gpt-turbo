@@ -5,6 +5,7 @@ import makeNotImplemented from "../utils/makeNotImplemented";
 export interface CallableFunctionsContextValue {
     callableFunctions: CallableFunction[];
     showFunctionsWarning: boolean;
+    showFunctionsImportWarning: boolean;
 
     addCallableFunction: (
         callableFunctionConfig: CallableFunction | CallableFunctionModel,
@@ -15,6 +16,7 @@ export interface CallableFunctionsContextValue {
     getCallableFunctionDisplayName: (id: string) => string;
     getCallableFunctionCode: (id: string) => string | undefined;
     dismissFunctionsWarning: () => void;
+    dismissFunctionsImportWarning: () => void;
     callFunction: (
         id: string,
         args: Record<string, unknown>
@@ -27,12 +29,14 @@ export const CallableFunctionsContext =
     React.createContext<CallableFunctionsContextValue>({
         callableFunctions: [],
         showFunctionsWarning: true,
+        showFunctionsImportWarning: true,
 
         addCallableFunction: notImplemented,
         getCallableFunction: notImplemented,
         getCallableFunctionDisplayName: notImplemented,
         getCallableFunctionCode: notImplemented,
         dismissFunctionsWarning: notImplemented,
+        dismissFunctionsImportWarning: notImplemented,
         callFunction: notImplemented,
         deleteCallableFunction: notImplemented,
     });

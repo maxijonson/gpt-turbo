@@ -7,6 +7,7 @@ import CallableFunctionParameterForm, {
 import useCallableFunctionForm from "../hooks/useCallableFunctionForm";
 import React from "react";
 import { JsonSchemaObject } from "gpt-turbo";
+import getFunctionParameters from "../utils/getFunctionParameters";
 
 const CallableFunctionFormParameters = () => {
     const form = useCallableFunctionForm();
@@ -18,25 +19,10 @@ const CallableFunctionFormParameters = () => {
         string | null
     >(null);
 
-    const parameters = React.useMemo(() => {
-        const currentParameters = form.values.parameters ?? {
-            type: "object",
-            properties: {},
-            required: [],
-        };
-        return Object.entries(currentParameters.properties ?? {}).map(
-            ([name, jsonSchema]: [string, any]) => ({
-                name,
-                type: (() => {
-                    if (jsonSchema.type) return jsonSchema.type as string;
-                    if (jsonSchema.enum) return "enum";
-                    if (jsonSchema.const) return "const";
-                    return "unknown";
-                })(),
-                required: (currentParameters.required ?? []).includes(name),
-            })
-        );
-    }, [form.values.parameters]);
+    const parameters = React.useMemo(
+        () => getFunctionParameters(form.values.parameters),
+        [form.values.parameters]
+    );
 
     const editParameter = React.useMemo(() => {
         if (!editParameterName) return null;

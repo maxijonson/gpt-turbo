@@ -5,7 +5,7 @@ import {
 } from "../CallableFunctionsContext";
 import { CallableFunction } from "gpt-turbo";
 import { notifications } from "@mantine/notifications";
-import { randomId } from "@mantine/hooks";
+import { randomId, useDisclosure } from "@mantine/hooks";
 import { BiCheck, BiX } from "react-icons/bi";
 import getErrorInfo from "../../utils/getErrorInfo";
 
@@ -22,8 +22,12 @@ const CallableFunctionsProvider = ({
     const [functionCodes, setFunctionCodes] = React.useState<{
         [id: string]: string;
     }>({});
-    const [showFunctionsWarning, setshowFunctionsWarning] =
-        React.useState(true);
+    const [showFunctionsWarning, { close: dismissFunctionsWarning }] =
+        useDisclosure(true);
+    const [
+        showFunctionsImportWarning,
+        { close: dismissFunctionsImportWarning },
+    ] = useDisclosure(true);
     const [callableFunctions, setCallableFunctions] = React.useState<
         CallableFunctionsContextValue["callableFunctions"]
     >([]);
@@ -93,10 +97,6 @@ const CallableFunctionsProvider = ({
         },
         [functionCodes]
     );
-
-    const dismissFunctionsWarning = React.useCallback(() => {
-        setshowFunctionsWarning(false);
-    }, []);
 
     const callFunction = React.useCallback<
         CallableFunctionsContextValue["callFunction"]
@@ -197,22 +197,26 @@ const CallableFunctionsProvider = ({
         () => ({
             callableFunctions,
             showFunctionsWarning,
+            showFunctionsImportWarning,
             addCallableFunction,
             getCallableFunction,
             getCallableFunctionDisplayName,
             getCallableFunctionCode,
             dismissFunctionsWarning,
+            dismissFunctionsImportWarning,
             callFunction,
             deleteCallableFunction,
         }),
         [
             callableFunctions,
             showFunctionsWarning,
+            showFunctionsImportWarning,
             addCallableFunction,
             getCallableFunction,
             getCallableFunctionCode,
             getCallableFunctionDisplayName,
             dismissFunctionsWarning,
+            dismissFunctionsImportWarning,
             callFunction,
             deleteCallableFunction,
         ]

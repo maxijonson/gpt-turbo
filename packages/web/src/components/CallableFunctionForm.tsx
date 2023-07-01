@@ -1,15 +1,26 @@
-import { Button, Group, Stack, Text, TextInput } from "@mantine/core";
+import {
+    Button,
+    Center,
+    Group,
+    Loader,
+    Stack,
+    Text,
+    TextInput,
+} from "@mantine/core";
 import CallableFunctionFormProvider, {
     CallableFunctionFormProviderProps,
 } from "../contexts/providers/CallableFunctionFormProvider";
 import useCallableFunctionForm from "../hooks/useCallableFunctionForm";
 import { Link, useNavigate } from "react-router-dom";
-import CallableFunctionFormCode from "./CallableFunctionFormCode";
 import CallableFunctionFormParameters from "./CallableFunctionFormParameters";
 import OptionalTextInput from "./OptionalTextInput";
 import { modals } from "@mantine/modals";
-import React from "react";
+import React, { Suspense } from "react";
 import useCallableFunctions from "../hooks/useCallableFunctions";
+
+const CallableFunctionFormCode = React.lazy(
+    () => import("./CallableFunctionFormCode")
+);
 
 interface CallableFunctionFormProps {
     onSubmit: CallableFunctionFormProviderProps["onSubmit"];
@@ -75,7 +86,15 @@ const CallableFunctionFormProvided = ({
                 description="While optionnal, a description is strongly recommended to help the assistant know what this function does"
             />
             <CallableFunctionFormParameters />
-            <CallableFunctionFormCode />
+            <Suspense
+                fallback={
+                    <Center>
+                        <Loader />
+                    </Center>
+                }
+            >
+                <CallableFunctionFormCode />
+            </Suspense>
             <Group position="right">
                 {!isNew && (
                     <Button

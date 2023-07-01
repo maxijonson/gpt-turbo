@@ -59,6 +59,7 @@
         "@mantine/notifications": "^6.0.14",
         "@mantine/prism": "^6.0.14",
         "@mantine/tiptap": "^6.0.14",
+        "@mantine/dropzone": "6.0.14",
         "@tabler/icons-react": "^2.22.0",
         "@tiptap/extension-code-block-lowlight": "^2.0.3",
         "@tiptap/extension-link": "^2.0.3",

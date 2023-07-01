@@ -15,6 +15,7 @@ export const persistenceSchema = z.object({
         return names.length === new Set(names).size;
     }, "Prompt names must be unique"),
     functionsWarning: z.boolean().default(true),
+    functionsImportWarning: z.boolean().default(true),
     functions: z
         .array(persistenceCallableFunctionSchema)
         .refine(

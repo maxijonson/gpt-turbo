@@ -4,43 +4,11 @@ import CodeEditor from "./CodeEditor";
 import TippedActionIcon from "./TippedActionIcon";
 import { useDisclosure } from "@mantine/hooks";
 import useCallableFunctionForm from "../hooks/useCallableFunctionForm";
-import React from "react";
 import { BsFillExclamationTriangleFill } from "react-icons/bs";
 
 const CallableFunctionFormCode = () => {
     const form = useCallableFunctionForm();
     const [showHelp, { toggle: toggleHelp }] = useDisclosure();
-
-    const parameters = React.useMemo(() => {
-        const currentParameters = form.values.parameters ?? {
-            type: "object",
-            properties: {},
-            required: [],
-        };
-        const parameters = Object.entries(
-            currentParameters.properties ?? {}
-        ).map(([name, jsonSchema]: [string, any]) => {
-            const type = (() => {
-                if (jsonSchema.type) return jsonSchema.type as string;
-                if (jsonSchema.enum) return "enum";
-                if (jsonSchema.const) return "const";
-                return "unknown";
-            })();
-            const required = (currentParameters.required ?? []).includes(name);
-            return { name, required, type };
-        });
-
-        return parameters
-            .sort((a, b) => {
-                if (a.required && !b.required) return -1;
-                if (!a.required && b.required) return 1;
-                return 0;
-            })
-            .map(
-                ({ name, type, required }) =>
-                    `${name}${required ? "" : "?"}: ${type}`
-            );
-    }, [form.values.parameters]);
 
     return (
         <Box>
@@ -91,7 +59,7 @@ const CallableFunctionFormCode = () => {
                 value={form.values.code}
                 onChange={(value) => form.setFieldValue("code", value)}
                 name={form.values.name}
-                parameters={parameters}
+                parameters={form.values.parameters}
             />
         </Box>
     );
