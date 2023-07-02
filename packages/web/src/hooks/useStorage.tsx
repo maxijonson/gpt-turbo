@@ -78,57 +78,55 @@ const useStorage = <T,>(
                     return value;
                 })()
             ),
-        deserialize: (v) =>
-            (() => {
-                const value = JSON.parse(v);
-                if (!schema) return value;
+        deserialize: (v) => {
+            const value = JSON.parse(v);
+            if (!schema) return value;
 
-                const result = schema.safeParse(value);
-                if (result.success) {
-                    return result.data;
-                }
-                if (warns.has(key)) return value;
+            const result = schema.safeParse(value);
+            if (result.success) {
+                return result.data;
+            }
+            if (warns.has(key)) return value;
 
-                const repaired = repairValueFromZodError(
-                    value,
-                    defaultValue,
-                    result.error
-                );
+            const repaired = repairValueFromZodError(
+                value,
+                defaultValue,
+                result.error
+            );
 
-                try {
-                    return schema.parse(repaired);
-                } catch {
-                    warns.add(key);
-                    console.error(result.error.format());
-                    notifications.show({
-                        title: `Invalid ${key} Local Storage value`,
-                        message: (
-                            <Stack spacing="xs">
-                                <Text size="xs">
-                                    The value for {key} in the browser's local
-                                    storage is invalid or outdated. The app may
-                                    not function properly. It is recommended to
-                                    clear the value. See the console for more
-                                    details.
-                                </Text>
-                                <Button
-                                    variant="subtle"
-                                    color="red"
-                                    onClick={() => {
-                                        removeValue();
-                                        window.location.reload();
-                                    }}
-                                >
-                                    Delete storage and reload
-                                </Button>
-                            </Stack>
-                        ),
-                        color: "orange",
-                        autoClose: false,
-                    });
-                }
-                return value;
-            })(),
+            try {
+                return schema.parse(repaired);
+            } catch {
+                warns.add(key);
+                console.error(result.error.format());
+                notifications.show({
+                    title: `Invalid ${key} Local Storage value`,
+                    message: (
+                        <Stack spacing="xs">
+                            <Text size="xs">
+                                The value for {key} in the browser's local
+                                storage is invalid or outdated. The app may not
+                                function properly. It is recommended to clear
+                                the value. See the console for more details.
+                            </Text>
+                            <Button
+                                variant="subtle"
+                                color="red"
+                                onClick={() => {
+                                    removeValue();
+                                    window.location.reload();
+                                }}
+                            >
+                                Delete storage and reload
+                            </Button>
+                        </Stack>
+                    ),
+                    color: "orange",
+                    autoClose: false,
+                });
+            }
+            return value;
+        },
     });
 
     return {
