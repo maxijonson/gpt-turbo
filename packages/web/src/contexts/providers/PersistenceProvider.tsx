@@ -259,11 +259,17 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         };
 
         const load = async () => {
-            await Promise.all([loadConversations(), loadCallableFunctions()]);
-        };
-        load().then(() => {
+            try {
+                await Promise.all([
+                    loadConversations(),
+                    loadCallableFunctions(),
+                ]);
+            } catch (e) {
+                console.error(e);
+            }
             setHasInit(true);
-        });
+        };
+        load();
     }, [
         addCallableFunction,
         addConversation,
