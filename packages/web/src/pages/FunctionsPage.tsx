@@ -8,7 +8,7 @@ import {
     Transition,
     useMantineTheme,
 } from "@mantine/core";
-import { BiArrowBack, BiPlus, BiSearch } from "react-icons/bi";
+import { BiArrowBack, BiSearch } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import FunctionsWarning from "../components/FunctionsWarning";
 import { useInputState, useMediaQuery } from "@mantine/hooks";
@@ -16,6 +16,7 @@ import React from "react";
 import useCallableFunctions from "../hooks/useCallableFunctions";
 import CallableFunctionCard from "../components/CallableFunctionCard";
 import CallableFunctionImportButton from "../components/CallableFunctionImportButton";
+import CallableFunctionCreateButton from "../components/CallableFunctionCreateButton";
 
 const FunctionsPage = () => {
     const { callableFunctions, getCallableFunctionDisplayName } =
@@ -66,7 +67,7 @@ const FunctionsPage = () => {
             <FunctionsWarning>
                 <Group position="apart" mb="md">
                     <Title>Functions Library</Title>
-                    <Group>
+                    <Group w="100%" position="apart">
                         <Autocomplete
                             value={search}
                             onChange={setSearch}
@@ -77,14 +78,7 @@ const FunctionsPage = () => {
                         />
                         <Group noWrap grow={isSm} w={isSm ? "100%" : undefined}>
                             <CallableFunctionImportButton />
-                            <Button
-                                component={Link}
-                                to="/functions/create"
-                                leftIcon={<BiPlus />}
-                                variant="gradient"
-                            >
-                                Create
-                            </Button>
+                            <CallableFunctionCreateButton />
                         </Group>
                     </Group>
                 </Group>
