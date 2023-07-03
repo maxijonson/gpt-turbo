@@ -46,6 +46,8 @@ const CodeEditor = ({
     name,
     parameters,
 }: CodeEditorProps) => {
+    // Use this line during development of function templates to see what the code property of the template should contain
+    // console.log(JSON.stringify(value));
     const hasInit = React.useRef(false);
     const editor = useEditor(
         {

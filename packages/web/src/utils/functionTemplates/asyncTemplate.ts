@@ -1,6 +1,5 @@
 import { CallableFunction, CallableFunctionNumber } from "gpt-turbo";
 import type { FunctionTemplate } from ".";
-import getFunctionBody from "../getFunctionBody";
 
 const asyncTemplate = new CallableFunction(
     "wait",
@@ -18,10 +17,5 @@ export default {
     ...asyncTemplate.toJSON(),
     template: "async",
     displayName: "Async",
-    code: getFunctionBody((ms: number) => {
-        return (async () => {
-            await new Promise((res) => setTimeout(res, ms));
-            return ms;
-        })();
-    }),
+    code: "return (async () => {\n    await new Promise((res) => setTimeout(res, ms))\n    return ms;\n})();",
 } satisfies FunctionTemplate;

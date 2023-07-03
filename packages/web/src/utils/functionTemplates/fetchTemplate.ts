@@ -4,7 +4,6 @@ import {
     CallableFunctionNumber,
 } from "gpt-turbo";
 import type { FunctionTemplate } from ".";
-import getFunctionBody from "../getFunctionBody";
 
 const fetchTemplate = new CallableFunction(
     "fetch",
@@ -33,16 +32,5 @@ export default {
     ...fetchTemplate.toJSON(),
     template: "fetch",
     displayName: "Fetch",
-    code: getFunctionBody((entityType: string, id?: number) => {
-        return (async () => {
-            const baseUrl = "https://jsonplaceholder.typicode.com";
-            const url = id
-                ? `${baseUrl}/${entityType}/${id}`
-                : `${baseUrl}/${entityType}`;
-
-            const response = await fetch(url);
-            const json = await response.json();
-            return id ? json : json.slice(0, 5);
-        })();
-    }),
+    code: 'return (async ()=>{\n    const baseUrl = "https://jsonplaceholder.typicode.com";\n    const url = id ? `${baseUrl}/${entityType}/${id}` : `${baseUrl}/${entityType}`;\n    const response = await fetch(url);\n    const json = await response.json();\n    return id ? json : json.slice(0, 5);\n})();',
 } satisfies FunctionTemplate;
