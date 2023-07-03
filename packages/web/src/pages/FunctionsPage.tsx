@@ -6,20 +6,24 @@ import {
     SimpleGrid,
     Title,
     Transition,
+    useMantineTheme,
 } from "@mantine/core";
-import { BiArrowBack, BiPlus, BiSearch } from "react-icons/bi";
+import { BiArrowBack, BiSearch } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import FunctionsWarning from "../components/FunctionsWarning";
-import { useInputState } from "@mantine/hooks";
+import { useInputState, useMediaQuery } from "@mantine/hooks";
 import React from "react";
 import useCallableFunctions from "../hooks/useCallableFunctions";
 import CallableFunctionCard from "../components/CallableFunctionCard";
 import CallableFunctionImportButton from "../components/CallableFunctionImportButton";
+import CallableFunctionCreateButton from "../components/CallableFunctionCreateButton";
 
 const FunctionsPage = () => {
     const { callableFunctions, getCallableFunctionDisplayName } =
         useCallableFunctions();
     const [search, setSearch] = useInputState("");
+    const theme = useMantineTheme();
+    const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
 
     const detailedFunctions = React.useMemo(
         () =>
@@ -63,24 +67,18 @@ const FunctionsPage = () => {
             <FunctionsWarning>
                 <Group position="apart" mb="md">
                     <Title>Functions Library</Title>
-                    <Group>
+                    <Group w="100%" position="apart">
                         <Autocomplete
                             value={search}
                             onChange={setSearch}
                             placeholder="Search"
                             icon={<BiSearch />}
                             data={filteredDisplayNames}
+                            w={isSm ? "100%" : undefined}
                         />
-                        <Group noWrap>
+                        <Group noWrap grow={isSm} w={isSm ? "100%" : undefined}>
                             <CallableFunctionImportButton />
-                            <Button
-                                component={Link}
-                                to="/functions/create"
-                                leftIcon={<BiPlus />}
-                                variant="gradient"
-                            >
-                                Create
-                            </Button>
+                            <CallableFunctionCreateButton />
                         </Group>
                     </Group>
                 </Group>

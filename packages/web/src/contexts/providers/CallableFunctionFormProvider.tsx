@@ -7,6 +7,8 @@ import {
 import { persistenceCallableFunctionSchema } from "../../entities/persistenceCallableFunction";
 import React from "react";
 import useCallableFunctions from "../../hooks/useCallableFunctions";
+import { useSearchParams } from "react-router-dom";
+import functionTemplates from "../../utils/functionTemplates";
 
 export interface CallableFunctionFormProviderProps {
     children: React.ReactNode;
@@ -33,6 +35,7 @@ const CallableFunctionFormProvider = ({
         validate: zodResolver(persistenceCallableFunctionSchema),
         transformValues: persistenceCallableFunctionSchema.parse,
     });
+    const [query] = useSearchParams();
 
     const handleSubmit = form.onSubmit(async (values) => {
         const existingName = callableFunctions.find(
@@ -75,6 +78,18 @@ const CallableFunctionFormProvider = ({
         getCallableFunctionDisplayName,
         id,
     ]);
+
+    React.useEffect(() => {
+        if (form.isDirty() || !query.has("template")) return;
+        const templateName = query.get("template");
+        const template = functionTemplates.find(
+            (t) => t.template === templateName
+        );
+        if (!template) return;
+        const { template: _, ...formValues } = template;
+
+        form.setValues(formValues);
+    }, [form, query]);
 
     return (
         <CallableFunctionFormContext.Provider form={form}>
