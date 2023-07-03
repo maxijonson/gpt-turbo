@@ -1,6 +1,6 @@
-import { Group, Title, Modal, Badge, Stack, Center } from "@mantine/core";
+import { Group, Title, Modal, Badge, Stack, Center, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { BiPlus } from "react-icons/bi";
+import { BiPlus, BiX } from "react-icons/bi";
 import CallableFunctionParameterForm, {
     CallableFunctionParameterFormProps,
 } from "./CallableFunctionParameterForm";
@@ -8,6 +8,8 @@ import useCallableFunctionForm from "../hooks/useCallableFunctionForm";
 import React from "react";
 import { JsonSchemaObject } from "gpt-turbo";
 import getFunctionParameters from "../utils/getFunctionParameters";
+import TippedActionIcon from "./TippedActionIcon";
+import { modals } from "@mantine/modals";
 
 const CallableFunctionFormParameters = () => {
     const form = useCallableFunctionForm();
@@ -91,6 +93,48 @@ const CallableFunctionFormParameters = () => {
         [editParameterName, form, handleCloseModal]
     );
 
+    const removeParameter = React.useCallback(
+        (name: string) => {
+            modals.openConfirmModal({
+                title: `Remove ${name}?`,
+                centered: true,
+                children: (
+                    <Text size="sm">
+                        Are you sure you want to remove {name} from the
+                        parameters? This cannot be undone.
+                    </Text>
+                ),
+                labels: { confirm: "Remove parameter", cancel: "Cancel" },
+                confirmProps: { color: "red" },
+                onConfirm: () => {
+                    const currentParameters = form.values.parameters ?? {
+                        type: "object",
+                        properties: {},
+                    };
+                    const next = {
+                        ...currentParameters,
+                        type: "object",
+                        properties: {
+                            ...currentParameters.properties,
+                        },
+                    } satisfies JsonSchemaObject;
+
+                    delete next.properties[name];
+                    next.required = (next.required ?? []).filter(
+                        (n) => n !== name
+                    );
+
+                    if (next.required.length === 0) {
+                        delete next.required;
+                    }
+
+                    form.setFieldValue("parameters", next);
+                },
+            });
+        },
+        [form]
+    );
+
     return (
         <>
             <Stack>
@@ -102,6 +146,22 @@ const CallableFunctionFormParameters = () => {
                             variant="filled"
                             sx={{ textTransform: "unset", cursor: "pointer" }}
                             onClick={() => setEditParameterName(parameter.name)}
+                            pr={2}
+                            rightSection={
+                                <TippedActionIcon
+                                    tip="remove"
+                                    size="xs"
+                                    color="gray.0"
+                                    radius="xl"
+                                    variant="transparent"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        removeParameter(parameter.name);
+                                    }}
+                                >
+                                    <BiX />
+                                </TippedActionIcon>
+                            }
                         >
                             {parameter.name}
                             {parameter.required ? "" : "?"}: {parameter.type}
