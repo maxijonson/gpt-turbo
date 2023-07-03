@@ -80,7 +80,7 @@ const CallableFunctionFormProvider = ({
     ]);
 
     React.useEffect(() => {
-        if (!query.has("template") || form.isDirty()) return;
+        if (form.isDirty() || !query.has("template")) return;
         const templateName = query.get("template");
         const template = functionTemplates.find(
             (t) => t.template === templateName
