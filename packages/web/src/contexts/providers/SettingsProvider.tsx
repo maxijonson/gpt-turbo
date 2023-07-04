@@ -2,6 +2,7 @@ import React from "react";
 import { SettingsContext, SettingsContextValue } from "../SettingsContext";
 import useStorage from "../../hooks/useStorage";
 import { Settings, settingsSchema } from "../../entities/settings";
+import { STORAGEKEY_SETTINGS } from "../../config/constants";
 
 interface SettingsProviderProps {
     children?: React.ReactNode;
@@ -9,8 +10,10 @@ interface SettingsProviderProps {
 
 const SettingsProvider = ({ children }: SettingsProviderProps) => {
     const { value: settings, setValue: setSettings } = useStorage<Settings>(
-        "gpt-turbo-settings",
-        settingsSchema.parse({}),
+        STORAGEKEY_SETTINGS,
+        settingsSchema.parse({
+            version: "0.0.0",
+        }),
         settingsSchema
     );
 

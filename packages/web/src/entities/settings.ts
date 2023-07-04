@@ -10,6 +10,8 @@ import {
 import { z } from "zod";
 
 export const settingsSchema = z.object({
+    version: z.string().min(1),
+
     save: z.boolean().default(false),
 
     apiKey: conversationConfigSchema.shape.apiKey.default(""),

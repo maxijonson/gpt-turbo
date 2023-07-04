@@ -2,6 +2,12 @@ import { Button, Stack, Text } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { ZodError, ZodType } from "zod";
+import {
+    STORAGEKEY_PERSISTENCE,
+    STORAGEKEY_SETTINGS,
+} from "../config/constants";
+import { migratePersistence } from "../entities/migrations/persistence";
+import { migrateSettings } from "../entities/migrations/settings";
 
 const warns = new Set<string>();
 
@@ -79,7 +85,16 @@ const useStorage = <T,>(
                 })()
             ),
         deserialize: (v) => {
-            const value = JSON.parse(v);
+            const value = (() => {
+                const value = JSON.parse(v);
+                switch (key) {
+                    case STORAGEKEY_PERSISTENCE:
+                        return migratePersistence(value);
+                    case STORAGEKEY_SETTINGS:
+                        return migrateSettings(value);
+                }
+                return value;
+            })();
             if (!schema) return value;
 
             const result = schema.safeParse(value);
