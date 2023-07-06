@@ -5,4 +5,12 @@ const migrations: ((value: Record<string, any>) => Record<string, any>)[] = [
 ];
 
 export const migrateSettings = (value: Record<string, any>) =>
-    migrations.reduce((acc, migration) => migration(acc), value);
+    migrations.reduce((acc, migration, i) => {
+        const version = i + 1;
+
+        if ((acc.version ?? 0) >= version) return acc;
+        return {
+            ...migration(acc),
+            version,
+        };
+    }, value);

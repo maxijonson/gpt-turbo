@@ -17,6 +17,7 @@ export interface SettingsContextValue {
 const notImplemented = makeNotImplemented("SettingsContext");
 export const SettingsContext = React.createContext<SettingsContextValue>({
     settings: {
+        version: 0,
         save: false,
 
         apiKey: "",

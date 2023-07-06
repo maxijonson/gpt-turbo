@@ -10,7 +10,7 @@ import {
 import { z } from "zod";
 
 export const settingsSchema = z.object({
-    version: z.string().min(1),
+    version: z.number(),
 
     save: z.boolean().default(false),
 

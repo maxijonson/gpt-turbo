@@ -27,7 +27,7 @@ const SettingsProvider = ({ children }: SettingsProviderProps) => {
             model: DEFAULT_MODEL,
             save: false,
             stream: DEFAULT_STREAM,
-            version: "",
+            version: 0,
         },
         settingsSchema
     );

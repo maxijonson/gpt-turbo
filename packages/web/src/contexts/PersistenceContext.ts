@@ -18,6 +18,7 @@ export interface PersistenceContextValue {
 const notImplemented = makeNotImplemented("PersistenceContext");
 export const PersistenceContext = React.createContext<PersistenceContextValue>({
     persistence: {
+        version: 0,
         conversations: [],
         contexts: [],
         prompts: [],
