@@ -8,7 +8,6 @@ import {
     DEFAULT_DISABLEMODERATION,
     DEFAULT_DRY,
     DEFAULT_MODEL,
-    DEFAULT_STREAM,
 } from "gpt-turbo";
 import { settingsVersion } from "../../entities/migrations/settings";
 
@@ -27,7 +26,7 @@ const SettingsProvider = ({ children }: SettingsProviderProps) => {
             functionIds: [],
             model: DEFAULT_MODEL,
             save: false,
-            stream: DEFAULT_STREAM,
+            stream: true,
             version: settingsVersion,
         },
         settingsSchema
