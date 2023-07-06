@@ -655,7 +655,7 @@ export class Conversation {
 
         const unsubscribeStreaming = message.onMessageStreamingStop((m) => {
             // FIXME: Find out how the size is calculated for messages with function calls, fix in Message class and remove this condition
-            if (message.isFunctionCall()) {
+            if (!message.isFunctionCall()) {
                 this.cumulativeSize += this.getSize() + m.size;
                 this.cumulativeCost += this.getCost() + m.cost;
             }
@@ -736,7 +736,7 @@ export class Conversation {
         }
 
         // FIXME: Find out how the size is calculated for messages with function calls, fix in Message class and remove this condition
-        if (message.isFunctionCall()) {
+        if (!message.isFunctionCall()) {
             this.cumulativeSize += this.getSize() + message.size;
             this.cumulativeCost += this.getCost() + message.cost;
         }
