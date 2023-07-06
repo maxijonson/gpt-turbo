@@ -87,11 +87,7 @@ const useStorage = <T,>(
         defaultValue,
         getInitialValueInEffect: false,
         serialize: (value) => {
-            const migrated = getMigratedValue(
-                key,
-                value ? value : defaultValue
-            );
-            return JSON.stringify(schema?.parse(migrated) ?? migrated);
+            return JSON.stringify(schema?.parse(value) ?? value);
         },
         deserialize: (v) => {
             const value = getMigratedValue(key, JSON.parse(v));

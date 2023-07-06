@@ -4,6 +4,8 @@ const migrations: ((value: Record<string, any>) => Record<string, any>)[] = [
     migrateSettingsInitial,
 ];
 
+export const settingsVersion = migrations.length;
+
 export const migrateSettings = (value: Record<string, any>) =>
     migrations.reduce((acc, migration, i) => {
         const version = i + 1;

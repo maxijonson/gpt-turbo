@@ -4,6 +4,8 @@ const migrations: ((value: Record<string, any>) => Record<string, any>)[] = [
     migratePersistenceInitial,
 ];
 
+export const persistenceVersion = migrations.length;
+
 export const migratePersistence = (value: Record<string, any>) =>
     migrations.reduce((acc, migration, i) => {
         const version = i + 1;

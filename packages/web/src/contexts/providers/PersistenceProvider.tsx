@@ -11,6 +11,7 @@ import { Conversation, Message } from "gpt-turbo";
 import useCallableFunctions from "../../hooks/useCallableFunctions";
 import { PersistenceCallableFunction } from "../../entities/persistenceCallableFunction";
 import { STORAGEKEY_PERSISTENCE } from "../../config/constants";
+import { persistenceVersion } from "../../entities/migrations/persistence";
 
 interface PersistenceProviderProps {
     children?: React.ReactNode;
@@ -42,7 +43,7 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         useStorage<Persistence>(
             STORAGEKEY_PERSISTENCE,
             {
-                version: 0,
+                version: persistenceVersion,
                 conversations: [],
                 contexts: [],
                 prompts: [],

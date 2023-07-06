@@ -8,6 +8,7 @@ import {
 import React from "react";
 import makeNotImplemented from "../utils/makeNotImplemented";
 import { Settings } from "../entities/settings";
+import { settingsVersion } from "../entities/migrations/settings";
 
 export interface SettingsContextValue {
     settings: Settings;
@@ -17,7 +18,7 @@ export interface SettingsContextValue {
 const notImplemented = makeNotImplemented("SettingsContext");
 export const SettingsContext = React.createContext<SettingsContextValue>({
     settings: {
-        version: 0,
+        version: settingsVersion,
         save: false,
 
         apiKey: "",

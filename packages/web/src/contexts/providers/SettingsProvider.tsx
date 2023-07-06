@@ -10,6 +10,7 @@ import {
     DEFAULT_MODEL,
     DEFAULT_STREAM,
 } from "gpt-turbo";
+import { settingsVersion } from "../../entities/migrations/settings";
 
 interface SettingsProviderProps {
     children?: React.ReactNode;
@@ -27,7 +28,7 @@ const SettingsProvider = ({ children }: SettingsProviderProps) => {
             model: DEFAULT_MODEL,
             save: false,
             stream: DEFAULT_STREAM,
-            version: 0,
+            version: settingsVersion,
         },
         settingsSchema
     );

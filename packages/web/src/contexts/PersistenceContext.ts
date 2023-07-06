@@ -3,6 +3,7 @@ import makeNotImplemented from "../utils/makeNotImplemented";
 import { Persistence } from "../entities/persistence";
 import { PersistenceContext as PersistenceContextEntity } from "../entities/persistenceContext";
 import { PersistencePrompt } from "../entities/persistencePrompt";
+import { persistenceVersion } from "../entities/migrations/persistence";
 
 export interface PersistenceContextValue {
     persistence: Persistence;
@@ -18,7 +19,7 @@ export interface PersistenceContextValue {
 const notImplemented = makeNotImplemented("PersistenceContext");
 export const PersistenceContext = React.createContext<PersistenceContextValue>({
     persistence: {
-        version: 0,
+        version: persistenceVersion,
         conversations: [],
         contexts: [],
         prompts: [],
