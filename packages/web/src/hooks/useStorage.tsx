@@ -67,6 +67,16 @@ const repairValueFromZodError = <T,>(
     );
 };
 
+const getMigratedValue = (key: string, value: any) => {
+    switch (key) {
+        case STORAGEKEY_PERSISTENCE:
+            return migratePersistence(value);
+        case STORAGEKEY_SETTINGS:
+            return migrateSettings(value);
+    }
+    return value;
+};
+
 const useStorage = <T,>(
     key: string,
     defaultValue: T,
@@ -76,25 +86,15 @@ const useStorage = <T,>(
         key: key,
         defaultValue,
         getInitialValueInEffect: false,
-        serialize: (value) =>
-            JSON.stringify(
-                (() => {
-                    if (value === undefined) return defaultValue;
-                    if (schema) return schema.parse(value);
-                    return value;
-                })()
-            ),
+        serialize: (value) => {
+            const migrated = getMigratedValue(
+                key,
+                value ? value : defaultValue
+            );
+            return JSON.stringify(schema?.parse(migrated) ?? migrated);
+        },
         deserialize: (v) => {
-            const value = (() => {
-                const value = JSON.parse(v);
-                switch (key) {
-                    case STORAGEKEY_PERSISTENCE:
-                        return migratePersistence(value);
-                    case STORAGEKEY_SETTINGS:
-                        return migrateSettings(value);
-                }
-                return value;
-            })();
+            const value = getMigratedValue(key, JSON.parse(v));
             if (!schema) return value;
 
             const result = schema.safeParse(value);

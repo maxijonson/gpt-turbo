@@ -42,7 +42,7 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         useStorage<Persistence>(
             STORAGEKEY_PERSISTENCE,
             {
-                version: "0.0.0",
+                version: "",
                 conversations: [],
                 contexts: [],
                 prompts: [],

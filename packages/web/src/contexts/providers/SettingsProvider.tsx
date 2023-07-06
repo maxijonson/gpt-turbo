@@ -3,6 +3,13 @@ import { SettingsContext, SettingsContextValue } from "../SettingsContext";
 import useStorage from "../../hooks/useStorage";
 import { Settings, settingsSchema } from "../../entities/settings";
 import { STORAGEKEY_SETTINGS } from "../../config/constants";
+import {
+    DEFAULT_CONTEXT,
+    DEFAULT_DISABLEMODERATION,
+    DEFAULT_DRY,
+    DEFAULT_MODEL,
+    DEFAULT_STREAM,
+} from "gpt-turbo";
 
 interface SettingsProviderProps {
     children?: React.ReactNode;
@@ -11,9 +18,17 @@ interface SettingsProviderProps {
 const SettingsProvider = ({ children }: SettingsProviderProps) => {
     const { value: settings, setValue: setSettings } = useStorage<Settings>(
         STORAGEKEY_SETTINGS,
-        settingsSchema.parse({
-            version: "0.0.0",
-        }),
+        {
+            apiKey: "",
+            context: DEFAULT_CONTEXT,
+            disableModeration: DEFAULT_DISABLEMODERATION,
+            dry: DEFAULT_DRY,
+            functionIds: [],
+            model: DEFAULT_MODEL,
+            save: false,
+            stream: DEFAULT_STREAM,
+            version: "",
+        },
         settingsSchema
     );
 
