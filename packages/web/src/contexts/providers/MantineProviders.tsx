@@ -7,6 +7,7 @@ import { useColorScheme, useLocalStorage } from "@mantine/hooks";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import React from "react";
+import { STORAGEKEY_COLORSCHEME } from "../../config/constants";
 
 interface MantineProvidersProps {
     children?: React.ReactNode;
@@ -14,7 +15,7 @@ interface MantineProvidersProps {
 
 const MantineProviders = ({ children }: MantineProvidersProps) => {
     const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
-        key: "gpt-turbo-colorscheme",
+        key: STORAGEKEY_COLORSCHEME,
         defaultValue: useColorScheme(),
         getInitialValueInEffect: true,
     });

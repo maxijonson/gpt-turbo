@@ -10,6 +10,7 @@ import {
 } from "../ConversationManagerContext";
 import useStorage from "../../hooks/useStorage";
 import { z } from "zod";
+import { STORAGEKEY_SHOWUSAGE } from "../../config/constants";
 
 interface ConversationManagerProviderProps {
     children?: React.ReactNode;
@@ -31,7 +32,7 @@ const ConversationManagerProvider = ({
     >(new Map());
 
     const { value: showUsage, setValue: setShowUsage } = useStorage(
-        "gpt-turbo-showusage",
+        STORAGEKEY_SHOWUSAGE,
         true,
         z.boolean()
     );

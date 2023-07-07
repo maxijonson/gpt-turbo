@@ -11,6 +11,7 @@ import {
 } from "@mantine/core";
 import useConversationManager from "../hooks/useConversationManager";
 import React from "react";
+import AppStorageUsage from "./AppStorageUsage";
 
 const AppSettings = () => {
     const { colorScheme, toggleColorScheme } = useMantineColorScheme();
@@ -50,6 +51,8 @@ const AppSettings = () => {
                     onChange={() => setShowUsage(!showUsage)}
                 />
             </Group>
+
+            <AppStorageUsage />
 
             <Divider label="Danger Zone" labelPosition="center" color="red" />
 
