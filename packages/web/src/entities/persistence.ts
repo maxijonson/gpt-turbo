@@ -5,6 +5,7 @@ import { persistencePromptSchema } from "./persistencePrompt";
 import { persistenceCallableFunctionSchema } from "./persistenceCallableFunction";
 
 export const persistenceSchema = z.object({
+    version: z.number(),
     conversations: z.array(persistenceConversationSchema),
     contexts: z.array(persistenceContextSchema).refine((contexts) => {
         const names = contexts.map((c) => c.name.toLowerCase());

@@ -14,14 +14,17 @@ const SettingsFormModal = ({
     const theme = useMantineTheme();
     const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
 
-    const { setSettings } = useSettings();
+    const { settings, setSettings } = useSettings();
 
     const onSubmit = React.useCallback(
         (values: ConversationFormValues) => {
-            setSettings(values);
+            setSettings({
+                ...settings,
+                ...values,
+            });
             onClose();
         },
-        [onClose, setSettings]
+        [onClose, setSettings, settings]
     );
 
     return (

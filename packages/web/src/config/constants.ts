@@ -34,3 +34,6 @@ export const CODE_LANGUAGES = [
 ] as const;
 
 export const DISCORD_SERVER_INVITE = "https://discord.gg/Aa77KCmwRx";
+
+export const STORAGEKEY_PERSISTENCE = "gpt-turbo-persistence";
+export const STORAGEKEY_SETTINGS = "gpt-turbo-settings";

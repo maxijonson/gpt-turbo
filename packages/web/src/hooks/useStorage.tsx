@@ -2,6 +2,12 @@ import { Button, Stack, Text } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { ZodError, ZodType } from "zod";
+import {
+    STORAGEKEY_PERSISTENCE,
+    STORAGEKEY_SETTINGS,
+} from "../config/constants";
+import { migratePersistence } from "../entities/migrations/persistence";
+import { migrateSettings } from "../entities/migrations/settings";
 
 const warns = new Set<string>();
 
@@ -61,6 +67,16 @@ const repairValueFromZodError = <T,>(
     );
 };
 
+const getMigratedValue = (key: string, value: any) => {
+    switch (key) {
+        case STORAGEKEY_PERSISTENCE:
+            return migratePersistence(value);
+        case STORAGEKEY_SETTINGS:
+            return migrateSettings(value);
+    }
+    return value;
+};
+
 const useStorage = <T,>(
     key: string,
     defaultValue: T,
@@ -70,16 +86,11 @@ const useStorage = <T,>(
         key: key,
         defaultValue,
         getInitialValueInEffect: false,
-        serialize: (value) =>
-            JSON.stringify(
-                (() => {
-                    if (value === undefined) return defaultValue;
-                    if (schema) return schema.parse(value);
-                    return value;
-                })()
-            ),
+        serialize: (value) => {
+            return JSON.stringify(schema?.parse(value) ?? value);
+        },
         deserialize: (v) => {
-            const value = JSON.parse(v);
+            const value = getMigratedValue(key, JSON.parse(v));
             if (!schema) return value;
 
             const result = schema.safeParse(value);
