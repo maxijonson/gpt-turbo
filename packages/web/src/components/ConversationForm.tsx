@@ -53,9 +53,11 @@ const ConversationFormProvided = ({
                 <Tabs.Panel value="functions" pt="md">
                     <ConversationFormFunctionsTab />
                 </Tabs.Panel>
-                <Tabs.Panel value="app" pt="md">
-                    <AppSettings />
-                </Tabs.Panel>
+                {!hideAppSettings && (
+                    <Tabs.Panel value="app" pt="md">
+                        <AppSettings />
+                    </Tabs.Panel>
+                )}
             </Tabs>
             {currentTab !== "app" && (
                 <Box>
@@ -65,10 +67,8 @@ const ConversationFormProvided = ({
                     {form.values.save && (
                         <Text size="xs" italic align="center">
                             This conversation will be saved to your browser's
-                            local storage, along with your API key, if
-                            specified. Make sure that you trust the device you
-                            are using and that you are not using a shared
-                            device.
+                            local storage. Make sure the device you're using is
+                            trusted and not shared with anyone else.
                         </Text>
                     )}
                 </Box>
