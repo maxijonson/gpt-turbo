@@ -1,6 +1,6 @@
 {
     "name": "gpt-turbo-web",
-    "version": "4.3.2",
+    "version": "4.3.3",
     "description": "A Web app that interacts with the gpt-turbo library",
     "private": true,
     "main": "dist/index.js",
