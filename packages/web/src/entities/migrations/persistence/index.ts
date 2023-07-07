@@ -1,7 +1,9 @@
 import { migratePersistenceInitial } from "./1688489405401_initial";
+import { migratePersistenceRemoveApiKey } from "./1688740831717_remove-api-key";
 
 const migrations: ((value: Record<string, any>) => Record<string, any>)[] = [
     migratePersistenceInitial,
+    migratePersistenceRemoveApiKey,
 ];
 
 export const persistenceVersion = migrations.length;

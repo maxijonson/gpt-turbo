@@ -12,16 +12,18 @@ import useCallableFunctions from "../../hooks/useCallableFunctions";
 import { PersistenceCallableFunction } from "../../entities/persistenceCallableFunction";
 import { STORAGEKEY_PERSISTENCE } from "../../config/constants";
 import { persistenceVersion } from "../../entities/migrations/persistence";
+import useSettings from "../../hooks/useSettings";
 
 interface PersistenceProviderProps {
     children?: React.ReactNode;
 }
 
 const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
+    const { settings } = useSettings();
+
     const {
         conversations,
         addConversation,
-        setActiveConversation,
         getConversationName,
         setConversationName,
         getConversationLastEdit,
@@ -234,9 +236,14 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
                 const { name, lastEdited, ...conversationJson } =
                     persistence.conversations[i];
                 const newConversation = addConversation(
-                    await Conversation.fromJSON(conversationJson)
+                    await Conversation.fromJSON({
+                        ...conversationJson,
+                        config: {
+                            ...conversationJson.config,
+                            apiKey: settings.apiKey || undefined,
+                        },
+                    })
                 );
-                if (i === 0) setActiveConversation(newConversation.id, true);
                 addPersistedConversationId(newConversation.id);
                 setConversationName(newConversation.id, name);
                 setConversationLastEdit(newConversation.id, lastEdited);
@@ -284,9 +291,9 @@ const PersistenceProvider = ({ children }: PersistenceProviderProps) => {
         persistence.functions,
         persistence.functionsImportWarning,
         persistence.functionsWarning,
-        setActiveConversation,
         setConversationLastEdit,
         setConversationName,
+        settings.apiKey,
     ]);
 
     // Save conversations on change
