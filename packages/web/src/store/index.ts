@@ -1,5 +1,6 @@
 import { StateCreator, create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { devtools } from "zustand/middleware";
 import {
     AppSettingsState,
     createAppSettingsSlice,
@@ -40,7 +41,7 @@ export type AppState = AppSettingsState &
 
 export type AppStateSlice<T> = StateCreator<
     AppState,
-    [["zustand/immer", never]],
+    [["zustand/immer", never], ["zustand/devtools", never]],
     [],
     T
 >;
@@ -48,13 +49,18 @@ export type AppStateSlice<T> = StateCreator<
 enableMapSet();
 
 export const useAppStore = create<AppState>()(
-    immer((...a) => ({
-        ...createAppSettingsSlice(...a),
-        ...createCallableFunctionsSlice(...a),
-        ...createConversationsSlice(...a),
-        ...createDefaultConversationSettingsSlice(...a),
-        ...createPersistenceSlice(...a),
-        ...createSavedContextsSlice(...a),
-        ...createSavedPromptsSlice(...a),
-    }))
+    immer(
+        devtools(
+            (...a) => ({
+                ...createAppSettingsSlice(...a),
+                ...createCallableFunctionsSlice(...a),
+                ...createConversationsSlice(...a),
+                ...createDefaultConversationSettingsSlice(...a),
+                ...createPersistenceSlice(...a),
+                ...createSavedContextsSlice(...a),
+                ...createSavedPromptsSlice(...a),
+            }),
+            { enabled: !import.meta.env.PROD }
+        )
+    )
 );
