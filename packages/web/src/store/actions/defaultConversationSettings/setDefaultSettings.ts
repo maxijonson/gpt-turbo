@@ -1,7 +1,7 @@
 import { useAppStore } from "../..";
-import { Settings } from "../../../entities/settings";
+import { PersistenceDefaultSettings } from "../../../entities/persistenceDefaultSettings";
 
-export const setDefaultSettings = (settings: Settings) => {
+export const setDefaultSettings = (settings: PersistenceDefaultSettings) => {
     useAppStore.setState((state) => {
         state.defaultSettings = settings;
     });

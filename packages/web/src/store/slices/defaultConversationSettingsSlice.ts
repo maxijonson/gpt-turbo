@@ -6,10 +6,10 @@ import {
     DEFAULT_STREAM,
 } from "gpt-turbo";
 import { AppStateSlice } from "..";
-import { Settings } from "../../entities/settings";
+import { PersistenceDefaultSettings } from "../../entities/persistenceDefaultSettings";
 
 export interface DefaultConversationSettingsState {
-    defaultSettings: Settings;
+    defaultSettings: PersistenceDefaultSettings;
 }
 
 export const initialDefaultConversationSettingsState: DefaultConversationSettingsState =
@@ -23,7 +23,6 @@ export const initialDefaultConversationSettingsState: DefaultConversationSetting
             stream: DEFAULT_STREAM,
             functionIds: [],
             save: false,
-            version: 1,
         },
     };
 

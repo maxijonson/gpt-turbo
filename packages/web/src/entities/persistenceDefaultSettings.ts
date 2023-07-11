@@ -9,9 +9,7 @@ import {
 } from "gpt-turbo";
 import { z } from "zod";
 
-export const settingsSchema = z.object({
-    version: z.number(),
-
+export const persistenceDefaultSettingsSchema = z.object({
     save: z.boolean().default(false),
 
     apiKey: conversationConfigSchema.shape.apiKey.default(""),
@@ -38,4 +36,6 @@ export const settingsSchema = z.object({
     proxy: conversationSchema.shape.requestOptions.unwrap().shape.proxy,
 });
 
-export type Settings = z.infer<typeof settingsSchema>;
+export type PersistenceDefaultSettings = z.infer<
+    typeof persistenceDefaultSettingsSchema
+>;
