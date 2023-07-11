@@ -1,14 +1,16 @@
 import { Alert, List, Center, Button, Text } from "@mantine/core";
 import { FaExclamationTriangle } from "react-icons/fa";
-import useCallableFunctions from "../hooks/useCallableFunctions";
+import { useAppStore } from "../store";
+import { dismissFunctionsImportWarning } from "../store/actions/callableFunctions/dismissFunctionsImportWarning";
 
 interface FunctionsImportWarningProps {
     children?: React.ReactNode;
 }
 
 const FunctionsImportWarning = ({ children }: FunctionsImportWarningProps) => {
-    const { dismissFunctionsImportWarning, showFunctionsImportWarning } =
-        useCallableFunctions();
+    const showFunctionsImportWarning = useAppStore(
+        (state) => state.showFunctionsImportWarning
+    );
 
     if (!showFunctionsImportWarning) return <>{children}</>;
 

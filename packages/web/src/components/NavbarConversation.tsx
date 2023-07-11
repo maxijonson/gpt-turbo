@@ -13,6 +13,9 @@ import React from "react";
 import { useForm } from "@mantine/form";
 import TippedActionIcon from "./TippedActionIcon";
 import NavbarConversationInfo from "./NavbarConversationInfo";
+import { setConversationName } from "../store/actions/conversations/setConversationName";
+import { removeConversation } from "../store/actions/conversations/removeConversation";
+import { setActiveConversation } from "../store/actions/conversations/setActiveConversation";
 
 interface NavbarConversationProps {
     conversation: Conversation;
@@ -65,13 +68,8 @@ const NavbarConversation = ({
     conversation,
     onClick,
 }: NavbarConversationProps) => {
-    const {
-        activeConversation,
-        setActiveConversation,
-        removeConversation,
-        getConversationName,
-        setConversationName,
-    } = useConversationManager();
+    const { activeConversation, getConversationName } =
+        useConversationManager();
     const [isDeleting, setIsDeleting] = React.useState(false);
     const [isEditing, setIsEditing] = React.useState(false);
     const isActive = conversation.id === activeConversation?.id;
@@ -98,7 +96,7 @@ const NavbarConversation = ({
     const onDelete = React.useCallback(() => {
         removeConversation(conversation.id);
         setIsDeleting(false);
-    }, [conversation.id, removeConversation]);
+    }, [conversation.id]);
 
     const onCancel = React.useCallback(() => {
         setIsDeleting(false);

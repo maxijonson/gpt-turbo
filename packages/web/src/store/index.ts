@@ -24,11 +24,17 @@ import {
     SavedPromptsState,
     createSavedPromptsSlice,
 } from "./slices/savedPromptsSlice";
+import { enableMapSet } from "immer";
+import {
+    PersistenceState,
+    createPersistenceSlice,
+} from "./slices/persistenceSlice";
 
 export type AppState = AppSettingsState &
     CallableFunctionsState &
     ConversationsState &
     DefaultConversationSettingsState &
+    PersistenceState &
     SavedContextsState &
     SavedPromptsState;
 
@@ -39,12 +45,15 @@ export type AppStateSlice<T> = StateCreator<
     T
 >;
 
+enableMapSet();
+
 export const useAppStore = create<AppState>()(
     immer((...a) => ({
         ...createAppSettingsSlice(...a),
         ...createCallableFunctionsSlice(...a),
         ...createConversationsSlice(...a),
         ...createDefaultConversationSettingsSlice(...a),
+        ...createPersistenceSlice(...a),
         ...createSavedContextsSlice(...a),
         ...createSavedPromptsSlice(...a),
     }))

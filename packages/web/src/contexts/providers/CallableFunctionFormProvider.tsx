@@ -9,6 +9,7 @@ import React from "react";
 import useCallableFunctions from "../../hooks/useCallableFunctions";
 import { useSearchParams } from "react-router-dom";
 import functionTemplates from "../../utils/functionTemplates";
+import { useAppStore } from "../../store";
 
 export interface CallableFunctionFormProviderProps {
     children: React.ReactNode;
@@ -21,11 +22,9 @@ const CallableFunctionFormProvider = ({
     onSubmit,
     id,
 }: CallableFunctionFormProviderProps) => {
-    const {
-        callableFunctions,
-        getCallableFunctionDisplayName,
-        getCallableFunctionCode,
-    } = useCallableFunctions();
+    const callableFunctions = useAppStore((state) => state.callableFunctions);
+    const { getCallableFunctionDisplayName, getCallableFunctionCode } =
+        useCallableFunctions();
     const form = CallableFunctionFormContext.useForm({
         initialValues: {
             id: uuid(),

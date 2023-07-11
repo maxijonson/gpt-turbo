@@ -8,13 +8,12 @@ import { CallableFunctionExport } from "../entities/callableFunctionExport";
 import useCallableFunctions from "../hooks/useCallableFunctions";
 import { notifications } from "@mantine/notifications";
 import getErrorInfo from "../utils/getErrorInfo";
+import { useAppStore } from "../store";
+import { addCallableFunction } from "../store/actions/callableFunctions/addCallableFunction";
 
 const CallableFunctionImportButton = () => {
-    const {
-        callableFunctions,
-        addCallableFunction,
-        getCallableFunctionDisplayName,
-    } = useCallableFunctions();
+    const callableFunctions = useAppStore((state) => state.callableFunctions);
+    const { getCallableFunctionDisplayName } = useCallableFunctions();
     const [
         showImportModal,
         { open: openImportModal, close: closeImportModal },
@@ -77,12 +76,7 @@ const CallableFunctionImportButton = () => {
 
             closeImportModal();
         },
-        [
-            addCallableFunction,
-            callableFunctions,
-            closeImportModal,
-            getCallableFunctionDisplayName,
-        ]
+        [callableFunctions, closeImportModal, getCallableFunctionDisplayName]
     );
 
     return (

@@ -1,26 +1,16 @@
-import {
-    ColorScheme,
-    ColorSchemeProvider,
-    MantineProvider,
-} from "@mantine/core";
-import { useColorScheme, useLocalStorage } from "@mantine/hooks";
+import { ColorSchemeProvider, MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import React from "react";
-import { STORAGEKEY_COLORSCHEME } from "../../config/constants";
+import { toggleColorScheme } from "../../store/actions/appSettings/toggleColorScheme";
+import { useAppStore } from "../../store";
 
 interface MantineProvidersProps {
     children?: React.ReactNode;
 }
 
 const MantineProviders = ({ children }: MantineProvidersProps) => {
-    const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
-        key: STORAGEKEY_COLORSCHEME,
-        defaultValue: useColorScheme(),
-        getInitialValueInEffect: true,
-    });
-    const toggleColorScheme = (value?: ColorScheme) =>
-        setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
+    const colorScheme = useAppStore((state) => state.colorScheme);
 
     return (
         <ColorSchemeProvider

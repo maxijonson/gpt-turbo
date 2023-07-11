@@ -4,10 +4,11 @@ import useConversationForm from "../hooks/useConversationForm";
 import { AiOutlineFunction } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import useCallableFunctions from "../hooks/useCallableFunctions";
+import { useAppStore } from "../store";
 
 const ConversationFormFunctionsTab = () => {
-    const { callableFunctions, getCallableFunctionDisplayName } =
-        useCallableFunctions();
+    const callableFunctions = useAppStore((state) => state.callableFunctions);
+    const { getCallableFunctionDisplayName } = useCallableFunctions();
     const form = useConversationForm();
 
     return (

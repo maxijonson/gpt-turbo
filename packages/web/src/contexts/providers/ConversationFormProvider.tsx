@@ -1,9 +1,9 @@
 import React from "react";
-import useSettings from "../../hooks/useSettings";
 import {
     ConversationFormContext,
     ConversationFormValues,
 } from "../ConversationFormContext";
+import { useAppStore } from "../../store";
 
 export interface ConversationFormProviderProps {
     children?: React.ReactNode;
@@ -14,7 +14,7 @@ const ConversationFormProvider = ({
     children,
     onSubmit,
 }: ConversationFormProviderProps) => {
-    const { settings } = useSettings();
+    const settings = useAppStore((state) => state.defaultSettings);
     const form = ConversationFormContext.useForm({
         initialValues: {
             save: settings.save,

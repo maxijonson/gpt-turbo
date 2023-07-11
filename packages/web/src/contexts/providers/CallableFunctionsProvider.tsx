@@ -3,11 +3,11 @@ import {
     CallableFunctionsContext,
     CallableFunctionsContextValue,
 } from "../CallableFunctionsContext";
-import { CallableFunction } from "gpt-turbo";
 import { notifications } from "@mantine/notifications";
-import { randomId, useDisclosure } from "@mantine/hooks";
+import { randomId } from "@mantine/hooks";
 import { BiCheck, BiX } from "react-icons/bi";
 import getErrorInfo from "../../utils/getErrorInfo";
+import { useAppStore } from "../../store";
 
 interface CallableFunctionsProviderProps {
     children?: React.ReactNode;
@@ -16,69 +16,30 @@ interface CallableFunctionsProviderProps {
 const CallableFunctionsProvider = ({
     children,
 }: CallableFunctionsProviderProps) => {
-    const [functionDisplayNames, setFunctionDisplayNames] = React.useState<{
-        [id: string]: string;
-    }>({});
-    const [functionCodes, setFunctionCodes] = React.useState<{
-        [id: string]: string;
-    }>({});
-    const [showFunctionsWarning, { close: dismissFunctionsWarning }] =
-        useDisclosure(true);
-    const [
-        showFunctionsImportWarning,
-        { close: dismissFunctionsImportWarning },
-    ] = useDisclosure(true);
-    const [callableFunctions, setCallableFunctions] = React.useState<
-        CallableFunctionsContextValue["callableFunctions"]
-    >([]);
-
-    const addCallableFunction = React.useCallback<
-        CallableFunctionsContextValue["addCallableFunction"]
-    >((config, displayName, code) => {
-        const callableFunction =
-            config instanceof CallableFunction
-                ? config
-                : CallableFunction.fromJSON(config);
-
-        setCallableFunctions((callableFunctions) =>
-            callableFunctions
-                .filter((fn) => fn.id !== callableFunction.id)
-                .concat(callableFunction)
-        );
-        setFunctionDisplayNames((functionDisplayNames) => ({
-            ...functionDisplayNames,
-            [callableFunction.id]: displayName,
-        }));
-        if (code !== undefined) {
-            setFunctionCodes((functionCodes) => ({
-                ...functionCodes,
-                [callableFunction.id]: code,
-            }));
-        }
-
-        return callableFunction;
-    }, []);
+    const [functions, displayNames, codes] = useAppStore((state) => [
+        state.callableFunctions,
+        state.callableFunctionDisplayNames,
+        state.callableFunctionCodes,
+    ]);
 
     const getCallableFunction = React.useCallback<
         CallableFunctionsContextValue["getCallableFunction"]
     >(
         (id) => {
-            const callableFunction = callableFunctions.find(
-                (fn) => fn.id === id
-            );
+            const callableFunction = functions.find((fn) => fn.id === id);
             if (callableFunction === undefined) {
                 throw new Error(`No callable function found with id "${id}"`);
             }
             return callableFunction;
         },
-        [callableFunctions]
+        [functions]
     );
 
     const getCallableFunctionDisplayName = React.useCallback<
         CallableFunctionsContextValue["getCallableFunctionDisplayName"]
     >(
         (id) => {
-            const displayName = functionDisplayNames[id];
+            const displayName = displayNames[id];
             if (displayName === undefined) {
                 throw new Error(
                     `No display name found for callable function with id "${id}"`
@@ -86,16 +47,16 @@ const CallableFunctionsProvider = ({
             }
             return displayName;
         },
-        [functionDisplayNames]
+        [displayNames]
     );
 
     const getCallableFunctionCode = React.useCallback<
         CallableFunctionsContextValue["getCallableFunctionCode"]
     >(
         (id) => {
-            return functionCodes[id];
+            return codes[id];
         },
-        [functionCodes]
+        [codes]
     );
 
     const callFunction = React.useCallback<
@@ -177,48 +138,18 @@ const CallableFunctionsProvider = ({
         ]
     );
 
-    const deleteCallableFunction = React.useCallback<
-        CallableFunctionsContextValue["deleteCallableFunction"]
-    >((id) => {
-        setCallableFunctions((callableFunctions) =>
-            callableFunctions.filter((fn) => fn.id !== id)
-        );
-        setFunctionDisplayNames((functionDisplayNames) => {
-            const { [id]: _, ...rest } = functionDisplayNames;
-            return rest;
-        });
-        setFunctionCodes((functionCodes) => {
-            const { [id]: _, ...rest } = functionCodes;
-            return rest;
-        });
-    }, []);
-
     const providerValue = React.useMemo<CallableFunctionsContextValue>(
         () => ({
-            callableFunctions,
-            showFunctionsWarning,
-            showFunctionsImportWarning,
-            addCallableFunction,
             getCallableFunction,
             getCallableFunctionDisplayName,
             getCallableFunctionCode,
-            dismissFunctionsWarning,
-            dismissFunctionsImportWarning,
             callFunction,
-            deleteCallableFunction,
         }),
         [
-            callableFunctions,
-            showFunctionsWarning,
-            showFunctionsImportWarning,
-            addCallableFunction,
+            callFunction,
             getCallableFunction,
             getCallableFunctionCode,
             getCallableFunctionDisplayName,
-            dismissFunctionsWarning,
-            dismissFunctionsImportWarning,
-            callFunction,
-            deleteCallableFunction,
         ]
     );
 

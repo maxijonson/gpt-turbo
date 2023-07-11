@@ -1,9 +1,11 @@
 import { Button, Group, Stack, TextInput } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
-import usePersistence from "../hooks/usePersistence";
 import { persistenceContextSchema } from "../entities/persistenceContext";
 import { z } from "zod";
 import { persistencePromptSchema } from "../entities/persistencePrompt";
+import { useAppStore } from "../store";
+import { saveContext } from "../store/actions/savedContexts/saveContext";
+import { savePrompt } from "../store/actions/savedPrompts/savePrompt";
 
 interface SaveContextModalBodyProps {
     value: string;
@@ -16,14 +18,11 @@ const SavePromptModalBody = ({
     close,
     mode,
 }: SaveContextModalBodyProps) => {
-    const {
-        saveContext,
-        savePrompt,
-        persistence: { contexts, prompts },
-    } = usePersistence();
+    const savedContexts = useAppStore((state) => state.savedContexts);
+    const savedPrompts = useAppStore((state) => state.savedPrompts);
 
     const save = mode === "context" ? saveContext : savePrompt;
-    const items = mode === "context" ? contexts : prompts;
+    const items = mode === "context" ? savedContexts : savedPrompts;
     const schema =
         mode === "context" ? persistenceContextSchema : persistencePromptSchema;
 
@@ -52,10 +51,7 @@ const SavePromptModalBody = ({
     });
 
     const onSubmit = form.onSubmit((values) => {
-        save({
-            name: values.name,
-            value,
-        });
+        save(values.name, value);
         close();
     });
 

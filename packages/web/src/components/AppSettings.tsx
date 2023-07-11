@@ -9,14 +9,15 @@ import {
     Text,
     useMantineColorScheme,
 } from "@mantine/core";
-import useConversationManager from "../hooks/useConversationManager";
 import React from "react";
 import AppStorageUsage from "./AppStorageUsage";
+import { removeAllConversations } from "../store/actions/conversations/removeAllConversations";
+import { useAppStore } from "../store";
+import { toggleShowUsage } from "../store/actions/appSettings/toggleShowUsage";
 
 const AppSettings = () => {
     const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-    const { showUsage, setShowUsage, removeAllConversations } =
-        useConversationManager();
+    const showUsage = useAppStore((state) => state.showUsage);
     const [clearConfirm, setClearConfirm] = React.useState(false);
 
     const handleClearConversations = React.useCallback(() => {
@@ -26,7 +27,7 @@ const AppSettings = () => {
         }
         removeAllConversations();
         setClearConfirm(false);
-    }, [clearConfirm, removeAllConversations]);
+    }, [clearConfirm]);
 
     return (
         <Stack>
@@ -48,7 +49,7 @@ const AppSettings = () => {
                 <Text>Show Usage</Text>
                 <Switch
                     checked={showUsage}
-                    onChange={() => setShowUsage(!showUsage)}
+                    onChange={() => toggleShowUsage()}
                 />
             </Group>
 

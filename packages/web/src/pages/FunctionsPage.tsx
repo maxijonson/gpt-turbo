@@ -17,10 +17,11 @@ import useCallableFunctions from "../hooks/useCallableFunctions";
 import CallableFunctionCard from "../components/CallableFunctionCard";
 import CallableFunctionImportButton from "../components/CallableFunctionImportButton";
 import CallableFunctionCreateButton from "../components/CallableFunctionCreateButton";
+import { useAppStore } from "../store";
 
 const FunctionsPage = () => {
-    const { callableFunctions, getCallableFunctionDisplayName } =
-        useCallableFunctions();
+    const callableFunctions = useAppStore((state) => state.callableFunctions);
+    const { getCallableFunctionDisplayName } = useCallableFunctions();
     const [search, setSearch] = useInputState("");
     const theme = useMantineTheme();
     const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);

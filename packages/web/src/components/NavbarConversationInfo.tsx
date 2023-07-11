@@ -16,8 +16,8 @@ import {
     BsShieldSlash,
 } from "react-icons/bs";
 import { TbCircleDashed } from "react-icons/tb";
-import usePersistence from "../hooks/usePersistence";
 import NavbarConverationInfoIcon from "./NavbarConverationInfoIcon";
+import { useAppStore } from "../store";
 
 interface NavbarConversationInfoProps {
     conversation: Conversation;
@@ -29,7 +29,9 @@ const NavbarConversationInfo = ({
     conversation,
 }: NavbarConversationInfoProps) => {
     const { model, dry, disableModeration, stream } = conversation.getConfig();
-    const { persistedConversationIds } = usePersistence();
+    const persistedConversationIds = useAppStore(
+        (state) => state.persistedConversationIds
+    );
 
     const persisted = persistedConversationIds.includes(conversation.id);
 

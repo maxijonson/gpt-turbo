@@ -22,15 +22,13 @@ import {
 import { BiFolder, BiPaperPlane } from "react-icons/bi";
 import TippedActionIcon from "./TippedActionIcon";
 import SavedPromptsModalBody from "./SavedPromptsModalBody";
-import usePersistence from "../hooks/usePersistence";
 import getErrorInfo from "../utils/getErrorInfo";
+import { useAppStore } from "../store";
+import { setConversationLastEdit } from "../store/actions/conversations/setConversationLastEdit";
 
 const Prompt = () => {
-    const {
-        activeConversation: conversation,
-        showUsage,
-        setConversationLastEdit,
-    } = useConversationManager();
+    const showUsage = useAppStore((state) => state.showUsage);
+    const { activeConversation: conversation } = useConversationManager();
     const form = useForm({
         initialValues: {
             prompt: "",
@@ -38,9 +36,7 @@ const Prompt = () => {
     });
     const [isStreaming, setIsStreaming] = React.useState(false);
 
-    const {
-        persistence: { prompts },
-    } = usePersistence();
+    const savedPrompts = useAppStore((state) => state.savedPrompts);
     const [
         showSavedPromptsModal,
         { open: openSavedPromptsModal, close: closeSavedPromptsModal },
@@ -128,7 +124,7 @@ const Prompt = () => {
                                     spacing="xs"
                                     pr="xs"
                                 >
-                                    {prompts.length > 0 && (
+                                    {savedPrompts.length > 0 && (
                                         <TippedActionIcon
                                             variant="transparent"
                                             tip="Saved Prompts"

@@ -24,6 +24,8 @@ import SettingsFormModal from "./SettingsFormModal";
 import { FaRegQuestionCircle } from "react-icons/fa";
 import About from "./About";
 import { DISCORD_SERVER_INVITE } from "../config/constants";
+import { useAppStore } from "../store";
+import { setActiveConversation } from "../store/actions/conversations/setActiveConversation";
 
 const useStyles = createStyles(() => ({
     burger: {
@@ -35,8 +37,8 @@ const useStyles = createStyles(() => ({
 }));
 
 const AppNavbar = () => {
-    const { activeConversation, setActiveConversation, showUsage } =
-        useConversationManager();
+    const showUsage = useAppStore((state) => state.showUsage);
+    const { activeConversation } = useConversationManager();
     const { classes } = useStyles();
     const theme = useMantineTheme();
     const [navbarOpened, { close: closeNavbar, toggle: toggleNavbar }] =
