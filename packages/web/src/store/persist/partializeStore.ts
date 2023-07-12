@@ -27,6 +27,7 @@ export const partializeStore = (state: AppState): AppPersistedState => {
     const conversations = persistenceSchema.shape.conversations.parse(
         state.conversations
             .filter((c) => state.persistedConversationIds.includes(c.id))
+            .filter((c) => c.getMessages().length > 0)
             .map((c) => {
                 const lastEdited =
                     state.conversationLastEdits.get(c.id) ?? Date.now();

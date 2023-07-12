@@ -39,6 +39,8 @@ import {
 } from "./slices/persistenceSlice";
 import { partializeStore } from "./persist/partializeStore";
 import { storeStorage } from "./persist/storeStorage";
+import { STORAGE_PERSISTENCE_KEY } from "../config/constants";
+import { storeVersion } from "./persist/migrations";
 
 export type AppState = AppSettingsState &
     CallableFunctionsState &
@@ -90,9 +92,10 @@ export const useAppStore = create<AppState>()(
             )
         ),
         {
-            name: "gptturbo-persistence",
+            name: STORAGE_PERSISTENCE_KEY,
             partialize: partializeStore,
             storage: storeStorage,
+            version: storeVersion,
         }
     )
 );

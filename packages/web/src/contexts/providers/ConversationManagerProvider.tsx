@@ -4,6 +4,7 @@ import {
     ConversationManagerContextValue,
 } from "../ConversationManagerContext";
 import { useAppStore } from "../../store";
+import { persistStore } from "../../store/persist/triggerPersist";
 
 interface ConversationManagerProviderProps {
     children?: React.ReactNode;
@@ -52,6 +53,32 @@ const ConversationManagerProvider = ({
             getConversationName,
         ]
     );
+
+    React.useEffect(() => {
+        if (!activeConversation) return;
+        const unsubs: (() => void)[] = [];
+
+        unsubs.push(
+            activeConversation.onMessageAdded((message) => {
+                if (message.content) {
+                    persistStore();
+                }
+
+                unsubs.push(
+                    message.onMessageStreamingStop(() => {
+                        persistStore();
+                    })
+                );
+            }),
+            activeConversation.onMessageRemoved(() => {
+                persistStore();
+            })
+        );
+
+        return () => {
+            unsubs.forEach((u) => u());
+        };
+    }, [activeConversation]);
 
     return (
         <ConversationManagerContext.Provider value={providerValue}>
