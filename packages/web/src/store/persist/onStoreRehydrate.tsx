@@ -4,6 +4,7 @@ import { Text } from "@mantine/core";
 import StorageLoadError from "../../components/StorageLoadError";
 import { STORAGE_PERSISTENCE_KEY } from "../../config/constants";
 import { StoreMigrationError } from "./migrations";
+import getErrorInfo from "../../utils/getErrorInfo";
 
 export const onStoreRehydrate = (
     _state: AppState
@@ -18,6 +19,7 @@ export const onStoreRehydrate = (
             null,
             2
         );
+        const { title, message } = getErrorInfo(error);
         // HACK: Wait for Mantine to be ready
         setTimeout(() => {
             modals.open({
@@ -29,8 +31,8 @@ export const onStoreRehydrate = (
                 size: "xl",
                 title: (
                     <Text color="red" size="xl" weight="bold">
-                        Storage Loading Error:{" "}
-                        {isMigrationError ? "Migration Failed" : error.message}
+                        Storage {isMigrationError ? "Migration" : "Loading"}{" "}
+                        Error: {title} - {message}
                     </Text>
                 ),
                 children: (
