@@ -15,6 +15,8 @@ interface StorageUsage {
     size: number;
 }
 
+const MIN_SIZE = 100;
+
 const getUsageLabel = (key: string) => {
     const words = key.split(/(?=[A-Z])/);
     return words.map((word) => word[0].toUpperCase() + word.slice(1)).join(" ");
@@ -51,7 +53,7 @@ const AppStorageUsage = () => {
                     size,
                 } satisfies StorageUsage;
             })
-            .filter((usage) => usage.size > 2);
+            .filter((usage) => usage.size > MIN_SIZE);
     }, [storageValue]);
 
     const colors = React.useMemo(
@@ -110,9 +112,12 @@ const AppStorageUsage = () => {
     return (
         <Box>
             <Text>Storage Usage</Text>
-            <Text size="xs" color="dimmed" mb="xs">
+            <Text size="xs" color="dimmed" mb={0}>
                 This is an estimate, assuming a 5MB quota. (default for most
-                browsers)
+                browsers).
+            </Text>
+            <Text size="xs" color="dimmed" mb="xs">
+                Categories under {getSizeLabel(MIN_SIZE)} are not shown.
             </Text>
             <Progress radius="xl" size="xl" sections={sections} />
             <Group position="center" mt="xs">

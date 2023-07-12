@@ -1,5 +1,4 @@
 import {
-    Button,
     ColorScheme,
     Divider,
     Group,
@@ -9,25 +8,14 @@ import {
     Text,
     useMantineColorScheme,
 } from "@mantine/core";
-import React from "react";
 import AppStorageUsage from "./AppStorageUsage";
-import { removeAllConversations } from "../store/actions/conversations/removeAllConversations";
 import { useAppStore } from "../store";
 import { toggleShowUsage } from "../store/actions/appSettings/toggleShowUsage";
+import AppSettingsDangerZone from "./AppSettingsDangerZone";
 
 const AppSettings = () => {
     const { colorScheme, toggleColorScheme } = useMantineColorScheme();
     const showUsage = useAppStore((state) => state.showUsage);
-    const [clearConfirm, setClearConfirm] = React.useState(false);
-
-    const handleClearConversations = React.useCallback(() => {
-        if (!clearConfirm) {
-            setClearConfirm(true);
-            return;
-        }
-        removeAllConversations();
-        setClearConfirm(false);
-    }, [clearConfirm]);
 
     return (
         <Stack>
@@ -57,16 +45,7 @@ const AppSettings = () => {
 
             <Divider label="Danger Zone" labelPosition="center" color="red" />
 
-            <Group position="apart" noWrap>
-                <Text>Delete all conversations</Text>
-                <Button
-                    color="red"
-                    variant={clearConfirm ? undefined : "outline"}
-                    onClick={handleClearConversations}
-                >
-                    {clearConfirm ? "Confirm Delete?" : "Delete"}
-                </Button>
-            </Group>
+            <AppSettingsDangerZone />
         </Stack>
     );
 };
