@@ -40,7 +40,8 @@ import {
 import { partializeStore } from "./persist/partializeStore";
 import { storeStorage } from "./persist/storeStorage";
 import { STORAGE_PERSISTENCE_KEY } from "../config/constants";
-import { storeVersion } from "./persist/migrations";
+import { migrateStore, storeVersion } from "./persist/migrations";
+import { onStoreRehydrate } from "./persist/onStoreRehydrate";
 
 export type AppState = AppSettingsState &
     CallableFunctionsState &
@@ -96,6 +97,8 @@ export const useAppStore = create<AppState>()(
             partialize: partializeStore,
             storage: storeStorage,
             version: storeVersion,
+            migrate: migrateStore,
+            onRehydrateStorage: onStoreRehydrate,
         }
     )
 );
