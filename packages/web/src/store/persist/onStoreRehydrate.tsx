@@ -5,11 +5,15 @@ import StorageLoadError from "../../components/StorageLoadError";
 import { STORAGE_PERSISTENCE_KEY } from "../../config/constants";
 import { StoreMigrationError } from "./migrations";
 import getErrorInfo from "../../utils/getErrorInfo";
+import { migrateOldData } from "./migrateOldData";
 
 export const onStoreRehydrate = (
     _state: AppState
 ): void | ((state?: AppState, error?: unknown) => void) => {
     return (_hydratedState, e) => {
+        // TODO: Remove this after a while to give time for users to migrate to new storage
+        migrateOldData();
+
         if (!e) return;
         const error = e as Error;
         const isMigrationError = error instanceof StoreMigrationError;
