@@ -7,6 +7,7 @@ import { addCallableFunction } from "../actions/callableFunctions/addCallableFun
 import { saveContext } from "../actions/savedContexts/saveContext";
 import { savePrompt } from "../actions/savedPrompts/savePrompt";
 import { setDefaultSettings } from "../actions/defaultConversationSettings/setDefaultSettings";
+import { addPersistedConversationId } from "../actions/persistence/addPersistedConversationId";
 
 const notify = (
     title: string,
@@ -41,6 +42,7 @@ export const migrateOldData = async () => {
                     addConversation(c);
                     setConversationName(c.id, name);
                     setConversationLastEdit(c.id, lastEdited);
+                    addPersistedConversationId(c.id);
                 } catch (e) {
                     deleteAfter = false;
                     console.error(e);
