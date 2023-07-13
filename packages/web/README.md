@@ -50,11 +50,12 @@ The following instructions are for deploying the web app to [Render](https://ren
    2. Option 2: Link this repository: https://github.com/maxijonson/gpt-turbo .
 3. Give the site a name, for example `gpt-turbo-web`.
 4. Select the `master` branch as the branch to deploy.
-5. Set the root directory to `packages/web`.
-6. Set the build command to `npm run build`.
-7. Set the publish directory to `dist`. (`packages/web/dist`)
-8. (Optional) If you chose to link this repository (option 2), you may want to disable the "Auto-Deploy" option under the "Advanced" tab. This will prevent Render from automatically deploying the web app every time a change is made to it. You can then manually deploy the web app later.
-9. Click "Create Static Site".
+5. Leave the root directory blank.
+6. Set the build command to `npm run build:web`.
+7. Set the publish directory to `packages/web/dist`.
+8. Add an environment variable `NODE_VERSION` with `lts` as the value.
+9. (Optional) If you chose to link this repository (option 2), you may want to disable the "Auto-Deploy" option under the "Advanced" tab. This will prevent Render from automatically deploying the web app every time a change is made to it. You can then manually deploy the web app later.
+10. Click "Create Static Site".
 
 ## Attributions
 

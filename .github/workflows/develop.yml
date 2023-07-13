@@ -6,7 +6,7 @@ on:
       - 'develop'
 
 jobs:
-  test-pr:
+  test-build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
