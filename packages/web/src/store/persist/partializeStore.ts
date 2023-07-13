@@ -6,6 +6,7 @@ export const partializeStore = (state: AppState): AppPersistedState => {
     const appSettings = persistenceSchema.shape.appSettings.parse({
         showUsage: state.showUsage,
         colorScheme: state.colorScheme,
+        lastChangelog: state.lastChangelog,
     });
 
     // Callable Functions

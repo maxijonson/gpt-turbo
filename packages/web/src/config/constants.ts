@@ -36,3 +36,10 @@ export const CODE_LANGUAGES = [
 export const DISCORD_SERVER_INVITE = "https://discord.gg/Aa77KCmwRx";
 
 export const STORAGE_PERSISTENCE_KEY = "gptturbo-persistence";
+
+export const CHANGELOG_SECTION = {
+    FEATURES: "✨ New features",
+    IMPROVEMENTS: "💪 Improvements",
+    FIXES: "🐛 Bug fixes",
+    REMOVALS: "👋 Removals",
+};

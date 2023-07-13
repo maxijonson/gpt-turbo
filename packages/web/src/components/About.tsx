@@ -1,10 +1,9 @@
-import { Anchor, Stack, Text, Title } from "@mantine/core";
+import { Anchor, Stack, Text } from "@mantine/core";
 import { DISCORD_SERVER_INVITE } from "../config/constants";
 
 const About = () => {
     return (
         <Stack>
-            <Title order={3}>About GPT Turbo Web</Title>
             <Text>
                 This web app was created in order to showcase what the
                 underlying{" "}
