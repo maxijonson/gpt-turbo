@@ -12,7 +12,7 @@
     "release:patch": "npm run build && lerna publish patch --yes",
     "release:minor": "npm run build && lerna publish minor --yes",
     "release:major": "npm run build && lerna publish major --yes",
-    "install": "npm run build:lib"
+    "postinstall": "npm run build:lib"
   },
   "workspaces": [
     "packages/*"
