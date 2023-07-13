@@ -1,8 +1,10 @@
 import { Accordion, Box, Stack } from "@mantine/core";
-import usePersistence from "../hooks/usePersistence";
 import TippedActionIcon from "./TippedActionIcon";
 import { BiImport, BiTrash } from "react-icons/bi";
 import React from "react";
+import { useAppStore } from "../store";
+import { removeSavedContext } from "../store/actions/savedContexts/removeSavedContext";
+import { removeSavedPrompt } from "../store/actions/savedPrompts/removeSavedPrompt";
 
 interface SavedContextsModalBodyProps {
     onSelect: (value: string) => void;
@@ -15,14 +17,11 @@ const SavedPromptsModalBody = ({
     onSelect,
     mode,
 }: SavedContextsModalBodyProps) => {
-    const {
-        removeContext,
-        removePrompt,
-        persistence: { contexts, prompts },
-    } = usePersistence();
+    const savedContexts = useAppStore((state) => state.savedContexts);
+    const savedPrompts = useAppStore((state) => state.savedPrompts);
 
-    const remove = mode === "context" ? removeContext : removePrompt;
-    const items = mode === "context" ? contexts : prompts;
+    const remove = mode === "context" ? removeSavedContext : removeSavedPrompt;
+    const items = mode === "context" ? savedContexts : savedPrompts;
 
     React.useEffect(() => {
         if (items.length === 0) {

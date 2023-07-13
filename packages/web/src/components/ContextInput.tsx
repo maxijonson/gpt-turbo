@@ -4,7 +4,7 @@ import TippedActionIcon from "./TippedActionIcon";
 import { useDisclosure } from "@mantine/hooks";
 import SaveContextModalBody from "./SavePromptModalBody";
 import SavedContextsModalBody from "./SavedPromptsModalBody";
-import usePersistence from "../hooks/usePersistence";
+import { useAppStore } from "../store";
 
 interface ContextInputProps {
     value: string;
@@ -12,9 +12,7 @@ interface ContextInputProps {
 }
 
 const ContextInput = ({ value, onChange }: ContextInputProps) => {
-    const {
-        persistence: { contexts },
-    } = usePersistence();
+    const savedContexts = useAppStore((state) => state.savedContexts);
     const [
         showSaveContextModal,
         { open: openSaveContextModal, close: closeSaveContextModal },
@@ -35,7 +33,7 @@ const ContextInput = ({ value, onChange }: ContextInputProps) => {
                 label="Context"
                 rightSection={
                     <Stack spacing="xs">
-                        {contexts.length > 0 && (
+                        {savedContexts.length > 0 && (
                             <TippedActionIcon
                                 tip="Show Saved Contexts"
                                 onClick={openSavedContextsModal}

@@ -289,7 +289,7 @@ export class Conversation {
      */
     public addFunction(fn: CallableFunction | CallableFunctionModel) {
         this.functions = this.functions
-            .filter((f) => f.name === fn.name || f.id === fn.id)
+            .filter((f) => f.name !== fn.name && f.id !== fn.id)
             .concat(
                 fn instanceof CallableFunction
                     ? fn

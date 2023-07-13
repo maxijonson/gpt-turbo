@@ -1,5 +1,4 @@
 import {
-    Button,
     ColorScheme,
     Divider,
     Group,
@@ -9,24 +8,14 @@ import {
     Text,
     useMantineColorScheme,
 } from "@mantine/core";
-import useConversationManager from "../hooks/useConversationManager";
-import React from "react";
 import AppStorageUsage from "./AppStorageUsage";
+import { useAppStore } from "../store";
+import { toggleShowUsage } from "../store/actions/appSettings/toggleShowUsage";
+import AppSettingsDangerZone from "./AppSettingsDangerZone";
 
 const AppSettings = () => {
     const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-    const { showUsage, setShowUsage, removeAllConversations } =
-        useConversationManager();
-    const [clearConfirm, setClearConfirm] = React.useState(false);
-
-    const handleClearConversations = React.useCallback(() => {
-        if (!clearConfirm) {
-            setClearConfirm(true);
-            return;
-        }
-        removeAllConversations();
-        setClearConfirm(false);
-    }, [clearConfirm, removeAllConversations]);
+    const showUsage = useAppStore((state) => state.showUsage);
 
     return (
         <Stack>
@@ -48,7 +37,7 @@ const AppSettings = () => {
                 <Text>Show Usage</Text>
                 <Switch
                     checked={showUsage}
-                    onChange={() => setShowUsage(!showUsage)}
+                    onChange={() => toggleShowUsage()}
                 />
             </Group>
 
@@ -56,16 +45,7 @@ const AppSettings = () => {
 
             <Divider label="Danger Zone" labelPosition="center" color="red" />
 
-            <Group position="apart" noWrap>
-                <Text>Delete all conversations</Text>
-                <Button
-                    color="red"
-                    variant={clearConfirm ? undefined : "outline"}
-                    onClick={handleClearConversations}
-                >
-                    {clearConfirm ? "Confirm Delete?" : "Delete"}
-                </Button>
-            </Group>
+            <AppSettingsDangerZone />
         </Stack>
     );
 };

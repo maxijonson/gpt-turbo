@@ -29,6 +29,7 @@ const ConversationFormProvided = ({
     return (
         <Stack justify="space-between" h="100%">
             <Tabs
+                keepMounted={false}
                 value={currentTab}
                 onTabChange={(tab) =>
                     setCurrentTab(

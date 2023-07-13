@@ -1,11 +1,3 @@
-import React from "react";
-import {
-    STORAGEKEY_PERSISTENCE,
-    STORAGEKEY_SETTINGS,
-    STORAGEKEY_COLORSCHEME,
-    STORAGEKEY_SHOWUSAGE,
-} from "../config/constants";
-import { useLocalStorage } from "@mantine/hooks";
 import {
     Box,
     ColorSwatch,
@@ -15,6 +7,20 @@ import {
     Tooltip,
     useMantineTheme,
 } from "@mantine/core";
+import React from "react";
+import { STORAGE_PERSISTENCE_KEY } from "../config/constants";
+
+interface StorageUsage {
+    label: string;
+    size: number;
+}
+
+const MIN_SIZE = 100;
+
+const getUsageLabel = (key: string) => {
+    const words = key.split(/(?=[A-Z])/);
+    return words.map((word) => word[0].toUpperCase() + word.slice(1)).join(" ");
+};
 
 const getSizeLabel = (size: number) => {
     if (size < 1024) return `${size.toFixed(2)}B`;
@@ -22,56 +28,60 @@ const getSizeLabel = (size: number) => {
     return `${(size / (1024 * 1024)).toFixed(2)}MB`;
 };
 
-const useLocalStorageSize = (key: string) => {
-    const [value] = useLocalStorage({ key, deserialize: (v) => v });
-    return value ? key.length + value.length : 0;
-};
-
 const AppStorageUsage = () => {
+    const storageValue = localStorage.getItem(STORAGE_PERSISTENCE_KEY);
+
     const theme = useMantineTheme();
-    const persistenceSize = useLocalStorageSize(STORAGEKEY_PERSISTENCE);
-    const settingsSize = useLocalStorageSize(STORAGEKEY_SETTINGS);
-    const colorSchemeSize = useLocalStorageSize(STORAGEKEY_COLORSCHEME);
-    const showUsageSize = useLocalStorageSize(STORAGEKEY_SHOWUSAGE);
+    const isDark = theme.colorScheme === "dark";
+    const colorShade = isDark ? 4 : 6;
 
-    const usage = React.useMemo(
-        () =>
-            [
-                {
-                    key: STORAGEKEY_PERSISTENCE,
-                    label: "Persistence",
-                    size: persistenceSize,
-                },
-                {
-                    key: STORAGEKEY_SETTINGS,
-                    label: "Settings",
-                    size: settingsSize,
-                },
-                {
-                    key: STORAGEKEY_COLORSCHEME,
-                    label: "Color Scheme",
-                    size: colorSchemeSize,
-                },
-                {
-                    key: STORAGEKEY_SHOWUSAGE,
-                    label: "Show Usage",
-                    size: showUsageSize,
-                },
-            ].filter(({ size }) => size > 0),
-        [colorSchemeSize, persistenceSize, settingsSize, showUsageSize]
-    );
+    const usage = React.useMemo(() => {
+        if (!storageValue) return [];
 
-    const colors: Record<string, string> = React.useMemo(
-        () => ({
-            [STORAGEKEY_PERSISTENCE]: theme.colors.pink[5],
-            [STORAGEKEY_SETTINGS]: theme.colors.blue[5],
-            [STORAGEKEY_COLORSCHEME]: theme.colors.green[5],
-            [STORAGEKEY_SHOWUSAGE]: theme.colors.yellow[5],
-        }),
+        const json = JSON.parse(storageValue);
+        if (!json.state) return [];
+
+        const { state } = json;
+
+        return Object.entries(state)
+            .map(([key, value]) => {
+                const label = getUsageLabel(key);
+                const size = JSON.stringify(value).length;
+
+                return {
+                    label,
+                    size,
+                } satisfies StorageUsage;
+            })
+            .filter((usage) => usage.size > MIN_SIZE);
+    }, [storageValue]);
+
+    const colors = React.useMemo(
+        () => [
+            theme.colors.blue[colorShade],
+            theme.colors.grape[colorShade],
+            theme.colors.teal[colorShade],
+            theme.colors.orange[colorShade],
+            theme.colors.indigo[colorShade],
+            theme.colors.red[colorShade],
+            theme.colors.yellow[colorShade],
+            theme.colors.cyan[colorShade],
+            theme.colors.lime[colorShade],
+            theme.colors.violet[colorShade],
+            theme.colors.pink[colorShade],
+        ],
         [
+            colorShade,
             theme.colors.blue,
-            theme.colors.green,
+            theme.colors.cyan,
+            theme.colors.grape,
+            theme.colors.indigo,
+            theme.colors.lime,
+            theme.colors.orange,
             theme.colors.pink,
+            theme.colors.red,
+            theme.colors.teal,
+            theme.colors.violet,
             theme.colors.yellow,
         ]
     );
@@ -81,8 +91,8 @@ const AppStorageUsage = () => {
         const total = usage.reduce((acc, { size }) => acc + size, 0);
 
         return usage
-            .map(({ key, label, size }) => {
-                const color = colors[key] ?? theme.colors.dark[7];
+            .map(({ label, size }, i) => {
+                const color = colors[i % colors.length];
 
                 return {
                     value: (size / quota) * 100,
@@ -102,12 +112,15 @@ const AppStorageUsage = () => {
     return (
         <Box>
             <Text>Storage Usage</Text>
-            <Text size="xs" color="dimmed" mb="xs">
+            <Text size="xs" color="dimmed" mb={0}>
                 This is an estimate, assuming a 5MB quota. (default for most
-                browsers)
+                browsers).
+            </Text>
+            <Text size="xs" color="dimmed" mb="xs">
+                Categories under {getSizeLabel(MIN_SIZE)} are not shown.
             </Text>
             <Progress radius="xl" size="xl" sections={sections} />
-            <Group position="apart" mt="xs">
+            <Group position="center" mt="xs">
                 {sections.map(({ color, label, tooltip, value }) => (
                     <Tooltip
                         label={`${tooltip} - ${value.toFixed(2)}%`}

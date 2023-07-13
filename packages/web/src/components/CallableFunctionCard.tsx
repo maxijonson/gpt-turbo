@@ -22,6 +22,9 @@ import { useNavigate } from "react-router-dom";
 import { modals } from "@mantine/modals";
 import { BsTrash } from "react-icons/bs";
 import { callableFunctionExportschema } from "../entities/callableFunctionExport";
+import { useAppStore } from "../store";
+import { addCallableFunction } from "../store/actions/callableFunctions/addCallableFunction";
+import { deleteCallableFunction } from "../store/actions/callableFunctions/deleteCallableFunction";
 
 type CallableFunctionCardProps = Omit<CardProps, "children"> & {
     fn: CallableFunction;
@@ -32,13 +35,9 @@ const CallableFunctionCard = ({
     ...cardProps
 }: CallableFunctionCardProps) => {
     const navigate = useNavigate();
-    const {
-        getCallableFunctionDisplayName,
-        deleteCallableFunction,
-        addCallableFunction,
-        getCallableFunctionCode,
-        callableFunctions,
-    } = useCallableFunctions();
+    const callableFunctions = useAppStore((state) => state.callableFunctions);
+    const { getCallableFunctionDisplayName, getCallableFunctionCode } =
+        useCallableFunctions();
 
     const signature = React.useMemo(() => {
         const parameters = [
@@ -120,7 +119,6 @@ const CallableFunctionCard = ({
             },
         });
     }, [
-        addCallableFunction,
         callableFunctions,
         fn,
         getCallableFunctionCode,
@@ -144,7 +142,7 @@ const CallableFunctionCard = ({
                 deleteCallableFunction(fn.id);
             },
         });
-    }, [deleteCallableFunction, fn.id, getCallableFunctionDisplayName]);
+    }, [fn.id, getCallableFunctionDisplayName]);
 
     const onExport = React.useCallback(() => {
         const data = JSON.stringify(

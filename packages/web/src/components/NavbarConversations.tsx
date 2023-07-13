@@ -12,6 +12,8 @@ import React from "react";
 import TippedActionIcon from "./TippedActionIcon";
 import { BiTrash } from "react-icons/bi";
 import { useTimeout } from "@mantine/hooks";
+import { useAppStore } from "../store";
+import { removeConversation } from "../store/actions/conversations/removeConversation";
 
 interface NavbarConversationsProps {
     onConversationSelect?: () => void;
@@ -74,11 +76,8 @@ const NavbarConversations = ({
     onConversationSelect = () => {},
 }: NavbarConversationsProps) => {
     const { classes } = useStyles();
-    const {
-        conversations: allConversations,
-        getConversationLastEdit,
-        removeConversation,
-    } = useConversationManager();
+    const conversations = useAppStore((state) => state.conversations);
+    const { getConversationLastEdit } = useConversationManager();
     const [deleteConfirmation, setdeleteConfirmation] = React.useState<
         string | null
     >(null);
@@ -86,7 +85,7 @@ const NavbarConversations = ({
         useTimeout(() => setdeleteConfirmation(null), 3000);
 
     const conversationGroups = React.useMemo(() => {
-        return allConversations
+        return conversations
             .map((c) => ({
                 conversation: c,
                 lastEdit: getConversationLastEdit(c.id),
@@ -99,8 +98,8 @@ const NavbarConversations = ({
                 }
                 acc[relativeDate].push(conversation);
                 return acc;
-            }, {} as Record<string, typeof allConversations>);
-    }, [allConversations, getConversationLastEdit]);
+            }, {} as Record<string, typeof conversations>);
+    }, [conversations, getConversationLastEdit]);
 
     const makeDeleteGroup = React.useCallback(
         (group: string) => () => {
@@ -118,7 +117,6 @@ const NavbarConversations = ({
             clearUnconfirmDelete,
             conversationGroups,
             deleteConfirmation,
-            removeConversation,
             startUnconfirmDelete,
         ]
     );

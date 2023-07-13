@@ -19,5 +19,8 @@
   ],
   "devDependencies": {
     "lerna": "^7.0.2"
+  },
+  "dependencies": {
+    "immer": "^10.0.2"
   }
 }

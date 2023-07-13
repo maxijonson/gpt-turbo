@@ -1,9 +1,10 @@
 import { Container, Modal, ModalProps, useMantineTheme } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import useSettings from "../hooks/useSettings";
 import React from "react";
 import { ConversationFormValues } from "../contexts/ConversationFormContext";
 import ConversationForm from "./ConversationForm";
+import { useAppStore } from "../store";
+import { setDefaultSettings } from "../store/actions/defaultConversationSettings/setDefaultSettings";
 
 type SettingsFormModalProps = ModalProps;
 
@@ -13,18 +14,17 @@ const SettingsFormModal = ({
 }: SettingsFormModalProps) => {
     const theme = useMantineTheme();
     const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
-
-    const { settings, setSettings } = useSettings();
+    const settings = useAppStore((state) => state.defaultSettings);
 
     const onSubmit = React.useCallback(
         (values: ConversationFormValues) => {
-            setSettings({
+            setDefaultSettings({
                 ...settings,
                 ...values,
             });
             onClose();
         },
-        [onClose, setSettings, settings]
+        [onClose, settings]
     );
 
     return (

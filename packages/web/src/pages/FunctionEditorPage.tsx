@@ -5,10 +5,9 @@ import FunctionsWarning from "../components/FunctionsWarning";
 import CallableFunctionForm from "../components/CallableFunctionForm";
 import React from "react";
 import { CallableFunctionFormProviderProps } from "../contexts/providers/CallableFunctionFormProvider";
-import useCallableFunctions from "../hooks/useCallableFunctions";
+import { addCallableFunction } from "../store/actions/callableFunctions/addCallableFunction";
 
 const FunctionEditorPage = () => {
-    const { addCallableFunction } = useCallableFunctions();
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -19,7 +18,7 @@ const FunctionEditorPage = () => {
             addCallableFunction(config, displayName, code);
             navigate("/functions");
         },
-        [addCallableFunction, navigate]
+        [navigate]
     );
 
     return (

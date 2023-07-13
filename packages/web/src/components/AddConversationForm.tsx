@@ -1,14 +1,13 @@
-import useConversationManager from "../hooks/useConversationManager";
 import React from "react";
-import usePersistence from "../hooks/usePersistence";
 import ConversationForm from "./ConversationForm";
 import { ConversationFormValues } from "../contexts/ConversationFormContext";
 import useCallableFunctions from "../hooks/useCallableFunctions";
+import { addConversation } from "../store/actions/conversations/addConversation";
+import { setActiveConversation } from "../store/actions/conversations/setActiveConversation";
+import { addPersistedConversationId } from "../store/actions/persistence/addPersistedConversationId";
 
 const AddConversationForm = () => {
-    const { addConversation, setActiveConversation } = useConversationManager();
     const { getCallableFunction } = useCallableFunctions();
-    const { addPersistedConversationId } = usePersistence();
 
     const onSubmit = React.useCallback(
         ({
@@ -21,21 +20,16 @@ const AddConversationForm = () => {
             const newConversation = addConversation(values, { headers, proxy });
             setActiveConversation(newConversation.id, true);
 
-            functionIds.forEach((id) => {
-                const callableFunction = getCallableFunction(id);
+            for (const functionId of functionIds) {
+                const callableFunction = getCallableFunction(functionId);
                 newConversation.addFunction(callableFunction);
-            });
+            }
 
             if (save) {
                 addPersistedConversationId(newConversation.id);
             }
         },
-        [
-            addConversation,
-            addPersistedConversationId,
-            getCallableFunction,
-            setActiveConversation,
-        ]
+        [getCallableFunction]
     );
 
     return <ConversationForm onSubmit={onSubmit} hideAppSettings />;

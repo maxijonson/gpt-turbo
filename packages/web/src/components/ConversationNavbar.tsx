@@ -24,6 +24,9 @@ import SettingsFormModal from "./SettingsFormModal";
 import { FaRegQuestionCircle } from "react-icons/fa";
 import About from "./About";
 import { DISCORD_SERVER_INVITE } from "../config/constants";
+import { useAppStore } from "../store";
+import { setActiveConversation } from "../store/actions/conversations/setActiveConversation";
+import ChangelogButton from "./ChangelogButton";
 
 const useStyles = createStyles(() => ({
     burger: {
@@ -35,8 +38,8 @@ const useStyles = createStyles(() => ({
 }));
 
 const AppNavbar = () => {
-    const { activeConversation, setActiveConversation, showUsage } =
-        useConversationManager();
+    const showUsage = useAppStore((state) => state.showUsage);
+    const { activeConversation } = useConversationManager();
     const { classes } = useStyles();
     const theme = useMantineTheme();
     const [navbarOpened, { close: closeNavbar, toggle: toggleNavbar }] =
@@ -139,6 +142,7 @@ const AppNavbar = () => {
                             >
                                 <FaRegQuestionCircle />
                             </TippedActionIcon>
+                            <ChangelogButton />
                         </Group>
                         <Text align="center" size="xs">
                             GPT Turbo Web v{APP_VERSION} by{" "}
@@ -158,7 +162,7 @@ const AppNavbar = () => {
                 onClose={closeAbout}
                 size="lg"
                 centered
-                withCloseButton={false}
+                title={<Text weight="bold">About GPT Turbo Web</Text>}
             >
                 <About />
             </Modal>

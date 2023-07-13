@@ -35,7 +35,11 @@ export const CODE_LANGUAGES = [
 
 export const DISCORD_SERVER_INVITE = "https://discord.gg/Aa77KCmwRx";
 
-export const STORAGEKEY_PERSISTENCE = "gpt-turbo-persistence";
-export const STORAGEKEY_SETTINGS = "gpt-turbo-settings";
-export const STORAGEKEY_COLORSCHEME = "gpt-turbo-colorscheme";
-export const STORAGEKEY_SHOWUSAGE = "gpt-turbo-showusage";
+export const STORAGE_PERSISTENCE_KEY = "gptturbo-persistence";
+
+export const CHANGELOG_SECTION = {
+    FEATURES: "✨ New features",
+    IMPROVEMENTS: "💪 Improvements",
+    FIXES: "🐛 Bug fixes",
+    REMOVALS: "👋 Removals",
+};

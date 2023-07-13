@@ -16,7 +16,7 @@ import CallableFunctionFormParameters from "./CallableFunctionFormParameters";
 import OptionalTextInput from "./OptionalTextInput";
 import { modals } from "@mantine/modals";
 import React, { Suspense } from "react";
-import useCallableFunctions from "../hooks/useCallableFunctions";
+import { deleteCallableFunction } from "../store/actions/callableFunctions/deleteCallableFunction";
 
 const CallableFunctionFormCode = React.lazy(
     () => import("./CallableFunctionFormCode")
@@ -35,7 +35,6 @@ const CallableFunctionFormProvided = ({
     isNew = false,
 }: CallableFunctionFormProvidedProps) => {
     const form = useCallableFunctionForm();
-    const { deleteCallableFunction } = useCallableFunctions();
     const navigate = useNavigate();
 
     const openDeleteModal = React.useCallback(() => {
@@ -57,12 +56,7 @@ const CallableFunctionFormProvided = ({
                 navigate("/functions");
             },
         });
-    }, [
-        deleteCallableFunction,
-        form.values.displayName,
-        form.values.id,
-        navigate,
-    ]);
+    }, [form.values.displayName, form.values.id, navigate]);
 
     return (
         <Stack pt="md">
