@@ -1,12 +1,4 @@
-import {
-    Button,
-    Center,
-    Group,
-    Loader,
-    Stack,
-    Text,
-    TextInput,
-} from "@mantine/core";
+import { Button, Center, Group, Loader, Stack, TextInput } from "@mantine/core";
 import CallableFunctionFormProvider, {
     CallableFunctionFormProviderProps,
 } from "../../../contexts/providers/CallableFunctionFormProvider";
@@ -14,7 +6,6 @@ import useCallableFunctionForm from "../../../hooks/useCallableFunctionForm";
 import { Link, useNavigate } from "react-router-dom";
 import CallableFunctionFormParameters from "./CallableFunctionFormParameters";
 import OptionalTextInput from "../../inputs/OptionalTextInput";
-import { modals } from "@mantine/modals";
 import React, { Suspense } from "react";
 import { deleteCallableFunction } from "../../../store/actions/callableFunctions/deleteCallableFunction";
 
@@ -37,26 +28,15 @@ const CallableFunctionFormProvided = ({
     const form = useCallableFunctionForm();
     const navigate = useNavigate();
 
-    const openDeleteModal = React.useCallback(() => {
+    const handleDelete = React.useCallback(async () => {
         const id = form.values.id;
         if (!id) return;
-        modals.openConfirmModal({
-            title: `Delete ${form.values.displayName}?`,
-            centered: true,
-            children: (
-                <Text size="sm">
-                    Are you sure you want to delete {form.values.displayName}?
-                    This cannot be undone.
-                </Text>
-            ),
-            labels: { confirm: "Delete function", cancel: "Cancel" },
-            confirmProps: { color: "red" },
-            onConfirm: () => {
-                deleteCallableFunction(id);
-                navigate("/functions");
-            },
-        });
-    }, [form.values.displayName, form.values.id, navigate]);
+
+        const deleted = await deleteCallableFunction(id);
+        if (!deleted) return;
+
+        navigate("/functions");
+    }, [form.values.id, navigate]);
 
     return (
         <Stack pt="md">
@@ -94,7 +74,7 @@ const CallableFunctionFormProvided = ({
                     <Button
                         variant="outline"
                         color="red"
-                        onClick={openDeleteModal}
+                        onClick={handleDelete}
                     >
                         Delete
                     </Button>
