@@ -2,6 +2,7 @@ import { Text } from "@mantine/core";
 import { useAppStore } from "../..";
 import { modals } from "@mantine/modals";
 import { addCallableFunction } from "./addCallableFunction";
+import getUniqueString from "../../../utils/getUniqueString";
 
 export const duplicateCallableFunction = (id: string, withConfirm = true) => {
     const {
@@ -16,29 +17,17 @@ export const duplicateCallableFunction = (id: string, withConfirm = true) => {
     const displayName = callableFunctionDisplayNames[fn.id];
     if (!displayName) return;
 
-    const code = callableFunctionCodes[fn.id];
+    const copyDisplayName = getUniqueString(
+        displayName,
+        Object.values(callableFunctionDisplayNames),
+        (displayName, i) => `${displayName} (${i})`
+    );
 
-    const copyDisplayName = (() => {
-        let i = 1;
-        let copy = `${displayName} (${i})`;
-        while (
-            callableFunctions.some(
-                (fn) => callableFunctionDisplayNames[fn.id] === copy
-            )
-        ) {
-            copy = `${displayName} (${i++})`;
-        }
-        return copy;
-    })();
-
-    const copyName = (() => {
-        let i = 1;
-        let copy = `${fn.name}${i}`;
-        while (callableFunctions.some((fn) => fn.name === copy)) {
-            copy = `${fn.name}${i++}`;
-        }
-        return copy;
-    })();
+    const copyName = getUniqueString(
+        fn.name,
+        callableFunctions.map((fn) => fn.name),
+        (name, i) => `${name}${i}`
+    );
 
     const onConfirm = () => {
         addCallableFunction(
@@ -48,7 +37,7 @@ export const duplicateCallableFunction = (id: string, withConfirm = true) => {
                 name: copyName,
             },
             copyDisplayName,
-            code
+            callableFunctionCodes[fn.id]
         );
     };
 

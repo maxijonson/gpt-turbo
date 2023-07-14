@@ -7,13 +7,13 @@ import React from "react";
 import { CallableFunctionExport } from "../../entities/callableFunctionExport";
 import { notifications } from "@mantine/notifications";
 import getErrorInfo from "../../utils/getErrorInfo";
-import { useAppStore } from "../../store";
 import { addCallableFunction } from "../../store/actions/callableFunctions/addCallableFunction";
-import { useGetFunctionDisplayName } from "../../store/hooks/callableFunctions/useGetFunctionDisplayName";
+import { useGetUniqueFunctionDisplayName } from "../../store/hooks/callableFunctions/useGetUniqueFunctionDisplayName";
+import { useGetUniqueFunctionName } from "../../store/hooks/callableFunctions/useGetUniqueFunctionName";
 
 const CallableFunctionImportButton = () => {
-    const callableFunctions = useAppStore((state) => state.callableFunctions);
-    const getFunctionDisplayName = useGetFunctionDisplayName();
+    const getUniqueFunctionDisplayName = useGetUniqueFunctionDisplayName();
+    const getUniqueFunctionName = useGetUniqueFunctionName();
     const [
         showImportModal,
         { open: openImportModal, close: closeImportModal },
@@ -21,35 +21,21 @@ const CallableFunctionImportButton = () => {
 
     const onImport = React.useCallback(
         (fns: CallableFunctionExport[]) => {
-            const usedDisplayNames = callableFunctions.map((fn) =>
-                getFunctionDisplayName(fn.id)
-            );
-            const usedNames = callableFunctions.map((fn) => fn.name);
+            const createdDisplayNames: string[] = [];
+            const createdNames: string[] = [];
 
             for (const fn of fns) {
-                const importDisplayName = (() => {
-                    let i = 1;
-                    let copy = fn.displayName;
-                    while (
-                        usedDisplayNames.some(
-                            (displayName) => displayName === copy
-                        )
-                    ) {
-                        copy = `${fn.displayName} (${i++})`;
-                    }
-                    return copy;
-                })();
-                usedDisplayNames.push(importDisplayName);
+                const importDisplayName = getUniqueFunctionDisplayName(
+                    fn.displayName,
+                    createdDisplayNames
+                );
+                createdDisplayNames.push(importDisplayName);
 
-                const importName = (() => {
-                    let i = 1;
-                    let copy = fn.callableFunction.name;
-                    while (usedNames.some((name) => name === copy)) {
-                        copy = `${fn.callableFunction.name}${i++}`;
-                    }
-                    return copy;
-                })();
-                usedNames.push(importName);
+                const importName = getUniqueFunctionName(
+                    fn.callableFunction.name,
+                    createdNames
+                );
+                createdNames.push(importName);
 
                 try {
                     addCallableFunction(
@@ -76,7 +62,7 @@ const CallableFunctionImportButton = () => {
 
             closeImportModal();
         },
-        [callableFunctions, closeImportModal, getFunctionDisplayName]
+        [closeImportModal, getUniqueFunctionDisplayName, getUniqueFunctionName]
     );
 
     return (
