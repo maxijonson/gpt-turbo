@@ -10,12 +10,12 @@ import {
 } from "@mantine/core";
 import { BiArrowBack, BiSearch } from "react-icons/bi";
 import { Link } from "react-router-dom";
-import FunctionsWarning from "../components/FunctionsWarning";
+import FunctionsWarning from "../components/warnings/FunctionsWarning";
 import { useInputState, useMediaQuery } from "@mantine/hooks";
 import React from "react";
 import useCallableFunctions from "../hooks/useCallableFunctions";
 import CallableFunctionCard from "../components/CallableFunctionCard";
-import CallableFunctionImportButton from "../components/CallableFunctionImportButton";
+import CallableFunctionImportButton from "../components/CallableFunctionImport/CallableFunctionImportButton";
 import CallableFunctionCreateButton from "../components/CallableFunctionCreateButton";
 import { useAppStore } from "../store";
 

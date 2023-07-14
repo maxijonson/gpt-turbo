@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import Providers from "./contexts/providers";
-import AppCatcher from "./components/AppCatcher";
+import AppCatcher from "./components/error-handling/AppCatcher";
 import AppRouter from "./routers/AppRouter";
 import { Container, Sx } from "@mantine/core";
 

@@ -1,5 +1,5 @@
 import { AppShell, useMantineTheme } from "@mantine/core";
-import ConversationNavbar from "./ConversationNavbar";
+import ConversationNavbar from "./ConversationNavbar/ConversationNavbar";
 import { useMediaQuery } from "@mantine/hooks";
 
 interface ConversationPageShellProps {

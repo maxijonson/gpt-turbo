@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { Routes, Route, Navigate, useMatches } from "react-router-dom";
-import ContentLoader from "../components/ContentLoader";
+import ContentLoader from "../components/common/ContentLoader";
 import { Text } from "@mantine/core";
 
 const FunctionsPage = React.lazy(() => import("../pages/FunctionsPage"));

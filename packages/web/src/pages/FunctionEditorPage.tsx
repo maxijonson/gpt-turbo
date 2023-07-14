@@ -1,8 +1,8 @@
 import { Container, Button } from "@mantine/core";
 import { BiArrowBack } from "react-icons/bi";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import FunctionsWarning from "../components/FunctionsWarning";
-import CallableFunctionForm from "../components/CallableFunctionForm";
+import FunctionsWarning from "../components/warnings/FunctionsWarning";
+import CallableFunctionForm from "../components/forms/CallableFunctionForm/CallableFunctionForm";
 import React from "react";
 import { CallableFunctionFormProviderProps } from "../contexts/providers/CallableFunctionFormProvider";
 import { addCallableFunction } from "../store/actions/callableFunctions/addCallableFunction";

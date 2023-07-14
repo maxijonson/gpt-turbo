@@ -4,7 +4,7 @@ import {
     RouterProvider,
     createBrowserRouter,
 } from "react-router-dom";
-import ContentLoader from "../components/ContentLoader";
+import ContentLoader from "../components/common/ContentLoader";
 import { Text } from "@mantine/core";
 
 const ConversationPage = React.lazy(() => import("../pages/ConversationPage"));
