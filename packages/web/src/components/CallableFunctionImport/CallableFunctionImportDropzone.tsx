@@ -15,11 +15,14 @@ const readImportedFile = (file: File) => {
         const reader = new FileReader();
         reader.onload = () => {
             try {
-                resolve(
-                    callableFunctionExportschema.parse(
-                        JSON.parse(reader.result as string)
-                    )
+                const result = callableFunctionExportschema.safeParse(
+                    JSON.parse(reader.result as string)
                 );
+                if (!result.success) {
+                    reject(result.error);
+                } else {
+                    resolve(result.data);
+                }
             } catch (e) {
                 reject(e);
             }
@@ -43,9 +46,9 @@ const CallableFunctionImportDropzone = ({
     const handleDrop = React.useCallback(
         async (files: File[]) => {
             const importedFns = await Promise.all(
-                files.map((file) => {
+                files.map(async (file) => {
                     try {
-                        return readImportedFile(file);
+                        return await readImportedFile(file);
                     } catch (e) {
                         notifications.show({
                             title: "Failed to import function",
