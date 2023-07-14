@@ -7,7 +7,6 @@ import {
     createStyles,
 } from "@mantine/core";
 import { Conversation } from "gpt-turbo";
-import useConversationManager from "../../hooks/useConversationManager";
 import { BiCheck, BiPencil, BiTrash, BiX } from "react-icons/bi";
 import React from "react";
 import { useForm } from "@mantine/form";
@@ -16,6 +15,9 @@ import { setConversationName } from "../../store/actions/conversations/setConver
 import { removeConversation } from "../../store/actions/conversations/removeConversation";
 import { setActiveConversation } from "../../store/actions/conversations/setActiveConversation";
 import NavbarConversationInfo from "../ConversationNavbar/NavbarConversations/NavbarConversationInfo";
+import { useActiveConversation } from "../../store/hooks/conversations/useActiveConversation";
+import { useGetConversationName } from "../../store/hooks/conversations/useGetConversationName";
+import { DEFAULT_CONVERSATION_NAME } from "../../config/constants";
 
 interface NavbarConversationProps {
     conversation: Conversation;
@@ -68,8 +70,8 @@ const NavbarConversation = ({
     conversation,
     onClick,
 }: NavbarConversationProps) => {
-    const { activeConversation, getConversationName } =
-        useConversationManager();
+    const activeConversation = useActiveConversation();
+    const getConversationName = useGetConversationName();
     const [isDeleting, setIsDeleting] = React.useState(false);
     const [isEditing, setIsEditing] = React.useState(false);
     const isActive = conversation.id === activeConversation?.id;
@@ -78,12 +80,16 @@ const NavbarConversation = ({
     const editFormRef = React.useRef<HTMLFormElement>(null);
     const editForm = useForm({
         initialValues: {
-            name: getConversationName(conversation.id),
+            name:
+                getConversationName(conversation.id) ??
+                DEFAULT_CONVERSATION_NAME,
         },
     });
 
     const name = React.useMemo(() => {
-        return getConversationName(conversation.id);
+        return (
+            getConversationName(conversation.id) ?? DEFAULT_CONVERSATION_NAME
+        );
     }, [conversation.id, getConversationName]);
 
     const onEdit = editForm.onSubmit((values) => {

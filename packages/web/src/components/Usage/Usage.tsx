@@ -1,15 +1,16 @@
 import { Stack, Text, Title } from "@mantine/core";
 import { Conversation } from "gpt-turbo";
-import useConversationManager from "../../hooks/useConversationManager";
 import UsageMetric from "./UsageMetric";
 import getPriceString from "../../utils/getPriceString";
+import { useGetConversationName } from "../../store/hooks/conversations/useGetConversationName";
+import { DEFAULT_CONVERSATION_NAME } from "../../config/constants";
 
 interface UsageProps {
     conversation: Conversation;
 }
 
 const Usage = ({ conversation }: UsageProps) => {
-    const { getConversationName } = useConversationManager();
+    const getConversationName = useGetConversationName();
 
     const metrics: {
         label: React.ReactNode;
@@ -45,7 +46,8 @@ const Usage = ({ conversation }: UsageProps) => {
                     Usage
                 </Title>
                 <Text italic size="xs" align="center">
-                    {getConversationName(conversation.id)}
+                    {getConversationName(conversation.id) ??
+                        DEFAULT_CONVERSATION_NAME}
                 </Text>
             </Stack>
             {metrics.map((metric, i) => (

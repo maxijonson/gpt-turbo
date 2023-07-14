@@ -7,13 +7,13 @@ import {
     createStyles,
 } from "@mantine/core";
 import NavbarConversation from "./NavbarConversation";
-import useConversationManager from "../../../hooks/useConversationManager";
 import React from "react";
 import TippedActionIcon from "../../common/TippedActionIcon";
 import { BiTrash } from "react-icons/bi";
 import { useTimeout } from "@mantine/hooks";
 import { useAppStore } from "../../../store";
 import { removeConversation } from "../../../store/actions/conversations/removeConversation";
+import { useGetConversationLastEdit } from "../../../store/hooks/conversations/useGetConversationLastEdit";
 
 interface NavbarConversationsProps {
     onConversationSelect?: () => void;
@@ -77,7 +77,7 @@ const NavbarConversations = ({
 }: NavbarConversationsProps) => {
     const { classes } = useStyles();
     const conversations = useAppStore((state) => state.conversations);
-    const { getConversationLastEdit } = useConversationManager();
+    const getConversationLastEdit = useGetConversationLastEdit();
     const [deleteConfirmation, setdeleteConfirmation] = React.useState<
         string | null
     >(null);
@@ -88,7 +88,7 @@ const NavbarConversations = ({
         return conversations
             .map((c) => ({
                 conversation: c,
-                lastEdit: getConversationLastEdit(c.id),
+                lastEdit: getConversationLastEdit(c.id) ?? Date.now(),
             }))
             .sort((a, b) => b.lastEdit - a.lastEdit)
             .reduce((acc, { conversation, lastEdit }) => {

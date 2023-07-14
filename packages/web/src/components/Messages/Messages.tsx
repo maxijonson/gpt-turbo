@@ -5,12 +5,12 @@ import {
     createStyles,
     useMantineTheme,
 } from "@mantine/core";
-import useConversationManager from "../../hooks/useConversationManager";
 import Message from "./Message";
 import React from "react";
 import { useMediaQuery } from "@mantine/hooks";
 import { CallableFunction, FunctionCallMessage } from "gpt-turbo";
 import useCallableFunctions from "../../hooks/useCallableFunctions";
+import { useActiveConversation } from "../../store/hooks/conversations/useActiveConversation";
 
 const useStyles = createStyles(() => ({
     scrollArea: {
@@ -21,7 +21,7 @@ const useStyles = createStyles(() => ({
 }));
 
 const Messages = () => {
-    const { activeConversation: conversation } = useConversationManager();
+    const conversation = useActiveConversation();
     const [messages, setMessages] = React.useState(
         conversation?.getMessages() ?? []
     );

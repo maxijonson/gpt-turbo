@@ -1,4 +1,5 @@
 import { AppPersistedState, AppState } from "..";
+import { DEFAULT_CONVERSATION_NAME } from "../../config/constants";
 import { persistenceSchema } from "../../entities/persistence";
 
 export const partializeStore = (state: AppState): AppPersistedState => {
@@ -32,7 +33,9 @@ export const partializeStore = (state: AppState): AppPersistedState => {
             .map((c) => {
                 const lastEdited =
                     state.conversationLastEdits.get(c.id) ?? Date.now();
-                const name = state.conversationNames.get(c.id) ?? "New Chat";
+                const name =
+                    state.conversationNames.get(c.id) ??
+                    DEFAULT_CONVERSATION_NAME;
                 return {
                     ...c.toJSON(),
                     lastEdited,

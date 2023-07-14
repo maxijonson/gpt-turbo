@@ -7,7 +7,6 @@ import {
     Textarea,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import useConversationManager from "../../../hooks/useConversationManager";
 import { notifications } from "@mantine/notifications";
 import React from "react";
 import PromptUsage from "./PromptUsage";
@@ -25,10 +24,11 @@ import SavedPromptsModalBody from "../../modals/SavedPromptsModalBody";
 import getErrorInfo from "../../../utils/getErrorInfo";
 import { useAppStore } from "../../../store";
 import { setConversationLastEdit } from "../../../store/actions/conversations/setConversationLastEdit";
+import { useActiveConversation } from "../../../store/hooks/conversations/useActiveConversation";
 
 const Prompt = () => {
     const showUsage = useAppStore((state) => state.showUsage);
-    const { activeConversation: conversation } = useConversationManager();
+    const conversation = useActiveConversation();
     const form = useForm({
         initialValues: {
             prompt: "",

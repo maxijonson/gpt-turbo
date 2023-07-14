@@ -25,7 +25,6 @@ import { AiOutlineFunction } from "react-icons/ai";
 import React from "react";
 import TippedActionIcon from "../common/TippedActionIcon";
 import { useForm } from "@mantine/form";
-import useConversationManager from "../../hooks/useConversationManager";
 import { notifications } from "@mantine/notifications";
 import CodeBlock from "./CodeBlock";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
@@ -33,6 +32,7 @@ import SavePromptModalBody from "../modals/SavePromptModalBody";
 import { CODE_LANGUAGES } from "../../config/constants";
 import { CodeLanguage } from "../../utils/types";
 import getErrorInfo from "../../utils/getErrorInfo";
+import { useActiveConversation } from "../../store/hooks/conversations/useActiveConversation";
 
 interface MessageProps {
     message: Message;
@@ -56,7 +56,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 const MessageComponent = ({ message }: MessageProps) => {
-    const { activeConversation: conversation } = useConversationManager();
+    const conversation = useActiveConversation();
     const { classes } = useStyles();
     const [isEditing, setIsEditing] = React.useState(false);
     const form = useForm({

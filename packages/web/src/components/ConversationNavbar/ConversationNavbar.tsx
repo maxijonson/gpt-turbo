@@ -11,7 +11,6 @@ import {
     createStyles,
     useMantineTheme,
 } from "@mantine/core";
-import useConversationManager from "../../hooks/useConversationManager";
 import { BiCog, BiPlus } from "react-icons/bi";
 import TippedActionIcon from "../common/TippedActionIcon";
 import Usage from "../Usage/Usage";
@@ -27,6 +26,7 @@ import { DISCORD_SERVER_INVITE } from "../../config/constants";
 import { useAppStore } from "../../store";
 import { setActiveConversation } from "../../store/actions/conversations/setActiveConversation";
 import ChangelogButton from "../Changelog/ChangelogButton";
+import { useActiveConversation } from "../../store/hooks/conversations/useActiveConversation";
 
 const useStyles = createStyles(() => ({
     burger: {
@@ -39,7 +39,7 @@ const useStyles = createStyles(() => ({
 
 const AppNavbar = () => {
     const showUsage = useAppStore((state) => state.showUsage);
-    const { activeConversation } = useConversationManager();
+    const activeConversation = useActiveConversation();
     const { classes } = useStyles();
     const theme = useMantineTheme();
     const [navbarOpened, { close: closeNavbar, toggle: toggleNavbar }] =
