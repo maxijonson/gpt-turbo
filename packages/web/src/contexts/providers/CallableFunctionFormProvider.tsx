@@ -6,10 +6,11 @@ import {
 } from "../CallableFunctionFormContext";
 import { persistenceCallableFunctionSchema } from "../../entities/persistenceCallableFunction";
 import React from "react";
-import useCallableFunctions from "../../hooks/useCallableFunctions";
 import { useSearchParams } from "react-router-dom";
 import functionTemplates from "../../utils/functionTemplates";
 import { useAppStore } from "../../store";
+import { useGetFunctionDisplayName } from "../../store/hooks/callableFunctions/useGetFunctionDisplayName";
+import { useGetFunctionCode } from "../../store/hooks/callableFunctions/useGetFunctionCode";
 
 export interface CallableFunctionFormProviderProps {
     children: React.ReactNode;
@@ -23,8 +24,8 @@ const CallableFunctionFormProvider = ({
     id,
 }: CallableFunctionFormProviderProps) => {
     const callableFunctions = useAppStore((state) => state.callableFunctions);
-    const { getCallableFunctionDisplayName, getCallableFunctionCode } =
-        useCallableFunctions();
+    const getFunctionDisplayName = useGetFunctionDisplayName();
+    const getFunctionCode = useGetFunctionCode();
     const form = CallableFunctionFormContext.useForm({
         initialValues: {
             id: uuid(),
@@ -43,7 +44,7 @@ const CallableFunctionFormProvider = ({
         const existingDisplayName = callableFunctions.find(
             (f) =>
                 f.id !== values.id &&
-                getCallableFunctionDisplayName(f.id) === values.displayName
+                getFunctionDisplayName(f.id) === values.displayName
         );
 
         if (existingName) {
@@ -67,16 +68,10 @@ const CallableFunctionFormProvider = ({
         if (!callableFunction) return;
         form.setValues({
             ...callableFunction.toJSON(),
-            displayName: getCallableFunctionDisplayName(callableFunction.id),
-            code: getCallableFunctionCode(callableFunction.id),
+            displayName: getFunctionDisplayName(callableFunction.id),
+            code: getFunctionCode(callableFunction.id),
         });
-    }, [
-        callableFunctions,
-        form,
-        getCallableFunctionCode,
-        getCallableFunctionDisplayName,
-        id,
-    ]);
+    }, [callableFunctions, form, getFunctionCode, getFunctionDisplayName, id]);
 
     React.useEffect(() => {
         if (form.isDirty() || !query.has("template")) return;

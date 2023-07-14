@@ -3,12 +3,12 @@ import FunctionsWarning from "../../warnings/FunctionsWarning";
 import useConversationForm from "../../../hooks/useConversationForm";
 import { AiOutlineFunction } from "react-icons/ai";
 import { Link } from "react-router-dom";
-import useCallableFunctions from "../../../hooks/useCallableFunctions";
 import { useAppStore } from "../../../store";
+import { useGetFunctionDisplayName } from "../../../store/hooks/callableFunctions/useGetFunctionDisplayName";
 
 const ConversationFormFunctionsTab = () => {
     const callableFunctions = useAppStore((state) => state.callableFunctions);
-    const { getCallableFunctionDisplayName } = useCallableFunctions();
+    const getFunctionDisplayName = useGetFunctionDisplayName();
     const form = useConversationForm();
 
     return (
@@ -37,7 +37,8 @@ const ConversationFormFunctionsTab = () => {
                             <Group position="center">
                                 {callableFunctions.map((fn) => (
                                     <Chip key={fn.id} value={fn.id}>
-                                        {getCallableFunctionDisplayName(fn.id)}
+                                        {getFunctionDisplayName(fn.id) ??
+                                            "[N/A]"}
                                     </Chip>
                                 ))}
                             </Group>

@@ -10,7 +10,7 @@ import {
 import React from "react";
 import { CallableFunction } from "gpt-turbo";
 import CallableFunctionCardMenu from "./CallableFunctionCardMenu";
-import useCallableFunctions from "../../hooks/useCallableFunctions";
+import { useGetFunctionDisplayName } from "../../store/hooks/callableFunctions/useGetFunctionDisplayName";
 
 type CallableFunctionCardProps = Omit<CardProps, "children"> & {
     fn: CallableFunction;
@@ -20,7 +20,7 @@ const CallableFunctionCard = ({
     fn,
     ...cardProps
 }: CallableFunctionCardProps) => {
-    const { getCallableFunctionDisplayName } = useCallableFunctions();
+    const getFunctionDisplayName = useGetFunctionDisplayName();
     const signature = React.useMemo(() => {
         const parameters = [
             ...fn.requiredParameters,
@@ -46,7 +46,7 @@ const CallableFunctionCard = ({
             <Card.Section withBorder inheritPadding py="xs">
                 <Group position="apart">
                     <Title order={4}>
-                        {getCallableFunctionDisplayName(fn.id)}
+                        {getFunctionDisplayName(fn.id) ?? "[N/A]"}
                     </Title>
                     <CallableFunctionCardMenu id={fn.id} />
                 </Group>

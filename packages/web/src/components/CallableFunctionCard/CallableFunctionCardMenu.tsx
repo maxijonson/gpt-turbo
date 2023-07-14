@@ -9,10 +9,11 @@ import {
 import { BsTrash } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { callableFunctionExportschema } from "../../entities/callableFunctionExport";
-import useCallableFunctions from "../../hooks/useCallableFunctions";
 import { useAppStore } from "../../store";
 import { deleteCallableFunction } from "../../store/actions/callableFunctions/deleteCallableFunction";
 import { duplicateCallableFunction } from "../../store/actions/callableFunctions/duplicateCallableFunction";
+import { useGetFunctionDisplayName } from "../../store/hooks/callableFunctions/useGetFunctionDisplayName";
+import { useGetFunctionCode } from "../../store/hooks/callableFunctions/useGetFunctionCode";
 
 interface CallableFunctionCardMenuProps {
     id: string;
@@ -23,8 +24,8 @@ const CallableFunctionCardMenu = ({ id }: CallableFunctionCardMenuProps) => {
     const fn = useAppStore((state) =>
         state.callableFunctions.find((fn) => fn.id === id)
     );
-    const { getCallableFunctionDisplayName, getCallableFunctionCode } =
-        useCallableFunctions();
+    const getFunctionDisplayName = useGetFunctionDisplayName();
+    const getFunctionCode = useGetFunctionCode();
 
     const onEdit = React.useCallback(() => {
         if (!fn) return;
@@ -41,8 +42,8 @@ const CallableFunctionCardMenu = ({ id }: CallableFunctionCardMenuProps) => {
         const data = JSON.stringify(
             callableFunctionExportschema.parse({
                 callableFunction: fn.toJSON(),
-                code: getCallableFunctionCode(fn.id),
-                displayName: getCallableFunctionDisplayName(fn.id),
+                code: getFunctionCode(fn.id),
+                displayName: getFunctionDisplayName(fn.id) ?? "[N/A]",
             })
         );
         const blob = new Blob([data], { type: "application/json" });
@@ -52,7 +53,7 @@ const CallableFunctionCardMenu = ({ id }: CallableFunctionCardMenuProps) => {
         a.download = `${fn.id}.json`;
         a.click();
         URL.revokeObjectURL(url);
-    }, [fn, getCallableFunctionCode, getCallableFunctionDisplayName]);
+    }, [fn, getFunctionCode, getFunctionDisplayName]);
 
     return (
         <Menu withinPortal withArrow position="bottom-end">

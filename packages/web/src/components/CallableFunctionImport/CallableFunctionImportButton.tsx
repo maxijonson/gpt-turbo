@@ -5,15 +5,15 @@ import CallableFunctionImport from "./CallableFunctionImport";
 import FunctionsImportWarning from "../warnings/FunctionsImportWarning";
 import React from "react";
 import { CallableFunctionExport } from "../../entities/callableFunctionExport";
-import useCallableFunctions from "../../hooks/useCallableFunctions";
 import { notifications } from "@mantine/notifications";
 import getErrorInfo from "../../utils/getErrorInfo";
 import { useAppStore } from "../../store";
 import { addCallableFunction } from "../../store/actions/callableFunctions/addCallableFunction";
+import { useGetFunctionDisplayName } from "../../store/hooks/callableFunctions/useGetFunctionDisplayName";
 
 const CallableFunctionImportButton = () => {
     const callableFunctions = useAppStore((state) => state.callableFunctions);
-    const { getCallableFunctionDisplayName } = useCallableFunctions();
+    const getFunctionDisplayName = useGetFunctionDisplayName();
     const [
         showImportModal,
         { open: openImportModal, close: closeImportModal },
@@ -22,7 +22,7 @@ const CallableFunctionImportButton = () => {
     const onImport = React.useCallback(
         (fns: CallableFunctionExport[]) => {
             const usedDisplayNames = callableFunctions.map((fn) =>
-                getCallableFunctionDisplayName(fn.id)
+                getFunctionDisplayName(fn.id)
             );
             const usedNames = callableFunctions.map((fn) => fn.name);
 
@@ -76,7 +76,7 @@ const CallableFunctionImportButton = () => {
 
             closeImportModal();
         },
-        [callableFunctions, closeImportModal, getCallableFunctionDisplayName]
+        [callableFunctions, closeImportModal, getFunctionDisplayName]
     );
 
     return (

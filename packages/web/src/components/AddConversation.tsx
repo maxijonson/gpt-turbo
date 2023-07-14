@@ -8,11 +8,11 @@ import {
 } from "@mantine/core";
 import React from "react";
 import { ConversationFormValues } from "../contexts/ConversationFormContext";
-import useCallableFunctions from "../hooks/useCallableFunctions";
 import { addConversation } from "../store/actions/conversations/addConversation";
 import { setActiveConversation } from "../store/actions/conversations/setActiveConversation";
 import { addPersistedConversationId } from "../store/actions/persistence/addPersistedConversationId";
 import ConversationForm from "./forms/ConversationForm/ConversationForm";
+import { useGetFunction } from "../store/hooks/callableFunctions/useGetFunction";
 
 const useStyles = createStyles((theme) => ({
     card: {
@@ -29,8 +29,7 @@ const useStyles = createStyles((theme) => ({
 
 const AddConversation = () => {
     const { classes } = useStyles();
-
-    const { getCallableFunction } = useCallableFunctions();
+    const getFunction = useGetFunction();
 
     const onSubmit = React.useCallback(
         ({
@@ -44,15 +43,17 @@ const AddConversation = () => {
             setActiveConversation(newConversation.id, true);
 
             for (const functionId of functionIds) {
-                const callableFunction = getCallableFunction(functionId);
-                newConversation.addFunction(callableFunction);
+                const callableFunction = getFunction(functionId);
+                if (callableFunction) {
+                    newConversation.addFunction(callableFunction);
+                }
             }
 
             if (save) {
                 addPersistedConversationId(newConversation.id);
             }
         },
-        [getCallableFunction]
+        [getFunction]
     );
 
     return (

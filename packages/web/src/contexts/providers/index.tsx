@@ -1,4 +1,3 @@
-import CallableFunctionsProvider from "./CallableFunctionsProvider";
 import MantineProviders from "./MantineProviders";
 
 interface ProviderProps {
@@ -6,11 +5,7 @@ interface ProviderProps {
 }
 
 const Provider = ({ children }: ProviderProps) => {
-    return (
-        <MantineProviders>
-            <CallableFunctionsProvider>{children}</CallableFunctionsProvider>
-        </MantineProviders>
-    );
+    return <MantineProviders>{children}</MantineProviders>;
 };
 
 export default Provider;

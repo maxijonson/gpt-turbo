@@ -9,8 +9,8 @@ import Message from "./Message";
 import React from "react";
 import { useMediaQuery } from "@mantine/hooks";
 import { CallableFunction, FunctionCallMessage } from "gpt-turbo";
-import useCallableFunctions from "../../hooks/useCallableFunctions";
 import { useActiveConversation } from "../../store/hooks/conversations/useActiveConversation";
+import { useCallFunction } from "../../store/hooks/callableFunctions/useCallFunction";
 
 const useStyles = createStyles(() => ({
     scrollArea: {
@@ -25,7 +25,7 @@ const Messages = () => {
     const [messages, setMessages] = React.useState(
         conversation?.getMessages() ?? []
     );
-    const { callFunction } = useCallableFunctions();
+    const callFunction = useCallFunction();
     const viewport = React.useRef<HTMLDivElement>(null);
     const [isSticky, setIsSticky] = React.useState(true);
     const { classes } = useStyles();
