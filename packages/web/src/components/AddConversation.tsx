@@ -71,7 +71,6 @@ const AddConversation = () => {
                             New Conversation
                         </Title>
                         <ConversationForm onSubmit={onSubmit} hideAppSettings />
-                        ;
                     </Stack>
                 </Card>
             </Center>
