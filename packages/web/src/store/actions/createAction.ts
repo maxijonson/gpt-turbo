@@ -25,7 +25,7 @@ export const createAction = <
     ) => any
         ? U
         : never,
-    F = (...args: P) => ReturnType<A>
+    F = (...args: P) => ReturnType<A>,
 >(
     action: A,
     actionName: string | undefined | { type: unknown } = action.name ||

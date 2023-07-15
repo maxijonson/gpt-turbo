@@ -51,10 +51,13 @@ const getValueFromTokens = (value: LogitBias[]) => {
 
     if (tokens.length === 0) return undefined;
 
-    return tokens.reduce((acc, { token, probability }) => {
-        acc[token] = Number(probability);
-        return acc;
-    }, {} as Record<string, number>);
+    return tokens.reduce(
+        (acc, { token, probability }) => {
+            acc[token] = Number(probability);
+            return acc;
+        },
+        {} as Record<string, number>
+    );
 };
 
 const LogitBiasInput = ({ value, onChange }: LogitBiasInputProps) => {

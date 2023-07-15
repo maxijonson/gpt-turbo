@@ -41,10 +41,13 @@ const getValueFromHeaders = (value: Header[]) => {
 
     if (headers.length === 0) return undefined;
 
-    return headers.reduce((acc, { header, value: v }) => {
-        acc[header] = v;
-        return acc;
-    }, {} as Record<string, string>);
+    return headers.reduce(
+        (acc, { header, value: v }) => {
+            acc[header] = v;
+            return acc;
+        },
+        {} as Record<string, string>
+    );
 };
 
 const HeadersInput = ({ value, onChange }: HeadersInputProps) => {

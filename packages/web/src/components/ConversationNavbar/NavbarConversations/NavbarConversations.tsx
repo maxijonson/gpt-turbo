@@ -91,14 +91,17 @@ const NavbarConversations = ({
                 lastEdit: getConversationLastEdit(c.id) ?? Date.now(),
             }))
             .sort((a, b) => b.lastEdit - a.lastEdit)
-            .reduce((acc, { conversation, lastEdit }) => {
-                const relativeDate = getRelativeDate(lastEdit);
-                if (!acc[relativeDate]) {
-                    acc[relativeDate] = [];
-                }
-                acc[relativeDate].push(conversation);
-                return acc;
-            }, {} as Record<string, typeof conversations>);
+            .reduce(
+                (acc, { conversation, lastEdit }) => {
+                    const relativeDate = getRelativeDate(lastEdit);
+                    if (!acc[relativeDate]) {
+                        acc[relativeDate] = [];
+                    }
+                    acc[relativeDate].push(conversation);
+                    return acc;
+                },
+                {} as Record<string, typeof conversations>
+            );
     }, [conversations, getConversationLastEdit]);
 
     const makeDeleteGroup = React.useCallback(

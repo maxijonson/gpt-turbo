@@ -19,7 +19,8 @@
     "packages/*"
   ],
   "devDependencies": {
-    "lerna": "^7.0.2"
+    "lerna": "^7.0.2",
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "immer": "^10.0.2"

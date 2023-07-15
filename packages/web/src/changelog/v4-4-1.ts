@@ -10,6 +10,7 @@ const v4_4_1: ChangelogEntry = {
             items: [
                 "Further improved state management",
                 "Reduced initial bundle size",
+                "Update app dependencies",
             ],
         },
     ],
