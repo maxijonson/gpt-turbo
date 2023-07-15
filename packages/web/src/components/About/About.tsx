@@ -1,5 +1,5 @@
 import { Anchor, Stack, Text } from "@mantine/core";
-import { DISCORD_SERVER_INVITE } from "../config/constants";
+import { DISCORD_SERVER_INVITE } from "../../config/constants";
 
 const About = () => {
     return (

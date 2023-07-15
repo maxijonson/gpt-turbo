@@ -5,9 +5,9 @@ import ConversationFormProvider, {
 import ConversationFormConversationTab from "./ConversationFormConversationTab";
 import ConversationFormRequestTab from "./ConversationFormRequestTab";
 import ConversationFormFunctionsTab from "./ConversationFormFunctionsTab";
-import useConversationForm from "../../../hooks/useConversationForm";
 import AppSettings from "../../AppSettings/AppSettings";
 import React from "react";
+import useConversationForm from "../../../contexts/hooks/useConversationForm";
 
 interface ConversationFormProvidedProps {
     hideAppSettings?: boolean;

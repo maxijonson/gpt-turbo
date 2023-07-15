@@ -4,7 +4,7 @@ import { BiPlus, BiX } from "react-icons/bi";
 import CallableFunctionParameterForm, {
     CallableFunctionParameterFormProps,
 } from "../CallableFunctionParameterForm/CallableFunctionParameterForm";
-import useCallableFunctionForm from "../../../hooks/useCallableFunctionForm";
+import useCallableFunctionForm from "../../../contexts/hooks/useCallableFunctionForm";
 import React from "react";
 import { JsonSchemaObject } from "gpt-turbo";
 import getFunctionParameters from "../../../utils/getFunctionParameters";

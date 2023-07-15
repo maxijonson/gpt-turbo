@@ -7,7 +7,6 @@ import {
     Grid,
     TextInput,
 } from "@mantine/core";
-import useConversationForm from "../../../hooks/useConversationForm";
 import ApiKeyInput from "../../inputs/ApiKeyInput";
 import ContextInput from "../../inputs/ContextInput";
 import DisableModerationInput from "../../inputs/DisableModerationInput";
@@ -19,6 +18,7 @@ import SaveInput from "../../inputs/SaveInput";
 import StopInput from "../../inputs/StopInput";
 import StreamInput from "../../inputs/StreamInput";
 import React from "react";
+import useConversationForm from "../../../contexts/hooks/useConversationForm";
 
 const ConversationFormConversationTab = () => {
     const form = useConversationForm();

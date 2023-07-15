@@ -1,10 +1,10 @@
 import { Button, Center, Chip, Divider, Group, Stack } from "@mantine/core";
 import FunctionsWarning from "../../warnings/FunctionsWarning";
-import useConversationForm from "../../../hooks/useConversationForm";
 import { AiOutlineFunction } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { useAppStore } from "../../../store";
 import { useGetFunctionDisplayName } from "../../../store/hooks/callableFunctions/useGetFunctionDisplayName";
+import useConversationForm from "../../../contexts/hooks/useConversationForm";
 
 const ConversationFormFunctionsTab = () => {
     const callableFunctions = useAppStore((state) => state.callableFunctions);
