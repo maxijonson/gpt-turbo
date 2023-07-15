@@ -1,13 +1,5 @@
 import { notifications } from "@mantine/notifications";
 import { CallableFunction, Conversation } from "gpt-turbo";
-import { addConversation } from "../actions/conversations/addConversation";
-import { setConversationName } from "../actions/conversations/setConversationName";
-import { setConversationLastEdit } from "../actions/conversations/setConversationLastEdit";
-import { addCallableFunction } from "../actions/callableFunctions/addCallableFunction";
-import { saveContext } from "../actions/savedContexts/saveContext";
-import { savePrompt } from "../actions/savedPrompts/savePrompt";
-import { setDefaultSettings } from "../actions/defaultConversationSettings/setDefaultSettings";
-import { addPersistedConversationId } from "../actions/persistence/addPersistedConversationId";
 
 const notify = (
     title: string,
@@ -28,6 +20,31 @@ const notify = (
 // TODO: Remove this after a while. This is to migrate users from the old persistence system to the new one.
 // Not EVERYTHING is migrated, but the most important things are.
 export const migrateOldData = async () => {
+    // Wait a second to make sure the store is initialized
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const { addConversation } = await import(
+        "../actions/conversations/addConversation"
+    );
+    const { setConversationName } = await import(
+        "../actions/conversations/setConversationName"
+    );
+    const { setConversationLastEdit } = await import(
+        "../actions/conversations/setConversationLastEdit"
+    );
+    const { addCallableFunction } = await import(
+        "../actions/callableFunctions/addCallableFunction"
+    );
+    const { saveContext } = await import(
+        "../actions/savedContexts/saveContext"
+    );
+    const { savePrompt } = await import("../actions/savedPrompts/savePrompt");
+    const { setDefaultSettings } = await import(
+        "../actions/defaultConversationSettings/setDefaultSettings"
+    );
+    const { addPersistedConversationId } = await import(
+        "../actions/persistence/addPersistedConversationId"
+    );
+
     const oldPersistence = localStorage.getItem("gpt-turbo-persistence");
     const oldSettings = localStorage.getItem("gpt-turbo-settings");
 

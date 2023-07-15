@@ -1,22 +1,25 @@
-import { useAppStore } from "../..";
+import { createAction } from "../createAction";
 
-export const setActiveConversation = (id: string | null, force = false) => {
-    if (force) {
-        useAppStore.setState({ activeConversationId: id });
-        return;
-    }
-    if (!id) {
-        useAppStore.setState({ activeConversationId: null });
-        return;
-    }
+export const setActiveConversation = createAction(
+    ({ get, set }, id: string | null, force = false) => {
+        if (force) {
+            set({ activeConversationId: id });
+            return;
+        }
+        if (!id) {
+            set({ activeConversationId: null });
+            return;
+        }
 
-    const { conversations } = useAppStore.getState();
-    const conversation = conversations.find((c) => c.id === id);
+        const { conversations } = get();
+        const conversation = conversations.find((c) => c.id === id);
 
-    if (!conversation) {
-        useAppStore.setState({ activeConversationId: null });
-        return;
-    }
+        if (!conversation) {
+            set({ activeConversationId: null });
+            return;
+        }
 
-    useAppStore.setState({ activeConversationId: id });
-};
+        set({ activeConversationId: id });
+    },
+    "setActiveConversation"
+);

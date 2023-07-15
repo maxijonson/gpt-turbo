@@ -1,5 +1,5 @@
-import { useAppStore } from "../..";
+import { createAction } from "../createAction";
 
-export const dismissFunctionsWarning = () => {
-    useAppStore.setState({ showFunctionsWarning: false });
-};
+export const dismissFunctionsWarning = createAction(({ set }) => {
+    set({ showFunctionsWarning: false });
+}, "dismissFunctionsWarning");

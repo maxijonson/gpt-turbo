@@ -1,7 +1,7 @@
-import { useAppStore } from "../..";
+import { createAction } from "../createAction";
 
-export const setLastChangelog = (value: string) => {
-    useAppStore.setState((state) => {
+export const setLastChangelog = createAction(({ set }, value: string) => {
+    set((state) => {
         state.lastChangelog = value;
     });
-};
+}, "setLastChangelog");

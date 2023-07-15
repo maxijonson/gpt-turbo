@@ -1,8 +1,8 @@
-import { useAppStore } from "../..";
+import { createAction } from "../createAction";
 
-export const resetCallableFunctionWarnings = () => {
-    useAppStore.setState((state) => {
+export const resetCallableFunctionWarnings = createAction(({ set }) => {
+    set((state) => {
         state.showFunctionsWarning = true;
         state.showFunctionsImportWarning = true;
     });
-};
+}, "resetCallableFunctionWarnings");
