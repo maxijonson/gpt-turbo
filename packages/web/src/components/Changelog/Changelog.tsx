@@ -23,32 +23,46 @@ const Changelog = () => {
     return (
         <Box>
             <Timeline>
-                {changelog.map(({ version, date, sections }, i) => (
-                    <Timeline.Item
-                        key={version}
-                        title={`v${version}`}
-                        bulletSize={i === 0 ? 24 : 16}
-                        active
-                    >
-                        <Text color="dimmed" size="xs">
-                            {dateStr(date)}
-                        </Text>
-                        <Stack spacing="xs" mt="xs">
-                            {sections.map(({ label, items }, j) => (
-                                <Box key={j}>
-                                    <Title order={5}>{label}</Title>
-                                    <List withPadding pr="xl">
-                                        {items.map((item, k) => (
-                                            <List.Item key={k}>
-                                                {item}
-                                            </List.Item>
-                                        ))}
-                                    </List>
-                                </Box>
-                            ))}
-                        </Stack>
-                    </Timeline.Item>
-                ))}
+                {changelog.map(
+                    ({ version, date, sections, description }, i) => (
+                        <Timeline.Item
+                            key={version}
+                            title={`v${version}`}
+                            bulletSize={i === 0 ? 24 : 16}
+                            active
+                        >
+                            <Text color="dimmed" size="xs">
+                                {dateStr(date)}
+                            </Text>
+                            {description && (
+                                <Text mt="xs" size="sm">
+                                    {description}
+                                </Text>
+                            )}
+                            <Stack spacing="xs" mt="xs">
+                                {sections.map(
+                                    ({ label, items, description }, j) => (
+                                        <Box key={j}>
+                                            <Title order={5}>{label}</Title>
+                                            {description && (
+                                                <Text mt="xs" size="sm">
+                                                    {description}
+                                                </Text>
+                                            )}
+                                            <List withPadding pr="xl">
+                                                {items.map((item, k) => (
+                                                    <List.Item key={k}>
+                                                        {item}
+                                                    </List.Item>
+                                                ))}
+                                            </List>
+                                        </Box>
+                                    )
+                                )}
+                            </Stack>
+                        </Timeline.Item>
+                    )
+                )}
                 <Timeline.Item
                     active
                     title="<v4.4.0 - End of Changelog"
