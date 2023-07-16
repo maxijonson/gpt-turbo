@@ -58,7 +58,7 @@ export type AppStateSlice<T> = StateCreator<
     [
         ["zustand/persist", AppPersistedState],
         ["zustand/immer", never],
-        ["zustand/devtools", never]
+        ["zustand/devtools", never],
     ],
     [],
     T

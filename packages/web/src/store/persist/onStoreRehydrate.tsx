@@ -1,7 +1,7 @@
 import { modals } from "@mantine/modals";
 import { AppState } from "..";
 import { Text } from "@mantine/core";
-import StorageLoadError from "../../components/StorageLoadError";
+import StorageLoadError from "../../components/error-handling/StorageLoadError";
 import { STORAGE_PERSISTENCE_KEY } from "../../config/constants";
 import { StoreMigrationError } from "./migrations";
 import getErrorInfo from "../../utils/getErrorInfo";

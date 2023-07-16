@@ -49,6 +49,41 @@ export default defineConfig({
     define: {
         APP_VERSION: JSON.stringify(process.env.npm_package_version),
     },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    "mantine-core": [
+                        "@mantine/core",
+                        "@mantine/hooks",
+                        "@emotion/react",
+                    ],
+                    "mantine-dropzone": ["@mantine/dropzone"],
+                    "mantine-form": ["@mantine/form"],
+                    "mantine-modals": ["@mantine/modals"],
+                    "mantine-notifications": ["@mantine/notifications"],
+                    "mantine-prism": ["@mantine/prism"],
+                    "mantine-tiptap": [
+                        "@tiptap/extension-code-block-lowlight",
+                        "@tiptap/extension-link",
+                        "@tiptap/react",
+                        "@tiptap/starter-kit",
+                        "@mantine/tiptap",
+                        "@tabler/icons-react",
+                        "lowlight",
+                    ],
+                    "gpt-turbo": ["gpt-turbo"],
+                    react: ["react"],
+                    "react-dom": ["react-dom"],
+                    "react-icons": ["react-icons"],
+                    "react-router-dom": ["react-router-dom"],
+                    uuid: ["uuid"],
+                    zod: ["zod"],
+                    zustand: ["zustand"],
+                },
+            },
+        },
+    },
     server: {
         port: 3000,
         host: true,

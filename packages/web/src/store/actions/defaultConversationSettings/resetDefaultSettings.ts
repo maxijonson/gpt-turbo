@@ -1,9 +1,9 @@
-import { useAppStore } from "../..";
 import { initialDefaultConversationSettingsState } from "../../slices/defaultConversationSettingsSlice";
+import { createAction } from "../createAction";
 
-export const resetDefaultSettings = () => {
-    useAppStore.setState((state) => {
+export const resetDefaultSettings = createAction(({ set }) => {
+    set((state) => {
         state.defaultSettings =
             initialDefaultConversationSettingsState.defaultSettings;
     });
-};
+}, "resetDefaultSettings");

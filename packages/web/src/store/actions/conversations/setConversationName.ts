@@ -1,7 +1,10 @@
-import { useAppStore } from "../..";
+import { createAction } from "../createAction";
 
-export const setConversationName = (id: string, name: string) => {
-    useAppStore.setState((state) => {
-        state.conversationNames.set(id, name);
-    });
-};
+export const setConversationName = createAction(
+    ({ set }, id: string, name: string) => {
+        set((state) => {
+            state.conversationNames.set(id, name);
+        });
+    },
+    "setConversationName"
+);

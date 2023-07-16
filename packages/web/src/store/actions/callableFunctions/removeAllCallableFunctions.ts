@@ -1,9 +1,9 @@
-import { useAppStore } from "../..";
+import { createAction } from "../createAction";
 
-export const removeAllCallableFunctions = () => {
-    useAppStore.setState((state) => {
+export const removeAllCallableFunctions = createAction(({ set }) => {
+    set((state) => {
         state.callableFunctions = [];
         state.callableFunctionDisplayNames = {};
         state.callableFunctionCodes = {};
     });
-};
+}, "removeAllCallableFunctions");

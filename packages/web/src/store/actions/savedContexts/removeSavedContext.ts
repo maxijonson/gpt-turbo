@@ -1,9 +1,12 @@
-import { useAppStore } from "../..";
+import { createAction } from "../createAction";
 
-export const removeSavedContext = (contextName: string) => {
-    useAppStore.setState((state) => {
-        state.savedContexts = state.savedContexts.filter(
-            (context) => context.name !== contextName
-        );
-    });
-};
+export const removeSavedContext = createAction(
+    ({ set }, contextName: string) => {
+        set((state) => {
+            state.savedContexts = state.savedContexts.filter(
+                (context) => context.name !== contextName
+            );
+        });
+    },
+    "removeSavedContext"
+);

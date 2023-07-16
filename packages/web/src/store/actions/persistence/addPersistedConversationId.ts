@@ -1,7 +1,10 @@
-import { useAppStore } from "../..";
+import { createAction } from "../createAction";
 
-export const addPersistedConversationId = (id: string) => {
-    useAppStore.setState((state) => {
-        state.persistedConversationIds.push(id);
-    });
-};
+export const addPersistedConversationId = createAction(
+    ({ set }, id: string) => {
+        set((state) => {
+            state.persistedConversationIds.push(id);
+        });
+    },
+    "addPersistedConversationId"
+);

@@ -1,8 +1,8 @@
-import { useAppStore } from "../..";
+import { createAction } from "../createAction";
 import { setActiveConversation } from "./setActiveConversation";
 
-export const removeConversation = (id: string) => {
-    useAppStore.setState((state) => {
+export const removeConversation = createAction(({ set }, id: string) => {
+    set((state) => {
         state.conversations = state.conversations.filter(
             (conversation) => conversation.id !== id
         );
@@ -12,4 +12,4 @@ export const removeConversation = (id: string) => {
 
         setActiveConversation(state.activeConversationId);
     });
-};
+}, "removeConversation");

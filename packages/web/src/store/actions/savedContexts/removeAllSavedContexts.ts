@@ -1,7 +1,7 @@
-import { useAppStore } from "../..";
+import { createAction } from "../createAction";
 
-export const removeAllSavedContexts = () => {
-    useAppStore.setState((state) => {
+export const removeAllSavedContexts = createAction(({ set }) => {
+    set((state) => {
         state.savedContexts = [];
     });
-};
+}, "removeAllSavedContexts");

@@ -1,8 +1,12 @@
 import { ColorScheme } from "@mantine/core";
-import { useAppStore } from "../..";
+import { createAction } from "../createAction";
 
-export const toggleColorScheme = (value?: ColorScheme) => {
-    useAppStore.setState(({ colorScheme }) => ({
-        colorScheme: value || (colorScheme === "dark" ? "light" : "dark"),
-    }));
-};
+export const toggleColorScheme = createAction(
+    ({ set }, value?: ColorScheme) => {
+        set((state) => {
+            state.colorScheme =
+                value || (state.colorScheme === "dark" ? "light" : "dark");
+        });
+    },
+    "toggleColorScheme"
+);

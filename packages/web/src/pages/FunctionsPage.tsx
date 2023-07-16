@@ -10,18 +10,18 @@ import {
 } from "@mantine/core";
 import { BiArrowBack, BiSearch } from "react-icons/bi";
 import { Link } from "react-router-dom";
-import FunctionsWarning from "../components/FunctionsWarning";
+import FunctionsWarning from "../components/warnings/FunctionsWarning";
 import { useInputState, useMediaQuery } from "@mantine/hooks";
 import React from "react";
-import useCallableFunctions from "../hooks/useCallableFunctions";
-import CallableFunctionCard from "../components/CallableFunctionCard";
-import CallableFunctionImportButton from "../components/CallableFunctionImportButton";
+import CallableFunctionCard from "../components/CallableFunctionCard/CallableFunctionCard";
+import CallableFunctionImportButton from "../components/CallableFunctionImport/CallableFunctionImportButton";
 import CallableFunctionCreateButton from "../components/CallableFunctionCreateButton";
 import { useAppStore } from "../store";
+import { useGetFunctionDisplayName } from "../store/hooks/callableFunctions/useGetFunctionDisplayName";
 
 const FunctionsPage = () => {
     const callableFunctions = useAppStore((state) => state.callableFunctions);
-    const { getCallableFunctionDisplayName } = useCallableFunctions();
+    const getFunctionDisplayName = useGetFunctionDisplayName();
     const [search, setSearch] = useInputState("");
     const theme = useMantineTheme();
     const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
@@ -30,10 +30,10 @@ const FunctionsPage = () => {
         () =>
             callableFunctions.map((fn) => ({
                 fn,
-                displayName: getCallableFunctionDisplayName(fn.id),
+                displayName: getFunctionDisplayName(fn.id),
                 name: fn.name,
             })),
-        [callableFunctions, getCallableFunctionDisplayName]
+        [callableFunctions, getFunctionDisplayName]
     );
 
     const filteredFunctions = React.useMemo(() => {
@@ -46,7 +46,10 @@ const FunctionsPage = () => {
     }, [detailedFunctions, search]);
 
     const filteredDisplayNames = React.useMemo(
-        () => filteredFunctions.map(({ displayName }) => displayName),
+        () =>
+            filteredFunctions
+                .map(({ displayName }) => displayName)
+                .filter((displayName): displayName is string => !!displayName),
         [filteredFunctions]
     );
 

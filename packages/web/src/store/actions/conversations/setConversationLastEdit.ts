@@ -1,7 +1,10 @@
-import { useAppStore } from "../..";
+import { createAction } from "../createAction";
 
-export const setConversationLastEdit = (id: string, lastEdit = Date.now()) => {
-    useAppStore.setState((state) => {
-        state.conversationLastEdits.set(id, lastEdit);
-    });
-};
+export const setConversationLastEdit = createAction(
+    ({ set }, id: string, lastEdit = Date.now()) => {
+        set((state) => {
+            state.conversationLastEdits.set(id, lastEdit);
+        });
+    },
+    "setConversationLastEdit"
+);

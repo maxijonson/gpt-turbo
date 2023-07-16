@@ -1,7 +1,7 @@
-import { useAppStore } from "../..";
+import { createAction } from "../createAction";
 
-export const removeAllSavedPrompts = () => {
-    useAppStore.setState((state) => {
+export const removeAllSavedPrompts = createAction(({ set }) => {
+    set((state) => {
         state.savedPrompts = [];
     });
-};
+}, "removeAllSavedPrompts");

@@ -1,8 +1,11 @@
-import { useAppStore } from "../..";
 import { PersistenceDefaultSettings } from "../../../entities/persistenceDefaultSettings";
+import { createAction } from "../createAction";
 
-export const setDefaultSettings = (settings: PersistenceDefaultSettings) => {
-    useAppStore.setState((state) => {
-        state.defaultSettings = settings;
-    });
-};
+export const setDefaultSettings = createAction(
+    ({ set }, settings: PersistenceDefaultSettings) => {
+        set((state) => {
+            state.defaultSettings = settings;
+        });
+    },
+    "setDefaultSettings"
+);

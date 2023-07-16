@@ -43,3 +43,5 @@ export const CHANGELOG_SECTION = {
     FIXES: "🐛 Bug fixes",
     REMOVALS: "👋 Removals",
 };
+
+export const DEFAULT_CONVERSATION_NAME = "New Chat";
