@@ -21,7 +21,7 @@ const dateStr = (date: Date) => {
 
 const Changelog = () => {
     return (
-        <Box>
+        <Box mt="xs">
             <Timeline>
                 {changelog.map(
                     ({ version, date, sections, description }, i) => (

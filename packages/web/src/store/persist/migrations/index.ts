@@ -1,10 +1,14 @@
 import { AppPersistedState } from "../..";
 import { parsePersistedState } from "../parsePersistedState";
 import { migrationChangelog } from "./1689216775706_changelog";
+import { migrationConversationExport } from "./1689537326770_conversation-export";
 
 export type StoreMigration = (persistedState: any) => any | Promise<any>;
 
-export const storeMigrations: StoreMigration[] = [migrationChangelog];
+export const storeMigrations: StoreMigration[] = [
+    migrationChangelog,
+    migrationConversationExport,
+];
 
 export const storeVersion = storeMigrations.length;
 

@@ -6,7 +6,7 @@ import {
     Text,
     createStyles,
 } from "@mantine/core";
-import NavbarConversation from "./NavbarConversation";
+import NavbarConversation from "./NavbarConversation/NavbarConversation";
 import React from "react";
 import TippedActionIcon from "../../common/TippedActionIcon";
 import { BiTrash } from "react-icons/bi";

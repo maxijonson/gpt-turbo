@@ -7,7 +7,7 @@ export const persistenceConversationSchema = conversationSchema.extend({
         .omit({ apiKey: true })
         .optional(),
 
-    name: z.string(),
+    name: z.string().nonempty("Conversation name cannot be empty"),
     lastEdited: z.number(),
 });
 
