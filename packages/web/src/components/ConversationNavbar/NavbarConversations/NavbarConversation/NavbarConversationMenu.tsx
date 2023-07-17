@@ -22,6 +22,10 @@ import { editConversation } from "../../../../store/actions/conversations/editCo
 import { modals } from "@mantine/modals";
 import { duplicateConversation } from "../../../../store/actions/conversations/duplicateConversation";
 import { removeConversation } from "../../../../store/actions/conversations/removeConversation";
+import {
+    ConversationExport,
+    conversationExportSchema,
+} from "../../../../entities/conversationExport";
 
 interface NavbarConversationMenuProps {
     conversationId: string;
@@ -69,6 +73,24 @@ const NavbarConversationMenu = ({
         });
     }, [conversationId, getConversationName]);
 
+    const onExport = React.useCallback(() => {
+        if (!conversation) return;
+        const name = getConversationName(conversationId);
+        const data = JSON.stringify(
+            conversationExportSchema.parse({
+                conversation: conversation.toJSON(),
+                name: name ?? DEFAULT_CONVERSATION_NAME,
+            } satisfies ConversationExport)
+        );
+        const blob = new Blob([data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `gptturbo-conversation-${conversation.id}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [conversation, conversationId, getConversationName]);
+
     const onDelete = React.useCallback(() => {
         const name = getConversationName(conversationId);
         modals.openConfirmModal({
@@ -115,7 +137,9 @@ const NavbarConversationMenu = ({
                     <Menu.Item icon={<BiDuplicate />} onClick={onDuplicate}>
                         Duplicate
                     </Menu.Item>
-                    <Menu.Item icon={<BiExport />}>Export</Menu.Item>
+                    <Menu.Item icon={<BiExport />} onClick={onExport}>
+                        Export
+                    </Menu.Item>
                     <Menu.Item
                         icon={<BiTrash />}
                         color="red"

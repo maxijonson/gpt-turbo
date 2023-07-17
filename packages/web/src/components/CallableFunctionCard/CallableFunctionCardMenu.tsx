@@ -37,6 +37,10 @@ const CallableFunctionCardMenu = ({ id }: CallableFunctionCardMenuProps) => {
         deleteCallableFunction(fn.id);
     }, [fn]);
 
+    const onDuplicate = React.useCallback(() => {
+        duplicateCallableFunction(id);
+    }, [id]);
+
     const onExport = React.useCallback(() => {
         if (!fn) return;
         const data = JSON.stringify(
@@ -50,7 +54,7 @@ const CallableFunctionCardMenu = ({ id }: CallableFunctionCardMenuProps) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `${fn.id}.json`;
+        a.download = `gptturbo-function-${fn.id}.json`;
         a.click();
         URL.revokeObjectURL(url);
     }, [fn, getFunctionCode, getFunctionDisplayName]);
@@ -66,10 +70,7 @@ const CallableFunctionCardMenu = ({ id }: CallableFunctionCardMenuProps) => {
                 <Menu.Item color="blue" onClick={onEdit} icon={<BiEdit />}>
                     Edit
                 </Menu.Item>
-                <Menu.Item
-                    onClick={() => duplicateCallableFunction(id)}
-                    icon={<BiDuplicate />}
-                >
+                <Menu.Item onClick={onDuplicate} icon={<BiDuplicate />}>
                     Duplicate
                 </Menu.Item>
                 <Menu.Item onClick={onExport} icon={<BiExport />}>
