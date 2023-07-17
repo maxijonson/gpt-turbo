@@ -1,4 +1,4 @@
-import { Menu, ActionIcon } from "@mantine/core";
+import { Menu, ActionIcon, Modal } from "@mantine/core";
 import {
     BiCog,
     BiDotsVerticalRounded,
@@ -16,6 +16,9 @@ import React from "react";
 import { setConversationName } from "../../../../store/actions/conversations/setConversationName";
 import { useGetConversationName } from "../../../../store/hooks/conversations/useGetConversationName";
 import { DEFAULT_CONVERSATION_NAME } from "../../../../config/constants";
+import ConversationForm from "../../../forms/ConversationForm/ConversationForm";
+import { ConversationFormProviderProps } from "../../../../contexts/providers/ConversationFormProvider";
+import { editConversation } from "../../../../store/actions/conversations/editConversation";
 
 interface NavbarConversationMenuProps {
     conversationId: string;
@@ -28,11 +31,23 @@ const NavbarConversationMenu = ({
         state.conversations.find((c) => c.id === conversationId)
     );
     const getConversationName = useGetConversationName();
-    const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure();
 
+    const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure();
     const onEditName = React.useCallback<
         ConversationNameEditModalProps["onSubmit"]
     >((name) => setConversationName(conversationId, name), [conversationId]);
+
+    const [settingsOpened, { open: openSettings, close: closeSettings }] =
+        useDisclosure();
+    const onEditSettings = React.useCallback<
+        ConversationFormProviderProps["onSubmit"]
+    >(
+        (values) => {
+            editConversation(conversationId, values);
+            closeSettings();
+        },
+        [closeSettings, conversationId]
+    );
 
     if (!conversation) {
         return null;
@@ -55,7 +70,9 @@ const NavbarConversationMenu = ({
                     >
                         Edit Name
                     </Menu.Item>
-                    <Menu.Item icon={<BiCog />}>Settings</Menu.Item>
+                    <Menu.Item icon={<BiCog />} onClick={openSettings}>
+                        Settings
+                    </Menu.Item>
                     <Menu.Item icon={<BiExport />}>Export</Menu.Item>
                     <Menu.Item icon={<BiDuplicate />}>Duplicate</Menu.Item>
                     <Menu.Item icon={<BiTrash />} color="red">
@@ -73,6 +90,20 @@ const NavbarConversationMenu = ({
                 opened={editOpened}
                 onClose={closeEdit}
             />
+
+            <Modal
+                opened={settingsOpened}
+                onClose={closeSettings}
+                centered
+                size="lg"
+                withCloseButton={false}
+            >
+                <ConversationForm
+                    hideAppSettings
+                    conversationId={conversationId}
+                    onSubmit={onEditSettings}
+                />
+            </Modal>
         </>
     );
 };

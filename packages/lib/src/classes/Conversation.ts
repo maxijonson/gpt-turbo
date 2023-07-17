@@ -283,6 +283,13 @@ export class Conversation {
     }
 
     /**
+     * Removes all functions from the conversation.
+     */
+    public clearFunctions() {
+        this.functions = [];
+    }
+
+    /**
      * Adds a function to the conversation. This function can be "called" by the assistant, generating a function call message.
      *
      * @param fn The function to add to the conversation.
@@ -567,14 +574,14 @@ export class Conversation {
         return {
             ...this.config.chatCompletionConfig,
             ...this.config.config,
-        };
+        } satisfies ConversationConfigParameters;
     }
 
     /**
      * Assigns a new config to the conversation.
      *
      * @param config The new config to use.
-     * @param merge Set to `true` to merge the new config with the existing config instead of replacing it.
+     * @param merge Set to `true` to shallow merge the new config with the existing config instead of replacing it.
      */
     public setConfig(config: ConversationConfigParameters, merge = false) {
         const newConfig = merge ? { ...this.getConfig(), ...config } : config;
@@ -586,6 +593,25 @@ export class Conversation {
             if (!merge) this.functions = [];
             config.functions.forEach((fn) => this.addFunction(fn));
         }
+    }
+
+    /**
+     * Gets the current request options of the conversation.
+     */
+    public getRequestOptions() {
+        return this.requestOptions;
+    }
+
+    /**
+     * Sets new request options to be used as defaults for all HTTP requests made by this conversation.
+     *
+     * @param requestOptions The new request options to use.
+     * @param merge Set to `true` to shallow merge the new request options with the existing request options instead of replacing them.
+     */
+    public setRequestOptions(requestOptions: RequestOptions, merge = false) {
+        this.requestOptions = merge
+            ? { ...this.requestOptions, ...requestOptions }
+            : requestOptions;
     }
 
     private notifyMessageAdded(message: Message) {

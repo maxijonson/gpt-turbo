@@ -13,9 +13,8 @@ interface ConversationFormProvidedProps {
     hideAppSettings?: boolean;
 }
 
-type ConversationFormProps = ConversationFormProvidedProps & {
-    onSubmit: ConversationFormProviderProps["onSubmit"];
-};
+type ConversationFormProps = ConversationFormProvidedProps &
+    Omit<ConversationFormProviderProps, "children">;
 
 type ConversationFormTab = "conversation" | "request" | "functions" | "app";
 
@@ -80,9 +79,13 @@ const ConversationFormProvided = ({
 
 const ConversationForm = ({
     onSubmit,
+    conversationId,
     ...conversationFormProvidedProps
 }: ConversationFormProps) => (
-    <ConversationFormProvider onSubmit={onSubmit}>
+    <ConversationFormProvider
+        onSubmit={onSubmit}
+        conversationId={conversationId}
+    >
         <ConversationFormProvided {...conversationFormProvidedProps} />
     </ConversationFormProvider>
 );

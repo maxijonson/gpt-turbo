@@ -10,9 +10,7 @@ import React from "react";
 import { ConversationFormValues } from "../contexts/ConversationFormContext";
 import { addConversation } from "../store/actions/conversations/addConversation";
 import { setActiveConversation } from "../store/actions/conversations/setActiveConversation";
-import { addPersistedConversationId } from "../store/actions/persistence/addPersistedConversationId";
 import ConversationForm from "./forms/ConversationForm/ConversationForm";
-import { useGetFunction } from "../store/hooks/callableFunctions/useGetFunction";
 
 const useStyles = createStyles((theme) => ({
     card: {
@@ -29,7 +27,6 @@ const useStyles = createStyles((theme) => ({
 
 const AddConversation = () => {
     const { classes } = useStyles();
-    const getFunction = useGetFunction();
 
     const onSubmit = React.useCallback(
         ({
@@ -39,21 +36,15 @@ const AddConversation = () => {
             functionIds,
             ...values
         }: ConversationFormValues) => {
-            const newConversation = addConversation(values, { headers, proxy });
+            const newConversation = addConversation(
+                values,
+                { headers, proxy },
+                functionIds,
+                save
+            );
             setActiveConversation(newConversation.id, true);
-
-            for (const functionId of functionIds) {
-                const callableFunction = getFunction(functionId);
-                if (callableFunction) {
-                    newConversation.addFunction(callableFunction);
-                }
-            }
-
-            if (save) {
-                addPersistedConversationId(newConversation.id);
-            }
         },
-        [getFunction]
+        []
     );
 
     return (

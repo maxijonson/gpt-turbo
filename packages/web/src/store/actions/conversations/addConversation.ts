@@ -4,22 +4,43 @@ import {
     RequestOptions,
 } from "gpt-turbo";
 import { createAction } from "../createAction";
+import { addPersistedConversationId } from "../persistence/addPersistedConversationId";
 
 export const addConversation = createAction(
     (
-        { set },
+        { set, get },
         conversation: Conversation | ConversationConfigParameters,
-        requestOptions?: RequestOptions
+        requestOptions?: RequestOptions,
+        functionIds: string[] = [],
+        save = false
     ) => {
+        const { callableFunctions } = get();
         const newConversation =
             conversation instanceof Conversation
                 ? conversation
                 : new Conversation(conversation, requestOptions);
 
+        for (const functionId of functionIds) {
+            const callableFunction = callableFunctions.find(
+                (callableFunction) => callableFunction.id === functionId
+            );
+            if (callableFunction) {
+                newConversation.addFunction(callableFunction);
+            }
+        }
+
         set((state) => {
-            state.conversations.push(newConversation);
+            state.conversations = state.conversations
+                .filter(
+                    (conversation) => conversation.id !== newConversation.id
+                )
+                .concat(newConversation);
             state.conversationLastEdits.set(newConversation.id, Date.now());
         });
+
+        if (save) {
+            addPersistedConversationId(newConversation.id);
+        }
 
         return newConversation;
     },
