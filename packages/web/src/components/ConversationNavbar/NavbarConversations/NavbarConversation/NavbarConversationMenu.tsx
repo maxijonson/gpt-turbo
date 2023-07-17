@@ -21,6 +21,7 @@ import { ConversationFormProviderProps } from "../../../../contexts/providers/Co
 import { editConversation } from "../../../../store/actions/conversations/editConversation";
 import { modals } from "@mantine/modals";
 import { duplicateConversation } from "../../../../store/actions/conversations/duplicateConversation";
+import { removeConversation } from "../../../../store/actions/conversations/removeConversation";
 
 interface NavbarConversationMenuProps {
     conversationId: string;
@@ -63,6 +64,27 @@ const NavbarConversationMenu = ({
             onConfirm: () => {
                 duplicateConversation(conversationId);
             },
+            children:
+                "This will create a copy of the conversation with the same settings and messages.",
+        });
+    }, [conversationId, getConversationName]);
+
+    const onDelete = React.useCallback(() => {
+        const name = getConversationName(conversationId);
+        modals.openConfirmModal({
+            title: `Delete "${name ?? DEFAULT_CONVERSATION_NAME}"?`,
+            centered: true,
+            labels: {
+                confirm: "Delete",
+                cancel: "Cancel",
+            },
+            confirmProps: {
+                color: "red",
+            },
+            onConfirm: () => {
+                removeConversation(conversationId);
+            },
+            children: "This cannot be undone.",
         });
     }, [conversationId, getConversationName]);
 
@@ -94,7 +116,11 @@ const NavbarConversationMenu = ({
                         Duplicate
                     </Menu.Item>
                     <Menu.Item icon={<BiExport />}>Export</Menu.Item>
-                    <Menu.Item icon={<BiTrash />} color="red">
+                    <Menu.Item
+                        icon={<BiTrash />}
+                        color="red"
+                        onClick={onDelete}
+                    >
                         Delete
                     </Menu.Item>
                 </Menu.Dropdown>
