@@ -158,6 +158,7 @@ const NavbarConversationMenu = ({
                 }
                 opened={editOpened}
                 onClose={closeEdit}
+                conversationId={conversationId}
             />
 
             <Modal

@@ -11,6 +11,7 @@ const v4_5_0: ChangelogEntry = {
                 "Added the ability to change conversation settings",
                 "Added the ability to duplicate conversations",
                 "Added the ability to import/export conversations",
+                "Added the ability to generate a conversation name using the assistant.",
             ],
         },
     ],
