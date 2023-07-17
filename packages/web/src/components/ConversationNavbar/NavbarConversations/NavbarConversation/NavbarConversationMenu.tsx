@@ -19,6 +19,8 @@ import { DEFAULT_CONVERSATION_NAME } from "../../../../config/constants";
 import ConversationForm from "../../../forms/ConversationForm/ConversationForm";
 import { ConversationFormProviderProps } from "../../../../contexts/providers/ConversationFormProvider";
 import { editConversation } from "../../../../store/actions/conversations/editConversation";
+import { modals } from "@mantine/modals";
+import { duplicateConversation } from "../../../../store/actions/conversations/duplicateConversation";
 
 interface NavbarConversationMenuProps {
     conversationId: string;
@@ -49,6 +51,21 @@ const NavbarConversationMenu = ({
         [closeSettings, conversationId]
     );
 
+    const onDuplicate = React.useCallback(() => {
+        const name = getConversationName(conversationId);
+        modals.openConfirmModal({
+            title: `Duplicate "${name ?? DEFAULT_CONVERSATION_NAME}"?`,
+            centered: true,
+            labels: {
+                confirm: "Duplicate",
+                cancel: "Cancel",
+            },
+            onConfirm: () => {
+                duplicateConversation(conversationId);
+            },
+        });
+    }, [conversationId, getConversationName]);
+
     if (!conversation) {
         return null;
     }
@@ -73,8 +90,10 @@ const NavbarConversationMenu = ({
                     <Menu.Item icon={<BiCog />} onClick={openSettings}>
                         Settings
                     </Menu.Item>
+                    <Menu.Item icon={<BiDuplicate />} onClick={onDuplicate}>
+                        Duplicate
+                    </Menu.Item>
                     <Menu.Item icon={<BiExport />}>Export</Menu.Item>
-                    <Menu.Item icon={<BiDuplicate />}>Duplicate</Menu.Item>
                     <Menu.Item icon={<BiTrash />} color="red">
                         Delete
                     </Menu.Item>
