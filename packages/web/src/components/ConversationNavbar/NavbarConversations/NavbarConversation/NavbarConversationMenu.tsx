@@ -169,9 +169,9 @@ const NavbarConversationMenu = ({
                 withCloseButton={false}
             >
                 <ConversationForm
-                    hideAppSettings
                     conversationId={conversationId}
                     onSubmit={onEditSettings}
+                    subimitLabel="Save Changes"
                 />
             </Modal>
         </>

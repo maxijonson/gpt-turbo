@@ -18,6 +18,13 @@ const v4_5_0: ChangelogEntry = {
             label: CHANGELOG_SECTION.IMPROVEMENTS,
             items: [
                 "Moved the advanced conversation settings to their own tab",
+                "Default settings are now saved in the conversation form",
+            ],
+        },
+        {
+            label: CHANGELOG_SECTION.REMOVALS,
+            items: [
+                "Removed the default conversation settings from the settings popup. This is now done directly in the conversation form.",
             ],
         },
     ],

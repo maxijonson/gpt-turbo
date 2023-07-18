@@ -1,9 +1,12 @@
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { BiCog } from "react-icons/bi";
 import TippedActionIcon from "../../common/TippedActionIcon";
-import SettingsFormModal from "../../modals/SettingsFormModal";
+import AppSettings from "../../AppSettings/AppSettings";
+import { Modal, useMantineTheme } from "@mantine/core";
 
 const SettingsButton = () => {
+    const theme = useMantineTheme();
+    const isSm = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
     const [settingsOpened, { open: openSettings, close: closeSettings }] =
         useDisclosure();
 
@@ -16,10 +19,16 @@ const SettingsButton = () => {
             >
                 <BiCog />
             </TippedActionIcon>
-            <SettingsFormModal
+            <Modal
+                centered
                 opened={settingsOpened}
                 onClose={closeSettings}
-            />
+                fullScreen={isSm}
+                size="xl"
+                title="Settings"
+            >
+                <AppSettings />
+            </Modal>
         </>
     );
 };

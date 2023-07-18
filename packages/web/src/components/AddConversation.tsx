@@ -84,10 +84,7 @@ const AddConversation = () => {
                             <Title order={4} align="center">
                                 New Conversation
                             </Title>
-                            <ConversationForm
-                                onSubmit={onSubmit}
-                                hideAppSettings
-                            />
+                            <ConversationForm onSubmit={onSubmit} />
                         </Stack>
                     </Card>
                     <Card
