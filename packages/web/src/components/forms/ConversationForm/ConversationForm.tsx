@@ -3,6 +3,7 @@ import ConversationFormProvider, {
     ConversationFormProviderProps,
 } from "../../../contexts/providers/ConversationFormProvider";
 import ConversationFormConversationTab from "./ConversationFormConversationTab";
+import ConversationFormAdvancedTab from "./ConversationFormAdvancedTab";
 import ConversationFormRequestTab from "./ConversationFormRequestTab";
 import ConversationFormFunctionsTab from "./ConversationFormFunctionsTab";
 import AppSettings from "../../AppSettings/AppSettings";
@@ -38,8 +39,9 @@ const ConversationFormProvided = ({
             >
                 <Tabs.List>
                     <Tabs.Tab value="conversation">Conversation</Tabs.Tab>
-                    <Tabs.Tab value="request">Request</Tabs.Tab>
+                    <Tabs.Tab value="advanced">Advanced</Tabs.Tab>
                     <Tabs.Tab value="functions">Functions</Tabs.Tab>
+                    <Tabs.Tab value="request">Request</Tabs.Tab>
                     {!hideAppSettings && (
                         <Tabs.Tab value="app">App Settings</Tabs.Tab>
                     )}
@@ -47,11 +49,14 @@ const ConversationFormProvided = ({
                 <Tabs.Panel value="conversation" pt="md">
                     <ConversationFormConversationTab />
                 </Tabs.Panel>
-                <Tabs.Panel value="request" pt="md">
-                    <ConversationFormRequestTab />
+                <Tabs.Panel value="advanced" pt="md">
+                    <ConversationFormAdvancedTab />
                 </Tabs.Panel>
                 <Tabs.Panel value="functions" pt="md">
                     <ConversationFormFunctionsTab />
+                </Tabs.Panel>
+                <Tabs.Panel value="request" pt="md">
+                    <ConversationFormRequestTab />
                 </Tabs.Panel>
                 {!hideAppSettings && (
                     <Tabs.Panel value="app" pt="md">

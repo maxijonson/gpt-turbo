@@ -8,6 +8,7 @@ import { addPersistedConversationId } from "../persistence/addPersistedConversat
 export const importConversations = createAction(
     async ({ get }, conversationExports: ConversationExport[]) => {
         const { defaultSettings: settings } = get();
+        const imported: Conversation[] = [];
 
         for (const { conversation: json, name } of conversationExports) {
             const conversation = await Conversation.fromJSON({
@@ -20,7 +21,10 @@ export const importConversations = createAction(
             addConversation(conversation);
             setConversationName(conversation.id, name);
             addPersistedConversationId(conversation.id);
+            imported.push(conversation);
         }
+
+        return imported;
     },
     "importConversations"
 );

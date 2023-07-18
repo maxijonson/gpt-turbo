@@ -1,4 +1,5 @@
 import {
+    Box,
     Center,
     ScrollArea,
     Stack,
@@ -6,7 +7,7 @@ import {
     createStyles,
     useMantineTheme,
 } from "@mantine/core";
-import { Dropzone } from "@mantine/dropzone";
+import { Dropzone, DropzoneProps } from "@mantine/dropzone";
 import React from "react";
 import { BiUpload, BiX } from "react-icons/bi";
 import {
@@ -15,13 +16,20 @@ import {
 } from "../../entities/conversationExport";
 import { notifications } from "@mantine/notifications";
 import readJsonFile from "../../utils/readJsonFile";
+import { useId } from "@mantine/hooks";
 
-interface ConversationNavbarDropzoneProps {
+interface ConversationNavbarDropzoneBaseProps {
     onDrop: (conversations: ConversationExport[]) => void;
     children?: React.ReactNode;
 }
 
-const useStyles = createStyles(() => ({
+export type ConversationNavbarDropzoneProps = Omit<
+    DropzoneProps,
+    keyof ConversationNavbarDropzoneBaseProps
+> &
+    ConversationNavbarDropzoneBaseProps;
+
+const useStyles = createStyles((_, { childrenId }: { childrenId: string }) => ({
     dropzone: {
         height: "100%",
         cursor: "default",
@@ -30,6 +38,12 @@ const useStyles = createStyles(() => ({
 
         "&[data-idle]": {
             backgroundColor: "transparent",
+        },
+
+        "&[data-accept]": {
+            [`& .${childrenId}`]: {
+                opacity: 0,
+            },
         },
 
         "& .mantine-Dropzone-inner": {
@@ -45,12 +59,14 @@ const useStyles = createStyles(() => ({
     },
 }));
 
-const ConversationNavbarDropzone = ({
+const ConversationDropzone = ({
     onDrop,
     children,
+    ...dropzoneProps
 }: ConversationNavbarDropzoneProps) => {
     const theme = useMantineTheme();
-    const { classes } = useStyles();
+    const childrenId = useId();
+    const { classes } = useStyles({ childrenId });
 
     const handleDrop = React.useCallback(
         async (files: File[]) => {
@@ -87,10 +103,12 @@ const ConversationNavbarDropzone = ({
                 activateOnClick={false}
                 accept={["application/json"]}
                 multiple
+                data-accept="true"
+                {...dropzoneProps}
             >
                 <Dropzone.Accept>
                     <Center pos="absolute" h="100%" w="100%">
-                        <Stack align="center">
+                        <Stack align="center" spacing="xs">
                             <BiUpload
                                 size="3.2rem"
                                 color={
@@ -120,10 +138,10 @@ const ConversationNavbarDropzone = ({
                     </Center>
                 </Dropzone.Reject>
 
-                {children}
+                <Box className={childrenId}>{children}</Box>
             </Dropzone>
         </ScrollArea>
     );
 };
 
-export default ConversationNavbarDropzone;
+export default ConversationDropzone;

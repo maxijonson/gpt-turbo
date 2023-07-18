@@ -14,6 +14,12 @@ const v4_5_0: ChangelogEntry = {
                 "Added the ability to generate a conversation name using the assistant.",
             ],
         },
+        {
+            label: CHANGELOG_SECTION.IMPROVEMENTS,
+            items: [
+                "Moved the advanced conversation settings to their own tab",
+            ],
+        },
     ],
 };
 
