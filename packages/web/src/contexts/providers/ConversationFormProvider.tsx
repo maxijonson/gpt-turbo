@@ -4,17 +4,30 @@ import {
     ConversationFormValues,
 } from "../ConversationFormContext";
 import { useAppStore } from "../../store";
+import { shallow } from "zustand/shallow";
 
 export interface ConversationFormProviderProps {
     children?: React.ReactNode;
     onSubmit: (values: ConversationFormValues) => void | Promise<void>;
+    conversationId?: string;
 }
 
 const ConversationFormProvider = ({
     children,
     onSubmit,
+    conversationId,
 }: ConversationFormProviderProps) => {
-    const settings = useAppStore((state) => state.defaultSettings);
+    const [settings, persistedConversationIds, conversation] = useAppStore(
+        (state) => [
+            state.defaultSettings,
+            state.persistedConversationIds,
+            conversationId
+                ? state.conversations.find((c) => c.id === conversationId)
+                : undefined,
+        ],
+        shallow
+    );
+
     const form = ConversationFormContext.useForm({
         initialValues: {
             save: settings.save,
@@ -50,6 +63,44 @@ const ConversationFormProvider = ({
     const handleSubmit = form.onSubmit(async (values) => {
         await onSubmit(values);
     });
+
+    const hasEditInit = React.useRef(false);
+    React.useEffect(() => {
+        if (!conversation || form.isDirty() || hasEditInit.current) return;
+        hasEditInit.current = true;
+        const {
+            config = {},
+            functions = [],
+            requestOptions = {},
+        } = conversation.toJSON();
+
+        form.setValues({
+            save: persistedConversationIds.includes(conversation.id),
+            apiKey: config.apiKey,
+
+            model: config.model,
+            context: config.context,
+            dry: config.dry,
+            disableModeration: config.disableModeration,
+            stream: config.stream,
+
+            temperature: config.temperature,
+            top_p: config.top_p,
+            frequency_penalty: config.frequency_penalty,
+            presence_penalty: config.presence_penalty,
+            stop: config.stop,
+            max_tokens: config.max_tokens,
+            logit_bias: config.logit_bias,
+            user: config.user,
+
+            functionIds: functions
+                .map((f) => f.id)
+                .filter((id): id is string => !!id),
+
+            headers: requestOptions.headers,
+            proxy: requestOptions.proxy,
+        });
+    }, [conversation, form, persistedConversationIds]);
 
     return (
         <ConversationFormContext.Provider form={form}>

@@ -5,14 +5,20 @@ import {
     Title,
     Card,
     createStyles,
+    Button,
+    Box,
 } from "@mantine/core";
 import React from "react";
 import { ConversationFormValues } from "../contexts/ConversationFormContext";
 import { addConversation } from "../store/actions/conversations/addConversation";
 import { setActiveConversation } from "../store/actions/conversations/setActiveConversation";
-import { addPersistedConversationId } from "../store/actions/persistence/addPersistedConversationId";
 import ConversationForm from "./forms/ConversationForm/ConversationForm";
-import { useGetFunction } from "../store/hooks/callableFunctions/useGetFunction";
+import { BiImport } from "react-icons/bi";
+import ConversationDropzone, {
+    ConversationNavbarDropzoneProps,
+} from "./inputs/ConversationDropzone";
+import { importConversations } from "../store/actions/conversations/importConversations";
+import { useAppStore } from "../store";
 
 const useStyles = createStyles((theme) => ({
     card: {
@@ -28,8 +34,11 @@ const useStyles = createStyles((theme) => ({
 }));
 
 const AddConversation = () => {
+    const showConversationImport = useAppStore(
+        (state) => state.showConversationImport
+    );
     const { classes } = useStyles();
-    const getFunction = useGetFunction();
+    const dropzoneOpenRef = React.useRef<() => void>(null);
 
     const onSubmit = React.useCallback(
         ({
@@ -39,40 +48,76 @@ const AddConversation = () => {
             functionIds,
             ...values
         }: ConversationFormValues) => {
-            const newConversation = addConversation(values, { headers, proxy });
+            const newConversation = addConversation(
+                values,
+                { headers, proxy },
+                functionIds,
+                save
+            );
             setActiveConversation(newConversation.id, true);
+        },
+        []
+    );
 
-            for (const functionId of functionIds) {
-                const callableFunction = getFunction(functionId);
-                if (callableFunction) {
-                    newConversation.addFunction(callableFunction);
-                }
-            }
+    const onDrop = React.useCallback<ConversationNavbarDropzoneProps["onDrop"]>(
+        async (importedConversations) => {
+            const conversations = await importConversations(
+                importedConversations
+            );
 
-            if (save) {
-                addPersistedConversationId(newConversation.id);
+            if (conversations.length) {
+                setActiveConversation(conversations[0].id);
             }
         },
-        [getFunction]
+        []
     );
 
     return (
         <Container h="100%" p={0} m={0} fluid>
             <Center h="100%">
-                <Card
-                    className={classes.card}
-                    shadow="sm"
-                    padding="lg"
-                    radius="md"
-                    withBorder
-                >
-                    <Stack w="100%" h="100%">
-                        <Title order={4} align="center">
-                            New Conversation
-                        </Title>
-                        <ConversationForm onSubmit={onSubmit} hideAppSettings />
-                    </Stack>
-                </Card>
+                <Stack>
+                    <Card
+                        className={classes.card}
+                        shadow="sm"
+                        padding="lg"
+                        radius="md"
+                        withBorder
+                    >
+                        <Stack w="100%" h="100%">
+                            <Title order={4} align="center">
+                                New Conversation
+                            </Title>
+                            <ConversationForm onSubmit={onSubmit} />
+                        </Stack>
+                    </Card>
+                    {showConversationImport && (
+                        <Card
+                            className={classes.card}
+                            shadow="sm"
+                            padding={0}
+                            radius="md"
+                            withBorder
+                        >
+                            <ConversationDropzone
+                                onDrop={onDrop}
+                                openRef={dropzoneOpenRef}
+                            >
+                                <Box p="lg">
+                                    <Button
+                                        variant="light"
+                                        fullWidth
+                                        leftIcon={<BiImport />}
+                                        onClick={() =>
+                                            dropzoneOpenRef.current?.()
+                                        }
+                                    >
+                                        Import Conversation
+                                    </Button>
+                                </Box>
+                            </ConversationDropzone>
+                        </Card>
+                    )}
+                </Stack>
             </Center>
         </Container>
     );

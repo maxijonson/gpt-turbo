@@ -6,6 +6,7 @@ export const persistenceAppSettingsSchema = z.object({
         .union([z.literal("light"), z.literal("dark")])
         .default("light"),
     lastChangelog: z.string().default(""),
+    showConversationImport: z.boolean().default(true),
 });
 
 export type PersistenceAppSettings = z.infer<

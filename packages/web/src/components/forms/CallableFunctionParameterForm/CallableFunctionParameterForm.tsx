@@ -54,7 +54,7 @@ export interface CallableFunctionParameterFormProps {
 const callableFunctionParameterFormSchema = jsonSchemaBaseSchema.extend({
     name: z
         .string()
-        .min(1)
+        .nonempty("Name is required")
         .regex(/^[a-zA-Z0-9_$]+$/, "Must be a valid JavaScript identifier"),
     jsonSchema: z.string().refine((v) => {
         try {

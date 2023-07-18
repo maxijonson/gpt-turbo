@@ -16,6 +16,7 @@ interface StorageUsage {
 }
 
 const MIN_SIZE = 100;
+const QUOTA = 5 * 1024 * 1024; // Assuming 5MB, since that's the default for most browsers
 
 const getUsageLabel = (key: string) => {
     const words = key.split(/(?=[A-Z])/);
@@ -87,7 +88,6 @@ const AppStorageUsage = () => {
     );
 
     const sections = React.useMemo(() => {
-        const quota = 5 * 1024 * 1024; // Assuming 5MB, since that's the default for most browsers
         const total = usage.reduce((acc, { size }) => acc + size, 0);
 
         return usage
@@ -95,17 +95,17 @@ const AppStorageUsage = () => {
                 const color = colors[i % colors.length];
 
                 return {
-                    value: (size / quota) * 100,
+                    value: (size / QUOTA) * 100,
                     color,
                     label,
                     tooltip: `${label} - ${getSizeLabel(size)}`,
                 };
             })
             .concat({
-                value: ((quota - total) / quota) * 100,
+                value: ((QUOTA - total) / QUOTA) * 100,
                 color: theme.colors.dark[2],
                 label: "Available",
-                tooltip: `Available - ${getSizeLabel(quota - total)}`,
+                tooltip: `Available - ${getSizeLabel(QUOTA - total)}`,
             });
     }, [colors, theme.colors.dark, usage]);
 
@@ -113,8 +113,8 @@ const AppStorageUsage = () => {
         <Box>
             <Text>Storage Usage</Text>
             <Text size="xs" color="dimmed" mb={0}>
-                This is an estimate, assuming a 5MB quota. (default for most
-                browsers).
+                This is an estimate, assuming a {getSizeLabel(QUOTA)} quota.
+                (default for most browsers)
             </Text>
             <Text size="xs" color="dimmed" mb="xs">
                 Categories under {getSizeLabel(MIN_SIZE)} are not shown.
