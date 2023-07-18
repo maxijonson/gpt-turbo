@@ -5,6 +5,7 @@ import {
     ModalProps,
     Stack,
     TextInput,
+    useMantineTheme,
 } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
 import { z } from "zod";
@@ -34,6 +35,7 @@ const ConversationNameEditModal = ({
     conversationId,
     ...modalProps
 }: ConversationNameEditModalProps) => {
+    const theme = useMantineTheme();
     const { canGenerate, isGenerating, generateConversationName } =
         useGenerateConversationName(conversationId);
     const form = useForm({
@@ -68,8 +70,7 @@ const ConversationNameEditModal = ({
             <form onSubmit={handleSubmit}>
                 <Stack>
                     <TextInput
-                        label="Name"
-                        placeholder="Conversation Name"
+                        label="Conversation Name"
                         withAsterisk
                         sx={{ flexGrow: 1 }}
                         rightSection={
@@ -79,10 +80,11 @@ const ConversationNameEditModal = ({
                                     withinPortal
                                     onClick={onGenerate}
                                     loading={isGenerating}
-                                    variant="gradient"
-                                    gradient={{ from: "teal", to: "lime" }}
+                                    delay={0}
                                 >
-                                    <HiSparkles gradientTransform="" />
+                                    <HiSparkles
+                                        color={theme.colors.orange[4]}
+                                    />
                                 </TippedActionIcon>
                             )
                         }
