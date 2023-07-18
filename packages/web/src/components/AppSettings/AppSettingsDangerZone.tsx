@@ -7,27 +7,39 @@ import { resetCallableFunctionWarnings } from "../../store/actions/callableFunct
 import { resetDefaultSettings } from "../../store/actions/defaultConversationSettings/resetDefaultSettings";
 import { removeAllSavedContexts } from "../../store/actions/savedContexts/removeAllSavedContexts";
 import { removeAllSavedPrompts } from "../../store/actions/savedPrompts/removeAllSavedPrompts";
+import { useAppStore } from "../../store";
+import { shallow } from "zustand/shallow";
 
 const AppSettingsDangerZone = () => {
+    const [conversations, functions, contexts, prompts] = useAppStore(
+        (state) => [
+            state.conversations,
+            state.callableFunctions,
+            state.savedContexts,
+            state.savedPrompts,
+        ],
+        shallow
+    );
+
     const actions = React.useMemo(
         () => [
             {
-                label: "Delete conversations",
+                label: `Delete all conversations (${conversations.length})`,
                 unconfirmedLabel: "Delete",
                 action: removeAllConversations,
             },
             {
-                label: "Delete Functions",
+                label: `Delete all functions (${functions.length})`,
                 unconfirmedLabel: "Delete",
                 action: removeAllCallableFunctions,
             },
             {
-                label: "Delete Saved Contexts",
+                label: `Delete all saved contexts (${contexts.length})`,
                 unconfirmedLabel: "Delete",
                 action: removeAllSavedContexts,
             },
             {
-                label: "Delete Saved Prompts",
+                label: `Delete all saved prompts (${prompts.length})`,
                 unconfirmedLabel: "Delete",
                 action: removeAllSavedPrompts,
             },
@@ -42,7 +54,12 @@ const AppSettingsDangerZone = () => {
                 action: resetDefaultSettings,
             },
         ],
-        []
+        [
+            contexts.length,
+            conversations.length,
+            functions.length,
+            prompts.length,
+        ]
     );
 
     return (

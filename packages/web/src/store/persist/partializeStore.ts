@@ -8,6 +8,7 @@ export const partializeStore = (state: AppState): AppPersistedState => {
         showUsage: state.showUsage,
         colorScheme: state.colorScheme,
         lastChangelog: state.lastChangelog,
+        showConversationImport: state.showConversationImport,
     });
 
     // Callable Functions

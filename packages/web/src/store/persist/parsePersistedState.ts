@@ -22,6 +22,7 @@ export const parsePersistedState = async (persistedState: any) => {
     state.showUsage = appSettings.showUsage;
     state.colorScheme = appSettings.colorScheme;
     state.lastChangelog = appSettings.lastChangelog;
+    state.showConversationImport = appSettings.showConversationImport;
 
     // Callable Functions
     const { callableFunctions } = persistence;

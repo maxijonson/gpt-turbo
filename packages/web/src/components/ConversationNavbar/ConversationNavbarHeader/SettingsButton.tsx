@@ -14,7 +14,7 @@ const SettingsButton = () => {
         <>
             <TippedActionIcon
                 variant="outline"
-                tip="Default Conversation Settings"
+                tip="Settings"
                 onClick={openSettings}
             >
                 <BiCog />

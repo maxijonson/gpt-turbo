@@ -6,7 +6,6 @@ import {
     Card,
     createStyles,
     Button,
-    Text,
     Box,
 } from "@mantine/core";
 import React from "react";
@@ -19,6 +18,7 @@ import ConversationDropzone, {
     ConversationNavbarDropzoneProps,
 } from "./inputs/ConversationDropzone";
 import { importConversations } from "../store/actions/conversations/importConversations";
+import { useAppStore } from "../store";
 
 const useStyles = createStyles((theme) => ({
     card: {
@@ -34,6 +34,9 @@ const useStyles = createStyles((theme) => ({
 }));
 
 const AddConversation = () => {
+    const showConversationImport = useAppStore(
+        (state) => state.showConversationImport
+    );
     const { classes } = useStyles();
     const dropzoneOpenRef = React.useRef<() => void>(null);
 
@@ -87,33 +90,33 @@ const AddConversation = () => {
                             <ConversationForm onSubmit={onSubmit} />
                         </Stack>
                     </Card>
-                    <Card
-                        className={classes.card}
-                        shadow="sm"
-                        padding={0}
-                        radius="md"
-                        withBorder
-                    >
-                        <ConversationDropzone
-                            onDrop={onDrop}
-                            openRef={dropzoneOpenRef}
+                    {showConversationImport && (
+                        <Card
+                            className={classes.card}
+                            shadow="sm"
+                            padding={0}
+                            radius="md"
+                            withBorder
                         >
-                            <Box p="lg">
-                                <Button
-                                    variant="light"
-                                    fullWidth
-                                    leftIcon={<BiImport />}
-                                    onClick={() => dropzoneOpenRef.current?.()}
-                                >
-                                    Import Conversation
-                                </Button>
-                                <Text size="xs" italic align="center">
-                                    Tip: You can also drag and drop the
-                                    conversation files in the sidebar!
-                                </Text>
-                            </Box>
-                        </ConversationDropzone>
-                    </Card>
+                            <ConversationDropzone
+                                onDrop={onDrop}
+                                openRef={dropzoneOpenRef}
+                            >
+                                <Box p="lg">
+                                    <Button
+                                        variant="light"
+                                        fullWidth
+                                        leftIcon={<BiImport />}
+                                        onClick={() =>
+                                            dropzoneOpenRef.current?.()
+                                        }
+                                    >
+                                        Import Conversation
+                                    </Button>
+                                </Box>
+                            </ConversationDropzone>
+                        </Card>
+                    )}
                 </Stack>
             </Center>
         </Container>
