@@ -5,8 +5,10 @@ import {
     CallableFunction,
     CallableFunctionObject,
     CallableFunctionString,
+    ChatCompletionRequestMessageRoleEnum,
     CompletionMessage,
     Conversation,
+    Message,
 } from "gpt-turbo";
 
 const generateFn = new CallableFunction(
@@ -19,6 +21,18 @@ const generateFn = new CallableFunction(
     )
 );
 
+const getFirstMessageOfRole = <R extends ChatCompletionRequestMessageRoleEnum>(
+    messages: Message[],
+    role: R
+) => {
+    const message = messages.find(
+        (m): m is CompletionMessage & { role: R } =>
+            m.isCompletion() && m.role === role
+    );
+    if (!message) return null;
+    return message;
+};
+
 export const useGenerateConversationName = (conversationId: string) => {
     const [conversations, settings] = useAppStore(
         (state) => [state.conversations, state.defaultSettings],
@@ -29,19 +43,12 @@ export const useGenerateConversationName = (conversationId: string) => {
     const conversation = conversations.find((c) => c.id === conversationId);
 
     const apiKey = settings.apiKey;
-    const messages = React.useMemo(
-        () => conversation?.getMessages() ?? [],
-        [conversation]
-    );
-    const userMessage = messages[0] as CompletionMessage;
-    const assistantMessage = messages[1] as CompletionMessage;
+    const messages = conversation?.getMessages() ?? [];
+    const userMessage = getFirstMessageOfRole(messages, "user");
+    const assistantMessage = getFirstMessageOfRole(messages, "assistant");
 
     const canGenerate = React.useMemo(
-        () =>
-            conversation &&
-            apiKey &&
-            userMessage?.isCompletion() &&
-            assistantMessage?.isCompletion(),
+        () => conversation && apiKey && userMessage && assistantMessage,
         [apiKey, assistantMessage, conversation, userMessage]
     );
 
@@ -54,14 +61,15 @@ export const useGenerateConversationName = (conversationId: string) => {
                 apiKey,
                 disableModeration: true,
             });
-            await generateConversation.addUserMessage(userMessage.content);
+
+            await generateConversation.addUserMessage(userMessage!.content);
             await generateConversation.addAssistantMessage(
-                assistantMessage.content
+                assistantMessage!.content
             );
             generateConversation.addFunction(generateFn);
 
             const result = await generateConversation.prompt(
-                "Give a name to this conversation.",
+                "Give a name for this conversation based on the two previous messages.",
                 { function_call: { name: generateFn.name } }
             );
             if (!result.isFunctionCall()) return;
@@ -74,7 +82,7 @@ export const useGenerateConversationName = (conversationId: string) => {
         } catch (e) {
             console.error(e);
         }
-    }, [apiKey, assistantMessage.content, canGenerate, userMessage.content]);
+    }, [apiKey, assistantMessage, canGenerate, userMessage]);
 
     return {
         canGenerate,

@@ -8,6 +8,8 @@ import { useActiveConversation } from "../../store/hooks/conversations/useActive
 import useConversationNavbar from "../../contexts/hooks/useConversationNavbar";
 import ConversationNavbarBurger from "./ConversationNavbarBurger";
 import ConversationNavbarFooter from "./ConversationNavbarFooter/ConversationNavbarFooter";
+import ConversationNavbarDropzone from "./ConversationNavbarDropzone";
+import { importConversations } from "../../store/actions/conversations/importConversations";
 
 const ConversationNavbar = () => {
     const activeConversation = useActiveConversation();
@@ -31,7 +33,11 @@ const ConversationNavbar = () => {
                     <Divider my="xs" />
                 </Navbar.Section>
                 <Navbar.Section grow h={0}>
-                    <NavbarConversations onConversationSelect={closeNavbar} />
+                    <ConversationNavbarDropzone onDrop={importConversations}>
+                        <NavbarConversations
+                            onConversationSelect={closeNavbar}
+                        />
+                    </ConversationNavbarDropzone>
                 </Navbar.Section>
                 {activeConversation && showUsage && (
                     <Navbar.Section>

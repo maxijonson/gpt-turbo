@@ -6,33 +6,9 @@ import {
     CallableFunctionExport,
     callableFunctionExportschema,
 } from "../../entities/callableFunctionExport";
-import getErrorInfo from "../../utils/getErrorInfo";
 import { BiX, BiUpload } from "react-icons/bi";
 import { BsFiletypeJson } from "react-icons/bs";
-
-const readImportedFile = (file: File) => {
-    return new Promise<CallableFunctionExport>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            try {
-                const result = callableFunctionExportschema.safeParse(
-                    JSON.parse(reader.result as string)
-                );
-                if (!result.success) {
-                    reject(result.error);
-                } else {
-                    resolve(result.data);
-                }
-            } catch (e) {
-                reject(e);
-            }
-        };
-        reader.onerror = (e) => {
-            reject(e);
-        };
-        reader.readAsText(file);
-    });
-};
+import readJsonFile from "../../utils/readJsonFile";
 
 interface CallableFunctionImportDropzoneProps {
     onDrop: (fns: CallableFunctionExport[]) => void;
@@ -48,11 +24,14 @@ const CallableFunctionImportDropzone = ({
             const importedFns = await Promise.all(
                 files.map(async (file) => {
                     try {
-                        return await readImportedFile(file);
+                        return await readJsonFile(
+                            file,
+                            callableFunctionExportschema
+                        );
                     } catch (e) {
                         notifications.show({
                             title: "Failed to import function",
-                            message: getErrorInfo(e).message,
+                            message: "Not a valid function file",
                             color: "red",
                             icon: <BiX />,
                         });

@@ -1,11 +1,4 @@
-import {
-    Divider,
-    Group,
-    ScrollArea,
-    Stack,
-    Text,
-    createStyles,
-} from "@mantine/core";
+import { Divider, Group, Stack, Text } from "@mantine/core";
 import NavbarConversation from "./NavbarConversation/NavbarConversation";
 import React from "react";
 import TippedActionIcon from "../../common/TippedActionIcon";
@@ -18,14 +11,6 @@ import { useGetConversationLastEdit } from "../../../store/hooks/conversations/u
 interface NavbarConversationsProps {
     onConversationSelect?: () => void;
 }
-
-const useStyles = createStyles(() => ({
-    scrollArea: {
-        "& > div": {
-            display: "block !important",
-        },
-    },
-}));
 
 const getRelativeDate = (target: number) => {
     const currentDate = new Date();
@@ -75,7 +60,6 @@ const getRelativeDate = (target: number) => {
 const NavbarConversations = ({
     onConversationSelect = () => {},
 }: NavbarConversationsProps) => {
-    const { classes } = useStyles();
     const conversations = useAppStore((state) => state.conversations);
     const getConversationLastEdit = useGetConversationLastEdit();
     const [deleteConfirmation, setdeleteConfirmation] = React.useState<
@@ -125,62 +109,51 @@ const NavbarConversations = ({
     );
 
     return (
-        <ScrollArea
-            h="100%"
-            classNames={{
-                viewport: classes.scrollArea,
-            }}
-        >
-            <Stack spacing="xs">
-                {Object.entries(conversationGroups).map(
-                    ([relativeDate, conversations]) => (
-                        <Stack key={relativeDate} spacing="xs">
-                            <Group>
-                                <Divider
-                                    sx={{ flexGrow: 1 }}
-                                    label={
-                                        <Text
-                                            size="xs"
-                                            weight={700}
-                                            opacity={0.7}
-                                        >
-                                            {relativeDate}
-                                        </Text>
-                                    }
-                                />
-                                <TippedActionIcon
-                                    onClick={makeDeleteGroup(relativeDate)}
-                                    variant={
-                                        deleteConfirmation === relativeDate
-                                            ? "filled"
-                                            : undefined
-                                    }
-                                    color={
-                                        deleteConfirmation === relativeDate
-                                            ? "red"
-                                            : undefined
-                                    }
-                                    tip={
-                                        relativeDate === "Older"
-                                            ? "Delete all older conversations"
-                                            : `Delete all conversations from ${relativeDate.toLowerCase()}`
-                                    }
-                                >
-                                    <BiTrash />
-                                </TippedActionIcon>
-                            </Group>
-                            {conversations.map((conversation) => (
-                                <NavbarConversation
-                                    key={conversation.id}
-                                    conversation={conversation}
-                                    onClick={onConversationSelect}
-                                />
-                            ))}
-                        </Stack>
-                    )
-                )}
-            </Stack>
-        </ScrollArea>
+        <Stack spacing="xs">
+            {Object.entries(conversationGroups).map(
+                ([relativeDate, conversations]) => (
+                    <Stack key={relativeDate} spacing="xs">
+                        <Group>
+                            <Divider
+                                sx={{ flexGrow: 1 }}
+                                label={
+                                    <Text size="xs" weight={700} opacity={0.7}>
+                                        {relativeDate}
+                                    </Text>
+                                }
+                            />
+                            <TippedActionIcon
+                                onClick={makeDeleteGroup(relativeDate)}
+                                variant={
+                                    deleteConfirmation === relativeDate
+                                        ? "filled"
+                                        : undefined
+                                }
+                                color={
+                                    deleteConfirmation === relativeDate
+                                        ? "red"
+                                        : undefined
+                                }
+                                tip={
+                                    relativeDate === "Older"
+                                        ? "Delete all older conversations"
+                                        : `Delete all conversations from ${relativeDate.toLowerCase()}`
+                                }
+                            >
+                                <BiTrash />
+                            </TippedActionIcon>
+                        </Group>
+                        {conversations.map((conversation) => (
+                            <NavbarConversation
+                                key={conversation.id}
+                                conversation={conversation}
+                                onClick={onConversationSelect}
+                            />
+                        ))}
+                    </Stack>
+                )
+            )}
+        </Stack>
     );
 };
 
