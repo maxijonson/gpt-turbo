@@ -1,6 +1,6 @@
 {
     "name": "gpt-turbo-web",
-    "version": "4.4.1",
+    "version": "4.5.0",
     "description": "A Web app that interacts with the gpt-turbo library",
     "private": true,
     "main": "dist/index.js",
@@ -66,7 +66,7 @@
         "@tiptap/pm": "^2.0.3",
         "@tiptap/react": "^2.0.3",
         "@tiptap/starter-kit": "^2.0.3",
-        "gpt-turbo": "^4.4.0",
+        "gpt-turbo": "^4.5.0",
         "lowlight": "^2.9.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
