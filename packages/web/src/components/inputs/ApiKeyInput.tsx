@@ -1,4 +1,4 @@
-import { PasswordInput, Anchor, Text } from "@mantine/core";
+import { PasswordInput, Anchor } from "@mantine/core";
 
 interface ApiKeyInputProps {
     value: string;
@@ -12,15 +12,12 @@ const ApiKeyInput = ({ value, onChange }: ApiKeyInputProps) => {
             onChange={(event) => onChange(event.currentTarget.value)}
             label="OpenAI API Key"
             description={
-                <Text>
-                    You can find yours{" "}
-                    <Anchor
-                        href="https://platform.openai.com/account/api-keys"
-                        target="_blank"
-                    >
-                        here
-                    </Anchor>
-                </Text>
+                <Anchor
+                    href="https://platform.openai.com/account/api-keys"
+                    target="_blank"
+                >
+                    Go to OpenAI API Keys
+                </Anchor>
             }
         />
     );
