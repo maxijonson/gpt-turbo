@@ -1,9 +1,9 @@
+import { ConversationRequestOptionsModel } from "schemas/conversationRequestOptions.schema.js";
 import { ENDPOINT_CHATCOMPLETION } from "../index.js";
 import getRequestHeaders from "./getRequestHeaders.js";
 import getRequestUrl from "./getRequestUrl.js";
 import {
     CreateChatCompletionRequest,
-    RequestOptions,
     CreateChatCompletionResponse,
 } from "./types.js";
 
@@ -16,7 +16,7 @@ import {
  */
 export default async <T extends CreateChatCompletionRequest>(
     { apiKey, ...chatCompletionRequest }: T,
-    { headers: optHeaders = {}, proxy }: RequestOptions = {}
+    { headers: optHeaders = {}, proxy }: ConversationRequestOptionsModel = {}
 ): Promise<
     T["stream"] extends true ? ReadableStream : CreateChatCompletionResponse
 > => {

@@ -1,13 +1,13 @@
+import { ConversationRequestOptionsModel } from "schemas/conversationRequestOptions.schema.js";
 import base64Encode from "./base64Encode.js";
-import { RequestOptionsProxy } from "./types.js";
 
 /**
  * Returns the headers object for a request.
  */
 export default (
     apiKey: string,
-    optHeaders: Record<string, string> = {},
-    proxy?: RequestOptionsProxy
+    optHeaders: ConversationRequestOptionsModel["headers"] = {},
+    proxy: ConversationRequestOptionsModel["proxy"]
 ) => {
     const headers = new Headers({
         ...optHeaders,

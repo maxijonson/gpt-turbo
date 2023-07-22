@@ -1,8 +1,6 @@
 import { v4 as uuid } from "uuid";
-import { getMessageCost, getMessageSize } from "../index.js";
 import {
     ChatCompletionRequestMessageRoleEnum,
-    RequestOptions,
     CreateChatCompletionStreamResponse,
     MessageStreamingListener,
     MessageStreamingStartListener,
@@ -15,8 +13,9 @@ import {
     CreateChatCompletionFunctionCallMessage,
     CreateChatCompletionFunctionMessage,
 } from "../utils/types.js";
-import createModeration from "../utils/createModeration.js";
 import { MessageModel, messageSchema } from "../schemas/message.schema.js";
+import createModeration from "utils/createModeration.js";
+import { ConversationRequestOptionsModel } from "schemas/conversationRequestOptions.schema.js";
 
 /**
  * A message in a Conversation.
@@ -38,8 +37,6 @@ export class Message {
           }
         | undefined;
     private _flags: string[] | null = null;
-    private _size: number | null = null;
-    private _cost: number | null = null;
     private _isStreaming = false;
 
     private messageUpdateListeners: MessageUpdateListener[] = [];
@@ -50,7 +47,7 @@ export class Message {
      *
      * @param role The role of who this message is from. Either "user", "assistant" or "system".
      * @param content The content of the message.
-     * @param model The model used for processing this message. This is only used to calculate the cost of the message. If you don't specify a model, the `cost` will always be `0`.
+     * @param model The model used for processing this message.
      */
     constructor(
         role: ChatCompletionRequestMessageRoleEnum = "user",
@@ -185,13 +182,16 @@ export class Message {
      */
     public async moderate(
         apiKey: string,
-        requestOptions: RequestOptions = {}
+        requestOptions: ConversationRequestOptionsModel = {}
     ): Promise<string[]> {
         const flags = this.flags;
         if (flags) {
             return flags;
         }
-        if (!this.content) return [];
+        if (!this.content) {
+            this.flags = [];
+            return this.flags;
+        }
 
         const response = await createModeration(
             {
@@ -341,8 +341,6 @@ export class Message {
     set content(content) {
         this._content = content;
         this.flags = null;
-        this.size = null;
-        this.cost = null;
 
         this.notifyMessageUpdate();
     }
@@ -362,8 +360,6 @@ export class Message {
     set functionCall(functionCall) {
         this._functionCall = functionCall;
         this.flags = null;
-        this.size = null;
-        this.cost = null;
         this.content = null; // also call notifyMessageUpdate() to notify listeners
     }
 
@@ -379,42 +375,6 @@ export class Message {
     /** Whether the message is flagged by OpenAI's moderation API. Always `false` unless `moderate` has been called. */
     get isFlagged() {
         return (this.flags?.length ?? 0) > 0;
-    }
-
-    /** The size of the message's content, in tokens. */
-    get size(): number {
-        if (this._size) {
-            return this._size;
-        }
-        // FIXME: Find out how the size is calculated for messages with function calls
-        if (this._content === null) {
-            return 0;
-        }
-        const s = getMessageSize(this._content);
-        this.size = s;
-        return this._size as typeof s;
-    }
-
-    private set size(size: number | null) {
-        this._size = size;
-    }
-
-    /** The estimated cost of the message's content. */
-    get cost(): number {
-        if (this._cost) {
-            return this._cost;
-        }
-        const c = getMessageCost(
-            this.size,
-            this.model,
-            this.role === "assistant" ? "completion" : "prompt"
-        );
-        this.cost = c;
-        return this._cost as typeof c;
-    }
-
-    private set cost(cost: number | null) {
-        this._cost = cost;
     }
 
     /** Whether the message is currently being streamed. */

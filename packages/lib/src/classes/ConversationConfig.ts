@@ -10,51 +10,140 @@ import {
     conversationConfigSchema,
 } from "../schemas/conversationConfig.schema.js";
 import {
-    ConversationConfigChatCompletionOptions,
-    ConversationConfigOptions,
-    ConversationConfigParameters,
+    ChatCompletionConfigOptions as CCCO, // Intentionally using abbreviated names to deter from using them here
+    ConversationConfigOptions as CCO, // Intentionally using abbreviated names to deter from using them here
 } from "../utils/types.js";
 
-type ConversationConfigChatCompletionRequiredOption<
-    K extends keyof ConversationConfigChatCompletionOptions
-> = Exclude<ConversationConfigChatCompletionOptions[K], undefined>;
+/**
+ * Although all properties of `ChatCompletionConfigOptions` are optional, some of them are certain to have a value when used in a `ConversationConfig` instance.
+ *
+ * @internal Only used for convenience within the `ConversationConfig` class. Not meant to be used by consumers of the library.
+ */
+type ChatCompletionConfigProperties = CCCO &
+    Required<Pick<CCCO, "apiKey" | "model" | "stream">>;
 
-type ConversationConfigRequiredOption<
-    K extends keyof ConversationConfigOptions
-> = Exclude<ConversationConfigOptions[K], undefined>;
+/**
+ * Although all properties of `ConversationConfigOptions` are optional, some of them are certain to have a value when used in a `ConversationConfig` instance.
+ *
+ * @internal Only used for convenience within the `ConversationConfig` class. Not meant to be used by consumers of the library.
+ */
+type ConversationConfigProperties = CCO &
+    Required<Pick<CCO, "context" | "dry" | "disableModeration">>;
+
+type ConfigProperties = ChatCompletionConfigProperties &
+    ConversationConfigProperties;
 
 /**
  * The configuration for a conversation. Contains library specific options and OpenAI's Chat Completion default options.
  *
- * @remarks
- * Since this class is only instanciated by the Conversation class internally and is not required by any of its public methods, you should not need to use this class directly.
- *
  * @internal
+ * This class is used internally by the library and is not meant to be **instantiated** by consumers of the library.
  */
 export class ConversationConfig {
-    public model: ConversationConfigChatCompletionRequiredOption<"model">;
-    public stream: ConversationConfigChatCompletionRequiredOption<"stream">;
-    public frequencyPenalty: ConversationConfigChatCompletionOptions["frequency_penalty"];
-    public presencePenalty: ConversationConfigChatCompletionOptions["presence_penalty"];
-    public maxTokens: ConversationConfigChatCompletionOptions["max_tokens"];
-    public logitBias: ConversationConfigChatCompletionOptions["logit_bias"];
-    public temperature: ConversationConfigChatCompletionOptions["temperature"];
-    public topP: ConversationConfigChatCompletionOptions["top_p"];
-    public user: ConversationConfigChatCompletionOptions["user"];
-    public functionCall: ConversationConfigChatCompletionOptions["function_call"];
-    private _stop: ConversationConfigChatCompletionOptions["stop"];
-    private _apiKey!: ConversationConfigChatCompletionRequiredOption<"apiKey">;
+    // OpenAI-specific options
+    public model!: ChatCompletionConfigProperties["model"];
+    public stream!: ChatCompletionConfigProperties["stream"];
+    public frequencyPenalty: ChatCompletionConfigProperties["frequency_penalty"];
+    public presencePenalty: ChatCompletionConfigProperties["presence_penalty"];
+    public maxTokens: ChatCompletionConfigProperties["max_tokens"];
+    public logitBias: ChatCompletionConfigProperties["logit_bias"];
+    public temperature: ChatCompletionConfigProperties["temperature"];
+    public topP: ChatCompletionConfigProperties["top_p"];
+    public user: ChatCompletionConfigProperties["user"];
+    public functionCall: ChatCompletionConfigProperties["function_call"];
+    private _stop: ChatCompletionConfigProperties["stop"];
+    private _apiKey!: ChatCompletionConfigProperties["apiKey"];
 
-    public disableModeration: ConversationConfigRequiredOption<"disableModeration">;
-    private _context!: ConversationConfigRequiredOption<"context">;
-    private _dry!: ConversationConfigRequiredOption<"dry">;
+    // Library-specific options
+    public disableModeration!: ConversationConfigProperties["disableModeration"];
+    private _context!: ConversationConfigProperties["context"];
+    private _dry!: ConversationConfigProperties["dry"];
 
-    constructor({
-        context = DEFAULT_CONTEXT,
-        dry = DEFAULT_DRY,
-        disableModeration = DEFAULT_DISABLEMODERATION,
-        ...chatCompletionConfig
-    }: ConversationConfigParameters) {
+    constructor(options: ConversationConfigModel = {}) {
+        this.setConfig(options);
+    }
+
+    /**
+     * Creates a new `ConversationConfig` instance from a serialized config.
+     *
+     * @param json The JSON object of a ConversationConfig instance.
+     * @returns A new `ConversationConfig` instance
+     *
+     * @internal
+     * This method is used internally by the library and is not meant to be used by consumers of the library.
+     */
+    public static fromJSON(json: ConversationConfigModel) {
+        return new ConversationConfig(conversationConfigSchema.parse(json));
+    }
+
+    /**
+     * Serializes the ConversationConfig to JSON.
+     *
+     * @returns The `ConversationConfig` as a JSON object.
+     *
+     * @internal
+     * This method is used internally by the library and is not meant to be used by consumers of the library.
+     */
+    public toJSON(): ConversationConfigModel {
+        const json: ConversationConfigModel = this.getConfig();
+        return conversationConfigSchema.parse(json);
+    }
+
+    /**
+     * Returns the **library-specific** options of the config.
+     */
+    public getConversationConfig(): ConversationConfigProperties {
+        return {
+            context: this.context,
+            dry: this.dry,
+            disableModeration: this.disableModeration,
+        };
+    }
+
+    /**
+     * Returns the **OpenAI-specific** options of the config.
+     */
+    public getChatCompletionConfig(): ChatCompletionConfigProperties {
+        return {
+            apiKey: this.apiKey,
+            model: this.model,
+            stream: this.stream,
+            frequency_penalty: this.frequencyPenalty,
+            presence_penalty: this.presencePenalty,
+            max_tokens: this.maxTokens,
+            logit_bias: this.logitBias,
+            stop: this.stop,
+            temperature: this.temperature,
+            top_p: this.topP,
+            user: this.user,
+            function_call: this.functionCall,
+        };
+    }
+
+    /**
+     * Returns both the **library-specific** and **OpenAI-specific** options of the config.
+     */
+    public getConfig(): ConfigProperties {
+        return {
+            ...this.getChatCompletionConfig(),
+            ...this.getConversationConfig(),
+        };
+    }
+
+    /**
+     * Assigns a new config to the conversation.
+     *
+     * @param config The new config to use.
+     * @param merge Set to `true` to shallow merge the new config with the existing config instead of replacing it.
+     */
+    public setConfig(config: Partial<ConfigProperties>, merge = false) {
+        const {
+            context = DEFAULT_CONTEXT,
+            dry = DEFAULT_DRY,
+            disableModeration = DEFAULT_DISABLEMODERATION,
+            ...chatCompletionConfig
+        } = merge ? { ...this.getConfig(), ...config } : config;
+
         const {
             apiKey = "",
             model = DEFAULT_MODEL,
@@ -86,73 +175,6 @@ export class ConversationConfig {
         this.topP = top_p;
         this.user = user;
         this.functionCall = function_call;
-    }
-
-    /**
-     * Creates a new `ConversationConfig` instance from a serialized config.
-     *
-     * @param json The JSON object of a ConversationConfig instance.
-     * @returns A new `ConversationConfig` instance
-     */
-    public static fromJSON(json: ConversationConfigModel) {
-        return new ConversationConfig(conversationConfigSchema.parse(json));
-    }
-
-    /**
-     * Serializes the ConversationConfig to JSON.
-     *
-     * @returns The `ConversationConfig` as a JSON object.
-     */
-    public toJSON(): ConversationConfigModel {
-        const json: ConversationConfigModel = {
-            dry: this.dry,
-            apiKey: this.apiKey,
-            model: this.model,
-            stream: this.stream,
-            disableModeration: this.disableModeration,
-            context: this.context,
-            frequency_penalty: this.frequencyPenalty,
-            presence_penalty: this.presencePenalty,
-            max_tokens: this.maxTokens,
-            logit_bias: this.logitBias,
-            temperature: this.temperature,
-            top_p: this.topP,
-            user: this.user,
-            stop: this.stop,
-            function_call: this.functionCall,
-        };
-        return conversationConfigSchema.parse(json);
-    }
-
-    public get config(): Required<ConversationConfigOptions> {
-        return {
-            context: this.context,
-            dry: this.dry,
-            disableModeration: this.disableModeration,
-        };
-    }
-
-    public get chatCompletionConfig(): Required<
-        Pick<
-            ConversationConfigChatCompletionOptions,
-            "apiKey" | "model" | "stream"
-        >
-    > &
-        ConversationConfigChatCompletionOptions {
-        return {
-            apiKey: this.apiKey,
-            model: this.model,
-            stream: this.stream,
-            frequency_penalty: this.frequencyPenalty,
-            presence_penalty: this.presencePenalty,
-            max_tokens: this.maxTokens,
-            logit_bias: this.logitBias,
-            stop: this.stop,
-            temperature: this.temperature,
-            top_p: this.topP,
-            user: this.user,
-            function_call: this.functionCall,
-        };
     }
 
     public get apiKey() {

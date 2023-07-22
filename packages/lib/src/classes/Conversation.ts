@@ -3,26 +3,18 @@ import {
     createChatCompletion,
     createDryChatCompletion,
 } from "../utils/index.js";
-import { ModerationException } from "../exceptions/ModerationException.js";
 import { Message } from "./Message.js";
-import { MessageRoleException } from "../exceptions/index.js";
 import { v4 as uuid } from "uuid";
-import {
-    AddMessageListener,
-    ConversationConfigParameters,
-    HandleChatCompletionOptions,
-    PromptOptions,
-    RemoveMessageListener,
-    RequestOptions,
-} from "../utils/types.js";
-import { DEFAULT_DISABLEMODERATION } from "../index.js";
+import { HandleChatCompletionOptions, PromptOptions } from "../utils/types.js";
 import {
     ConversationModel,
     conversationSchema,
 } from "../schemas/conversation.schema.js";
-import { MessageModel } from "../schemas/message.schema.js";
-import { CallableFunction } from "./CallableFunction.js";
-import { CallableFunctionModel } from "../schemas/callableFunction.schema.js";
+import { ConversationRequestOptions } from "./ConversationRequestOptions.js";
+import { ConversationHistory } from "./ConversationHistory.js";
+import { ConversationCallableFunctions } from "./ConversationCallableFunctions.js";
+import { ConversationRequestOptionsModel } from "schemas/conversationRequestOptions.schema.js";
+import { ModerationException } from "exceptions/ModerationException.js";
 
 /**
  * A Conversation manages the messages sent to and from the OpenAI API and handles the logic for providing the message history to the API for each prompt.
@@ -33,138 +25,38 @@ export class Conversation {
      */
     public id = uuid();
 
-    private config!: ConversationConfig;
-    private requestOptions: RequestOptions;
-    private messages: Message[] = [];
-    private functions: CallableFunction[] = [];
-    private addMessageListeners: AddMessageListener[] = [];
-    private removeMessageListeners: RemoveMessageListener[] = [];
-    private cumulativeSize = 0;
-    private cumulativeCost = 0;
+    public readonly config: ConversationConfig;
+    public readonly requestOptions: ConversationRequestOptions;
+    public readonly history: ConversationHistory;
+    public readonly callableFunctions: ConversationCallableFunctions;
 
     /**
      * Creates a new Conversation instance.
      *
-     * @param config The configuration for this conversation. See {@link ConversationConfigParameters}
-     * @param requestOptions The HTTP request options. See {@link RequestOptions}
+     * @param options The options for the Conversation instance's configuration, request options, history, and callable functions.
      */
-    constructor(
-        config: ConversationConfigParameters = {},
-        requestOptions: RequestOptions = {}
-    ) {
-        this.setConfig(config);
-        this.requestOptions = requestOptions;
-        this.clearMessages();
-    }
+    constructor(options: ConversationModel = {}) {
+        const { config, requestOptions, history, callableFunctions } = options;
 
-    /**
-     * Creates a new Conversation instance from a list of messages.
-     *
-     * @param messages The messages (as JSON) to add to the conversation. See {@link MessageModel}
-     * @param config The configuration for this conversation. See {@link ConversationConfigParameters}
-     * @param requestOptions The HTTP request options. See {@link RequestOptions}
-     * @param disableInitialModeration Whether to disable moderation for the initial messages. Defaults to `true` to prevent multiple API calls in a short period of time.
-     * @returns The new Conversation instance.
-     */
-    public static async fromMessages(
-        messages: MessageModel[],
-        config: ConversationConfigParameters = {},
-        requestOptions: RequestOptions = {},
-        disableInitialModeration: ConversationConfigParameters["disableModeration"] = true
-    ) {
-        const conversation = new Conversation(
-            {
-                ...config,
-                disableModeration: disableInitialModeration,
-            },
-            requestOptions
+        this.config = new ConversationConfig(config);
+        this.requestOptions = new ConversationRequestOptions(requestOptions);
+        this.history = new ConversationHistory(this.config, history);
+        this.callableFunctions = new ConversationCallableFunctions(
+            callableFunctions
         );
-
-        for (const message of messages) {
-            switch (message.role) {
-                case "user":
-                    if (message.content === null)
-                        throw new Error("User message content cannot be null.");
-                    await conversation.addUserMessage(message.content);
-                    break;
-                case "assistant":
-                    if (message.content === null) {
-                        if (!message.function_call)
-                            throw new Error("Function call must be provided.");
-                        await conversation.addFunctionCallMessage(
-                            message.function_call
-                        );
-                    } else {
-                        await conversation.addAssistantMessage(message.content);
-                    }
-                    break;
-                case "system":
-                    if (message.content === null)
-                        throw new Error("Context cannot be null.");
-                    conversation.setContext(message.content);
-                    break;
-                case "function":
-                    if (!message.name)
-                        throw new Error("Function name must be specified.");
-                    if (message.content === null)
-                        throw new Error(
-                            "Function message content cannot be null."
-                        );
-                    await conversation.addFunctionMessage(
-                        message.content,
-                        message.name
-                    );
-                    break;
-            }
-        }
-
-        conversation.setConfig(
-            {
-                disableModeration:
-                    config.disableModeration || DEFAULT_DISABLEMODERATION,
-            },
-            true
-        );
-
-        return conversation;
     }
 
     /**
      * Creates a new Conversation instance from a JSON object.
      *
      * @param json The JSON object of the Conversation instance.
-     * @param config Overrides for the loaded configuration of this conversation. See {@link ConversationConfigParameters}
+     * @param config Overrides for the loaded configuration of this conversation. See {@link ConversationConfigModel}
      * @param requestOptions Overrides for the loaded HTTP request options. See {@link RequestOptions}
      * @param disableInitialModeration Whether to disable moderation for the initial messages. Defaults to `true` to prevent multiple API calls in a short period of time.
      * @returns The new Conversation instance.
      */
-    public static async fromJSON(
-        json: ConversationModel,
-        config: ConversationConfigParameters = {},
-        requestOptions: RequestOptions = {},
-        disableInitialModeration: ConversationConfigParameters["disableModeration"] = true
-    ) {
-        const conversationJson = conversationSchema.parse(json);
-        const conversation = await Conversation.fromMessages(
-            conversationJson.messages,
-            {
-                ...(conversationJson.config ?? {}),
-                ...config,
-            },
-            {
-                ...(conversationJson.requestOptions ?? {}),
-                ...requestOptions,
-            },
-            disableInitialModeration
-        );
-
-        if (conversationJson.id) conversation.id = conversationJson.id;
-
-        conversationJson.functions.forEach((fn) =>
-            conversation.addFunction(fn)
-        );
-
-        return conversation;
+    public static fromJSON(json: ConversationModel) {
+        return new Conversation(conversationSchema.parse(json));
     }
 
     /**
@@ -176,206 +68,11 @@ export class Conversation {
         const json: ConversationModel = {
             id: this.id,
             config: this.config.toJSON(),
-            messages: this.messages.map((message) => message.toJSON()),
-            functions: this.functions.map((fn) => fn.toJSON()),
-            requestOptions: this.requestOptions,
+            requestOptions: this.requestOptions.toJSON(),
+            callableFunctions: this.callableFunctions.toJSON(),
+            history: this.history.toJSON(),
         };
         return conversationSchema.parse(json);
-    }
-
-    /**
-     * Adds a message with the role of `"assistant"` to the conversation.
-     *
-     * @param message The content of the message.
-     * @returns The [Message](./utils/types.ts) object that was added to the conversation
-     */
-    public addAssistantMessage(message: string) {
-        const assistantMessage = new Message(
-            "assistant",
-            message,
-            this.config.model
-        );
-        if (!assistantMessage.isCompletion()) {
-            throw new Error("Not a completion message.");
-        }
-        return this.addMessage(assistantMessage);
-    }
-
-    /**
-     * Adds a message with the role of "user" to the conversation.
-     *
-     * @param message The content of the message.
-     * @returns The [Message](./utils/types.ts) object that was added to the conversation
-     */
-    public addUserMessage(message: string) {
-        const userMessage = new Message("user", message, this.config.model);
-        if (!userMessage.isCompletion()) {
-            throw new Error("Not a completion message.");
-        }
-        return this.addMessage(userMessage);
-    }
-
-    /**
-     * Adds a message with the role of "assistant" to the conversation with the function call generated by the assistant.
-     *
-     * @param functionCall The name and arguments of the function to call, generated by the assistant.
-     * @returns The [Message](./utils/types.ts) object that was added to the conversation
-     */
-    public addFunctionCallMessage(functionCall: {
-        name: string;
-        arguments: Record<string, any>;
-    }) {
-        const functionCallMessage = new Message(
-            "assistant",
-            null,
-            this.config.model
-        );
-        functionCallMessage.functionCall = functionCall;
-        if (!functionCallMessage.isFunctionCall()) {
-            throw new Error("Not a function call message.");
-        }
-        return this.addMessage(functionCallMessage);
-    }
-
-    /**
-     * Adds a message with the role of "function" to the conversation with the content being the return value of the function call, called by your own code.
-     *
-     * @param message The return value of the function call, stringified if needed.
-     * @param name The name of the function that was called.
-     * @returns The [Message](./utils/types.ts) object that was added to the conversation
-     */
-    public addFunctionMessage(message: string, name: string) {
-        const functionMessage = new Message(
-            "function",
-            message,
-            this.config.model
-        );
-        functionMessage.name = name;
-        if (!functionMessage.isFunction()) {
-            throw new Error("Not a function message.");
-        }
-        return this.addMessage(functionMessage);
-    }
-
-    /**
-     * Get the messages in the conversation.
-     *
-     * @param includeContext Whether to include the context message in the returned array.
-     * @returns A **shallow copy** of the messages array.
-     */
-    public getMessages(includeContext = false) {
-        if (!this.config.context) return this.messages.slice(0);
-        return includeContext ? this.messages.slice(0) : this.messages.slice(1);
-    }
-
-    /**
-     * Removes a callable function from the conversation.
-     *
-     * @param idOrFn Either the ID of the function, the function itself, or the function model.
-     */
-    public removeFunction(
-        idOrFn: string | CallableFunction | CallableFunctionModel
-    ) {
-        const id = typeof idOrFn === "string" ? idOrFn : idOrFn.id;
-        const removedFn = this.functions.find((fn) => fn.id === id);
-        if (!removedFn) return;
-        this.functions = this.functions.filter((fn) => fn.id !== id);
-    }
-
-    /**
-     * Removes all functions from the conversation.
-     */
-    public clearFunctions() {
-        this.functions = [];
-    }
-
-    /**
-     * Adds a function to the conversation. This function can be "called" by the assistant, generating a function call message.
-     *
-     * @param fn The function to add to the conversation.
-     */
-    public addFunction(fn: CallableFunction | CallableFunctionModel) {
-        this.functions = this.functions
-            .filter((f) => f.name !== fn.name && f.id !== fn.id)
-            .concat(
-                fn instanceof CallableFunction
-                    ? fn
-                    : CallableFunction.fromJSON(fn)
-            );
-    }
-
-    /**
-     * Get the functions in the conversation.
-     *
-     * @returns A **shallow copy** of the functions array.
-     */
-    public getFunctions() {
-        return this.functions.slice(0);
-    }
-
-    /**
-     * Removes a listener function from the list of listeners that was previously added with `onMessageAdded`.
-     *
-     * @param listener The function to remove from the list of listeners.
-     */
-    public offMessageAdded(listener: AddMessageListener) {
-        this.addMessageListeners = this.addMessageListeners.filter(
-            (l) => l !== listener
-        );
-    }
-
-    /**
-     * Adds a listener function that is called whenever a message is added to the conversation.
-     *
-     * @param listener The function to call when a message is added to the conversation.
-     * @returns A function that removes the listener from the list of listeners.
-     */
-    public onMessageAdded(listener: AddMessageListener) {
-        this.addMessageListeners.push(listener);
-        return () => this.offMessageAdded(listener);
-    }
-
-    /**
-     * Removes a listener function from the list of listeners that was previously added with `onMessageRemoved`.
-     *
-     * @param listener The function to remove from the list of listeners.
-     */
-    public offMessageRemoved(listener: RemoveMessageListener) {
-        this.removeMessageListeners = this.removeMessageListeners.filter(
-            (l) => l !== listener
-        );
-    }
-
-    /**
-     * Adds a listener function that is called whenever a message is removed to the conversation.
-     *
-     * @param listener The function to call when a message is removed to the conversation.
-     * @returns A function that removes the listener from the list of listeners.
-     */
-    public onMessageRemoved(listener: RemoveMessageListener) {
-        this.removeMessageListeners.push(listener);
-        return () => this.offMessageRemoved(listener);
-    }
-
-    /**
-     * Clears all messages in the conversation except the context message, if it is set.
-     */
-    public clearMessages() {
-        this.messages = [];
-        this.addSystemMessage(this.config.context);
-    }
-
-    /**
-     * Removes a message from the conversation's history.
-     *
-     * @param message Either the ID of the message to remove, or the message object itself (where the ID will be extracted from).
-     */
-    public removeMessage(message: string | Message) {
-        const id = typeof message === "string" ? message : message.id;
-        const removedMessage = this.messages.find((m) => m.id === id);
-        if (!removedMessage) return;
-        this.messages = this.messages.filter((m) => m.id !== id);
-        this.notifyMessageRemoved(removedMessage);
     }
 
     /**
@@ -387,7 +84,7 @@ export class Conversation {
      */
     public async getChatCompletionResponse(
         options: PromptOptions = {},
-        requestOptions: RequestOptions = {}
+        requestOptions: ConversationRequestOptionsModel = {}
     ): Promise<Message> {
         const stream = options.stream ?? this.config.stream;
         return stream
@@ -406,18 +103,19 @@ export class Conversation {
     public async prompt(
         prompt: string,
         options?: PromptOptions,
-        requestOptions?: RequestOptions
+        requestOptions?: ConversationRequestOptionsModel
     ) {
-        const userMessage = await this.addUserMessage(prompt);
+        const userMessage = this.history.addUserMessage(prompt);
 
         try {
+            await this.moderateMessage(userMessage);
             const assistantMessage = await this.getAssistantResponse(
                 options,
                 requestOptions
             );
             return assistantMessage;
         } catch (e) {
-            this.removeMessage(userMessage);
+            this.history.removeMessage(userMessage);
             throw e;
         }
     }
@@ -450,23 +148,24 @@ export class Conversation {
         fromMessage: string | Message,
         newPrompt?: string,
         options?: PromptOptions,
-        requestOptions?: RequestOptions
+        requestOptions?: ConversationRequestOptionsModel
     ) {
         // Find the message to reprompt from
         const id =
             typeof fromMessage === "string" ? fromMessage : fromMessage.id;
-        const fromIndex = this.messages.findIndex((m) => m.id === id);
+        const messages = this.history.getMessages();
+        const fromIndex = messages.findIndex((m) => m.id === id);
         if (fromIndex === -1) {
             throw new Error(`Message with ID "${id}" not found.`);
         }
 
         // Find the previous user message
         let previousUserMessageIndex = fromIndex;
-        let previousUserMessage = this.messages[previousUserMessageIndex];
+        let previousUserMessage = messages[previousUserMessageIndex];
         while (previousUserMessage.role !== "user") {
             previousUserMessageIndex--;
             if (previousUserMessageIndex < 0) break;
-            previousUserMessage = this.messages[previousUserMessageIndex];
+            previousUserMessage = messages[previousUserMessageIndex];
         }
         if (previousUserMessage?.role !== "user") {
             throw new Error(
@@ -474,17 +173,18 @@ export class Conversation {
             );
         }
 
-        // Edit the previous user message if needed
-        if (newPrompt) {
-            previousUserMessage.content = newPrompt;
-        }
-
         // Remove all messages after the previous user message
-        this.messages
+        messages
             .slice(previousUserMessageIndex + 1)
-            .forEach((m) => this.removeMessage(m));
+            .forEach((m) => this.history.removeMessage(m));
 
         try {
+            // Edit the previous user message if needed
+            if (newPrompt) {
+                previousUserMessage.content = newPrompt;
+                await this.moderateMessage(previousUserMessage);
+            }
+
             // Get the new assistant response
             const assistantMessage = await this.getAssistantResponse(
                 options,
@@ -492,7 +192,7 @@ export class Conversation {
             );
             return assistantMessage;
         } catch (e) {
-            this.removeMessage(previousUserMessage);
+            this.history.removeMessage(previousUserMessage);
             throw e;
         }
     }
@@ -511,186 +211,36 @@ export class Conversation {
         name: string,
         result: T,
         options?: PromptOptions,
-        requestOptions?: RequestOptions
+        requestOptions?: ConversationRequestOptionsModel
     ) {
-        const functionMessage = await this.addFunctionMessage(
+        const functionMessage = this.history.addFunctionMessage(
             typeof result === "string" ? result : JSON.stringify(result),
             name
         );
 
         try {
+            await this.moderateMessage(functionMessage);
             const assistantMessage = await this.getAssistantResponse(
                 options,
                 requestOptions
             );
             return assistantMessage;
         } catch (e) {
-            this.removeMessage(functionMessage);
+            this.history.removeMessage(functionMessage);
             throw e;
         }
     }
 
-    /**
-     * Returns the sum of the token count of each message in the conversation's current messages. The next time `getChatCompletionResponse()` is called, this is the minimum amount of tokens that will be sent to the OpenAI API (estimated).
-     */
-    public getSize() {
-        return this.messages.reduce((size, message) => size + message.size, 0);
-    }
-
-    /**
-     * Everytime a prompt is sent (using `prompt` or `getChatCompletionResponse`), the size of the conversation (in tokens) is added to an internal cumulative size. This method returns this cumulative size.
-     */
-    public getCumulativeSize() {
-        return this.cumulativeSize;
-    }
-
-    /**
-     * Returns the sum of the estimated cost of each message in the conversation's current messages. The next time `getChatCompletionResponse()` is called, this is the minimum amount of tokens that will be sent to the OpenAI API (estimated).
-     */
-    public getCost() {
-        return this.messages.reduce((cost, message) => cost + message.cost, 0);
-    }
-
-    /**
-     * Returns the total estimated cost that has been incurred by the OpenAI API since the conversation was created.
-     */
-    public getCumulativeCost() {
-        return this.cumulativeCost;
-    }
-
-    /**
-     * Sets the first message sent to the OpenAI API with the role of "system". This gives context the Chat Completion and can be used to customize its behavior.
-     *
-     * @param context The content of the system message.
-     */
-    public setContext(context: string) {
-        this.addSystemMessage(context);
-    }
-
-    /**
-     * Gets the current config properties as a JavaScript object. (not an instance of the `ConversationConfig` class)
-     */
-    public getConfig() {
-        return {
-            ...this.config.chatCompletionConfig,
-            ...this.config.config,
-        } satisfies ConversationConfigParameters;
-    }
-
-    /**
-     * Assigns a new config to the conversation.
-     *
-     * @param config The new config to use.
-     * @param merge Set to `true` to shallow merge the new config with the existing config instead of replacing it.
-     */
-    public setConfig(config: ConversationConfigParameters, merge = false) {
-        const newConfig = merge ? { ...this.getConfig(), ...config } : config;
-        this.config = new ConversationConfig(newConfig);
-        if (config.context) {
-            this.setContext(config.context);
-        }
-        if (config.functions) {
-            if (!merge) this.functions = [];
-            config.functions.forEach((fn) => this.addFunction(fn));
-        }
-    }
-
-    /**
-     * Gets the current request options of the conversation.
-     */
-    public getRequestOptions() {
-        return this.requestOptions;
-    }
-
-    /**
-     * Sets new request options to be used as defaults for all HTTP requests made by this conversation.
-     *
-     * @param requestOptions The new request options to use.
-     * @param merge Set to `true` to shallow merge the new request options with the existing request options instead of replacing them.
-     */
-    public setRequestOptions(requestOptions: RequestOptions, merge = false) {
-        this.requestOptions = merge
-            ? { ...this.requestOptions, ...requestOptions }
-            : requestOptions;
-    }
-
-    private notifyMessageAdded(message: Message) {
-        this.addMessageListeners.forEach((listener) => listener(message));
-    }
-
-    private notifyMessageRemoved(message: Message) {
-        this.removeMessageListeners.forEach((listener) => listener(message));
-    }
-
-    private async addMessage(message: Message) {
-        if (message.isCompletion() || message.isFunction()) {
-            message.content = message.content.trim();
-        }
-
-        if (!message.content && message.role === "user") {
-            throw new Error("User message content cannot be empty.");
-        }
-
-        if (this.config.isModerationEnabled) {
-            const flags = await message.moderate(
-                this.config.apiKey,
-                this.requestOptions
-            );
-            if (this.config.isModerationStrict && flags.length > 0) {
-                throw new ModerationException(flags);
-            }
-        }
-
-        if (message.role === "system") {
-            this.config.context = message.content ?? "";
-            if (message.content) {
-                // Update the system message or add it if it doesn't exist.
-                if (this.messages[0]?.role === "system") {
-                    this.messages[0] = message;
-                } else {
-                    this.messages.unshift(message);
-                }
-            } else if (this.messages[0]?.role === "system") {
-                // Remove the system message if it exists and the new content is empty.
-                this.messages.shift();
-            }
-        } else {
-            if (
-                this.messages[this.messages.length - 1]?.role === message.role
-            ) {
-                throw new MessageRoleException();
-            }
-            this.messages.push(message);
-        }
-
-        this.notifyMessageAdded(message);
-        return message;
-    }
-
-    private addSystemMessage(message: string) {
-        const systemMessage = new Message("system", message, this.config.model);
-        return this.addMessage(systemMessage);
-    }
-
-    private async handleStreamedResponse(
+    private handleStreamedResponse(
         options: HandleChatCompletionOptions = {},
-        requestOptions: RequestOptions = {}
+        requestOptions: ConversationRequestOptionsModel = {}
     ) {
         const message = new Message("assistant", "", this.config.model);
-        const messages = this.getCreateChatCompletionMessages();
-
-        const unsubscribeStreaming = message.onMessageStreamingStop((m) => {
-            // FIXME: Find out how the size is calculated for messages with function calls, fix in Message class and remove this condition
-            if (!message.isFunctionCall()) {
-                this.cumulativeSize += this.getSize() + m.size;
-                this.cumulativeCost += this.getCost() + m.cost;
-            }
-            unsubscribeStreaming();
-        });
+        const messages = this.history.getCreateChatCompletionMessages();
 
         if (this.config.dry) {
             const response = createDryChatCompletion(
-                this.messages[messages.length - 1]?.content ?? "",
+                this.history.getMessages()[messages.length - 1]?.content ?? "",
                 {
                     model: this.config.model,
                 }
@@ -699,11 +249,12 @@ export class Conversation {
         } else {
             createChatCompletion(
                 {
-                    ...this.config.chatCompletionConfig,
+                    ...this.config.getChatCompletionConfig(),
                     ...options,
                     stream: true,
                     messages,
-                    functions: this.getCreateChatCompletionFunctions(),
+                    functions:
+                        this.callableFunctions.getCreateChatCompletionFunctions(),
                 },
                 {
                     ...this.requestOptions,
@@ -721,10 +272,10 @@ export class Conversation {
 
     private async handleNonStreamedResponse(
         options: HandleChatCompletionOptions = {},
-        requestOptions: RequestOptions = {}
+        requestOptions: ConversationRequestOptionsModel = {}
     ) {
         const message = new Message("assistant", "", this.config.model);
-        const messages = this.getCreateChatCompletionMessages();
+        const messages = this.history.getCreateChatCompletionMessages();
 
         if (this.config.dry) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -732,11 +283,12 @@ export class Conversation {
         } else {
             const response = await createChatCompletion(
                 {
-                    ...this.config.chatCompletionConfig,
+                    ...this.config.getChatCompletionConfig(),
                     ...options,
                     stream: false,
                     messages,
-                    functions: this.getCreateChatCompletionFunctions(),
+                    functions:
+                        this.callableFunctions.getCreateChatCompletionFunctions(),
                 },
                 {
                     ...this.requestOptions,
@@ -761,33 +313,31 @@ export class Conversation {
             }
         }
 
-        // FIXME: Find out how the size is calculated for messages with function calls, fix in Message class and remove this condition
-        if (!message.isFunctionCall()) {
-            this.cumulativeSize += this.getSize() + message.size;
-            this.cumulativeCost += this.getCost() + message.cost;
-        }
-
         return message;
     }
 
     private async getAssistantResponse(
         options?: PromptOptions,
-        requestOptions?: RequestOptions
+        requestOptions?: ConversationRequestOptionsModel
     ) {
-        const completion = await this.getChatCompletionResponse(
+        const response = await this.getChatCompletionResponse(
             options,
             requestOptions
         );
-        const assistantMessage = await this.addMessage(completion);
-        return assistantMessage;
+        await this.moderateMessage(response);
+        return this.history.addMessage(response);
     }
 
-    private getCreateChatCompletionMessages() {
-        return this.messages.map((message) => message.chatCompletionMessage);
-    }
+    private async moderateMessage(message: Message) {
+        if (!this.config.isModerationEnabled) return;
 
-    private getCreateChatCompletionFunctions() {
-        if (this.functions.length === 0) return undefined;
-        return this.functions.map((fn) => fn.chatCompletionFunction);
+        const flags = await message.moderate(
+            this.config.apiKey,
+            this.requestOptions.toJSON()
+        );
+
+        if (this.config.isModerationStrict && flags.length > 0) {
+            throw new ModerationException(flags);
+        }
     }
 }

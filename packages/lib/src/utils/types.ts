@@ -47,71 +47,6 @@ export type RemoveMessageListener = (
 ) => void;
 
 /**
- * Proxy configuration to use for requests to the OpenAI API.
- */
-export interface RequestOptionsProxy {
-    /**
-     * The hostname or IP address of the proxy server.
-     *
-     * @example "proxy.example.com"
-     * @example "127.0.0.1"
-     */
-    host: string;
-
-    /**
-     * The port number of the proxy server.
-     *
-     * @default 80 for HTTP, 443 for HTTPS
-     */
-    port?: number;
-
-    /**
-     * The HTTP protocol used by the proxy server.
-     */
-    protocol?: "http" | "https";
-
-    /**
-     * **HTTP Basic** credentials for the proxy server.
-     *
-     * @remarks
-     * The `Proxy-Authorization` header will be added with the Base64 encoded value of `username:password`: `Proxy-Authorization: Basic ${base64(username:password)}`
-     */
-    auth?: {
-        /**
-         * The username to use for authentication.
-         */
-        username: string;
-
-        /**
-         * The password to use for authentication.
-         */
-        password: string;
-    };
-}
-
-/**
- * Headers and proxy configuration to use for requests to the OpenAI API.
- */
-export interface RequestOptions {
-    /**
-     * Additional headers to send with the request.
-     *
-     * @remarks
-     * Note that the `Content-Type`, `Authorization` and `Proxy-Authorization` headers are ignored, as they are set by the library itself.
-     */
-    headers?: Record<string, string>;
-
-    /**
-     * Proxy configuration to use for the request.
-     *
-     * @remarks
-     * Example resulting request url with a proxy:\
-     * `https://my.proxy.com:1337/https://api.openai.com/v1/chat/completions`
-     */
-    proxy?: RequestOptionsProxy;
-}
-
-/**
  * A message in OpenAI's chat format.
  *
  * @see {@link https://platform.openai.com/docs/api-reference/chat/create#chat/create-messages Create Chat Completion Request Body - messages}
@@ -555,15 +490,18 @@ export interface CreateDryChatCompletionConfig {
 }
 
 /**
- * Default values for OpenAI's Chat Completion API supported by the {@link ConversationConfig} class.
+ * **OpenAI-specific** configuration options for the {@link Conversation} class, used by the {@link ConversationConfig} class.
+ *
+ * @remarks
+ * The `messages` property is omitted since messages is handled entirely by the library.
  */
-export type ConversationConfigChatCompletionOptions = Omit<
+export type ChatCompletionConfigOptions = Omit<
     Partial<CreateChatCompletionRequest>,
     "messages"
 >;
 
 /**
- * Library specific configuration options for the {@link Conversation} class, used by the {@link ConversationConfig} class.
+ * **Library specific** configuration options for the {@link Conversation} class, used by the {@link ConversationConfig} class.
  */
 export interface ConversationConfigOptions {
     /**
@@ -591,12 +529,6 @@ export interface ConversationConfigOptions {
      */
     disableModeration?: boolean | "soft";
 }
-
-/**
- * Combines the {@link ConversationConfigOptions} and {@link ConversationConfigChatCompletionOptions} types.
- */
-export type ConversationConfigParameters = ConversationConfigOptions &
-    ConversationConfigChatCompletionOptions;
 
 /**
  * Listener for when a {@link Message message}'s content is updated.
