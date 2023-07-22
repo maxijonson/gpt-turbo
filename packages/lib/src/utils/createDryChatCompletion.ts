@@ -1,4 +1,3 @@
-import getMessageTokens from "./getMessageTokens.js";
 import { CreateDryChatCompletionConfig } from "./types.js";
 
 /**
@@ -17,7 +16,8 @@ export default (
         initialDelay = 500,
         chunkDelay = 50,
     } = config;
-    const tokens = getMessageTokens(message);
+
+    const tokens = message.match(/.{1,3}/g) ?? [];
     const id = `chatcmpl-${Math.random().toString(36).substring(2)}`;
     const created = Date.now();
 

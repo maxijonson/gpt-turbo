@@ -1,11 +1,7 @@
 import { ConversationConfig } from "./ConversationConfig.js";
-import {
-    createChatCompletion,
-    createDryChatCompletion,
-} from "../utils/index.js";
 import { Message } from "./Message.js";
 import { v4 as uuid } from "uuid";
-import { HandleChatCompletionOptions, PromptOptions } from "../utils/types.js";
+import { PromptOptions } from "../utils/types.js";
 import {
     ConversationModel,
     conversationSchema,
@@ -14,7 +10,7 @@ import { ConversationRequestOptions } from "./ConversationRequestOptions.js";
 import { ConversationHistory } from "./ConversationHistory.js";
 import { ConversationCallableFunctions } from "./ConversationCallableFunctions.js";
 import { ConversationRequestOptionsModel } from "schemas/conversationRequestOptions.schema.js";
-import { ModerationException } from "exceptions/ModerationException.js";
+import { ChatCompletionService } from "./ChatCompletionService.js";
 
 /**
  * A Conversation manages the messages sent to and from the OpenAI API and handles the logic for providing the message history to the API for each prompt.
@@ -30,6 +26,8 @@ export class Conversation {
     public readonly history: ConversationHistory;
     public readonly callableFunctions: ConversationCallableFunctions;
 
+    private readonly chatCompletionService: ChatCompletionService;
+
     /**
      * Creates a new Conversation instance.
      *
@@ -43,6 +41,13 @@ export class Conversation {
         this.history = new ConversationHistory(this.config, history);
         this.callableFunctions = new ConversationCallableFunctions(
             callableFunctions
+        );
+
+        this.chatCompletionService = new ChatCompletionService(
+            this.config,
+            this.requestOptions,
+            this.history,
+            this.callableFunctions
         );
     }
 
@@ -76,20 +81,20 @@ export class Conversation {
     }
 
     /**
-     * Sends a Create Chat Completion request to the OpenAI API using the current messages stored in the conversation's history.
+     * Gets the assistant's response given the current messages stored in the conversation's history, moderates it if moderation is enabled, and adds it to the conversation's history.
      *
      * @param options Additional options to pass to the Create Chat Completion API endpoint. This overrides the config passed to the constructor.
      * @param requestOptions Additional options to pass for the HTTP request. This overrides the config passed to the constructor.
-     * @returns A new [`Message`](./Message.js) instance with the role of "assistant" and the content set to the response from the OpenAI API. If the `stream` config option was set to `true`, the content will be progressively updated as the response is streamed from the API. Listen to the returned message's `onMessageUpdate` event to get the updated content.
+     * @returns The assistant's response as a [`Message`](./Message.js) instance.
      */
-    public async getChatCompletionResponse(
-        options: PromptOptions = {},
-        requestOptions: ConversationRequestOptionsModel = {}
-    ): Promise<Message> {
-        const stream = options.stream ?? this.config.stream;
-        return stream
-            ? this.handleStreamedResponse(options, requestOptions)
-            : this.handleNonStreamedResponse(options, requestOptions);
+    public async getAssistantResponse(
+        options?: PromptOptions,
+        requestOptions?: ConversationRequestOptionsModel
+    ) {
+        return this.chatCompletionService.getAssistantResponse(
+            options,
+            requestOptions
+        );
     }
 
     /**
@@ -108,11 +113,12 @@ export class Conversation {
         const userMessage = this.history.addUserMessage(prompt);
 
         try {
-            await this.moderateMessage(userMessage);
-            const assistantMessage = await this.getAssistantResponse(
-                options,
-                requestOptions
-            );
+            await this.chatCompletionService.moderateMessage(userMessage);
+            const assistantMessage =
+                await this.chatCompletionService.getAssistantResponse(
+                    options,
+                    requestOptions
+                );
             return assistantMessage;
         } catch (e) {
             this.history.removeMessage(userMessage);
@@ -182,14 +188,17 @@ export class Conversation {
             // Edit the previous user message if needed
             if (newPrompt) {
                 previousUserMessage.content = newPrompt;
-                await this.moderateMessage(previousUserMessage);
+                await this.chatCompletionService.moderateMessage(
+                    previousUserMessage
+                );
             }
 
             // Get the new assistant response
-            const assistantMessage = await this.getAssistantResponse(
-                options,
-                requestOptions
-            );
+            const assistantMessage =
+                await this.chatCompletionService.getAssistantResponse(
+                    options,
+                    requestOptions
+                );
             return assistantMessage;
         } catch (e) {
             this.history.removeMessage(previousUserMessage);
@@ -219,125 +228,16 @@ export class Conversation {
         );
 
         try {
-            await this.moderateMessage(functionMessage);
-            const assistantMessage = await this.getAssistantResponse(
-                options,
-                requestOptions
-            );
+            await this.chatCompletionService.moderateMessage(functionMessage);
+            const assistantMessage =
+                await this.chatCompletionService.getAssistantResponse(
+                    options,
+                    requestOptions
+                );
             return assistantMessage;
         } catch (e) {
             this.history.removeMessage(functionMessage);
             throw e;
-        }
-    }
-
-    private handleStreamedResponse(
-        options: HandleChatCompletionOptions = {},
-        requestOptions: ConversationRequestOptionsModel = {}
-    ) {
-        const message = new Message("assistant", "", this.config.model);
-        const messages = this.history.getCreateChatCompletionMessages();
-
-        if (this.config.dry) {
-            const response = createDryChatCompletion(
-                this.history.getMessages()[messages.length - 1]?.content ?? "",
-                {
-                    model: this.config.model,
-                }
-            );
-            message.readContentFromStream(response);
-        } else {
-            createChatCompletion(
-                {
-                    ...this.config.getChatCompletionConfig(),
-                    ...options,
-                    stream: true,
-                    messages,
-                    functions:
-                        this.callableFunctions.getCreateChatCompletionFunctions(),
-                },
-                {
-                    ...this.requestOptions,
-                    ...requestOptions,
-                }
-            ).then((response) => {
-                // Using .then() to get the message out as soon as possible, since the content is known to be empty at first.
-                // This gives time for client code to subscribe to the streaming events.
-                message.readContentFromStream(response);
-            });
-        }
-
-        return message;
-    }
-
-    private async handleNonStreamedResponse(
-        options: HandleChatCompletionOptions = {},
-        requestOptions: ConversationRequestOptionsModel = {}
-    ) {
-        const message = new Message("assistant", "", this.config.model);
-        const messages = this.history.getCreateChatCompletionMessages();
-
-        if (this.config.dry) {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            message.content = messages[messages.length - 1]?.content ?? null;
-        } else {
-            const response = await createChatCompletion(
-                {
-                    ...this.config.getChatCompletionConfig(),
-                    ...options,
-                    stream: false,
-                    messages,
-                    functions:
-                        this.callableFunctions.getCreateChatCompletionFunctions(),
-                },
-                {
-                    ...this.requestOptions,
-                    ...requestOptions,
-                }
-            );
-            const responseMessage = response.choices[0].message;
-            message.content = responseMessage.content;
-            if (responseMessage.function_call) {
-                try {
-                    message.functionCall = {
-                        name: responseMessage.function_call.name,
-                        arguments: JSON.parse(
-                            responseMessage.function_call.arguments
-                        ),
-                    };
-                } catch {
-                    throw new Error(
-                        "Assistant did not generate valid JSON arguments."
-                    );
-                }
-            }
-        }
-
-        return message;
-    }
-
-    private async getAssistantResponse(
-        options?: PromptOptions,
-        requestOptions?: ConversationRequestOptionsModel
-    ) {
-        const response = await this.getChatCompletionResponse(
-            options,
-            requestOptions
-        );
-        await this.moderateMessage(response);
-        return this.history.addMessage(response);
-    }
-
-    private async moderateMessage(message: Message) {
-        if (!this.config.isModerationEnabled) return;
-
-        const flags = await message.moderate(
-            this.config.apiKey,
-            this.requestOptions.toJSON()
-        );
-
-        if (this.config.isModerationStrict && flags.length > 0) {
-            throw new ModerationException(flags);
         }
     }
 }
