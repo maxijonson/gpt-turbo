@@ -25,11 +25,8 @@ export class ChatCompletionService {
     ) {}
 
     /**
-     * Sends a Create Chat Completion request to the OpenAI API using the current messages stored in the conversation's history.
-     *
-     * @param options Additional options to pass to the Create Chat Completion API endpoint. This overrides the config passed to the constructor.
-     * @param requestOptions Additional options to pass for the HTTP request. This overrides the config passed to the constructor.
-     * @returns A new [`Message`](./Message.js) instance with the role of "assistant" and the content set to the response from the OpenAI API. If the `stream` config option was set to `true`, the content will be progressively updated as the response is streamed from the API. Listen to the returned message's `onMessageUpdate` event to get the updated content.
+     * @internal
+     * Should not be used directly by library consumers. Use `getChatCompletionResponse` from the `Conversation` class instead.
      */
     public async getChatCompletionResponse(
         options: PromptOptions = {},
@@ -42,8 +39,11 @@ export class ChatCompletionService {
     }
 
     /**
-     * @internal
-     * Should not be used directly by library consumers. Use `getAssistantResponse` from the `Conversation` class instead.
+     * Gets the assistant's response given the current messages stored in the conversation's history, moderates it if moderation is enabled, and adds it to the conversation's history.
+     *
+     * @param options Additional options to pass to the Create Chat Completion API endpoint. This overrides the config passed to the constructor.
+     * @param requestOptions Additional options to pass for the HTTP request. This overrides the config passed to the constructor.
+     * @returns The assistant's response as a [`Message`](./Message.js) instance.
      */
     public async getAssistantResponse(
         options?: PromptOptions,

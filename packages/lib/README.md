@@ -22,14 +22,16 @@ If you want to jump right in and start a conversation with the GPT model, this i
 ```ts
 import { Conversation } from 'gpt-turbo';
 
-(async () => {
-    const conversation = new Conversation({
-        apiKey: "sk-1234", /* Your OpenAI API key */
-    });
+const apiKey = "sk-1234"; /* Your API key */
 
-    const response = await conversation.prompt("What's the best way to make my code as precise as a Stormtrooper's aim?");
-    console.log(`Response: ${response.content}`);
-})();
+const conversation = new Conversation({
+    config: {
+        apiKey,
+    },
+});
+
+const response = await conversation.prompt("What's the best way to make my code as precise as a Stormtrooper's aim?");
+console.log(`Response: ${response.content}`);
 ```
 
 ## Advanced Usage
@@ -42,8 +44,10 @@ By default, messsage responses are returned in a single string. However, you can
 import { Conversation } from "gpt-turbo";
 
 const conversation = new Conversation({
-    apiKey: "sk-1234",
-    stream: true,
+    config: {
+        apiKey,
+        stream: true,
+    },
 });
 
 const response = await conversation.prompt("How can I make my code more efficient than a droid army?");
@@ -51,7 +55,7 @@ const unsubscribeUpdate = response.onMessageUpdate((content) => {
     console.log(content);
 });
 
-const unsubscribeStop = response.onStreamingStop(() => {
+const unsubscribeStop = response.onMessageStreamingStop(() => {
     unsubscribeUpdate();
     unsubscribeStop();
 });
@@ -63,7 +67,7 @@ Save and load conversations are a breeze with these Conversation methods.
 
 ```ts
 import { Conversation } from "gpt-turbo";
-import { save, load } from "./utils/db";
+import { save, load } from "./utils/db.js";
 
 const conversationJson = await load();
 const conversation = await Conversation.fromJSON(conversationJson);
@@ -76,33 +80,48 @@ await save(conversation.toJSON());
 
 ### Manual History Management
 
-The `prompt` method is the recommended way to prompt the GPT model, as it takes care of managing the message history for you (i.e. add a "user" message to the history, get the chat completion and add the "assistant" response to the history). However, if you need to do some intermediate steps, you can do this manually.
+The `prompt` method is the recommended way to prompt the GPT model, as it takes care of managing the message history for you (i.e. add a "user" message to the history, get the chat completion and add the "assistant" response to the history). However, if you need to do some intermediate steps, you can do this manually. The following code is roughly the equivalent of what the `prompt` method does.
 
 ```ts
 import { Conversation } from "gpt-turbo";
-import { getRemainingCredits } from "./utils/quota";
+import { getRemainingCredits } from "./utils/quota.js";
 
-const conversation = new Conversation({ apiKey: "sk-1234" });
-const userMessage = await conversation.addUserMessage("How can I make my database more scalable than the Galactic Empire?");
+const conversation = new Conversation({
+    config: {
+        apiKey,
+    },
+});
+const userMessage = conversation.history.addUserMessage("How can I make my database more scalable than the Galactic Empire?");
 
 try {
+    const userFlags = await userMessage.moderate(apiKey);
+    if (userFlags.length > 0) {
+        throw new Error(userFlags.join(", "));
+    }
+
     const remainingCredits = await getRemainingCredits();
-    if (conversation.cost > remainingCredits) {
+    if (userMessage.content.length > remainingCredits) {
         throw new Error("Insufficient credits, you have. Strong with the Force, your wallet is not.");
     }
 
     const assistantMessage = await conversation.getChatCompletionResponse();
+    await assistantMessage.moderate(apiKey);
+    if (assistantMessage.flags.length > 0) {
+        throw new Error(assistantMessage.flags.join(", "));
+    }
+
     console.log(`Response: ${assistantMessage.content}`);
-    await conversation.addAssistantMessage(assistantMessage.content);
+
+    await conversation.history.addAssistantMessage(assistantMessage.content);
 } catch (e) {
-    this.removeMessage(userMessage);
+    conversation.history.removeMessage(userMessage);
     throw e;
 }
 ```
 
 ### Message Moderation
 
-> Message moderation is also done in dry mode!
+> ⚠ Message moderation is also done in dry mode if you've specified an API key. This is because the moderation endpoint is free of charge and does not count towards your API usage quota.
 
 By default, GPT Turbo will use your API key to call OpenAI's Moderation endpoint to make sure the message complies with their terms of service **before** prompting the Chat Completion API. This endpoint is free of charge and does not count towards your API usage quota. If it doesn't pass the moderation check, an error will be thrown. However, you can disable this behavior completely or still moderate the message without throwing an error (flags will be added to the message instead).
 
@@ -112,24 +131,30 @@ import { Conversation } from "gpt-turbo";
 // Moderation enabled (default)
 
 const conversation = new Conversation({
-    apiKey: "sk-1234",
-    disableModeration: false,
+    config: {
+        apiKey,
+        disableModeration: false, // Default
+    },
 });
 const response = await conversation.prompt("Execute Order 66."); // ModerationException: Message flagged for violence
 
 // Soft moderation
 
 const conversation = new Conversation({
-    apiKey: "sk-1234",
-    disableModeration: "soft",
+    config: {
+        apiKey,
+        disableModeration: "soft",
+    },
 });
 const response = await conversation.prompt("Execute Order 66."); // response.flags = ["violence"]
 
 // Disable moderation
 
 const conversation = new Conversation({
-    apiKey: "sk-1234",
-    disableModeration: true,
+    config: {
+        apiKey,
+        disableModeration: true,
+    },
 });
 const response = await conversation.prompt("Execute Order 66."); // "Yes my Lord."
 ```
@@ -141,7 +166,11 @@ Just like on ChatGPT, you can edit previous user messages or re-prompt the assis
 ```ts
 import { Conversation } from "gpt-turbo";
 
-const conversation = new Conversation({ apiKey: "sk-1234" });
+const conversation = new Conversation({
+    config: {
+        apiKey,
+    },
+});
 const first = await conversation.prompt("We do not grant you the rank of Master."); // "How can you do this?!"
 const second = await conversation.prompt("Take a seat, young Skywalker."); // "I will slaughter padawans!"
 const edit = await conversation.reprompt(first, "We grant you the rank of Master.");
@@ -149,11 +178,7 @@ const edit = await conversation.reprompt(first, "We grant you the rank of Master
 
 ### Function Calling
 
-> ⚠ Function calling is relatively new and the implementation in this library may change as more is discovered about it.
->
-> Limitations (of the GPT Turbo library) with function calling:
-> - Token count is not currently calculated for assistant function calls and context. This means the cost of function calls are not taken into account at the moment. This will be fixed in a future release, as I learn more about how function call tokens are calculated by OpenAI.
-> - Function calls are not currently supported in dry mode. There is no planned support for this in the near future.
+> Function calls are not currently supported in dry mode. There is no planned support for this either.
 
 You can use OpenAI's Function Calling feature with GPT Turbo through the `functionPrompt` method. Just define your functions in the conversation configuration just like you would normally with the Chat Completion API. 
 
@@ -174,10 +199,11 @@ locateJediFn.addParameter(new CallableFunctionString("jedi", "The name of the Je
 locateJediFn.addParameter(new CallableFunctionString("locationType", { enum: ["planet", "city"] }));
 
 const conversation = new Conversation({
-    apiKey: /** Your API key */,
-    model: "gpt-3.5-turbo",
+    config: {
+        apiKey,
+    },
 });
-conversation.addFunction(locateJediFn);
+conversation.callableFunctions.addFunction(locateJediFn);
 
 const r1 = await conversation.prompt("Where can I find Obi-Wan Kenobi?");
 
@@ -196,8 +222,13 @@ if (r1.isCompletion()) {
 For streamed completions and function calls, it gets a bit more complicated, but still supported! Hopefully, a better flow will be implemented in the future.
 
 ```ts
-const conversation = new Conversation({ /* ... */, stream: true });
-conversation.addFunction(locateJediFn);
+const conversation = new Conversation({
+    config: {
+        apiKey,
+        stream: true,
+    },
+});
+conversation.callableFunctions.addFunction(locateJediFn);
 
 const r1 = await conversation.prompt("In which city is Obi-Wan Kenobi?");
 
@@ -243,7 +274,7 @@ locateJediFn.addParameter(new CallableFunctionString("jedi", "The name of the Je
 locateJediFn.addParameter(new CallableFunctionString("locationType", { enum: ["planet", "city"] }));
 
 // Create the parameters using CallableFunctionObject. we're passing a random name to the object because it is generally required for the parameters, but it won't be used in this case. Notice the "addProperty" instead of "addParameter" method.
-const parameters = new CallableFunctionObject("some_random_name");
+const parameters = new CallableFunctionObject("_");
 parameters.addProperty(new CallableFunctionString("jedi", "The name of the Jedi to locate"), true);
 parameters.addProperty(new CallableFunctionString("locationType", { enum: ["planet", "city"] }));
 const locateJediFn = new CallableFunction(name, description, parameters);
@@ -285,24 +316,31 @@ const locateJediFn = CallableFunction.fromJSON({
 });
 
 // Finally, you also can totally ignore the CallableFunction class and pass your raw functions to the Conversation constructor
-const conversation = new Conversation({ apiKey: /** ... */, functions: [{
-    name,
-    description,
-    parameters: {
-        type: "object",
-        properties: {
-            jedi: {
-                type: "string",
-                description: "The name of the Jedi to locate",
+const conversation = new Conversation({
+    config: { apiKey },
+    callableFunctions: {
+        functions: [
+            {
+                name,
+                description,
+                parameters: {
+                    type: "object", // Notice that "type" will ALWAYS be "object", no matter what your function takes as parameters. This follows the JSON Object Schema specification.
+                    properties: {
+                        jedi: {
+                            type: "string",
+                            description: "The name of the Jedi to locate",
+                        },
+                        locationType: {
+                            type: "string",
+                            enum: ["planet", "city"],
+                        },
+                    },
+                    required: ["jedi"],
+                },
             },
-            locationType: {
-                type: "string",
-                enum: ["planet", "city"],
-            },
-        },
-        required: ["jedi"],
+        ],
     },
-}] })
+});
 ```
 
 Just like every other class in this library, the `CallableFunction` and subclasses of `CallableFunctionParameter` all have a `toJSON` method and `fromJSON` static method. Each `CallableFunctionParameter` subclass also have Zod schemas exported so that you can validate their JSON representation. Here are all subclasses of `CallableFunctionParameter`:
