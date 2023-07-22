@@ -1,7 +1,7 @@
 import {
     ConversationRequestOptionsModel,
     conversationRequestOptionsSchema,
-} from "schemas/conversationRequestOptions.schema.js";
+} from "../schemas/conversationRequestOptions.schema.js";
 
 /**
  * Holds the callable functions of a `Conversation`.

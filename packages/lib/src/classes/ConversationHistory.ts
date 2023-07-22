@@ -1,12 +1,12 @@
 import { v4 as uuid } from "uuid";
 import { Message } from "./Message.js";
-import { AddMessageListener, RemoveMessageListener } from "utils/types.js";
-import { MessageRoleException } from "exceptions/MessageRoleException.js";
+import { ConversationConfig } from "./ConversationConfig.js";
 import {
     ConversationHistoryModel,
     conversationHistorySchema,
-} from "schemas/conversationHistory.schema.js";
-import { ConversationConfig } from "./ConversationConfig.js";
+} from "../schemas/conversationHistory.schema.js";
+import { AddMessageListener, RemoveMessageListener } from "../utils/types.js";
+import { MessageRoleException } from "../exceptions/MessageRoleException.js";
 
 /**
  * The request options for a conversation.

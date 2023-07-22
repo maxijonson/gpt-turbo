@@ -1,9 +1,9 @@
-import { CallableFunctionModel } from "schemas/callableFunction.schema.js";
-import { CallableFunction } from "./CallableFunction.js";
+import { CallableFunctionModel } from "../schemas/callableFunction.schema.js";
 import {
     ConversationCallableFunctionsModel,
     conversationCallableFunctionsSchema,
-} from "schemas/conversationCallableFunctions.schema.js";
+} from "../schemas/conversationCallableFunctions.schema.js";
+import { CallableFunction } from "./CallableFunction.js";
 
 /**
  * Holds the callable functions of a `Conversation`.

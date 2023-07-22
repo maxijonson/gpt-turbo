@@ -14,8 +14,8 @@ import {
     CreateChatCompletionFunctionMessage,
 } from "../utils/types.js";
 import { MessageModel, messageSchema } from "../schemas/message.schema.js";
-import createModeration from "utils/createModeration.js";
-import { ConversationRequestOptionsModel } from "schemas/conversationRequestOptions.schema.js";
+import { ConversationRequestOptionsModel } from "../schemas/conversationRequestOptions.schema.js";
+import createModeration from "../utils/createModeration.js";
 
 /**
  * A message in a Conversation.

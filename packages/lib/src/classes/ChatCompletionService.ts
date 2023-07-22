@@ -1,13 +1,13 @@
-import { ConversationRequestOptionsModel } from "schemas/conversationRequestOptions.schema.js";
 import { Message } from "./Message.js";
-import { HandleChatCompletionOptions, PromptOptions } from "utils/types.js";
-import createDryChatCompletion from "utils/createDryChatCompletion.js";
-import createChatCompletion from "utils/createChatCompletion.js";
-import { ModerationException } from "exceptions/ModerationException.js";
 import { ConversationConfig } from "./ConversationConfig.js";
 import { ConversationRequestOptions } from "./ConversationRequestOptions.js";
 import { ConversationHistory } from "./ConversationHistory.js";
 import { ConversationCallableFunctions } from "./ConversationCallableFunctions.js";
+import { ConversationRequestOptionsModel } from "../schemas/conversationRequestOptions.schema.js";
+import { HandleChatCompletionOptions, PromptOptions } from "../utils/types.js";
+import { ModerationException } from "../exceptions/ModerationException.js";
+import createDryChatCompletion from "../utils/createDryChatCompletion.js";
+import createChatCompletion from "../utils/createChatCompletion.js";
 
 /**
  * Encapsulates the logic for sending requests to the OpenAI API for the Create Chat Completion endpoint.
