@@ -12,7 +12,7 @@ import {
     CreateChatCompletionMessage,
     CreateChatCompletionFunctionCallMessage,
     CreateChatCompletionFunctionMessage,
-} from "../utils/types.js";
+} from "../utils/types/index.js";
 import { MessageModel, messageSchema } from "../schemas/message.schema.js";
 import { ConversationRequestOptionsModel } from "../schemas/conversationRequestOptions.schema.js";
 import createModeration from "../utils/createModeration.js";

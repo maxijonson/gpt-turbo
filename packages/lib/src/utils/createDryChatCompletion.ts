@@ -1,4 +1,4 @@
-import { CreateDryChatCompletionConfig } from "./types.js";
+import { CreateDryChatCompletionConfig } from "./types/index.js";
 
 /**
  * Creates a dry chat completion and returns a `ReadableStream`. Can be used to simulate a streamed chat completion.

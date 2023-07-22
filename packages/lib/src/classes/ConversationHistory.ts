@@ -5,7 +5,10 @@ import {
     ConversationHistoryModel,
     conversationHistorySchema,
 } from "../schemas/conversationHistory.schema.js";
-import { AddMessageListener, RemoveMessageListener } from "../utils/types.js";
+import {
+    AddMessageListener,
+    RemoveMessageListener,
+} from "../utils/types/index.js";
 import { MessageRoleException } from "../exceptions/MessageRoleException.js";
 
 /**

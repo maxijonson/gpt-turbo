@@ -10,28 +10,10 @@ import {
     conversationConfigSchema,
 } from "../schemas/conversationConfig.schema.js";
 import {
-    ChatCompletionConfigOptions as CCCO, // Intentionally using abbreviated names to deter from using them here
-    ConversationConfigOptions as CCO, // Intentionally using abbreviated names to deter from using them here
-} from "../utils/types.js";
-
-/**
- * Although all properties of `ChatCompletionConfigOptions` are optional, some of them are certain to have a value when used in a `ConversationConfig` instance.
- *
- * @internal Only used for convenience within the `ConversationConfig` class. Not meant to be used by consumers of the library.
- */
-type ChatCompletionConfigProperties = CCCO &
-    Required<Pick<CCCO, "apiKey" | "model" | "stream">>;
-
-/**
- * Although all properties of `ConversationConfigOptions` are optional, some of them are certain to have a value when used in a `ConversationConfig` instance.
- *
- * @internal Only used for convenience within the `ConversationConfig` class. Not meant to be used by consumers of the library.
- */
-type ConversationConfigProperties = CCO &
-    Required<Pick<CCO, "context" | "dry" | "disableModeration">>;
-
-type ConfigProperties = ChatCompletionConfigProperties &
-    ConversationConfigProperties;
+    ChatCompletionConfigProperties,
+    ConfigProperties,
+    ConversationConfigProperties,
+} from "../utils/types/index.js";
 
 /**
  * The configuration for a conversation. Contains library specific options and OpenAI's Chat Completion default options.

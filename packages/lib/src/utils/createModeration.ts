@@ -2,7 +2,10 @@ import { ConversationRequestOptionsModel } from "schemas/conversationRequestOpti
 import { ENDPOINT_MODERATION } from "../index.js";
 import getRequestHeaders from "./getRequestHeaders.js";
 import getRequestUrl from "./getRequestUrl.js";
-import { CreateModerationRequest, CreateModerationResponse } from "./types.js";
+import {
+    CreateModerationRequest,
+    CreateModerationResponse,
+} from "./types/index.js";
 
 /**
  * Sends a Create Moderation request to the OpenAI API.

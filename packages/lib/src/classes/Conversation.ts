@@ -1,7 +1,6 @@
 import { ConversationConfig } from "./ConversationConfig.js";
 import { Message } from "./Message.js";
 import { v4 as uuid } from "uuid";
-import { PromptOptions } from "../utils/types.js";
 import {
     ConversationModel,
     conversationSchema,
@@ -11,6 +10,7 @@ import { ConversationHistory } from "./ConversationHistory.js";
 import { ConversationCallableFunctions } from "./ConversationCallableFunctions.js";
 import { ConversationRequestOptionsModel } from "schemas/conversationRequestOptions.schema.js";
 import { ChatCompletionService } from "./ChatCompletionService.js";
+import { PromptOptions } from "../utils/types/index.js";
 
 /**
  * A Conversation manages the messages sent to and from the OpenAI API and handles the logic for providing the message history to the API for each prompt.

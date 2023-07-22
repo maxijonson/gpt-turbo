@@ -5,7 +5,7 @@ import getRequestUrl from "./getRequestUrl.js";
 import {
     CreateChatCompletionRequest,
     CreateChatCompletionResponse,
-} from "./types.js";
+} from "./types/index.js";
 
 /**
  * Sends a Create Chat Completion request to the OpenAI API.
