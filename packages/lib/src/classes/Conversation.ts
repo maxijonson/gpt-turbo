@@ -11,7 +11,7 @@ import { ConversationCallableFunctions } from "./ConversationCallableFunctions.j
 import { ConversationRequestOptionsModel } from "schemas/conversationRequestOptions.schema.js";
 import { ChatCompletionService } from "./ChatCompletionService.js";
 import { ConversationOptions, PromptOptions } from "../utils/types/index.js";
-import { PluginService } from "./PluginService.js";
+import { ConversationPluginService } from "./ConversationPluginService.js";
 import { ConversationPlugin } from "./ConversationPlugin.js";
 
 /**
@@ -37,7 +37,7 @@ export class Conversation {
     public readonly callableFunctions: ConversationCallableFunctions;
 
     private readonly chatCompletionService: ChatCompletionService;
-    private readonly pluginService: PluginService;
+    private readonly pluginService: ConversationPluginService;
 
     /**
      * Creates a new Conversation instance.
@@ -53,7 +53,7 @@ export class Conversation {
             plugins = [],
         } = options;
 
-        this.pluginService = new PluginService(
+        this.pluginService = new ConversationPluginService(
             Conversation.getGlobalPlugins().concat(plugins)
         );
 
@@ -125,7 +125,7 @@ export class Conversation {
         };
 
         return conversationSchema.parse(
-            this.pluginService.transformConversationModel(json)
+            this.pluginService.transformConversationJson(json)
         );
     }
 

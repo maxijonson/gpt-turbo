@@ -382,7 +382,7 @@ Plugins are a great way to extend the functionality of GPT Turbo. They can be us
 
 ### Authoring Plugins
 
-Plugins are just classes with various methods that are called by the library at specific times. Plugins have access to everything a `Conversation` instance has access to, including the `Conversation` instance itself and its `PluginService` instance (which is used to manage plugins).
+Plugins are just classes with various methods that are called by the library at specific times. Plugins have access to everything a `Conversation` instance has access to, including the `Conversation` instance itself and its `ConversationPluginService` instance (which is used to manage plugins).
 
 TODO: Add more examples to the following class
 

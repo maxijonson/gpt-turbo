@@ -9,4 +9,4 @@ export * from "./ConversationHistory.js";
 export * from "./ConversationRequestOptions.js";
 export * from "./EventManager.js";
 export * from "./Message.js";
-export * from "./PluginService.js";
+export * from "./ConversationPluginService.js";

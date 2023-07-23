@@ -1,5 +1,8 @@
 import { ConversationModel } from "../schemas/conversation.schema.js";
 import { ConversationCallableFunctionsModel } from "../schemas/conversationCallableFunctions.schema.js";
+import { ConversationConfigModel } from "../schemas/conversationConfig.schema.js";
+import { ConversationHistoryModel } from "../schemas/conversationHistory.schema.js";
+import { ConversationRequestOptionsModel } from "../schemas/conversationRequestOptions.schema.js";
 import { ConversationPlugin } from "./ConversationPlugin.js";
 
 /**
@@ -8,7 +11,7 @@ import { ConversationPlugin } from "./ConversationPlugin.js";
  * @internal
  * This class is used internally by the library and is not meant to be **instantiated** by consumers of the library.
  */
-export class PluginService {
+export class ConversationPluginService {
     private _hasInitialized = false;
 
     constructor(private readonly plugins: ConversationPlugin[] = []) {}
@@ -36,20 +39,47 @@ export class PluginService {
         this._hasInitialized = true;
     }
 
-    public transformConversationModel(
+    public transformConversationJson(
         json: ConversationModel
     ): ConversationModel {
         return this.plugins.reduce(
-            (json, p) => p.transformConversationModel(json),
+            (json, p) => p.transformConversationJson(json),
             json
         );
     }
 
-    public transformConversationCallableFunctionsModel(
+    public transformConversationCallableFunctionsJson(
         json: ConversationCallableFunctionsModel
     ): ConversationCallableFunctionsModel {
         return this.plugins.reduce(
-            (json, p) => p.transformConversationCallableFunctionsModel(json),
+            (json, p) => p.transformConversationCallableFunctionsJson(json),
+            json
+        );
+    }
+
+    public transformConversationConfigJson(
+        json: ConversationConfigModel
+    ): ConversationConfigModel {
+        return this.plugins.reduce(
+            (json, p) => p.transformConversationConfigJson(json),
+            json
+        );
+    }
+
+    public transformConversationHistoryJson(
+        json: ConversationHistoryModel
+    ): ConversationHistoryModel {
+        return this.plugins.reduce(
+            (json, p) => p.transformConversationHistoryJson(json),
+            json
+        );
+    }
+
+    public transformConversationRequestOptionsJson(
+        json: ConversationRequestOptionsModel
+    ): ConversationRequestOptionsModel {
+        return this.plugins.reduce(
+            (json, p) => p.transformConversationRequestOptionsJson(json),
             json
         );
     }

@@ -11,7 +11,7 @@ import {
 } from "../utils/types/index.js";
 import { MessageRoleException } from "../exceptions/MessageRoleException.js";
 import { EventManager } from "./EventManager.js";
-import { PluginService } from "./PluginService.js";
+import { ConversationPluginService } from "./ConversationPluginService.js";
 
 /**
  * The request options for a conversation.
@@ -30,7 +30,7 @@ export class ConversationHistory {
     private removeMessageEvents = new EventManager<RemoveMessageListener>();
 
     public constructor(
-        private readonly pluginService: PluginService,
+        private readonly pluginService: ConversationPluginService,
         private readonly config: ConversationConfig,
         options: ConversationHistoryModel = {}
     ) {
@@ -91,7 +91,9 @@ export class ConversationHistory {
                     ? undefined
                     : messages.map((message) => message.toJSON()),
         };
-        return conversationHistorySchema.parse(json);
+        return conversationHistorySchema.parse(
+            this.pluginService.transformConversationHistoryJson(json)
+        );
     }
 
     /**

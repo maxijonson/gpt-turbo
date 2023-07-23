@@ -2,7 +2,7 @@ import {
     ConversationRequestOptionsModel,
     conversationRequestOptionsSchema,
 } from "../schemas/conversationRequestOptions.schema.js";
-import { PluginService } from "./PluginService.js";
+import { ConversationPluginService } from "./ConversationPluginService.js";
 
 /**
  * Holds the callable functions of a `Conversation`.
@@ -15,7 +15,7 @@ export class ConversationRequestOptions {
     proxy: ConversationRequestOptionsModel["proxy"];
 
     constructor(
-        private readonly pluginService: PluginService,
+        private readonly pluginService: ConversationPluginService,
         options: ConversationRequestOptionsModel = {}
     ) {
         this.setRequestOptions(options);
@@ -31,7 +31,9 @@ export class ConversationRequestOptions {
             headers: this.headers,
             proxy: this.proxy,
         };
-        return conversationRequestOptionsSchema.parse(json);
+        return conversationRequestOptionsSchema.parse(
+            this.pluginService.transformConversationRequestOptionsJson(json)
+        );
     }
 
     /**

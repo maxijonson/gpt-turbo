@@ -4,7 +4,7 @@ import {
     conversationCallableFunctionsSchema,
 } from "../schemas/conversationCallableFunctions.schema.js";
 import { CallableFunction } from "./CallableFunction.js";
-import { PluginService } from "./PluginService.js";
+import { ConversationPluginService } from "./ConversationPluginService.js";
 
 /**
  * Holds the callable functions of a `Conversation`.
@@ -16,7 +16,7 @@ export class ConversationCallableFunctions {
     private functions: CallableFunction[];
 
     public constructor(
-        private readonly pluginService: PluginService,
+        private readonly pluginService: ConversationPluginService,
         options: ConversationCallableFunctionsModel = {}
     ) {
         const { functions = [] } = options;
@@ -39,7 +39,7 @@ export class ConversationCallableFunctions {
                     : this.functions.map((fn) => fn.toJSON()),
         };
         return conversationCallableFunctionsSchema.parse(
-            this.pluginService.transformConversationCallableFunctionsModel(json)
+            this.pluginService.transformConversationCallableFunctionsJson(json)
         );
     }
 

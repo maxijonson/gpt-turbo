@@ -14,7 +14,7 @@ import {
     ConfigProperties,
     ConversationConfigProperties,
 } from "../utils/types/index.js";
-import { PluginService } from "./PluginService.js";
+import { ConversationPluginService } from "./ConversationPluginService.js";
 
 /**
  * The configuration for a conversation. Contains library specific options and OpenAI's Chat Completion default options.
@@ -43,7 +43,7 @@ export class ConversationConfig {
     private _dry!: ConversationConfigProperties["dry"];
 
     constructor(
-        private readonly pluginService: PluginService,
+        private readonly pluginService: ConversationPluginService,
         options: ConversationConfigModel = {}
     ) {
         this.setConfig(options);
@@ -59,7 +59,9 @@ export class ConversationConfig {
      */
     public toJSON(): ConversationConfigModel {
         const json: ConversationConfigModel = this.getConfig();
-        return conversationConfigSchema.parse(json);
+        return conversationConfigSchema.parse(
+            this.pluginService.transformConversationConfigJson(json)
+        );
     }
 
     /**
