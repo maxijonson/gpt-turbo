@@ -1,5 +1,5 @@
-import { ConversationPlugin } from "../../classes/ConversationPlugin.js";
-import { ConversationModel } from "../../index.js";
+import { ConversationModel } from "../../schemas/conversation.schema.js";
+import { ConversationPlugin } from "./conversationPlugin.types.js";
 
 export interface ConversationOptions extends ConversationModel {
     /**
