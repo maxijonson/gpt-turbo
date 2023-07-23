@@ -17,7 +17,7 @@ export class PluginService {
         private readonly plugins: ConversationPlugin[] = []
     ) {
         for (const plugin of plugins) {
-            plugin.init(
+            plugin.onInit(
                 conversation,
                 config,
                 requestOptions,

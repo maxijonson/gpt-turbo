@@ -7,6 +7,9 @@ import { ConversationHistory } from "./ConversationHistory.js";
 import { ConversationRequestOptions } from "./ConversationRequestOptions.js";
 import type { PluginService } from "./PluginService.js";
 
+/**
+ * The base class for all conversation plugins. Plugins are used to extend the functionality of a conversation.
+ */
 export abstract class ConversationPlugin {
     private _conversation!: Conversation;
     private _config!: ConversationConfig;
@@ -16,7 +19,13 @@ export abstract class ConversationPlugin {
     private _chatCompletionService!: ChatCompletionService;
     private _pluginService!: PluginService;
 
-    public init(
+    /**
+     * Initializes the plugin's properties.
+     *
+     * @remarks
+     * If you override this method, make sure to call `super.init()` at the **beginning** of your method to have access to the plugin's properties.
+     */
+    public onInit(
         conversation: Conversation,
         config: ConversationConfig,
         requestOptions: ConversationRequestOptions,
@@ -34,6 +43,11 @@ export abstract class ConversationPlugin {
         this._pluginService = pluginService;
     }
 
+    /**
+     * Returns the conversation the plugin is attached to.
+     *
+     * @throws {PluginNotInitializedException} Thrown if the plugin is not initialized. (i.e. Calling this method before the `init` method is called, such as in the constructor)
+     */
     public get conversation() {
         if (!this._conversation) {
             throw new PluginNotInitializedException();
@@ -41,6 +55,11 @@ export abstract class ConversationPlugin {
         return this._conversation;
     }
 
+    /**
+     * Returns the conversation's config.
+     *
+     * @throws {PluginNotInitializedException} Thrown if the plugin is not initialized. (i.e. Calling this method before the `init` method is called, such as in the constructor)
+     */
     public get config() {
         if (!this._config) {
             throw new PluginNotInitializedException();
@@ -48,6 +67,11 @@ export abstract class ConversationPlugin {
         return this._config;
     }
 
+    /**
+     * Returns the conversation's request options.
+     *
+     * @throws {PluginNotInitializedException} Thrown if the plugin is not initialized. (i.e. Calling this method before the `init` method is called, such as in the constructor)
+     */
     public get requestOptions() {
         if (!this._requestOptions) {
             throw new PluginNotInitializedException();
@@ -55,6 +79,11 @@ export abstract class ConversationPlugin {
         return this._requestOptions;
     }
 
+    /**
+     * Returns the conversation's history.
+     *
+     * @throws {PluginNotInitializedException} Thrown if the plugin is not initialized. (i.e. Calling this method before the `init` method is called, such as in the constructor)
+     */
     public get history() {
         if (!this._history) {
             throw new PluginNotInitializedException();
@@ -62,6 +91,11 @@ export abstract class ConversationPlugin {
         return this._history;
     }
 
+    /**
+     * Returns the conversation's callable functions.
+     *
+     * @throws {PluginNotInitializedException} Thrown if the plugin is not initialized. (i.e. Calling this method before the `init` method is called, such as in the constructor)
+     */
     public get callableFunctions() {
         if (!this._callableFunctions) {
             throw new PluginNotInitializedException();
@@ -69,6 +103,11 @@ export abstract class ConversationPlugin {
         return this._callableFunctions;
     }
 
+    /**
+     * Returns the conversation's chat completion service.
+     *
+     * @throws {PluginNotInitializedException} Thrown if the plugin is not initialized. (i.e. Calling this method before the `init` method is called, such as in the constructor)
+     */
     public get chatCompletionService() {
         if (!this._chatCompletionService) {
             throw new PluginNotInitializedException();
@@ -76,6 +115,11 @@ export abstract class ConversationPlugin {
         return this._chatCompletionService;
     }
 
+    /**
+     * Returns the conversation's plugin service
+     *
+     * @throws {PluginNotInitializedException} Thrown if the plugin is not initialized. (i.e. Calling this method before the `init` method is called, such as in the constructor)
+     */
     public get pluginService() {
         if (!this._pluginService) {
             throw new PluginNotInitializedException();
