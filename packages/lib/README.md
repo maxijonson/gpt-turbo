@@ -15,7 +15,7 @@ A library for interacting with OpenAI's Chat Completion API. Its main goal is to
 npm install gpt-turbo
 ```
 
-## Usage
+## Basic Usage
 
 If you want to jump right in and start a conversation with the GPT model, this is the most straightforward way to use this library.
 
@@ -24,12 +24,7 @@ import { Conversation } from 'gpt-turbo';
 
 const apiKey = "sk-1234"; /* Your API key */
 
-const conversation = new Conversation({
-    config: {
-        apiKey,
-    },
-});
-
+const conversation = new Conversation({ config: { apiKey } });
 const response = await conversation.prompt("What's the best way to make my code as precise as a Stormtrooper's aim?");
 console.log(`Response: ${response.content}`);
 ```
@@ -93,11 +88,7 @@ The `prompt` method is the recommended way to prompt the GPT model, as it takes 
 import { Conversation } from "gpt-turbo";
 import { getRemainingCredits } from "./utils/quota.js";
 
-const conversation = new Conversation({
-    config: {
-        apiKey,
-    },
-});
+const conversation = new Conversation({ config: { apiKey } });
 const userMessage = conversation.history.addUserMessage("How can I make my database more scalable than the Galactic Empire?");
 
 try {
@@ -173,11 +164,7 @@ Just like on ChatGPT, you can edit previous user messages or re-prompt the assis
 ```ts
 import { Conversation } from "gpt-turbo";
 
-const conversation = new Conversation({
-    config: {
-        apiKey,
-    },
-});
+const conversation = new Conversation({ config: { apiKey } });
 const first = await conversation.prompt("We do not grant you the rank of Master."); // "How can you do this?!"
 const second = await conversation.prompt("Take a seat, young Skywalker."); // "I will slaughter padawans!"
 const edit = await conversation.reprompt(first, "We grant you the rank of Master.");
@@ -388,6 +375,72 @@ Just like every other class in this library, the `CallableFunction` and subclass
 - `CallableFunctionNull`
 
 There is also a `CallableFunctionParameterFactory.fromJSON` method which is used internally by the `CallableFunctionObject` and `CallableFunctionArray` classes to create their properties/items dynamically from a JSON object.
+
+## Plugins
+
+Plugins are a great way to extend the functionality of GPT Turbo. They can be used to add new features or augment existing ones. 
+
+### Authoring Plugins
+
+Plugins are just classes with various methods that are called by the library at specific times. Plugins have access to everything a `Conversation` instance has access to, including the `Conversation` instance itself and its `PluginService` instance (which is used to manage plugins).
+
+TODO: Add more examples to the following class
+
+```ts
+import { ConversationPlugin } from "gpt-turbo";
+
+class StatsPlugin extends ConversationPlugin {
+    private conversationSize = 0;
+
+    public override init(...args: Parameters<ConversationPlugin["init"]>) {
+        super.init(...args);
+        this.conversationSize = this.conversation.history.messages.length;
+    }
+
+    getConversationSize() {
+        return this.conversationSize;
+    }
+}
+```
+
+If you plan on releasing your plugin on NPM, you may follow the naming convention `gpt-turbo-plugin-<name>` with `<name>` being the name of your plugin. This will make it easier for users to find your plugin. You can also add the `gpt-turbo-plugin` keyword to your package.json to make it even easier to find. However, none of this is required.
+
+### Using Plugins
+
+To use a plugin, simply pass it to the `Conversation` constructor. You can access the plugin instance later through the `getPlugin` method.
+
+```ts
+import { Conversation } from "gpt-turbo";
+import { StatsPlugin } from "gpt-turbo-plugin-stats";
+
+const conversation = new Conversation({
+    config: { apiKey },
+    plugins: [new StatsPlugin()],
+});
+
+/* ... */
+
+const conversationSize = conversation.getPlugin(StatsPlugin).getConversationSize();
+```
+
+You can also set global plugins that will be used for every `Conversation` instance. This is useful if you want to use the same plugin for multiple conversations without having to pass it to every `Conversation` instance.
+
+```ts
+import { Conversation } from "gpt-turbo";
+import { StatsPlugin } from "gpt-turbo-plugin-stats";
+
+// Instantiate the plugin inside the function to make sure it's a new instance for every conversation
+Conversation.getGlobalPlugins = () => [new StatsPlugin()];
+
+
+const conversation = new Conversation({ config: { apiKey } });
+
+/* ... */
+
+const conversationSize = conversation.getPlugin(StatsPlugin).getConversationSize();
+
+```
+
 
 ## Documentation
 

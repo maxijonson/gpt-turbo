@@ -77,7 +77,7 @@ export class ChatCompletionService {
         }
     }
 
-    private handleStreamedResponse(
+    public handleStreamedResponse(
         options: HandleChatCompletionOptions = {},
         requestOptions: ConversationRequestOptionsModel = {}
     ) {
@@ -116,7 +116,7 @@ export class ChatCompletionService {
         return message;
     }
 
-    private async handleNonStreamedResponse(
+    public async handleNonStreamedResponse(
         options: HandleChatCompletionOptions = {},
         requestOptions: ConversationRequestOptionsModel = {}
     ) {
