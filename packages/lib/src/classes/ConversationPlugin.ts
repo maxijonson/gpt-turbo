@@ -1,4 +1,5 @@
 import { PluginNotInitializedException } from "../exceptions/PluginNotInitializedException.js";
+import { ConversationModel } from "../index.js";
 import { ChatCompletionService } from "./ChatCompletionService.js";
 import { Conversation } from "./Conversation.js";
 import { ConversationCallableFunctions } from "./ConversationCallableFunctions.js";
@@ -50,6 +51,20 @@ export abstract class ConversationPlugin {
      * This could potentially be used to interop with other plugins.
      */
     public onPostInit() {}
+
+    /**
+     * Transform the conversation model before it is serialized.
+     *
+     * Must return a valid `ConversationModel`.
+     *
+     * @param json The current state of the conversation model that will be serialized.
+     * @returns The new state of the conversation model to be serialized.
+     */
+    public transformConversationModel(
+        json: ConversationModel
+    ): ConversationModel {
+        return json;
+    }
 
     /**
      * Returns the conversation the plugin is attached to.

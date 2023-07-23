@@ -1,3 +1,4 @@
+import { ConversationModel } from "../schemas/conversation.schema.js";
 import { ConversationPlugin } from "./ConversationPlugin.js";
 
 /**
@@ -32,6 +33,15 @@ export class PluginService {
     public onPostInit() {
         this.plugins.forEach((p) => p.onPostInit());
         this._hasInitialized = true;
+    }
+
+    public transformConversationModel(
+        json: ConversationModel
+    ): ConversationModel {
+        return this.plugins.reduce(
+            (json, p) => p.transformConversationModel(json),
+            json
+        );
     }
 
     public get hasInitialized() {

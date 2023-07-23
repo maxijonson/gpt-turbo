@@ -123,7 +123,10 @@ export class Conversation {
             callableFunctions: this.callableFunctions.toJSON(),
             history: this.history.toJSON(),
         };
-        return conversationSchema.parse(json);
+
+        return conversationSchema.parse(
+            this.pluginService.transformConversationModel(json)
+        );
     }
 
     /**
@@ -161,7 +164,7 @@ export class Conversation {
      *
      * This is useful if you want to edit a previous user message (by specifying `newPrompt`) or if you want to regenerate the response to a previous user message (by not specifying `newPrompt`).
      *
-     * @param fromMessage The message to re-prompt from. This can be either a message ID or a [`Message`](./Message.js) instance.
+     * @param fromMessageOrId The message to re-prompt from. This can be either a message ID or a [`Message`](./Message.js) instance.
      * @param newPrompt The new prompt to use for the previous user message. If not provided, the previous user's message content will be reused.
      * @param options Additional options to pass to the Create Chat Completion API endpoint. This overrides the config passed to the constructor.
      * @param requestOptions Additional options to pass for the HTTP request. This overrides the config passed to the constructor.
@@ -180,14 +183,16 @@ export class Conversation {
      * ```
      */
     public async reprompt(
-        fromMessage: string | Message,
+        fromMessageOrId: string | Message,
         newPrompt?: string,
         options?: PromptOptions,
         requestOptions?: ConversationRequestOptionsModel
     ) {
         // Find the message to reprompt from
         const id =
-            typeof fromMessage === "string" ? fromMessage : fromMessage.id;
+            typeof fromMessageOrId === "string"
+                ? fromMessageOrId
+                : fromMessageOrId.id;
         const messages = this.history.getMessages();
         const fromIndex = messages.findIndex((m) => m.id === id);
         if (fromIndex === -1) {
