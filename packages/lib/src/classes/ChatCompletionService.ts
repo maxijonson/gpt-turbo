@@ -16,8 +16,7 @@ import {
  * Encapsulates the logic for sending requests to the OpenAI API for the Create Chat Completion endpoint.
  *
  * @internal
- * This class is not meant to be used directly by library consumers.
- * Some methods are exposed for rare/advanced use cases, such as manually managing the conversation cycle without using the prompting methods given by the `Conversation` class.
+ * This class is used internally by the library and is not meant to be **instantiated** by consumers of the library.
  */
 export class ChatCompletionService {
     constructor(

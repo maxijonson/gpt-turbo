@@ -6,6 +6,12 @@ import { ConversationHistory } from "./ConversationHistory.js";
 import { ConversationPlugin } from "./ConversationPlugin.js";
 import { ConversationRequestOptions } from "./ConversationRequestOptions.js";
 
+/**
+ * Manages the plugins of a conversation and acts as a bridge between the plugins and the conversation.
+ *
+ * @internal
+ * This class is used internally by the library and is not meant to be **instantiated** by consumers of the library.
+ */
 export class PluginService {
     constructor(
         conversation: Conversation,
