@@ -38,7 +38,9 @@ export class ConversationCallableFunctions {
                     ? undefined
                     : this.functions.map((fn) => fn.toJSON()),
         };
-        return conversationCallableFunctionsSchema.parse(json);
+        return conversationCallableFunctionsSchema.parse(
+            this.pluginService.transformConversationCallableFunctionsModel(json)
+        );
     }
 
     /**

@@ -1,5 +1,6 @@
 import { PluginNotInitializedException } from "../exceptions/PluginNotInitializedException.js";
 import { ConversationModel } from "../index.js";
+import { ConversationCallableFunctionsModel } from "../schemas/conversationCallableFunctions.schema.js";
 import { ChatCompletionService } from "./ChatCompletionService.js";
 import { Conversation } from "./Conversation.js";
 import { ConversationCallableFunctions } from "./ConversationCallableFunctions.js";
@@ -63,6 +64,20 @@ export abstract class ConversationPlugin {
     public transformConversationModel(
         json: ConversationModel
     ): ConversationModel {
+        return json;
+    }
+
+    /**
+     * Transform the callable functions model before it is serialized. Note that this is the model of the `ConversationCallableFunctions` class, not the `CallableFunction` class.
+     *
+     * Must return a valid `ConversationCallableFunctionsModel`.
+     *
+     * @param json The current state of the conversation model that will be serialized.
+     * @returns The new state of the conversation model to be serialized.
+     */
+    public transformConversationCallableFunctionsModel(
+        json: ConversationCallableFunctionsModel
+    ): ConversationCallableFunctionsModel {
         return json;
     }
 

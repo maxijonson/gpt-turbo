@@ -1,4 +1,5 @@
 import { ConversationModel } from "../schemas/conversation.schema.js";
+import { ConversationCallableFunctionsModel } from "../schemas/conversationCallableFunctions.schema.js";
 import { ConversationPlugin } from "./ConversationPlugin.js";
 
 /**
@@ -40,6 +41,15 @@ export class PluginService {
     ): ConversationModel {
         return this.plugins.reduce(
             (json, p) => p.transformConversationModel(json),
+            json
+        );
+    }
+
+    public transformConversationCallableFunctionsModel(
+        json: ConversationCallableFunctionsModel
+    ): ConversationCallableFunctionsModel {
+        return this.plugins.reduce(
+            (json, p) => p.transformConversationCallableFunctionsModel(json),
             json
         );
     }
