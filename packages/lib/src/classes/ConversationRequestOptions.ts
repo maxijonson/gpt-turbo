@@ -27,13 +27,20 @@ export class ConversationRequestOptions {
      * @returns A JSON representation of the `ConversationRequestOptions` instance.
      */
     public toJSON(): ConversationRequestOptionsModel {
-        const json: ConversationRequestOptionsModel = {
-            headers: this.headers,
-            proxy: this.proxy,
-        };
+        const json: ConversationRequestOptionsModel = this.getRequestOptions();
         return conversationRequestOptionsSchema.parse(
             this.pluginService.transformConversationRequestOptionsJson(json)
         );
+    }
+
+    /**
+     * Returns the current request options.
+     */
+    public getRequestOptions() {
+        return {
+            headers: this.headers,
+            proxy: this.proxy,
+        };
     }
 
     /**

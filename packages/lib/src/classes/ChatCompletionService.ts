@@ -70,7 +70,7 @@ export class ChatCompletionService {
 
         const flags = await message.moderate(
             this.config.apiKey,
-            this.requestOptions.toJSON()
+            this.requestOptions.getRequestOptions()
         );
 
         if (this.config.isModerationStrict && flags.length > 0) {
@@ -104,7 +104,7 @@ export class ChatCompletionService {
                         this.callableFunctions.getCreateChatCompletionFunctions(),
                 },
                 {
-                    ...this.requestOptions.toJSON(),
+                    ...this.requestOptions.getRequestOptions(),
                     ...requestOptions,
                 }
             ).then((response) => {
@@ -138,7 +138,7 @@ export class ChatCompletionService {
                         this.callableFunctions.getCreateChatCompletionFunctions(),
                 },
                 {
-                    ...this.requestOptions.toJSON(),
+                    ...this.requestOptions.getRequestOptions(),
                     ...requestOptions,
                 }
             );
