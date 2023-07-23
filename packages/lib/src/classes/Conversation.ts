@@ -55,9 +55,6 @@ export class Conversation {
      * Creates a new Conversation instance from a JSON object.
      *
      * @param json The JSON object of the Conversation instance.
-     * @param config Overrides for the loaded configuration of this conversation. See {@link ConversationConfigModel}
-     * @param requestOptions Overrides for the loaded HTTP request options. See {@link RequestOptions}
-     * @param disableInitialModeration Whether to disable moderation for the initial messages. Defaults to `true` to prevent multiple API calls in a short period of time.
      * @returns The new Conversation instance.
      */
     public static fromJSON(json: ConversationModel) {
@@ -85,7 +82,7 @@ export class Conversation {
      *
      * @param options Additional options to pass to the Create Chat Completion API endpoint. This overrides the config passed to the constructor.
      * @param requestOptions Additional options to pass for the HTTP request. This overrides the config passed to the constructor.
-     * @returns A new [`Message`](./Message.js) instance with the role of "assistant" and the content set to the response from the OpenAI API. If the `stream` config option was set to `true`, the content will be progressively updated as the response is streamed from the API. Listen to the returned message's `onMessageUpdate` event to get the updated content.
+     * @returns A new [`Message`](./Message.js) instance with the role of "assistant" and the content set to the response from the OpenAI API. If the `stream` config option was set to `true`, the content will be progressively updated as the response is streamed from the API. Listen to the returned message's `onUpdate` event to get the updated content.
      */
     public async getChatCompletionResponse(
         ...args: Parameters<ChatCompletionService["getChatCompletionResponse"]>

@@ -12,10 +12,12 @@ import {
     CreateChatCompletionMessage,
     CreateChatCompletionFunctionCallMessage,
     CreateChatCompletionFunctionMessage,
+    MessageContentStreamListener,
 } from "../utils/types/index.js";
 import { MessageModel, messageSchema } from "../schemas/message.schema.js";
 import { ConversationRequestOptionsModel } from "../schemas/conversationRequestOptions.schema.js";
 import createModeration from "../utils/createModeration.js";
+import { EventManager } from "./EventManager.js";
 
 /**
  * A message in a Conversation.
@@ -39,8 +41,15 @@ export class Message {
     private _flags: string[] | null = null;
     private _isStreaming = false;
 
-    private messageUpdateListeners: MessageUpdateListener[] = [];
-    private messageStreamingListeners: MessageStreamingListener[] = [];
+    private messageUpdateEvents = new EventManager<MessageUpdateListener>();
+    private messageStreamingEvents =
+        new EventManager<MessageStreamingListener>();
+    private messageStreamingStartEvents =
+        new EventManager<MessageStreamingStartListener>();
+    private messageStreamingStopEvents =
+        new EventManager<MessageStreamingStopListener>();
+    private messageContentStreamEvents =
+        new EventManager<MessageContentStreamListener>();
 
     /**
      * Creates a new Message instance.
@@ -93,84 +102,6 @@ export class Message {
             flags: this.flags,
         };
         return messageSchema.parse(json);
-    }
-
-    /**
-     * Removes a message update listener, previously set with `onMessageUpdate`.
-     *
-     * @param listener The previously added listener
-     */
-    public offMessageUpdate(listener: MessageUpdateListener) {
-        this.messageUpdateListeners = this.messageUpdateListeners.filter(
-            (l) => l !== listener
-        );
-    }
-
-    /**
-     * Add a listener for message content changes.
-     *
-     * @param listener The listener to trigger when `content` changes
-     * @returns An unsubscribe function for this `listener`
-     */
-    public onMessageUpdate(listener: MessageUpdateListener) {
-        this.messageUpdateListeners.push(listener);
-        return () => this.offMessageUpdate(listener);
-    }
-
-    /**
-     * Removes a message streaming listener, previously set with `onMessageStreamingUpdate`.
-     *
-     * @param listener The previously added listener
-     */
-    public offMessageStreaming(listener: MessageStreamingListener) {
-        this.messageStreamingListeners = this.messageStreamingListeners.filter(
-            (l) => l !== listener
-        );
-    }
-
-    /**
-     * Adds a listener for message streaming state changes.
-     *
-     * @param listener The listener to trigger when `isStreaming` changes
-     * @returns An unsubscribe function for this `listener`
-     */
-    public onMessageStreamingUpdate(listener: MessageStreamingListener) {
-        this.messageStreamingListeners.push(listener);
-        return () => this.offMessageStreaming(listener);
-    }
-
-    /**
-     * Adds a listener for message streaming start.
-     *
-     * **Note:** Internally, this creates a new function wrapping your passed `listener` and passes it to `onMessageStreamingUpdate`.
-     * For this reason, you cannot remove a listener using `offMessageStreaming(listener)`.
-     * Instead, use the returned function to unsubscribe the listener properly.
-     *
-     * @param listener The listener to trigger when `isStreaming` is set to `true`
-     * @returns An unsubscribe function for this `listener`
-     */
-    public onMessageStreamingStart(listener: MessageStreamingStartListener) {
-        const startListener: MessageStreamingListener = (
-            isStreaming,
-            message
-        ) => isStreaming && listener(message);
-        return this.onMessageStreamingUpdate(startListener);
-    }
-
-    /**
-     * Adds a listener for message streaming stop.
-     *
-     * **Note: ** Internally, this creates a new function wrapping your passed `listener` and passes it to `onMessageStreamingUpdate`.
-     * For this reason, you cannot remove a listener using `offMessageStreaming(listener)`.
-     * Instead, use the returned function to unsubscribe the listener properly.
-     *
-     * @param listener The listener to trigger when `isStreaming` is set to `false`
-     * @returns An unsubscribe function for this `listener`
-     */
-    public onMessageStreamingStop(listener: MessageStreamingStopListener) {
-        const stopListener: MessageStreamingListener = (isStreaming, message) =>
-            !isStreaming && listener(message);
-        return this.onMessageStreamingUpdate(stopListener);
     }
 
     /**
@@ -302,19 +233,6 @@ export class Message {
         );
     }
 
-    private notifyMessageUpdate() {
-        const content = this.content;
-        this.messageUpdateListeners.forEach((listener) =>
-            listener(content, this)
-        );
-    }
-
-    private notifyMessageStreaming() {
-        this.messageStreamingListeners.forEach((listener) => {
-            listener(this.isStreaming, this);
-        });
-    }
-
     /** The role of who this message is from. */
     get role() {
         return this._role;
@@ -342,7 +260,14 @@ export class Message {
         this._content = content;
         this.flags = null;
 
-        this.notifyMessageUpdate();
+        this.messageUpdateEvents.emit(content, this);
+        if (this.isStreaming) {
+            this.messageContentStreamEvents.emit(
+                content,
+                this.isStreaming,
+                this
+            );
+        }
     }
 
     get name() {
@@ -383,9 +308,18 @@ export class Message {
     }
 
     private set isStreaming(isStreaming) {
+        if (this._isStreaming === isStreaming) return;
         this._isStreaming = isStreaming;
 
-        this.notifyMessageStreaming();
+        this.messageStreamingEvents.emit(isStreaming, this);
+        isStreaming
+            ? this.messageStreamingStartEvents.emit(this)
+            : this.messageStreamingStopEvents.emit(this);
+
+        this.messageContentStreamEvents.emit(this.content, isStreaming, this);
+        if (!isStreaming) {
+            this.messageContentStreamEvents.clear();
+        }
     }
 
     /**
@@ -422,5 +356,162 @@ export class Message {
         }
 
         throw new Error("Message type not recognized.");
+    }
+
+    /**
+     * Add a listener for message content changes.
+     *
+     * @param listener The listener to trigger when `content` changes
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onUpdate(listener: MessageUpdateListener) {
+        return this.messageUpdateEvents.addListener(listener);
+    }
+
+    /**
+     * Add a listener that is called only once when the message content changes.
+     *
+     * @param listener The listener to trigger when `content` changes
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onceUpdate(listener: MessageUpdateListener) {
+        return this.messageUpdateEvents.once(listener);
+    }
+
+    /**
+     * Removes a message update listener, previously set with `onUpdate`.
+     *
+     * @param listener The previously added listener
+     */
+    public offUpdate(listener: MessageUpdateListener) {
+        return this.messageUpdateEvents.removeListener(listener);
+    }
+
+    /**
+     * Adds a listener for message streaming state changes.
+     *
+     * @param listener The listener to trigger when `isStreaming` changes
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onStreamingUpdate(listener: MessageStreamingListener) {
+        return this.messageStreamingEvents.addListener(listener);
+    }
+
+    /**
+     * Adds a listener that is called only once when the message streaming state changes.
+     *
+     * @param listener The listener to trigger when `isStreaming` changes
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onceStreamingUpdate(listener: MessageStreamingListener) {
+        return this.messageStreamingEvents.once(listener);
+    }
+
+    /**
+     * Removes a message streaming listener, previously set with `onStreamingUpdate`.
+     *
+     * @param listener The previously added listener
+     */
+    public offStreaming(listener: MessageStreamingListener) {
+        return this.messageStreamingEvents.removeListener(listener);
+    }
+
+    /**
+     * Adds a listener for message streaming start.
+     *
+     * @param listener The listener to trigger when `isStreaming` is set to `true`
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onStreamingStart(listener: MessageStreamingStartListener) {
+        return this.messageStreamingStartEvents.addListener(listener);
+    }
+
+    /**
+     * Adds a listener that is called only once when the message streaming starts.
+     *
+     * @param listener The listener to trigger when `isStreaming` is set to `true`
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onceStreamingStart(listener: MessageStreamingStartListener) {
+        return this.messageStreamingStartEvents.once(listener);
+    }
+
+    /**
+     * Removes a message streaming start listener, previously set with `onStreamingStart`.
+     *
+     * @param listener The previously added listener
+     */
+    public offStreamingStart(listener: MessageStreamingStartListener) {
+        return this.messageStreamingStartEvents.removeListener(listener);
+    }
+
+    /**
+     * Adds a listener for message streaming stop.
+     *
+     * @param listener The listener to trigger when `isStreaming` is set to `false`
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onStreamingStop(listener: MessageStreamingStopListener) {
+        return this.messageStreamingStopEvents.addListener(listener);
+    }
+
+    /**
+     * Adds a listener that is called only once when the message streaming stops.
+     *
+     * @param listener The listener to trigger when `isStreaming` is set to `false`
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onceStreamingStop(listener: MessageStreamingStopListener) {
+        return this.messageStreamingStopEvents.once(listener);
+    }
+
+    /**
+     * Removes a message streaming stop listener, previously set with `onStreamingStop`.
+     *
+     * @param listener The previously added listener
+     */
+    public offStreamingStop(listener: MessageStreamingStopListener) {
+        return this.messageStreamingStopEvents.removeListener(listener);
+    }
+
+    /**
+     * Adds a listener that is fired whenever the message content is updated during streaming. Also fires when streaming starts/ends.
+     *
+     * @remarks
+     * Unlike the other listeners which behave like normal event listeners, this special listener is unsubscribed automatically when streaming ends.
+     * If this is not desired, use `onUpdate` and `onStreamingStart`/`onStreamingStop` instead.
+     *
+     * @param listener The listener to trigger when `content` changes during streaming
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onContentStream(listener: MessageContentStreamListener) {
+        return this.messageContentStreamEvents.addListener(listener);
+    }
+
+    /**
+     * Adds a listener that is fired only once whenever the message content is updated during streaming. Also fires when streaming starts/ends.
+     *
+     * @remarks
+     * Unlike the other listeners which behave like normal event listeners, this special listener is unsubscribed automatically when streaming ends, regardless of whether it was called once or not.
+     * If this is not desired, use `onceUpdate` and `onceStreamingStart`/`onceStreamingStop` instead.
+     *
+     * @param listener The listener to trigger when `content` changes during streaming
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onceContentStream(listener: MessageContentStreamListener) {
+        return this.messageContentStreamEvents.once(listener);
+    }
+
+    /**
+     * Removes a message streaming content listener, previously set with `onContentStream`.
+     *
+     * @remarks
+     * You do not need to call this method manually, as this listener automatically unsubscribes all listeners when streaming ends.
+     * You should use this if you want to unsubscribe a listener before streaming ends.
+     *
+     * @param listener The previously added listener
+     */
+    public offContentStream(listener: MessageContentStreamListener) {
+        return this.messageContentStreamEvents.removeListener(listener);
     }
 }

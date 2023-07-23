@@ -1,0 +1,97 @@
+TODO: Remove this file. It's just to track changes in v5 and will eventually become the Github Release.
+
+# 5.0.0 - Library Rewrite
+
+## Library Rewrite
+
+> If you're already using GPT Turbo v4 and don't need the new features, you can (and should) continue using it. v5 will introduce breaking changes even to the most basic functionality. Switch to v5 if you start a new project, need the new features or discover a bug that won't be fixed in v4.
+
+v5 is a near-complete rewrite of the library. More specifically, the functionality of the library mostly remains the same, but the `Conversation` class methods have been split into different classes, which can be interacted with from the `Conversation` class. This is done in response to the growing complexity of the `Conversation` class, which was becoming difficult to maintain. I noticed this problem even more when OpenAI released their Callable Functions, as I had a hard time integrating them into the library. Now, the `Conversation` class has the most essential methods (`prompt`, `reprompt` and `functionPrompt`) and you can access specific functionality through its public properties:
+
+- `config`: Configure both the library and the OpenAI API configuration, such as the API key, context, moderation, etc.
+- `requestOptions`: Instead of the old plain old object, these have been moved to a `ConversationRequestOptions` class.
+- `history`: Everything message related has been moved to the `ConversationHistory` class.
+- `callableFunctions`: Everything callable function related has been moved to the `ConversationCallableFunctions` class.
+
+### Breaking changes
+
+#### Removed
+
+- Removed Conversation size/cost features to reduce bundle size by about 1.3MB. This was because of the `gpt-token-utils` library, which like many other token libraries, need to be bundled with all the tokens... Since these "stats" were mostly just that, "stats", I decided to remove it.
+- Removed `Conversation.fromMessages`. Messages can now be bassed through the constructor. (see new constructor in "Changed" section)
+
+#### Changed
+
+- `Conversation.fromJSON` is no longer async and no longer moderates messages on create. 
+  - Previously, `Conversation.fromJSON` would call `addMessage`, which itself was async solely because of moderation. Now, the moderation is done seperately, which makes `addMessage` sync.
+- The `Conversation` constructor can now initialize more than just the configuration and request options. Each property can be initialized seperately:
+    -   ```tsx
+        const conversation = new Conversation({
+            config: {
+                apiKey: "..."
+            },
+            requestOptions: { /* ... */ },
+            history: { /* ... */ },
+            callableFunctions: { /* ... */ }
+        })
+        ```
+
+#### Moved
+
+- Here's a list of where all the old methods were moved to. (private methods not shown)
+  - `Conversation` (unchanged)
+    - `toJSON`
+    - `fromJSON`
+    - `getChatCompletionResponse`
+    - `prompt`
+    - `reprompt`
+    - `functionPrompt`
+  - `Conversation.config`
+    - `getConfig`
+    - `setConfig`
+  - `Conversation.requestOptions`
+    - `getRequestOptions`
+    - `setRequestOptions`
+  - `Conversation.history`
+    - `addAssistantMessage`
+    - `addUserMessage`
+    - `addFunctionCallMessage`
+    - `addFunctionMessage`
+    - `getMessages`
+    - `offMessageAdded`
+    - `onMessageAdded` 
+    - `offMessageRemoved`
+    - `onMessageRemoved`
+    - `clearMessages`
+    - `removeMessage`
+    - `setContext`
+  - `Conversation.callableFunctions`
+    - `removeFunction`
+    - `clearFunctions`
+    - `addFunction`
+    - `getFunctions`
+
+### Changes
+
+- Updated README examples with new syntax
+- Renamed `Message` listeners:
+  - `onMessageUpdated` -> `onUpdate`
+  - `offMessageUpdated` -> `offUpdate`
+  - `onMessageStreamingUpdate` -> `onStreamingUpdate`
+  - `offMessageStreamingUpdate` -> `offStreamingUpdate`
+  - `onMessageStreamingStart` -> `onStreamingStart`
+  - `offMessageStreamingStart` -> `offStreamingStart`
+
+### New Features
+
+- Added "once" listeners to fire only once, instead of having to manually remove the listener after it fires:
+  - `Conversation.history.onceMessageAdded`
+  - `Conversation.history.onceMessageRemoved`
+  - `Message.onceUpdated`
+  - `Message.onceStreamingUpdate`
+  - `Message.onceStreamingStart`
+  - `Message.onceStreamingStop`
+- Added `Message` listener for when content is updated during streaming. This is a special kind of listener, since it unsubscribes automatically when streaming ends. This is done out of convenience so you don't have to manually unsubscribe when streaming ends, unlike previous versions where you always needed an `onUpdate` and `onStreamingStop` listener. Also, if you've been using the old streaming methods with function calling, you'll notice the example in the README has been updated to use this new listener and is much simpler than before!
+  - `Message.onContentStream`
+  - `Message.onceContentStream`
+  - `Message.offContentStream`

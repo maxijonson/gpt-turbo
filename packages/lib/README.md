@@ -51,11 +51,18 @@ const conversation = new Conversation({
 });
 
 const response = await conversation.prompt("How can I make my code more efficient than a droid army?");
-const unsubscribeUpdate = response.onMessageUpdate((content) => {
+
+// New method (v5). Recommended for streamed responses as it automatically unsubscribes when the streaming stops.
+response.onContentStream(async (content, isStreaming) => {
     console.log(content);
 });
 
-const unsubscribeStop = response.onMessageStreamingStop(() => {
+// Legacy method (v4). Still supported, but you need to unsubscribe manually.
+const unsubscribeUpdate = response.onUpdate((content) => {
+    console.log(content);
+});
+
+const unsubscribeStop = response.onStreamingStop(() => {
     unsubscribeUpdate();
     unsubscribeStop();
 });
@@ -219,7 +226,7 @@ if (r1.isCompletion()) {
 }
 ```
 
-For streamed completions and function calls, it gets a bit more complicated, but still supported! Hopefully, a better flow will be implemented in the future.
+Function calls can also be streamed!
 
 ```ts
 const conversation = new Conversation({
@@ -232,14 +239,40 @@ conversation.callableFunctions.addFunction(locateJediFn);
 
 const r1 = await conversation.prompt("In which city is Obi-Wan Kenobi?");
 
-const unsubscribeUpdates = r1.onMessageUpdate((_, message) => {
+// New method (v5). Recommended for streamed responses as it automatically unsubscribes when the streaming stops, making it easier to manage.
+r1.onContentStream(async (_, isStreaming, message) => {
+    // Gracefully handle non-function call completions
+    // Optional if you're certain that all completions will be function calls (i.e, specifying `function_call` in the `config`)
+    if (message.isCompletion() && message.content) {
+        console.info("Completion", message.content);
+        return;
+    }
+
+    // Wait for function call to complete
+    if (isStreaming) return;
+    // Not a function call. Stop here.
+    if (!message.isFunctionCall()) return;
+
+    const { jedi, locationType } = message.functionCall.arguments;
+    const r2 = await conversation.functionPrompt(
+        message.functionCall.name,
+        locateJedi(jedi, locationType)
+    );
+
+    r2.onContentStream((content) => {
+        if (!content) return;
+        console.info("Function Call:", content); // "Obi-Wan Kenobi is located in the city of Mos Eisley."
+    });
+});
+
+// Legacy method (v4). Still supported, but it's much more complicated.
+const unsubscribeUpdates = r1.onUpdate((_, message) => {
     if (!message.isCompletion()) {
         return;
     }
     console.info(message.content);
 });
-
-const unsubscribeStop = r1.onMessageStreamingStop(async (message) => {
+const unsubscribeStop = r1.onStreamingStop(async (message) => {
     if (message.isFunctionCall()) {
         const { jedi, locationType } = message.functionCall.arguments;
         const r2 = await conversation.functionPrompt(
@@ -247,11 +280,11 @@ const unsubscribeStop = r1.onMessageStreamingStop(async (message) => {
             locateJedi(jedi, locationType)
         );
 
-        const unsubscribeFunctionUpdate = r2.onMessageUpdate((content) => {
+        const unsubscribeFunctionUpdate = r2.onUpdate((content) => {
             console.info(content); // "Obi-Wan Kenobi is located in the city of Mos Eisley."
         });
 
-        const unsubscribeFunctionStop = r2.onMessageStreamingStop(() => {
+        const unsubscribeFunctionStop = r2.onStreamingStop(() => {
             unsubscribeFunctionUpdate();
             unsubscribeFunctionStop();
         });

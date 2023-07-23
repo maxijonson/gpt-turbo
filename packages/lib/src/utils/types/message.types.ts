@@ -237,3 +237,20 @@ export type MessageStreamingStopListener = (
      */
     message: Message
 ) => void;
+
+export type MessageContentStreamListener = (
+    /**
+     * The new content of the message.
+     */
+    content: string | null,
+
+    /**
+     * The new streaming state of the message.
+     */
+    isStreaming: boolean,
+
+    /**
+     * The {@link Message message} instance that was updated during streaming.
+     */
+    message: Message
+) => void;

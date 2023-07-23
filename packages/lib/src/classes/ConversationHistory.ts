@@ -10,6 +10,7 @@ import {
     RemoveMessageListener,
 } from "../utils/types/index.js";
 import { MessageRoleException } from "../exceptions/MessageRoleException.js";
+import { EventManager } from "./EventManager.js";
 
 /**
  * The request options for a conversation.
@@ -24,8 +25,8 @@ export class ConversationHistory {
     public id = uuid();
 
     private messages: Message[] = [];
-    private addMessageListeners: AddMessageListener[] = [];
-    private removeMessageListeners: RemoveMessageListener[] = [];
+    private addMessageEvents = new EventManager<AddMessageListener>();
+    private removeMessageEvents = new EventManager<RemoveMessageListener>();
 
     public constructor(
         private readonly config: ConversationConfig,
@@ -131,7 +132,7 @@ export class ConversationHistory {
             this.messages.push(message);
         }
 
-        this.notifyMessageAdded(message);
+        this.addMessageEvents.emit(message);
         return message;
     }
 
@@ -237,50 +238,6 @@ export class ConversationHistory {
     }
 
     /**
-     * Removes a listener function from the list of listeners that was previously added with `onMessageAdded`.
-     *
-     * @param listener The function to remove from the list of listeners.
-     */
-    public offMessageAdded(listener: AddMessageListener) {
-        this.addMessageListeners = this.addMessageListeners.filter(
-            (l) => l !== listener
-        );
-    }
-
-    /**
-     * Adds a listener function that is called whenever a message is added to the conversation.
-     *
-     * @param listener The function to call when a message is added to the conversation.
-     * @returns A function that removes the listener from the list of listeners.
-     */
-    public onMessageAdded(listener: AddMessageListener) {
-        this.addMessageListeners.push(listener);
-        return () => this.offMessageAdded(listener);
-    }
-
-    /**
-     * Removes a listener function from the list of listeners that was previously added with `onMessageRemoved`.
-     *
-     * @param listener The function to remove from the list of listeners.
-     */
-    public offMessageRemoved(listener: RemoveMessageListener) {
-        this.removeMessageListeners = this.removeMessageListeners.filter(
-            (l) => l !== listener
-        );
-    }
-
-    /**
-     * Adds a listener function that is called whenever a message is removed to the conversation.
-     *
-     * @param listener The function to call when a message is removed to the conversation.
-     * @returns A function that removes the listener from the list of listeners.
-     */
-    public onMessageRemoved(listener: RemoveMessageListener) {
-        this.removeMessageListeners.push(listener);
-        return () => this.offMessageRemoved(listener);
-    }
-
-    /**
      * Clears all messages in the conversation except the context message, if it is set.
      */
     public clearMessages() {
@@ -301,7 +258,7 @@ export class ConversationHistory {
         const removedMessage = this.messages.find((m) => m.id === id);
         if (!removedMessage) return;
         this.messages = this.messages.filter((m) => m.id !== id);
-        this.notifyMessageRemoved(removedMessage);
+        this.removeMessageEvents.emit(removedMessage);
     }
 
     /**
@@ -316,11 +273,61 @@ export class ConversationHistory {
         return this.addMessage(systemMessage);
     }
 
-    private notifyMessageAdded(message: Message) {
-        this.addMessageListeners.forEach((listener) => listener(message));
+    /**
+     * Adds a listener function that is called whenever a message is added to the conversation.
+     *
+     * @param listener The function to call when a message is added to the conversation.
+     * @returns A function that removes the listener from the list of listeners.
+     */
+    public onMessageAdded(listener: AddMessageListener) {
+        return this.addMessageEvents.addListener(listener);
     }
 
-    private notifyMessageRemoved(message: Message) {
-        this.removeMessageListeners.forEach((listener) => listener(message));
+    /**
+     * Adds a listener function that is called only once whenever a message is added to the conversation.
+     *
+     * @param listener The function to call when a message is added to the conversation.
+     * @returns A function that removes the listener from the list of listeners.
+     */
+    public onceMessageAdded(listener: AddMessageListener) {
+        return this.addMessageEvents.once(listener);
+    }
+
+    /**
+     * Removes a listener function from the list of listeners that was previously added with `onMessageAdded`.
+     *
+     * @param listener The function to remove from the list of listeners.
+     */
+    public offMessageAdded(listener: AddMessageListener) {
+        return this.addMessageEvents.removeListener(listener);
+    }
+
+    /**
+     * Adds a listener function that is called whenever a message is removed to the conversation.
+     *
+     * @param listener The function to call when a message is removed to the conversation.
+     * @returns A function that removes the listener from the list of listeners.
+     */
+    public onMessageRemoved(listener: RemoveMessageListener) {
+        return this.removeMessageEvents.addListener(listener);
+    }
+
+    /**
+     * Adds a listener function that is called only once whenever a message is removed to the conversation.
+     *
+     * @param listener The function to call when a message is removed to the conversation.
+     * @returns A function that removes the listener from the list of listeners.
+     */
+    public onceMessageRemoved(listener: RemoveMessageListener) {
+        return this.removeMessageEvents.once(listener);
+    }
+
+    /**
+     * Removes a listener function from the list of listeners that was previously added with `onMessageRemoved`.
+     *
+     * @param listener The function to remove from the list of listeners.
+     */
+    public offMessageRemoved(listener: RemoveMessageListener) {
+        return this.removeMessageEvents.removeListener(listener);
     }
 }
