@@ -44,6 +44,14 @@ export abstract class ConversationPlugin {
     }
 
     /**
+     * Called after all plugins have been initialized. (directly after the `onInit` method is called on all plugins)
+     *
+     * @remarks
+     * This could potentially be used to interop with other plugins.
+     */
+    public onPostInit() {}
+
+    /**
      * Returns the conversation the plugin is attached to.
      *
      * @throws {PluginNotInitializedException} Thrown if the plugin is not initialized. (i.e. Calling this method before the `init` method is called, such as in the constructor)

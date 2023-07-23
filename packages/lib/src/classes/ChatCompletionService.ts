@@ -11,6 +11,7 @@ import {
     HandleChatCompletionOptions,
     PromptOptions,
 } from "../utils/types/index.js";
+import { PluginService } from "./PluginService.js";
 
 /**
  * Encapsulates the logic for sending requests to the OpenAI API for the Create Chat Completion endpoint.
@@ -20,6 +21,7 @@ import {
  */
 export class ChatCompletionService {
     constructor(
+        private readonly pluginService: PluginService,
         private readonly config: ConversationConfig,
         private readonly requestOptions: ConversationRequestOptions,
         private readonly history: ConversationHistory,

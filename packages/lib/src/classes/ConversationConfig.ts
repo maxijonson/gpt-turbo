@@ -14,6 +14,7 @@ import {
     ConfigProperties,
     ConversationConfigProperties,
 } from "../utils/types/index.js";
+import { PluginService } from "./PluginService.js";
 
 /**
  * The configuration for a conversation. Contains library specific options and OpenAI's Chat Completion default options.
@@ -41,21 +42,11 @@ export class ConversationConfig {
     private _context!: ConversationConfigProperties["context"];
     private _dry!: ConversationConfigProperties["dry"];
 
-    constructor(options: ConversationConfigModel = {}) {
+    constructor(
+        private readonly pluginService: PluginService,
+        options: ConversationConfigModel = {}
+    ) {
         this.setConfig(options);
-    }
-
-    /**
-     * Creates a new `ConversationConfig` instance from a serialized config.
-     *
-     * @param json The JSON object of a ConversationConfig instance.
-     * @returns A new `ConversationConfig` instance
-     *
-     * @internal
-     * This method is used internally by the library and is not meant to be used by consumers of the library.
-     */
-    public static fromJSON(json: ConversationConfigModel) {
-        return new ConversationConfig(conversationConfigSchema.parse(json));
     }
 
     /**

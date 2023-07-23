@@ -45,31 +45,49 @@ export class Conversation {
      * @param options The options for the Conversation instance's configuration, request options, history, and callable functions.
      */
     constructor(options: ConversationOptions = {}) {
-        const { config, requestOptions, history, callableFunctions, plugins } =
-            options;
+        const {
+            config,
+            requestOptions,
+            history,
+            callableFunctions,
+            plugins = [],
+        } = options;
 
-        this.config = new ConversationConfig(config);
-        this.requestOptions = new ConversationRequestOptions(requestOptions);
-        this.history = new ConversationHistory(this.config, history);
+        this.pluginService = new PluginService(
+            Conversation.getGlobalPlugins().concat(plugins)
+        );
+
+        this.config = new ConversationConfig(this.pluginService, config);
+        this.requestOptions = new ConversationRequestOptions(
+            this.pluginService,
+            requestOptions
+        );
+        this.history = new ConversationHistory(
+            this.pluginService,
+            this.config,
+            history
+        );
         this.callableFunctions = new ConversationCallableFunctions(
+            this.pluginService,
             callableFunctions
         );
 
         this.chatCompletionService = new ChatCompletionService(
+            this.pluginService,
             this.config,
             this.requestOptions,
             this.history,
             this.callableFunctions
         );
 
-        this.pluginService = new PluginService(
+        this.pluginService.onInit(
             this,
             this.config,
             this.requestOptions,
             this.history,
             this.callableFunctions,
             this.chatCompletionService,
-            Conversation.getGlobalPlugins().concat(plugins ?? [])
+            this.pluginService
         );
     }
 

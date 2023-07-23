@@ -2,6 +2,7 @@ import {
     ConversationRequestOptionsModel,
     conversationRequestOptionsSchema,
 } from "../schemas/conversationRequestOptions.schema.js";
+import { PluginService } from "./PluginService.js";
 
 /**
  * Holds the callable functions of a `Conversation`.
@@ -13,20 +14,11 @@ export class ConversationRequestOptions {
     headers: ConversationRequestOptionsModel["headers"];
     proxy: ConversationRequestOptionsModel["proxy"];
 
-    constructor(options: ConversationRequestOptionsModel = {}) {
+    constructor(
+        private readonly pluginService: PluginService,
+        options: ConversationRequestOptionsModel = {}
+    ) {
         this.setRequestOptions(options);
-    }
-
-    /**
-     * Creates a new `ConversationRequestOptions` instance from a JSON object.
-     *
-     * @param json The JSON object of the `ConversationRequestOptions` instance.
-     * @returns The new `ConversationRequestOptions` instance.
-     */
-    public static fromJSON(json: ConversationRequestOptionsModel) {
-        return new ConversationRequestOptions(
-            conversationRequestOptionsSchema.parse(json)
-        );
     }
 
     /**
