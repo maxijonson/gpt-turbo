@@ -14,7 +14,7 @@ import { ConversationRequestOptionsModel } from "../../schemas/conversationReque
 /**
  * Conversation plugins are used to extend the functionality of a conversation. They receive a reference to the conversation and its properties and return a `ConversationPluginDefinition` object.
  */
-export interface ConversationPlugin {
+export interface ConversationPlugin<TName extends string = string> {
     (
         /**
          * The properties of the conversation this plugin has access to.
@@ -22,7 +22,7 @@ export interface ConversationPlugin {
          * Internally, these are read-only, so you are guaranteed they will not change (reference) while your plugin is running.
          */
         properties: ConversationPluginProperties
-    ): ConversationPluginDefinition;
+    ): ConversationPluginDefinition<TName>;
 }
 
 /**
@@ -68,11 +68,11 @@ export interface ConversationPluginProperties {
 /**
  * The definition of a conversation plugin. This allows plugins to extend various behaviors of the conversation, such as transforming the user prompt before it is added to the history.
  */
-export interface ConversationPluginDefinition {
+export interface ConversationPluginDefinition<TName extends string = string> {
     /**
      * A **unique** name for this plugin. You should set this to your plugin's package name to avoid name collisions.
      */
-    name: string;
+    name: TName;
 
     /**
      * Called after all plugins have been initialized.
