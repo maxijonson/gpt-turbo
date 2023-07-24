@@ -9,5 +9,6 @@ import { ConversationPlugin } from "./types/index.js";
  * @param plugin The plugin to create.
  * @returns A strictly typed plugin.
  */
-export default <TName extends string>(plugin: ConversationPlugin<TName>) =>
-    plugin;
+export default <TName extends string, TOut = undefined>(
+    plugin: ConversationPlugin<TName, TOut>
+) => plugin;

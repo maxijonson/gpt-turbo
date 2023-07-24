@@ -14,7 +14,7 @@ import { ConversationRequestOptionsModel } from "../../schemas/conversationReque
 /**
  * Conversation plugins are used to extend the functionality of a conversation. They receive a reference to the conversation and its properties and return a `ConversationPluginDefinition` object.
  */
-export interface ConversationPlugin<TName extends string = string> {
+export interface ConversationPlugin<TName extends string = string, TOut = any> {
     (
         /**
          * The properties of the conversation this plugin has access to.
@@ -22,7 +22,7 @@ export interface ConversationPlugin<TName extends string = string> {
          * Internally, these are read-only, so you are guaranteed they will not change (reference) while your plugin is running.
          */
         properties: ConversationPluginProperties
-    ): ConversationPluginDefinition<TName>;
+    ): ConversationPluginDefinition<TName, TOut>;
 }
 
 /**
@@ -66,9 +66,11 @@ export interface ConversationPluginProperties {
 }
 
 /**
- * The definition of a conversation plugin. This allows plugins to extend various behaviors of the conversation, such as transforming the user prompt before it is added to the history.
+ * The base definition of a conversation plugin without output.
  */
-export interface ConversationPluginDefinition<TName extends string = string> {
+export interface ConversationPluginDefinitionBase<
+    TName extends string = string
+> {
     /**
      * A **unique** name for this plugin. You should set this to your plugin's package name to avoid name collisions.
      */
@@ -146,3 +148,41 @@ export interface ConversationPluginDefinition<TName extends string = string> {
         json: ConversationRequestOptionsModel
     ) => ConversationRequestOptionsModel;
 }
+
+export type ConversationPluginDefinition<
+    TName extends string = string,
+    TOut = undefined
+> = ConversationPluginDefinitionBase<TName> &
+    (TOut extends undefined
+        ? {
+              /**
+               * The output of the plugin
+               * This is useful for plugins that want to expose some functionality to client code.
+               * This output can be virtually anything, such as a class instance, a function, or a primitive value.
+               *
+               * @example
+               * Typically, client code would access the output of a plugin like this:
+               *
+               * ```ts
+               * const myPlugin = conversation.getPlugin("myPlugin");
+               * const myPluginOutput = myPlugin.out;
+               * ```
+               */
+              out?: undefined;
+          }
+        : {
+              /**
+               * The output of the plugin
+               * This is useful for plugins that want to expose some functionality to client code.
+               * This output can be virtually anything, such as a class instance, a function, or a primitive value.
+               *
+               * @example
+               * Typically, client code would access the output of a plugin like this:
+               *
+               * ```ts
+               * const myPlugin = conversation.getPlugin("myPlugin");
+               * const myPluginOutput = myPlugin.out;
+               * ```
+               */
+              out: TOut;
+          });

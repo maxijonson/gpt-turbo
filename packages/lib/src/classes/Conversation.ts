@@ -13,8 +13,8 @@ import { ChatCompletionService } from "./ChatCompletionService.js";
 import {
     ConversationGlobalPlugins,
     ConversationOptions,
-    ConversationPluginDefinition,
     PluginNameFromConversationOptionsWithGlobalPlugins,
+    PluginsFromConversationOptionsWithGlobalPlugins,
     PromptOptions,
 } from "../utils/types/index.js";
 import { ConversationPluginService } from "./ConversationPluginService.js";
@@ -58,7 +58,9 @@ export class Conversation<
     public readonly callableFunctions: ConversationCallableFunctions;
 
     private readonly chatCompletionService: ChatCompletionService;
-    private readonly pluginService: ConversationPluginService;
+    private readonly pluginService: ConversationPluginService<
+        PluginsFromConversationOptionsWithGlobalPlugins<TOptions>
+    >;
 
     /**
      * Creates a new Conversation instance.
@@ -317,8 +319,22 @@ export class Conversation<
     public getPlugin<
         N extends PluginNameFromConversationOptionsWithGlobalPlugins<TOptions>
     >(name: N) {
-        return this.pluginService.getPlugin(name) as
-            | ConversationPluginDefinition<N>
-            | undefined;
+        return this.pluginService.getPlugin(name);
+    }
+
+    /**
+     * Convenience method to get a plugin's `out` property.
+     * A plugin output is optional and is defined by the plugin author.
+     * It can be used to expose a plugin's internal state to the consumer of the library.
+     *
+     * Equivalent to `conversation.getPlugin(name).out`.
+     *
+     * @param name The name of the plugin to get. (case-sensitive)
+     * @returns The plugin's `out` property.
+     */
+    public getPluginOutput<
+        N extends PluginNameFromConversationOptionsWithGlobalPlugins<TOptions>
+    >(name: N) {
+        return this.pluginService.getPluginOutput(name);
     }
 }

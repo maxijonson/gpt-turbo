@@ -7,7 +7,8 @@ import {
     ConversationPlugin,
     ConversationPluginDefinition,
     ConversationPluginProperties,
-} from "../utils/types/conversationPlugin.types.js";
+    PluginOutputFromName,
+} from "../utils/types/index.js";
 
 /**
  * Manages the plugins of a conversation and acts as a bridge between the plugins and the conversation.
@@ -20,19 +21,58 @@ import {
  * @internal
  * This class is used internally by the library and is not meant to be **instantiated** by consumers of the library.
  */
-export class ConversationPluginService {
+export class ConversationPluginService<
+    TPluginCreators extends ConversationPlugin[] = ConversationPlugin[],
+    TPlugin extends ConversationPluginDefinition = ReturnType<
+        TPluginCreators[number]
+    >
+> {
     private _hasInitialized = false;
     private readonly plugins: ConversationPluginDefinition[] = [];
 
-    constructor(private readonly pluginCreators: ConversationPlugin[] = []) {}
+    constructor(private readonly pluginCreators: TPluginCreators) {}
 
     /**
      * Gets a `PluginDefinition` by its name.
      *
      * @param name The name of the plugin to get. (case-sensitive)
+     * @returns The plugin with the specified name.
+     * @throws If no plugin with the specified name is found.
      */
-    public getPlugin(name: string) {
-        return this.plugins.find((p) => p.name === name);
+    public getPlugin<
+        N extends TPlugin["name"],
+        O extends TPlugin["out"] = PluginOutputFromName<
+            TPlugin,
+            N
+        > extends never
+            ? any
+            : PluginOutputFromName<TPlugin, N>
+    >(name: N) {
+        const plugin = this.plugins.find((p) => p.name === name);
+        if (!plugin) {
+            throw new Error(`Plugin "${name}" not found.`);
+        }
+        return plugin as ConversationPluginDefinition<N, O>;
+    }
+
+    /**
+     * Gets a `PluginDefinition`'s output by its name.
+     *
+     * @param name The name of the plugin to get. (case-sensitive)
+     * @returns The output of the plugin with the specified name.
+     * @throws If no plugin with the specified name is found.
+     */
+    public getPluginOutput<
+        N extends TPlugin["name"],
+        O extends TPlugin["out"] = PluginOutputFromName<
+            TPlugin,
+            N
+        > extends never
+            ? any
+            : PluginOutputFromName<TPlugin, N>
+    >(name: N) {
+        const plugin = this.getPlugin(name);
+        return plugin.out as O;
     }
 
     public onInit(properties: ConversationPluginProperties) {
