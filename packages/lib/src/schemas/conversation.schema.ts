@@ -13,6 +13,7 @@ export const conversationSchema = z.object({
     config: conversationConfigSchema.optional(),
     callableFunctions: conversationCallableFunctionsSchema.optional(),
     requestOptions: conversationRequestOptionsSchema.optional(),
+    pluginsData: z.record(z.unknown()).optional(),
 });
 
 /**

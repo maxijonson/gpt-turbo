@@ -76,8 +76,13 @@ export class ConversationPluginService<
         return plugin.out as O;
     }
 
-    public onInit(properties: ConversationPluginProperties) {
-        this.pluginCreators.forEach((p) => p(properties));
+    public onInit(
+        properties: ConversationPluginProperties,
+        pluginsData?: ConversationModel["pluginsData"]
+    ) {
+        this.pluginCreators.forEach((p) =>
+            p(properties, pluginsData?.[p.name])
+        );
         this.onPostInit();
     }
 
@@ -177,6 +182,15 @@ export class ConversationPluginService<
                 console.error(e);
             }
         }
+    }
+
+    public getPluginsData() {
+        return this.plugins.reduce((data, p) => {
+            if (p.getPluginData) {
+                data[p.name] = p.getPluginData();
+            }
+            return data;
+        }, {} as Record<string, unknown>);
     }
 
     public get hasInitialized() {
