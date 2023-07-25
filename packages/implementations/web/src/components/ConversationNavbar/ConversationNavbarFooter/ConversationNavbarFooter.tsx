@@ -12,7 +12,7 @@ const ConversationNavbarFooter = () => {
                 <TippedActionIcon
                     component="a"
                     tip="View source code"
-                    href="https://github.com/maxijonson/gpt-turbo/tree/develop/packages/web"
+                    href="https://github.com/maxijonson/gpt-turbo/tree/develop/packages/implementations/web"
                     size="xs"
                 >
                     <BsGithub />

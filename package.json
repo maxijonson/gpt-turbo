@@ -4,7 +4,7 @@
     "clean": "lerna clean --yes && rm -rf node_modules",
     "reinstall": "npm run clean && npm install",
     "dev": "lerna run build --scope \"gpt-turbo\" && lerna watch --scope \"gpt-turbo\" --include-dependencies -- lerna run build --scope=\"gpt-turbo\"",
-    "build": "lerna run build",
+    "build": "lerna run build --bail",
     "build:lib": "lerna run build --scope \"gpt-turbo\"",
     "build:web": "lerna run build --scope \"gpt-turbo-web\"",
     "lint:strict": "lerna run lint:strict",
@@ -16,7 +16,7 @@
     "postinstall": "npm run build:lib"
   },
   "workspaces": [
-    "packages/*"
+    "packages/**"
   ],
   "devDependencies": {
     "lerna": "^7.0.2",

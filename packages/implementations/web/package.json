@@ -38,7 +38,7 @@
         "react"
     ],
     "author": "Tristan Chin <tristan.chin@chintristan.io>",
-    "homepage": "https://github.com/maxijonson/gpt-turbo/tree/develop/packages/web#readme",
+    "homepage": "https://github.com/maxijonson/gpt-turbo/tree/develop/packages/implementations/web#readme",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/maxijonson/gpt-turbo.git"

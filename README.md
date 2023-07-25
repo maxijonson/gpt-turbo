@@ -3,9 +3,9 @@
 
   [![npm i gpt-turbo](https://img.shields.io/npm/v/gpt-turbo?color=brightgreen&label=gpt-turbo&logo=npm)](https://www.npmjs.com/package/gpt-turbo)
   [![npm i -g gpt-turbo-cli](https://img.shields.io/npm/v/gpt-turbo-cli?color=brightgreen&label=gpt-turbo-cli&logo=windowsterminal&logoColor=white)](https://www.npmjs.com/package/gpt-turbo-cli)
-  [![https://gpt-turbo-web.chintristan.io/](https://img.shields.io/github/package-json/v/maxijonson/gpt-turbo?color=brightgreen&filename=packages%2Fweb%2Fpackage.json&label=gpt-turbo-web&logo=react)](https://gpt-turbo-web.chintristan.io/)
-  [![GPT Turbo - Nest](https://img.shields.io/github/package-json/v/maxijonson/gpt-turbo?color=brightgreen&filename=packages%2Fnest%2Fpackage.json&label=gpt-turbo-nest&logo=nestjs)](https://github.com/maxijonson/gpt-turbo/tree/develop/packages/nest)
-  [![GPT Turbo - Discord](https://img.shields.io/github/package-json/v/maxijonson/gpt-turbo?color=brightgreen&filename=packages%2Fdiscord%2Fpackage.json&label=gpt-turbo-discord&logo=discord)](https://discord.gg/Aa77KCmwRx)
+  [![https://gpt-turbo-web.chintristan.io/](https://img.shields.io/github/package-json/v/maxijonson/gpt-turbo?color=brightgreen&filename=packages/implementations/web/package.json&label=gpt-turbo-web&logo=react)](https://gpt-turbo-web.chintristan.io/)
+  [![GPT Turbo - Nest](https://img.shields.io/github/package-json/v/maxijonson/gpt-turbo?color=brightgreen&filename=packages/implementations/nest/package.json&label=gpt-turbo-nest&logo=nestjs)](https://github.com/maxijonson/gpt-turbo/tree/develop/packages/implementations/nest)
+  [![GPT Turbo - Discord](https://img.shields.io/github/package-json/v/maxijonson/gpt-turbo?color=brightgreen&filename=packages/implementations/discord/package.json&label=gpt-turbo-discord&logo=discord)](https://discord.gg/Aa77KCmwRx)
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 </div>
@@ -44,10 +44,10 @@ GPT Turbo is a JavaScript library for seamless integration with OpenAI's Chat Co
 
 This repo is a mono-repo containing both the [Library](./packages/lib/) and small projects powered by it. Here's a list of all the projects that were built with the GPT Turbo [Library](./packages/lib/)
 
-- [CLI](./packages/cli/): A command-line interface to chat straight from your terminal.
-- [Web](./packages/web/): A web app, very similar to ChatGPT, for handling chats in the browser.
-- [Nest](./packages/nest/): A NestJS backend, for interacting with the library via a REST API.
-- [Discord](./packages/discord/): A Discord bot for chatting in Discord servers, similar to Discord's own Clyde AI bot.
+- [Web](./packages/implementations/web/): A web app, very similar to ChatGPT, for handling chats in the browser.
+- [Discord](./packages/implementations/discord/): A Discord bot for chatting in Discord servers, similar to Discord's own Clyde AI bot.
+- [CLI](./packages/implementations/cli/): A command-line interface to chat straight from your terminal.
+- [Nest](./packages/implementations/nest/): A NestJS backend, for interacting with the library via a REST API.
 
 ## Discord
 

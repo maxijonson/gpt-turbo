@@ -9,7 +9,7 @@
 A CLI that interacts with the gpt-turbo library
 
 <p align="center">
-  <img alt="GPT Turbo Demo" src="https://github.com/maxijonson/gpt-turbo/blob/HEAD/packages/cli/demo.gif?raw=true">
+  <img alt="GPT Turbo Demo" src="https://github.com/maxijonson/gpt-turbo/blob/HEAD/packages/implementations/cli/demo.gif?raw=true">
 </p>
 
 ## Installation

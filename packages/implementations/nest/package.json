@@ -40,7 +40,7 @@
         "nestjs"
     ],
     "author": "Tristan Chin <tristan.chin@chintristan.io>",
-    "homepage": "https://github.com/maxijonson/gpt-turbo/tree/develop/packages/nest#readme",
+    "homepage": "https://github.com/maxijonson/gpt-turbo/tree/develop/packages/implementations/nest#readme",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/maxijonson/gpt-turbo.git"
