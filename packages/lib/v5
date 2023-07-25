@@ -101,3 +101,10 @@ The library rewrite was greatly motivated by the desire to add a plugin system. 
   - `Message.offContentStream`
 - You can now define plugins in the `Conversation` constructor. See README for examples.
 - You can also author plugins that are not included in the library. See README for examples.
+- Added event listeners when callable functions are added/removed:
+  - `Conversation.callableFunctions.onFunctionAdded`
+  - `Conversation.callableFunctions.onceFunctionAdded`
+  - `Conversation.callableFunctions.offFunctionAdded`
+  - `Conversation.callableFunctions.onFunctionRemoved`
+  - `Conversation.callableFunctions.onceFunctionRemoved`
+  - `Conversation.callableFunctions.offFunctionRemoved`

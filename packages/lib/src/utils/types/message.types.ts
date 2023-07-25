@@ -10,26 +10,6 @@ export type ChatCompletionRequestMessageRoleEnum =
     | "function";
 
 /**
- * Listener for when a {@link Message} is added to a conversation.
- */
-export type AddMessageListener = (
-    /**
-     * The {@link Message message} that was added
-     */
-    message: Message
-) => void;
-
-/**
- * Listener for when a {@link Message} is removed from a conversation.
- */
-export type RemoveMessageListener = (
-    /**
-     * The {@link Message message} that was removed
-     */
-    message: Message
-) => void;
-
-/**
  * A message in OpenAI's chat format.
  *
  * @see {@link https://platform.openai.com/docs/api-reference/chat/create#chat/create-messages Create Chat Completion Request Body - messages}

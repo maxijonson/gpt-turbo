@@ -3,8 +3,13 @@ import {
     ConversationCallableFunctionsModel,
     conversationCallableFunctionsSchema,
 } from "../schemas/conversationCallableFunctions.schema.js";
+import {
+    AddCallableFunctionListener,
+    RemoveCallableFunctionListener,
+} from "../utils/types/index.js";
 import { CallableFunction } from "./CallableFunction.js";
 import { ConversationPluginService } from "./ConversationPluginService.js";
+import { EventManager } from "./EventManager.js";
 
 /**
  * Holds the callable functions of a `Conversation`.
@@ -14,6 +19,10 @@ import { ConversationPluginService } from "./ConversationPluginService.js";
  */
 export class ConversationCallableFunctions {
     private functions: CallableFunction[];
+    private addCallableFunctionEvents =
+        new EventManager<AddCallableFunctionListener>();
+    private removeCallableFunctionEvents =
+        new EventManager<RemoveCallableFunctionListener>();
 
     public constructor(
         private readonly pluginService: ConversationPluginService,
@@ -55,13 +64,14 @@ export class ConversationCallableFunctions {
         const removedFn = this.functions.find((fn) => fn.id === id);
         if (!removedFn) return;
         this.functions = this.functions.filter((fn) => fn.id !== id);
+        this.removeCallableFunctionEvents.emit(removedFn);
     }
 
     /**
      * Removes all functions from the conversation.
      */
     public clearFunctions() {
-        this.functions = [];
+        this.functions.forEach((fn) => this.removeFunction(fn));
     }
 
     /**
@@ -70,13 +80,16 @@ export class ConversationCallableFunctions {
      * @param fn The function to add to the conversation.
      */
     public addFunction(fn: CallableFunction | CallableFunctionModel) {
+        const callableFunction =
+            fn instanceof CallableFunction ? fn : CallableFunction.fromJSON(fn);
         this.functions = this.functions
-            .filter((f) => f.name !== fn.name && f.id !== fn.id)
-            .concat(
-                fn instanceof CallableFunction
-                    ? fn
-                    : CallableFunction.fromJSON(fn)
-            );
+            .filter(
+                (f) =>
+                    f.name !== callableFunction.name &&
+                    f.id !== callableFunction.id
+            )
+            .concat(callableFunction);
+        this.addCallableFunctionEvents.emit(callableFunction);
     }
 
     /**
@@ -94,5 +107,67 @@ export class ConversationCallableFunctions {
     public getCreateChatCompletionFunctions() {
         if (this.functions.length === 0) return undefined;
         return this.functions.map((fn) => fn.chatCompletionFunction);
+    }
+
+    /**
+     * Adds a listener function that is called whenever a callableFunction is added to the conversation.
+     *
+     * @param listener The function to call when a callableFunction is added to the conversation.
+     * @returns A function that removes the listener from the list of listeners.
+     */
+    public onCallableFunctionAdded(listener: AddCallableFunctionListener) {
+        return this.addCallableFunctionEvents.addListener(listener);
+    }
+
+    /**
+     * Adds a listener function that is called only once whenever a callableFunction is added to the conversation.
+     *
+     * @param listener The function to call when a callableFunction is added to the conversation.
+     * @returns A function that removes the listener from the list of listeners.
+     */
+    public onceCallableFunctionAdded(listener: AddCallableFunctionListener) {
+        return this.addCallableFunctionEvents.once(listener);
+    }
+
+    /**
+     * Removes a listener function from the list of listeners that was previously added with `onCallableFunctionAdded`.
+     *
+     * @param listener The function to remove from the list of listeners.
+     */
+    public offCallableFunctionAdded(listener: AddCallableFunctionListener) {
+        return this.addCallableFunctionEvents.removeListener(listener);
+    }
+
+    /**
+     * Adds a listener function that is called whenever a callableFunction is removed to the conversation.
+     *
+     * @param listener The function to call when a callableFunction is removed to the conversation.
+     * @returns A function that removes the listener from the list of listeners.
+     */
+    public onCallableFunctionRemoved(listener: RemoveCallableFunctionListener) {
+        return this.removeCallableFunctionEvents.addListener(listener);
+    }
+
+    /**
+     * Adds a listener function that is called only once whenever a callableFunction is removed to the conversation.
+     *
+     * @param listener The function to call when a callableFunction is removed to the conversation.
+     * @returns A function that removes the listener from the list of listeners.
+     */
+    public onceCallableFunctionRemoved(
+        listener: RemoveCallableFunctionListener
+    ) {
+        return this.removeCallableFunctionEvents.once(listener);
+    }
+
+    /**
+     * Removes a listener function from the list of listeners that was previously added with `onCallableFunctionRemoved`.
+     *
+     * @param listener The function to remove from the list of listeners.
+     */
+    public offCallableFunctionRemoved(
+        listener: RemoveCallableFunctionListener
+    ) {
+        return this.removeCallableFunctionEvents.removeListener(listener);
     }
 }

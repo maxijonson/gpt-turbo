@@ -30,9 +30,11 @@ GPT Turbo is a JavaScript library for seamless integration with OpenAI's Chat Co
 
 📜 Keeps track of the conversation history for you, making conversation continuity a breeze.
 
-💰 Estimate the cost and size of conversations before sending them to the API.
+💰 Estimate the cost and size of conversations before sending them to the API. (*through a plugin*)
 
 💾 Easily persist conversations with serialization and deserialization methods.
+
+🔌 Includes a plugin system for extending the library's functionality.
 
 💻 Built entirely with TypeScript.
 
