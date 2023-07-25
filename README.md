@@ -2,10 +2,17 @@
   <img src="./logo/logo-inline-transparent.png" alt="GPT Turbo" width="524" />
 
   [![npm i gpt-turbo](https://img.shields.io/npm/v/gpt-turbo?color=brightgreen&label=gpt-turbo&logo=npm)](https://www.npmjs.com/package/gpt-turbo)
+
+  Implementations
+  
   [![npm i -g gpt-turbo-cli](https://img.shields.io/npm/v/gpt-turbo-cli?color=brightgreen&label=gpt-turbo-cli&logo=windowsterminal&logoColor=white)](https://www.npmjs.com/package/gpt-turbo-cli)
   [![https://gpt-turbo-web.chintristan.io/](https://img.shields.io/github/package-json/v/maxijonson/gpt-turbo?color=brightgreen&filename=packages/implementations/web/package.json&label=gpt-turbo-web&logo=react)](https://gpt-turbo-web.chintristan.io/)
   [![GPT Turbo - Nest](https://img.shields.io/github/package-json/v/maxijonson/gpt-turbo?color=brightgreen&filename=packages/implementations/nest/package.json&label=gpt-turbo-nest&logo=nestjs)](https://github.com/maxijonson/gpt-turbo/tree/develop/packages/implementations/nest)
   [![GPT Turbo - Discord](https://img.shields.io/github/package-json/v/maxijonson/gpt-turbo?color=brightgreen&filename=packages/implementations/discord/package.json&label=gpt-turbo-discord&logo=discord)](https://discord.gg/Aa77KCmwRx)
+
+  Plugins
+
+  [![npm i gpt-turbo-plugin-stats](https://img.shields.io/npm/v/gpt-turbo-plugin-stats?color=brightgreen&label=gpt-turbo-plugin-stats&logo=npm)](https://www.npmjs.com/package/gpt-turbo-plugin-stats)
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 </div>
@@ -30,7 +37,7 @@ GPT Turbo is a JavaScript library for seamless integration with OpenAI's Chat Co
 
 📜 Keeps track of the conversation history for you, making conversation continuity a breeze.
 
-💰 Estimate the cost and size of conversations before sending them to the API. (*through a plugin*)
+💰 Estimate the cost and size of conversations before sending them to the API. (*through the `gpt-turbo-plugin-stats` plugin*)
 
 💾 Easily persist conversations with serialization and deserialization methods.
 
@@ -48,6 +55,12 @@ This repo is a mono-repo containing both the [Library](./packages/lib/) and smal
 - [Discord](./packages/implementations/discord/): A Discord bot for chatting in Discord servers, similar to Discord's own Clyde AI bot.
 - [CLI](./packages/implementations/cli/): A command-line interface to chat straight from your terminal.
 - [Nest](./packages/implementations/nest/): A NestJS backend, for interacting with the library via a REST API.
+
+## Plugins
+
+GPT Turbo has a plugin system for extending the library's functionality. This repo contains the following home-made plugins:
+
+- [gpt-turbo-plugin-stats](./packages/plugins/gpt-turbo-plugin-stats/): A plugin for estimating the cost and size of conversations before sending them to the API.
 
 ## Discord
 

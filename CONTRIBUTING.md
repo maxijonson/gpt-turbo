@@ -168,8 +168,9 @@ Overall, try to keep consistency with the existing codebase, even if it's not ho
 There are no strict rules for commit messages as all PRs will be squashed into a single commit by a maintainer when merging. However, we try to follow the following convention, which you can use (or not) in your contribution to help reviewers when reviewing your PRs.
 
 - `[library]`: for changes to the library or its documentation.
-- `[cli]`: for changes to the CLI implementation or its documentation.
+- `[stats]`: for changes to the `gpt-turbo-plugin-stats` plugin or its documentation.
 - `[web]`: for changes to the Web implementation or its documentation.
+- `[cli]`: for changes to the CLI implementation or its documentation.
 - `[nest]`: for changes to the Nest implementation or its documentation.
 - `[discord]`: for changes to the Discord implementation or its documentation.
 - `[docs]`: for changes to the documentation **not related to the library or one of its implementations**. (e.g. changes to the root README.md file or this contributing guide). These are usually markdown files.

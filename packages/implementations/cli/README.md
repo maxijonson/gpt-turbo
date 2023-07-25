@@ -1,4 +1,4 @@
-# GPT Turbo - CLI
+# GPT Turbo - Implementation - CLI
 
 <div align="center">
 

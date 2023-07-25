@@ -9,6 +9,8 @@ Issue: #
 <!-- Which part of the project is affected by the pull request? Check all that apply. -->
 
 - [ ] Library
+- Plugins
+  - [ ] gpt-turbo-plugin-stats
 - Implementations
   - [ ] CLI
   - [ ] Web

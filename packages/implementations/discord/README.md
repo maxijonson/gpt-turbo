@@ -1,4 +1,4 @@
-# GPT Turbo - Discord
+# GPT Turbo - Implementation - Discord
 
 <div align="center">
 
