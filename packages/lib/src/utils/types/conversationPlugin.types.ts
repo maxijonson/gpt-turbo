@@ -150,11 +150,23 @@ export interface ConversationPluginDefinitionBase<
     ) => ConversationRequestOptionsModel;
 
     /**
-     * Tap into a user message instance created during prompt and reprompt.
+     * Tap into a user message instance created during prompt.
      *
      * @param message The user message instance
      */
     onUserPrompt?: (message: Message) => void | Promise<void>;
+
+    /**
+     * Called when an error is thrown during a user prompt.
+     * This can be useful to clean up your plugin's state.
+     *
+     * @remarks
+     * Errors thrown during this method will have no effect.
+     * This is to ensure all plugins implementing this method are called.
+     *
+     * @param error The error that was thrown during a user prompt
+     */
+    onUserPromptError?: (error: unknown) => void | Promise<void>;
 
     /**
      * Tap into an assistant message instance during a chat completion.
@@ -181,6 +193,18 @@ export interface ConversationPluginDefinitionBase<
      * @param prompt The stringified result of what was passed to the `Conversation.functionPrompt` method, after it was transformed by `transformFunctionResult`.
      */
     onFunctionPrompt?: (prompt: Message) => void | Promise<void>;
+
+    /**
+     * Called when an error is thrown during a function prompt.
+     * This can be useful to clean up your plugin's state.
+     *
+     * @remarks
+     * Errors thrown during this method will have no effect.
+     * This is to ensure all plugins implementing this method are called.
+     *
+     * @param error The error that was thrown during a function prompt
+     */
+    onFunctionPromptError?: (error: unknown) => void | Promise<void>;
 }
 
 export type ConversationPluginDefinition<

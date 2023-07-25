@@ -177,6 +177,7 @@ export class Conversation<
                 );
             return assistantMessage;
         } catch (e) {
+            await this.pluginService.onUserPromptError(e);
             this.history.removeMessage(userMessage);
             throw e;
         }
@@ -237,9 +238,9 @@ export class Conversation<
             );
         }
 
-        // Remove all messages after the previous user message
+        // Remove all messages from the previous user message (including it)
         messages
-            .slice(previousUserMessageIndex + 1)
+            .slice(previousUserMessageIndex)
             .forEach((m) => this.history.removeMessage(m));
 
         // Edit the previous user message if needed
@@ -247,23 +248,8 @@ export class Conversation<
             previousUserMessage.content = newPrompt;
         }
 
-        try {
-            await this.pluginService.onUserPrompt(previousUserMessage);
-            await this.chatCompletionService.moderateMessage(
-                previousUserMessage
-            );
-
-            // Get the new assistant response
-            const assistantMessage =
-                await this.chatCompletionService.getAssistantResponse(
-                    options,
-                    requestOptions
-                );
-            return assistantMessage;
-        } catch (e) {
-            this.history.removeMessage(previousUserMessage);
-            throw e;
-        }
+        const prompt = newPrompt ?? previousUserMessage.content ?? "";
+        return this.prompt(prompt, options, requestOptions);
     }
 
     /**
@@ -301,6 +287,7 @@ export class Conversation<
                 );
             return assistantMessage;
         } catch (e) {
+            await this.pluginService.onFunctionPromptError(e);
             this.history.removeMessage(functionMessage);
             throw e;
         }

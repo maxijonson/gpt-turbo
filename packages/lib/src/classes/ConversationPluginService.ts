@@ -133,6 +133,19 @@ export class ConversationPluginService<
         }
     }
 
+    public async onUserPromptError(error: unknown) {
+        for (const plugin of this.plugins) {
+            try {
+                await plugin.onUserPromptError?.(error);
+            } catch (e) {
+                console.error(
+                    `[gpt-turbo] Plugin "${plugin.name}" errored during "onUserPromptError":`
+                );
+                console.error(e);
+            }
+        }
+    }
+
     public async onChatCompletion(message: Message) {
         for (const plugin of this.plugins) {
             await plugin.onChatCompletion?.(message);
@@ -150,6 +163,19 @@ export class ConversationPluginService<
     public async onFunctionPrompt(message: Message) {
         for (const plugin of this.plugins) {
             await plugin.onFunctionPrompt?.(message);
+        }
+    }
+
+    public async onFunctionPromptError(error: unknown) {
+        for (const plugin of this.plugins) {
+            try {
+                await plugin.onFunctionPromptError?.(error);
+            } catch (e) {
+                console.error(
+                    `[gpt-turbo] Plugin "${plugin.name}" errored during "onFunctionPromptError":`
+                );
+                console.error(e);
+            }
         }
     }
 
