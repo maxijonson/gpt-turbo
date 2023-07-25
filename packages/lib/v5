@@ -4,6 +4,8 @@ TODO: Remove this file. It's just to track changes in v5 and will eventually bec
 
 ## Library Rewrite
 
+> ⚠ **Important notice for the web app forkers/hosters**: v5 moves all implementations into the `packages/implementations` folder instead of the `packages` folder. If you are currently hosting your own version of the web app on Render with automatic deploys of the develop branch, **your web app is currently broken!**. You'll need to update the deploy settings to point to the new location of the web app.
+
 > If you're already using GPT Turbo v4 and don't need the new features, you can (and should) continue using it. v5 will introduce breaking changes even to the most basic functionality. Switch to v5 if you start a new project, need the new features or discover a bug that won't be fixed in v4.
 
 v5 is a near-complete rewrite of the library. More specifically, the functionality of the library mostly remains the same, but the `Conversation` class methods have been split into different classes, which can be interacted with from the `Conversation` class. This is done in response to the growing complexity of the `Conversation` class, which was becoming difficult to maintain. I noticed this problem even more when OpenAI released their Callable Functions, as I had a hard time integrating them into the library. Now, the `Conversation` class has the most essential methods (`prompt`, `reprompt` and `functionPrompt`) and you can access specific functionality through its public properties:
