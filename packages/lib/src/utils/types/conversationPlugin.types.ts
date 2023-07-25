@@ -225,6 +225,13 @@ export interface ConversationPluginDefinitionBase<
      * @returns The data to be stored in the `pluginsData` property of the `ConversationModel` returned by the `Conversation.toJSON` method.
      */
     getPluginData?: () => any | Promise<any>;
+
+    /**
+     * Tap into a message that was moderated.
+     *
+     * @param message The message that was moderated, with the `message.flags` property populated.
+     */
+    onModeration?: (message: Message) => void | Promise<void>;
 }
 
 export type ConversationPluginDefinition<

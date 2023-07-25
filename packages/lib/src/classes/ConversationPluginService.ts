@@ -28,7 +28,6 @@ export class ConversationPluginService<
         TPluginCreators[number]
     >
 > {
-    private _hasInitialized = false;
     private readonly plugins: ConversationPluginDefinition[] = [];
 
     constructor(private readonly pluginCreators: TPluginCreators) {}
@@ -88,7 +87,6 @@ export class ConversationPluginService<
 
     public onPostInit() {
         this.plugins.forEach((p) => p.onPostInit?.());
-        this._hasInitialized = true;
     }
 
     public transformConversationJson(json: ConversationModel) {
@@ -193,7 +191,9 @@ export class ConversationPluginService<
         }, {} as Record<string, unknown>);
     }
 
-    public get hasInitialized() {
-        return this._hasInitialized;
+    public async onModeration(message: Message) {
+        for (const plugin of this.plugins) {
+            await plugin.onModeration?.(message);
+        }
     }
 }

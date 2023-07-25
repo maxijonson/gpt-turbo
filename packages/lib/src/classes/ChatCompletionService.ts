@@ -70,10 +70,13 @@ export class ChatCompletionService {
     public async moderateMessage(message: Message) {
         if (!this.config.isModerationEnabled) return;
 
-        const flags = await message.moderate(
+        await message.moderate(
             this.config.apiKey,
             this.requestOptions.getRequestOptions()
         );
+        await this.pluginService.onModeration(message);
+
+        const flags = message.flags ?? [];
 
         if (this.config.isModerationStrict && flags.length > 0) {
             throw new ModerationException(flags);
