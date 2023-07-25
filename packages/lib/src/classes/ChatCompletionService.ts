@@ -37,9 +37,11 @@ export class ChatCompletionService {
         requestOptions: ConversationRequestOptionsModel = {}
     ): Promise<Message> {
         const stream = options.stream ?? this.config.stream;
-        return stream
+        const message = stream
             ? this.handleStreamedResponse(options, requestOptions)
             : this.handleNonStreamedResponse(options, requestOptions);
+        await this.pluginService.onChatCompletion(await message);
+        return message;
     }
 
     /**

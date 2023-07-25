@@ -1,6 +1,6 @@
 TODO: Remove this file. It's just to track changes in v5 and will eventually become the Github Release.
 
-# 5.0.0 - Library Rewrite and Plugins
+# 5.0.0 - Conversation Plugins and Library Rewrite
 
 ## Library Rewrite
 
@@ -13,16 +13,16 @@ v5 is a near-complete rewrite of the library. More specifically, the functionali
 - `history`: Everything message related has been moved to the `ConversationHistory` class.
 - `callableFunctions`: Everything callable function related has been moved to the `ConversationCallableFunctions` class.
 
-## Plugins
+## Conversation Plugins
 
-The library rewrite was greatly motivated by the desire to add a plugin system. Plugins let's other developers add functionality to the library without having to modify the library itself. This is useful for developers who want to add functionality that is specific to their use case, but not necessarily useful to everyone. For example, as you'll read in the breaking changes, the entire size/cost feature has been removed from the library, but it's still available as a plugin (`gpt-turbo-plugin-stats`). This is because the size/cost feature might not be used by everyone, yet the bundle size would be greatly increased.
+The library rewrite was greatly motivated by the desire to add a plugin system. Plugins are a way to tap into the `Conversation` lifecycle and transform inputs/outputs. This is useful for developers who want to add functionality that is specific to their use case, but not necessarily useful to everyone. For example, as you'll read in the breaking changes, the entire size/cost feature has been removed from the library, but it's still available as a plugin (`gpt-turbo-plugin-stats`). This is because the size/cost feature might not be used by everyone, yet the bundle size would be greatly increased.
 
 ### Breaking changes
 
 #### Removed
 
 - Removed Conversation size/cost features to reduce bundle size by about 1.3MB. This was because of the `gpt-token-utils` library, which like many other token libraries, need to be bundled with all the tokens... Since these "stats" were mostly just that, "stats", I decided to remove it.
-- Removed `Conversation.fromMessages`. Messages can now be bassed through the constructor. (see new constructor in "Changed" section)
+- Removed `Conversation.fromMessages`. Messages can now be passed through the constructor. (see new constructor in "Changed" section)
 
 #### Changed
 

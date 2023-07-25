@@ -168,6 +168,7 @@ export class Conversation<
         const userMessage = this.history.addUserMessage(prompt);
 
         try {
+            await this.pluginService.onUserPrompt(userMessage);
             await this.chatCompletionService.moderateMessage(userMessage);
             const assistantMessage =
                 await this.chatCompletionService.getAssistantResponse(
@@ -241,14 +242,16 @@ export class Conversation<
             .slice(previousUserMessageIndex + 1)
             .forEach((m) => this.history.removeMessage(m));
 
+        // Edit the previous user message if needed
+        if (newPrompt) {
+            previousUserMessage.content = newPrompt;
+        }
+
         try {
-            // Edit the previous user message if needed
-            if (newPrompt) {
-                previousUserMessage.content = newPrompt;
-                await this.chatCompletionService.moderateMessage(
-                    previousUserMessage
-                );
-            }
+            await this.pluginService.onUserPrompt(previousUserMessage);
+            await this.chatCompletionService.moderateMessage(
+                previousUserMessage
+            );
 
             // Get the new assistant response
             const assistantMessage =
@@ -268,7 +271,7 @@ export class Conversation<
      * This method should usually be called after receiving a function_call message from the assistant (using `getChatCompletionResponse()` or `prompt()`) and evaluating your own function with the provided arguments from that message.
      *
      * @param name The name of the function used to generate the result. This function must be defined in the `functions` config option.
-     * @param result The result of the function call. If the result is anything other than a string, it will be JSON stringified. Since `result` can be anything, the `T` template is provided for your typing convenience, but is not used internally
+     * @param result The result of the function call. If the result is anything other than a string, it will be JSON stringified. Since `result` can be anything, the `T` generic is provided for your typing convenience, but is not used internally
      * @param options Additional options to pass to the Create Chat Completion API endpoint. This overrides the config passed to the constructor.
      * @param requestOptions Additional options to pass for the HTTP request. This overrides the config passed to the constructor.
      * @returns The assistant's response as a [`Message`](./Message.js) instance.
@@ -279,12 +282,17 @@ export class Conversation<
         options?: PromptOptions,
         requestOptions?: ConversationRequestOptionsModel
     ) {
+        const transformedResult =
+            await this.pluginService.transformFunctionResult(result);
         const functionMessage = this.history.addFunctionMessage(
-            typeof result === "string" ? result : JSON.stringify(result),
+            typeof transformedResult === "string"
+                ? transformedResult
+                : JSON.stringify(transformedResult),
             name
         );
 
         try {
+            await this.pluginService.onFunctionPrompt(functionMessage);
             await this.chatCompletionService.moderateMessage(functionMessage);
             const assistantMessage =
                 await this.chatCompletionService.getAssistantResponse(
@@ -300,6 +308,10 @@ export class Conversation<
 
     /**
      * Sends a Create Chat Completion request to the OpenAI API using the current messages stored in the conversation's history.
+     *
+     * @remarks
+     * This method is solely provided for client code that wants to trigger a Create Chat Completion request manually.
+     * It is not used internally by the library and does not moderate messages before sending them to the API.
      *
      * @param options Additional options to pass to the Create Chat Completion API endpoint. This overrides the config passed to the constructor.
      * @param requestOptions Additional options to pass for the HTTP request. This overrides the config passed to the constructor.

@@ -9,6 +9,7 @@ import {
     ConversationPluginProperties,
     PluginOutputFromName,
 } from "../utils/types/index.js";
+import { Message } from "./Message.js";
 
 /**
  * Manages the plugins of a conversation and acts as a bridge between the plugins and the conversation.
@@ -85,9 +86,7 @@ export class ConversationPluginService<
         this._hasInitialized = true;
     }
 
-    public transformConversationJson(
-        json: ConversationModel
-    ): ConversationModel {
+    public transformConversationJson(json: ConversationModel) {
         return this.plugins.reduce(
             (json, p) => p.transformConversationJson?.(json) ?? json,
             json
@@ -96,7 +95,7 @@ export class ConversationPluginService<
 
     public transformConversationCallableFunctionsJson(
         json: ConversationCallableFunctionsModel
-    ): ConversationCallableFunctionsModel {
+    ) {
         return this.plugins.reduce(
             (json, p) =>
                 p.transformConversationCallableFunctionsJson?.(json) ?? json,
@@ -104,18 +103,14 @@ export class ConversationPluginService<
         );
     }
 
-    public transformConversationConfigJson(
-        json: ConversationConfigModel
-    ): ConversationConfigModel {
+    public transformConversationConfigJson(json: ConversationConfigModel) {
         return this.plugins.reduce(
             (json, p) => p.transformConversationConfigJson?.(json) ?? json,
             json
         );
     }
 
-    public transformConversationHistoryJson(
-        json: ConversationHistoryModel
-    ): ConversationHistoryModel {
+    public transformConversationHistoryJson(json: ConversationHistoryModel) {
         return this.plugins.reduce(
             (json, p) => p.transformConversationHistoryJson?.(json) ?? json,
             json
@@ -124,12 +119,38 @@ export class ConversationPluginService<
 
     public transformConversationRequestOptionsJson(
         json: ConversationRequestOptionsModel
-    ): ConversationRequestOptionsModel {
+    ) {
         return this.plugins.reduce(
             (json, p) =>
                 p.transformConversationRequestOptionsJson?.(json) ?? json,
             json
         );
+    }
+
+    public async onUserPrompt(message: Message) {
+        for (const plugin of this.plugins) {
+            await plugin.onUserPrompt?.(message);
+        }
+    }
+
+    public async onChatCompletion(message: Message) {
+        for (const plugin of this.plugins) {
+            await plugin.onChatCompletion?.(message);
+        }
+    }
+
+    public async transformFunctionResult(result: any) {
+        return this.plugins.reduce(
+            async (result, p) =>
+                p.transformFunctionResult?.(await result) ?? result,
+            Promise.resolve(result)
+        );
+    }
+
+    public async onFunctionPrompt(message: Message) {
+        for (const plugin of this.plugins) {
+            await plugin.onFunctionPrompt?.(message);
+        }
     }
 
     public get hasInitialized() {
