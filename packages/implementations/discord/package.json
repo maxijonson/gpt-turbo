@@ -69,6 +69,7 @@
         "discord.js": "^14.9.0",
         "dotenv": "^16.0.3",
         "gpt-turbo": "^4.5.0",
+        "gpt-turbo-plugin-stats": "^4.5.0",
         "keyv": "^4.5.2"
     }
 }

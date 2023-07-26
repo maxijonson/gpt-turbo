@@ -15,7 +15,11 @@ import { ConversationRequestOptionsModel } from "../../schemas/conversationReque
 /**
  * Conversation plugins are used to extend the functionality of a conversation. They receive a reference to the conversation and its properties and return a `ConversationPluginDefinition` object.
  */
-export interface ConversationPlugin<TName extends string = string, TOut = any> {
+export interface ConversationPlugin<
+    TName extends string = string,
+    TOut = any,
+    TData extends ConversationPluginData = undefined
+> {
     (
         /**
          * The properties of the conversation this plugin has access to.
@@ -27,8 +31,8 @@ export interface ConversationPlugin<TName extends string = string, TOut = any> {
         /**
          * The plugin data previously stored by this plugin with the `getPluginData` method.
          */
-        pluginData?: unknown
-    ): ConversationPluginDefinition<TName, TOut>;
+        pluginData?: TData
+    ): ConversationPluginDefinition<TName, TOut, TData>;
 }
 
 /**
@@ -216,17 +220,6 @@ export interface ConversationPluginDefinitionBase<
     onFunctionPromptError?: (error: unknown) => void | Promise<void>;
 
     /**
-     * Allows your plugin to store data in the `pluginsData` property of the `ConversationModel` returned by the `Conversation.toJSON` method.
-     * This data will be stored under the name of your plugin and will be accessible when your plugin is initialized. (second argument of the plugin function)
-     *
-     * @remarks
-     * This data should be serializable.
-     *
-     * @returns The data to be stored in the `pluginsData` property of the `ConversationModel` returned by the `Conversation.toJSON` method.
-     */
-    getPluginData?: () => any | Promise<any>;
-
-    /**
      * Tap into a message that was moderated.
      *
      * @param message The message that was moderated, with the `message.flags` property populated.
@@ -234,40 +227,66 @@ export interface ConversationPluginDefinitionBase<
     onModeration?: (message: Message) => void | Promise<void>;
 }
 
+export type ConversationPluginDefinitionOutput<TOut> = TOut extends undefined
+    ? {
+          out?: undefined;
+      }
+    : {
+          /**
+           * The output of the plugin
+           * This is useful for plugins that want to expose some functionality to client code.
+           * This output can be virtually anything, such as a class instance, a function, or a primitive value.
+           *
+           * @example
+           * Typically, client code would access the output of a plugin like this:
+           *
+           * ```ts
+           * const myPlugin = conversation.getPlugin("myPlugin");
+           * const myPluginOutput = myPlugin.out;
+           * ```
+           */
+          out: TOut;
+      };
+
+export type ConversationPluginDefinitionGetPluginData<
+    TData extends ConversationPluginData
+> = TData extends undefined
+    ? {
+          getPluginData?: () => undefined;
+      }
+    : {
+          /**
+           * Allows your plugin to store data in the `pluginsData` property of the `ConversationModel` returned by the `Conversation.toJSON` method.
+           * This data will be stored under the name of your plugin and will be accessible when your plugin is initialized. (second argument of the plugin function)
+           *
+           * @remarks
+           * This data should be serializable.
+           *
+           * @returns The data to be stored in the `pluginsData` property of the `ConversationModel` returned by the `Conversation.toJSON` method.
+           */
+          getPluginData: () => TData | Promise<TData>;
+      };
+
 export type ConversationPluginDefinition<
     TName extends string = string,
-    TOut = undefined
+    TOut = undefined,
+    TData extends ConversationPluginData = undefined
 > = ConversationPluginDefinitionBase<TName> &
-    (TOut extends undefined
-        ? {
-              /**
-               * The output of the plugin
-               * This is useful for plugins that want to expose some functionality to client code.
-               * This output can be virtually anything, such as a class instance, a function, or a primitive value.
-               *
-               * @example
-               * Typically, client code would access the output of a plugin like this:
-               *
-               * ```ts
-               * const myPlugin = conversation.getPlugin("myPlugin");
-               * const myPluginOutput = myPlugin.out;
-               * ```
-               */
-              out?: undefined;
-          }
-        : {
-              /**
-               * The output of the plugin
-               * This is useful for plugins that want to expose some functionality to client code.
-               * This output can be virtually anything, such as a class instance, a function, or a primitive value.
-               *
-               * @example
-               * Typically, client code would access the output of a plugin like this:
-               *
-               * ```ts
-               * const myPlugin = conversation.getPlugin("myPlugin");
-               * const myPluginOutput = myPlugin.out;
-               * ```
-               */
-              out: TOut;
-          });
+    ConversationPluginDefinitionOutput<TOut> &
+    ConversationPluginDefinitionGetPluginData<TData>;
+
+/**
+ * The data stored by a plugin in the `pluginsData` property of the `ConversationModel` returned by the `Conversation.toJSON` method.
+ *
+ * @remarks
+ * Must be a serializable type.
+ */
+export type ConversationPluginData =
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | Date
+    | Array<ConversationPluginData>
+    | { [key: string]: ConversationPluginData };

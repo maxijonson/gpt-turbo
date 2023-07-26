@@ -79,9 +79,11 @@ export class ConversationPluginService<
         properties: ConversationPluginProperties,
         pluginsData?: ConversationModel["pluginsData"]
     ) {
-        this.pluginCreators.forEach((p) =>
-            p(properties, pluginsData?.[p.name])
-        );
+        if (pluginsData) {
+            this.pluginCreators.forEach((p) =>
+                p(properties, pluginsData[p.name])
+            );
+        }
         this.onPostInit();
     }
 
@@ -184,11 +186,11 @@ export class ConversationPluginService<
 
     public getPluginsData() {
         return this.plugins.reduce((data, p) => {
-            if (p.getPluginData) {
+            if (p.getPluginData !== undefined) {
                 data[p.name] = p.getPluginData();
             }
             return data;
-        }, {} as Record<string, unknown>);
+        }, {} as Record<string, any>);
     }
 
     public async onModeration(message: Message) {
