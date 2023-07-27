@@ -182,7 +182,7 @@ export interface ConversationPluginDefinitionBase<
     onUserPromptError?: (error: unknown) => void | Promise<void>;
 
     /**
-     * Tap into an assistant message instance during a chat completion.
+     * Tap into an assistant message instance during a chat completion **before** it is added to the history.
      *
      * @remarks
      * Keep in mind that the message passed to this method is not necessarily a standard chat completion. It could be a function call too.
