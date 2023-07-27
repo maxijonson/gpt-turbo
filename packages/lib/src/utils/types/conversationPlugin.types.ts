@@ -18,7 +18,7 @@ import { ConversationRequestOptionsModel } from "../../schemas/conversationReque
 export interface ConversationPlugin<
     TName extends string = string,
     TOut = any,
-    TData extends ConversationPluginData = undefined
+    TData extends ConversationPluginData = any
 > {
     (
         /**

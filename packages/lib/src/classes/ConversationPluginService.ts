@@ -5,8 +5,10 @@ import { ConversationHistoryModel } from "../schemas/conversationHistory.schema.
 import { ConversationRequestOptionsModel } from "../schemas/conversationRequestOptions.schema.js";
 import {
     ConversationPlugin,
+    ConversationPluginData,
     ConversationPluginDefinition,
     ConversationPluginProperties,
+    PluginDataFromName,
     PluginOutputFromName,
 } from "../utils/types/index.js";
 import { Message } from "./Message.js";
@@ -41,18 +43,14 @@ export class ConversationPluginService<
      */
     public getPlugin<
         N extends TPlugin["name"],
-        O extends TPlugin["out"] = PluginOutputFromName<
-            TPlugin,
-            N
-        > extends never
-            ? any
-            : PluginOutputFromName<TPlugin, N>
+        O extends TPlugin["out"] = PluginOutputFromName<TPlugin, N>,
+        D extends ConversationPluginData = PluginDataFromName<TPlugin, N>
     >(name: N) {
         const plugin = this.plugins.find((p) => p.name === name);
         if (!plugin) {
             throw new Error(`Plugin "${name}" not found.`);
         }
-        return plugin as ConversationPluginDefinition<N, O>;
+        return plugin as ConversationPluginDefinition<N, O, D>;
     }
 
     /**
@@ -64,12 +62,7 @@ export class ConversationPluginService<
      */
     public getPluginOutput<
         N extends TPlugin["name"],
-        O extends TPlugin["out"] = PluginOutputFromName<
-            TPlugin,
-            N
-        > extends never
-            ? any
-            : PluginOutputFromName<TPlugin, N>
+        O extends TPlugin["out"] = PluginOutputFromName<TPlugin, N>
     >(name: N) {
         const plugin = this.getPlugin(name);
         return plugin.out as O;
