@@ -54,6 +54,20 @@ export class ConversationPluginService<
     }
 
     /**
+     * Like `getPlugin`, but returns `undefined` instead of throwing an error if no plugin with the specified name is found.
+     *
+     * @param name The name of the plugin to get. (case-sensitive)
+     * @returns The plugin with the specified name, or `undefined` if no plugin with the specified name is found.
+     */
+    public safeGetPlugin<N extends TPlugin["name"]>(name: N) {
+        try {
+            return this.getPlugin(name);
+        } catch {
+            return undefined;
+        }
+    }
+
+    /**
      * Gets a `PluginDefinition`'s output by its name.
      *
      * @param name The name of the plugin to get. (case-sensitive)
@@ -66,6 +80,19 @@ export class ConversationPluginService<
     >(name: N) {
         const plugin = this.getPlugin(name);
         return plugin.out as O;
+    }
+
+    /**
+     * Like `getPluginOutput`, but returns `undefined` instead of throwing an error if no plugin with the specified name is found.
+     *
+     * @param name The name of the plugin to get. (case-sensitive)
+     * @returns The output of the plugin with the specified name, or `undefined` if no plugin with the specified name is found.
+     */
+    public safeGetPluginOutput<
+        N extends TPlugin["name"],
+        O extends TPlugin["out"] = PluginOutputFromName<TPlugin, N>
+    >(name: N) {
+        return this.safeGetPlugin(name)?.out as O | undefined;
     }
 
     public onInit(

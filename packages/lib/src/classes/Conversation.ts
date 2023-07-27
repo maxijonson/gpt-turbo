@@ -322,6 +322,8 @@ export class Conversation<
      * Gets a `PluginDefinition` by its name.
      *
      * @param name The name of the plugin to get. (case-sensitive)
+     * @returns The plugin with the specified name.
+     * @throws If no plugin with the specified name is found.
      */
     public getPlugin<
         N extends PluginNameFromConversationOptionsWithGlobalPlugins<TOptions>
@@ -330,18 +332,39 @@ export class Conversation<
     }
 
     /**
-     * Convenience method to get a plugin's `out` property.
-     * A plugin output is optional and is defined by the plugin author.
-     * It can be used to expose a plugin's internal state to the consumer of the library.
-     *
-     * Equivalent to `conversation.getPlugin(name).out`.
+     * Like `getPlugin`, but returns `undefined` instead of throwing an error if no plugin with the specified name is found.
      *
      * @param name The name of the plugin to get. (case-sensitive)
-     * @returns The plugin's `out` property.
+     * @returns The plugin with the specified name, or `undefined` if no plugin with the specified name is found.
+     */
+    public safeGetPlugin<
+        N extends PluginNameFromConversationOptionsWithGlobalPlugins<TOptions>
+    >(name: N) {
+        return this.pluginService.safeGetPlugin(name);
+    }
+
+    /**
+     * Gets a `PluginDefinition`'s output by its name.
+     *
+     * @param name The name of the plugin to get. (case-sensitive)
+     * @returns The output of the plugin with the specified name.
+     * @throws If no plugin with the specified name is found.
      */
     public getPluginOutput<
         N extends PluginNameFromConversationOptionsWithGlobalPlugins<TOptions>
     >(name: N) {
         return this.pluginService.getPluginOutput(name);
+    }
+
+    /**
+     * Like `getPluginOutput`, but returns `undefined` instead of throwing an error if no plugin with the specified name is found.
+     *
+     * @param name The name of the plugin to get. (case-sensitive)
+     * @returns The output of the plugin with the specified name, or `undefined` if no plugin with the specified name is found.
+     */
+    public safeGetPluginOutput<
+        N extends PluginNameFromConversationOptionsWithGlobalPlugins<TOptions>
+    >(name: N) {
+        return this.pluginService.safeGetPluginOutput(name);
     }
 }
