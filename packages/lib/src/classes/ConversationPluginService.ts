@@ -5,7 +5,6 @@ import { ConversationHistoryModel } from "../schemas/conversationHistory.schema.
 import { ConversationRequestOptionsModel } from "../schemas/conversationRequestOptions.schema.js";
 import {
     ConversationPlugin,
-    ConversationPluginData,
     ConversationPluginDefinition,
     ConversationPluginProperties,
     PluginDataFromName,
@@ -41,16 +40,16 @@ export class ConversationPluginService<
      * @returns The plugin with the specified name.
      * @throws If no plugin with the specified name is found.
      */
-    public getPlugin<
-        N extends TPlugin["name"],
-        O extends TPlugin["out"] = PluginOutputFromName<TPlugin, N>,
-        D extends ConversationPluginData = PluginDataFromName<TPlugin, N>
-    >(name: N) {
+    public getPlugin<N extends TPlugin["name"] | (string & {})>(name: N) {
         const plugin = this.plugins.find((p) => p.name === name);
         if (!plugin) {
             throw new Error(`Plugin "${name}" not found.`);
         }
-        return plugin as ConversationPluginDefinition<N, O, D>;
+        return plugin as ConversationPluginDefinition<
+            N,
+            PluginOutputFromName<TPlugin, N>,
+            PluginDataFromName<TPlugin, N>
+        >;
     }
 
     /**
@@ -59,7 +58,7 @@ export class ConversationPluginService<
      * @param name The name of the plugin to get. (case-sensitive)
      * @returns The plugin with the specified name, or `undefined` if no plugin with the specified name is found.
      */
-    public safeGetPlugin<N extends TPlugin["name"]>(name: N) {
+    public safeGetPlugin<N extends TPlugin["name"] | (string & {})>(name: N) {
         try {
             return this.getPlugin(name);
         } catch {
@@ -74,12 +73,9 @@ export class ConversationPluginService<
      * @returns The output of the plugin with the specified name.
      * @throws If no plugin with the specified name is found.
      */
-    public getPluginOutput<
-        N extends TPlugin["name"],
-        O extends TPlugin["out"] = PluginOutputFromName<TPlugin, N>
-    >(name: N) {
+    public getPluginOutput<N extends TPlugin["name"] | (string & {})>(name: N) {
         const plugin = this.getPlugin(name);
-        return plugin.out as O;
+        return plugin.out as PluginOutputFromName<TPlugin, N>;
     }
 
     /**
@@ -88,11 +84,12 @@ export class ConversationPluginService<
      * @param name The name of the plugin to get. (case-sensitive)
      * @returns The output of the plugin with the specified name, or `undefined` if no plugin with the specified name is found.
      */
-    public safeGetPluginOutput<
-        N extends TPlugin["name"],
-        O extends TPlugin["out"] = PluginOutputFromName<TPlugin, N>
-    >(name: N) {
-        return this.safeGetPlugin(name)?.out as O | undefined;
+    public safeGetPluginOutput<N extends TPlugin["name"] | (string & {})>(
+        name: N
+    ) {
+        return this.safeGetPlugin(name)?.out as
+            | PluginOutputFromName<TPlugin, N>
+            | undefined;
     }
 
     public onInit(
