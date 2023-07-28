@@ -49,7 +49,7 @@ export type PluginNameFromPlugins<
     TPlugins extends ConversationPlugin[],
     TPlugin = TPlugins extends ConversationPlugin[] ? TPlugins[number] : string,
     TPluginDefinition = TPlugin extends ConversationPlugin
-        ? ReturnType<TPlugin>
+        ? ReturnType<TPlugin["creator"]>
         : string
 > = TPluginDefinition extends { name: infer U } ? U | (string & {}) : string; // (string & {}) is a neat trick to provide intellisense for U, while still allowing any string
 

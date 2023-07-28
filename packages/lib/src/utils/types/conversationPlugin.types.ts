@@ -14,10 +14,30 @@ import { ConversationHistoryModel } from "../../schemas/conversationHistory.sche
 import { ConversationRequestOptionsModel } from "../../schemas/conversationRequestOptions.schema.js";
 
 /**
- * Conversation plugins are used to extend the functionality of a conversation. They receive a reference to the conversation and its properties and return a `ConversationPluginDefinition` object.
+ * Conversation plugins are used to extend the functionality of a conversation.
  */
 export interface ConversationPlugin<
     TName extends string = string,
+    TOut = any,
+    TData extends ConversationPluginData = any
+> {
+    /**
+     * A **unique** name for this plugin. You should set this to your plugin's package name to avoid name collisions.
+     */
+    name: TName;
+
+    /**
+     * Creator function to create a `ConversationPluginCreatorDefinition` object.
+     * This object is the one that will be used by the library to interact with the conversation.
+     *
+     * @param properties Conversation properties exposed to the plugin
+     * @param pluginData The plugin data previously stored by this plugin with the `getPluginData` method.
+     * @returns A `ConversationPluginCreatorDefinition` object with methods to interact with the conversation.
+     */
+    creator: ConversationPluginCreator<TOut, TData>;
+}
+
+export interface ConversationPluginCreator<
     TOut = any,
     TData extends ConversationPluginData = any
 > {
@@ -33,7 +53,7 @@ export interface ConversationPlugin<
          * The plugin data previously stored by this plugin with the `getPluginData` method.
          */
         pluginData?: TData
-    ): ConversationPluginDefinition<TName, TOut, TData>;
+    ): ConversationPluginCreatorDefinition<TOut, TData>;
 }
 
 /**
@@ -86,14 +106,7 @@ export interface ConversationPluginProperties {
 /**
  * The base definition of a conversation plugin without output.
  */
-export interface ConversationPluginDefinitionBase<
-    TName extends string = string
-> {
-    /**
-     * A **unique** name for this plugin. You should set this to your plugin's package name to avoid name collisions.
-     */
-    name: TName;
-
+export interface ConversationPluginDefinitionBase {
     /**
      * Called after all plugins have been initialized.
      *
@@ -275,13 +288,30 @@ export type ConversationPluginDefinitionGetPluginData<
           getPluginData: () => TData | Promise<TData>;
       };
 
+/**
+ * The definition of a conversation plugin, which includes methods to interact with the conversation.
+ */
+export type ConversationPluginCreatorDefinition<
+    TOut = undefined,
+    TData extends ConversationPluginData = undefined
+> = ConversationPluginDefinitionBase &
+    ConversationPluginDefinitionOutput<TOut> &
+    ConversationPluginDefinitionGetPluginData<TData>;
+
+/**
+ * Same as `ConversationPluginCreatorDefinition`, but with additionnal properties not defined directly by the plugin creator.
+ * These properties are calculated by the `ConversationPluginService` at runtime.
+ */
 export type ConversationPluginDefinition<
     TName extends string = string,
     TOut = undefined,
     TData extends ConversationPluginData = undefined
-> = ConversationPluginDefinitionBase<TName> &
-    ConversationPluginDefinitionOutput<TOut> &
-    ConversationPluginDefinitionGetPluginData<TData>;
+> = ConversationPluginCreatorDefinition<TOut, TData> & {
+    /**
+     * The unique name of the plugin.
+     */
+    name: TName;
+};
 
 /**
  * The data stored by a plugin in the `pluginsData` property of the `ConversationModel` returned by the `Conversation.toJSON` method.
@@ -298,3 +328,27 @@ export type ConversationPluginData =
     | Date
     | Array<ConversationPluginData>
     | { [key: string]: ConversationPluginData };
+
+/**
+ * Utility type to extract a `ConversationPluginDefinition` from a `ConversationPlugin`.
+ *
+ * Useful for creating type guards from plugins.
+ *
+ * @example
+ * ```ts
+ * const myPlugin = createConversationPlugin("my-plugin", () => {
+ *   return { ... };
+ * });
+ *
+ * type MyPluginDefinition = ConversationPluginDefinitionFromPlugin<typeof myPlugin>;
+ *
+ * const isMyPlugin = (plugin?: ConversationPluginDefinition<any, any, any>): plugin is MyPluginDefinition
+ *     => plugin?.name === myPluginName;
+ *
+ * ```
+ */
+export type ConversationPluginDefinitionFromPlugin<
+    T extends ConversationPlugin
+> = T extends ConversationPlugin<infer TName, infer TOut, infer TData>
+    ? ConversationPluginDefinition<TName, TOut, TData>
+    : never;

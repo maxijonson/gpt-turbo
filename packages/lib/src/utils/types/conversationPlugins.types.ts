@@ -1,29 +1,25 @@
-import { ConversationPluginDefinition } from "./conversationPlugin.types.js";
+import { ConversationPluginCreatorDefinition } from "./conversationPlugin.types.js";
 
 type PluginOutputFromNameNonRecursive<
-    TPlugin extends ConversationPluginDefinition,
-    N extends TPlugin["name"]
-> = TPlugin extends ConversationPluginDefinition<N, infer O, infer _>
+    TPlugin extends ConversationPluginCreatorDefinition
+> = TPlugin extends ConversationPluginCreatorDefinition<infer O, infer _>
     ? O
     : never;
 
 export type PluginOutputFromName<
-    TPlugin extends ConversationPluginDefinition,
-    N extends TPlugin["name"]
-> = PluginOutputFromNameNonRecursive<TPlugin, N> extends never
+    TPlugin extends ConversationPluginCreatorDefinition
+> = PluginOutputFromNameNonRecursive<TPlugin> extends never
     ? any
-    : PluginOutputFromNameNonRecursive<TPlugin, N>;
+    : PluginOutputFromNameNonRecursive<TPlugin>;
 
 type PluginDataFromNameNonRecursive<
-    TPlugin extends ConversationPluginDefinition,
-    N extends TPlugin["name"]
-> = TPlugin extends ConversationPluginDefinition<N, infer _, infer D>
+    TPlugin extends ConversationPluginCreatorDefinition
+> = TPlugin extends ConversationPluginCreatorDefinition<infer _, infer D>
     ? D
     : never;
 
 export type PluginDataFromName<
-    TPlugin extends ConversationPluginDefinition,
-    N extends TPlugin["name"]
-> = PluginDataFromNameNonRecursive<TPlugin, N> extends never
+    TPlugin extends ConversationPluginCreatorDefinition
+> = PluginDataFromNameNonRecursive<TPlugin> extends never
     ? any
-    : PluginDataFromNameNonRecursive<TPlugin, N>;
+    : PluginDataFromNameNonRecursive<TPlugin>;

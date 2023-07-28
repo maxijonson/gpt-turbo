@@ -4,8 +4,8 @@ import { ConversationConfigModel } from "../schemas/conversationConfig.schema.js
 import { ConversationHistoryModel } from "../schemas/conversationHistory.schema.js";
 import { ConversationRequestOptionsModel } from "../schemas/conversationRequestOptions.schema.js";
 import {
-    ConversationPlugin,
     ConversationPluginDefinition,
+    ConversationPlugin,
     ConversationPluginProperties,
 } from "../utils/types/index.js";
 import { Message } from "./Message.js";
@@ -16,7 +16,7 @@ import { Message } from "./Message.js";
  * @remarks
  * Most of these methods are not documented (with TypeDocs).
  * In most cases, this is because they just call the equivalent method on each plugin.
- * Refer to the documentation of the `ConversationPluginDefinition` interface for their documentation.
+ * Refer to the documentation of the `ConversationPluginCreatorDefinitionBase` interface for their documentation.
  *
  * @internal
  * This class is used internally by the library and is not meant to be **instantiated** by consumers of the library.
@@ -36,9 +36,21 @@ export class ConversationPluginService<
         properties: ConversationPluginProperties,
         pluginsData?: ConversationModel["pluginsData"]
     ) {
-        this.plugins = this.pluginCreators.map((p) =>
-            p(properties, pluginsData?.[p.name])
-        );
+        for (const pluginCreator of this.pluginCreators) {
+            if (this.plugins.some((p) => p.name === pluginCreator.name)) {
+                console.warn(
+                    `[gpt-turbo] Skipping duplicate plugin "${pluginCreator.name}"`
+                );
+                continue;
+            }
+            this.plugins.push({
+                ...pluginCreator.creator(
+                    properties,
+                    pluginsData?.[pluginCreator.name]
+                ),
+                name: pluginCreator.name,
+            });
+        }
         this.onPostInit();
     }
 

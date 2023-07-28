@@ -1,4 +1,8 @@
-import { ConversationPlugin, ConversationPluginData } from "./types/index.js";
+import {
+    ConversationPlugin,
+    ConversationPluginCreator,
+    ConversationPluginData,
+} from "./types/index.js";
 
 /**
  * Convenience utility to create a conversation plugin with strict typing.
@@ -11,22 +15,26 @@ import { ConversationPlugin, ConversationPluginData } from "./types/index.js";
  * @example
  * ```ts
  * // Since the "pluginData" parameter cannot be inferred by the returned definition, you must specify it yourself.
- * export default createConversationPlugin(({}, pluginData?: number) => {
+ * export default createConversationPlugin("example-plugin", ({}, pluginData?: number) => {
     return {
-        name: "example-plugin",
+        onPostInit: () => {},
         getPluginData: () => 1,
         out: {} as StatsPluginOutput,
     };
 });
  * ```
  *
- * @param plugin The plugin to create.
- * @returns A strictly typed plugin.
+ * @param name A unique name for your plugin
+ * @param creator A function that creates your plugin definition
+ * @returns A conversation plugin that can be used in the `Conversation` constructor
  */
 export default <
     TName extends string,
     TOut = undefined,
     TData extends ConversationPluginData = undefined
 >(
-    plugin: ConversationPlugin<TName, TOut, TData>
-) => plugin;
+    name: TName,
+    creator: ConversationPluginCreator<TOut, TData>
+) => {
+    return { name, creator } as ConversationPlugin<TName, TOut, TData>;
+};

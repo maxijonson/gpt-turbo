@@ -1,9 +1,10 @@
 import {
+    ConversationPluginDefinition,
     ConversationPlugin,
     PluginDataFromName,
     PluginOutputFromName,
 } from "../utils/types/index.js";
-import { ConversationPluginDefinition } from "../utils/types/index.js";
+import { ConversationPluginCreatorDefinition } from "../utils/types/index.js";
 import { ConversationPluginService } from "./ConversationPluginService.js";
 
 /**
@@ -15,9 +16,10 @@ import { ConversationPluginService } from "./ConversationPluginService.js";
  */
 export class ConversationPlugins<
     TPluginCreators extends ConversationPlugin[] = ConversationPlugin[],
-    TPlugin extends ConversationPluginDefinition = ReturnType<
-        TPluginCreators[number]
-    >
+    TPlugin extends ConversationPluginCreatorDefinition = ReturnType<
+        TPluginCreators[number]["creator"]
+    >,
+    TPluginName extends string = TPluginCreators[number]["name"] | (string & {})
 > {
     constructor(
         private readonly pluginService: ConversationPluginService<TPluginCreators>
@@ -30,15 +32,15 @@ export class ConversationPlugins<
      * @returns The plugin with the specified name.
      * @throws If no plugin with the specified name is found.
      */
-    public getPlugin<N extends TPlugin["name"] | (string & {})>(name: N) {
+    public getPlugin<N extends TPluginName>(name: N) {
         const plugin = this.plugins.find((p) => p.name === name);
         if (!plugin) {
             throw new Error(`Plugin "${name}" not found.`);
         }
         return plugin as ConversationPluginDefinition<
             N,
-            PluginOutputFromName<TPlugin, N>,
-            PluginDataFromName<TPlugin, N>
+            PluginOutputFromName<TPlugin>,
+            PluginDataFromName<TPlugin>
         >;
     }
 
@@ -48,7 +50,7 @@ export class ConversationPlugins<
      * @param name The name of the plugin to get. (case-sensitive)
      * @returns The plugin with the specified name, or `undefined` if no plugin with the specified name is found.
      */
-    public safeGetPlugin<N extends TPlugin["name"] | (string & {})>(name: N) {
+    public safeGetPlugin<N extends TPluginName>(name: N) {
         try {
             return this.getPlugin(name);
         } catch {
@@ -63,9 +65,9 @@ export class ConversationPlugins<
      * @returns The output of the plugin with the specified name.
      * @throws If no plugin with the specified name is found.
      */
-    public getPluginOutput<N extends TPlugin["name"] | (string & {})>(name: N) {
+    public getPluginOutput<N extends TPluginName>(name: N) {
         const plugin = this.getPlugin(name);
-        return plugin.out as PluginOutputFromName<TPlugin, N>;
+        return plugin.out as PluginOutputFromName<TPlugin>;
     }
 
     /**
@@ -74,11 +76,9 @@ export class ConversationPlugins<
      * @param name The name of the plugin to get. (case-sensitive)
      * @returns The output of the plugin with the specified name, or `undefined` if no plugin with the specified name is found.
      */
-    public safeGetPluginOutput<N extends TPlugin["name"] | (string & {})>(
-        name: N
-    ) {
+    public safeGetPluginOutput<N extends TPluginName>(name: N) {
         return this.safeGetPlugin(name)?.out as
-            | PluginOutputFromName<TPlugin, N>
+            | PluginOutputFromName<TPlugin>
             | undefined;
     }
 
