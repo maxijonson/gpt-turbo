@@ -7,8 +7,6 @@ import {
     ConversationPlugin,
     ConversationPluginDefinition,
     ConversationPluginProperties,
-    PluginDataFromName,
-    PluginOutputFromName,
 } from "../utils/types/index.js";
 import { Message } from "./Message.js";
 
@@ -24,72 +22,14 @@ import { Message } from "./Message.js";
  * This class is used internally by the library and is not meant to be **instantiated** by consumers of the library.
  */
 export class ConversationPluginService<
-    TPluginCreators extends ConversationPlugin[] = ConversationPlugin[],
-    TPlugin extends ConversationPluginDefinition = ReturnType<
-        TPluginCreators[number]
-    >
+    TPluginCreators extends ConversationPlugin[] = ConversationPlugin[]
 > {
     private plugins: ConversationPluginDefinition[] = [];
 
     constructor(private readonly pluginCreators: TPluginCreators) {}
 
-    /**
-     * Gets a `PluginDefinition` by its name.
-     *
-     * @param name The name of the plugin to get. (case-sensitive)
-     * @returns The plugin with the specified name.
-     * @throws If no plugin with the specified name is found.
-     */
-    public getPlugin<N extends TPlugin["name"] | (string & {})>(name: N) {
-        const plugin = this.plugins.find((p) => p.name === name);
-        if (!plugin) {
-            throw new Error(`Plugin "${name}" not found.`);
-        }
-        return plugin as ConversationPluginDefinition<
-            N,
-            PluginOutputFromName<TPlugin, N>,
-            PluginDataFromName<TPlugin, N>
-        >;
-    }
-
-    /**
-     * Like `getPlugin`, but returns `undefined` instead of throwing an error if no plugin with the specified name is found.
-     *
-     * @param name The name of the plugin to get. (case-sensitive)
-     * @returns The plugin with the specified name, or `undefined` if no plugin with the specified name is found.
-     */
-    public safeGetPlugin<N extends TPlugin["name"] | (string & {})>(name: N) {
-        try {
-            return this.getPlugin(name);
-        } catch {
-            return undefined;
-        }
-    }
-
-    /**
-     * Gets a `PluginDefinition`'s output by its name.
-     *
-     * @param name The name of the plugin to get. (case-sensitive)
-     * @returns The output of the plugin with the specified name.
-     * @throws If no plugin with the specified name is found.
-     */
-    public getPluginOutput<N extends TPlugin["name"] | (string & {})>(name: N) {
-        const plugin = this.getPlugin(name);
-        return plugin.out as PluginOutputFromName<TPlugin, N>;
-    }
-
-    /**
-     * Like `getPluginOutput`, but returns `undefined` instead of throwing an error if no plugin with the specified name is found.
-     *
-     * @param name The name of the plugin to get. (case-sensitive)
-     * @returns The output of the plugin with the specified name, or `undefined` if no plugin with the specified name is found.
-     */
-    public safeGetPluginOutput<N extends TPlugin["name"] | (string & {})>(
-        name: N
-    ) {
-        return this.safeGetPlugin(name)?.out as
-            | PluginOutputFromName<TPlugin, N>
-            | undefined;
+    public getPlugins() {
+        return this.plugins.slice();
     }
 
     public onInit(

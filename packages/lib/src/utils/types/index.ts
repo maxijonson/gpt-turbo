@@ -5,5 +5,5 @@ export * from "./conversationCallableFunctions.types.js";
 export * from "./conversationConfig.types.js";
 export * from "./conversationHistory.types.js";
 export * from "./conversationPlugin.types.js";
-export * from "./conversationPluginService.types.js";
+export * from "./conversationPlugins.types.js";
 export * from "./message.types.js";

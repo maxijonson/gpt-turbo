@@ -100,5 +100,7 @@ export type PluginsFromConversationOptionsWithGlobalPlugins<
 > = ConversationGlobalPluginsOverride extends {
     globalPlugins: ConversationPlugin[];
 }
-    ? PluginsFromConversationOptions<TOptions> | ConversationGlobalPlugins
+    ? TOptions["plugins"] extends ConversationPlugin[]
+        ? PluginsFromConversationOptions<TOptions> | ConversationGlobalPlugins
+        : ConversationGlobalPlugins
     : PluginsFromConversationOptions<TOptions>;

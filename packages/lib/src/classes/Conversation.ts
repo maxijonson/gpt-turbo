@@ -17,6 +17,7 @@ import {
     PromptOptions,
 } from "../utils/types/index.js";
 import { ConversationPluginService } from "./ConversationPluginService.js";
+import { ConversationPlugins } from "./ConversationPlugins.js";
 
 /**
  * A Conversation manages the messages sent to and from the OpenAI API and handles the logic for providing the message history to the API for each prompt.
@@ -55,11 +56,14 @@ export class Conversation<
     public readonly requestOptions: ConversationRequestOptions;
     public readonly history: ConversationHistory;
     public readonly callableFunctions: ConversationCallableFunctions;
-    public readonly plugins: ConversationPluginService<
+    public readonly plugins: ConversationPlugins<
         PluginsFromConversationOptionsWithGlobalPlugins<TOptions>
     >;
 
     private readonly chatCompletionService: ChatCompletionService;
+    private readonly pluginService: ConversationPluginService<
+        PluginsFromConversationOptionsWithGlobalPlugins<TOptions>
+    >;
 
     /**
      * Creates a new Conversation instance.
@@ -79,43 +83,45 @@ export class Conversation<
 
         this.id = id;
 
-        this.plugins = new ConversationPluginService([
+        this.pluginService = new ConversationPluginService([
             ...Conversation.globalPlugins,
             ...plugins,
         ]);
 
-        this.config = new ConversationConfig(this.plugins, config);
+        this.config = new ConversationConfig(this.pluginService, config);
         this.requestOptions = new ConversationRequestOptions(
-            this.plugins,
+            this.pluginService,
             requestOptions
         );
         this.history = new ConversationHistory(
-            this.plugins,
+            this.pluginService,
             this.config,
             history
         );
         this.callableFunctions = new ConversationCallableFunctions(
-            this.plugins,
+            this.pluginService,
             callableFunctions
         );
+        this.plugins = new ConversationPlugins(this.pluginService);
 
         this.chatCompletionService = new ChatCompletionService(
-            this.plugins,
+            this.pluginService,
             this.config,
             this.requestOptions,
             this.history,
             this.callableFunctions
         );
 
-        this.plugins.onInit(
+        this.pluginService.onInit(
             {
                 conversation: this,
                 config: this.config,
                 requestOptions: this.requestOptions,
                 history: this.history,
                 callableFunctions: this.callableFunctions,
+                plugins: this.plugins,
                 chatCompletionService: this.chatCompletionService,
-                pluginService: this.plugins,
+                pluginService: this.pluginService,
             },
             pluginsData
         );
@@ -152,11 +158,11 @@ export class Conversation<
             requestOptions: this.requestOptions.toJSON(),
             callableFunctions: this.callableFunctions.toJSON(),
             history: this.history.toJSON(),
-            pluginsData: this.plugins.getPluginsData(),
+            pluginsData: this.pluginService.getPluginsData(),
         };
 
         return conversationSchema.parse(
-            this.plugins.transformConversationJson(json)
+            this.pluginService.transformConversationJson(json)
         );
     }
 
@@ -176,7 +182,7 @@ export class Conversation<
         const userMessage = this.history.addUserMessage(prompt);
 
         try {
-            await this.plugins.onUserPrompt(userMessage);
+            await this.pluginService.onUserPrompt(userMessage);
             await this.chatCompletionService.moderateMessage(userMessage);
             const assistantMessage =
                 await this.chatCompletionService.getAssistantResponse(
@@ -185,7 +191,7 @@ export class Conversation<
                 );
             return assistantMessage;
         } catch (e) {
-            await this.plugins.onUserPromptError(e);
+            await this.pluginService.onUserPromptError(e);
             this.history.removeMessage(userMessage);
             throw e;
         }
@@ -276,9 +282,8 @@ export class Conversation<
         options?: PromptOptions,
         requestOptions?: ConversationRequestOptionsModel
     ) {
-        const transformedResult = await this.plugins.transformFunctionResult(
-            result
-        );
+        const transformedResult =
+            await this.pluginService.transformFunctionResult(result);
         const functionMessage = this.history.addFunctionMessage(
             typeof transformedResult === "string"
                 ? transformedResult
@@ -287,7 +292,7 @@ export class Conversation<
         );
 
         try {
-            await this.plugins.onFunctionPrompt(functionMessage);
+            await this.pluginService.onFunctionPrompt(functionMessage);
             await this.chatCompletionService.moderateMessage(functionMessage);
             const assistantMessage =
                 await this.chatCompletionService.getAssistantResponse(
@@ -296,7 +301,7 @@ export class Conversation<
                 );
             return assistantMessage;
         } catch (e) {
-            await this.plugins.onFunctionPromptError(e);
+            await this.pluginService.onFunctionPromptError(e);
             this.history.removeMessage(functionMessage);
             throw e;
         }
@@ -318,57 +323,4 @@ export class Conversation<
     ) {
         return this.chatCompletionService.getChatCompletionResponse(...args);
     }
-
-    // FIXME: The output/data of global plugins is not typed correctly when using these methods (any for both)
-    // - These methods would be convenient for quick access to a plugin
-    // - It would allow to set the `plugins` private, which would be preferable
-    // /**
-    //  * Gets a `PluginDefinition` by its name.
-    //  *
-    //  * @param name The name of the plugin to get. (case-sensitive)
-    //  * @returns The plugin with the specified name.
-    //  * @throws If no plugin with the specified name is found.
-    //  */
-    // public getPlugin<
-    //     N extends PluginNameFromConversationOptionsWithGlobalPlugins<TOptions>
-    // >(name: N) {
-    //     return this.plugins.getPlugin(name);
-    // }
-
-    // /**
-    //  * Like `getPlugin`, but returns `undefined` instead of throwing an error if no plugin with the specified name is found.
-    //  *
-    //  * @param name The name of the plugin to get. (case-sensitive)
-    //  * @returns The plugin with the specified name, or `undefined` if no plugin with the specified name is found.
-    //  */
-    // public safeGetPlugin<
-    //     N extends PluginNameFromConversationOptionsWithGlobalPlugins<TOptions>
-    // >(name: N) {
-    //     return this.plugins.safeGetPlugin(name);
-    // }
-
-    // /**
-    //  * Gets a `PluginDefinition`'s output by its name.
-    //  *
-    //  * @param name The name of the plugin to get. (case-sensitive)
-    //  * @returns The output of the plugin with the specified name.
-    //  * @throws If no plugin with the specified name is found.
-    //  */
-    // public getPluginOutput<
-    //     N extends PluginNameFromConversationOptionsWithGlobalPlugins<TOptions>
-    // >(name: N) {
-    //     return this.plugins.getPluginOutput(name);
-    // }
-
-    // /**
-    //  * Like `getPluginOutput`, but returns `undefined` instead of throwing an error if no plugin with the specified name is found.
-    //  *
-    //  * @param name The name of the plugin to get. (case-sensitive)
-    //  * @returns The output of the plugin with the specified name, or `undefined` if no plugin with the specified name is found.
-    //  */
-    // public safeGetPluginOutput<
-    //     N extends PluginNameFromConversationOptionsWithGlobalPlugins<TOptions>
-    // >(name: N) {
-    //     return this.plugins.safeGetPluginOutput(name);
-    // }
 }

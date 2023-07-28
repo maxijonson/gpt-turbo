@@ -4,6 +4,7 @@ import { ConversationCallableFunctions } from "../../classes/ConversationCallabl
 import { ConversationConfig } from "../../classes/ConversationConfig.js";
 import { ConversationHistory } from "../../classes/ConversationHistory.js";
 import { ConversationPluginService } from "../../classes/ConversationPluginService.js";
+import { ConversationPlugins } from "../../classes/ConversationPlugins.js";
 import { ConversationRequestOptions } from "../../classes/ConversationRequestOptions.js";
 import { Message } from "../../classes/Message.js";
 import { ConversationModel } from "../../schemas/conversation.schema.js";
@@ -65,12 +66,19 @@ export interface ConversationPluginProperties {
     callableFunctions: ConversationCallableFunctions;
 
     /**
+     * The plugins of the conversation.
+     */
+    plugins: ConversationPlugins;
+
+    /**
      * The chat completion service of the conversation.
+     * Contains **internal** methods to interact with the chat completion API from OpenAI.
      */
     chatCompletionService: ChatCompletionService;
 
     /**
      * The plugin service of the conversation.
+     * Contains **internal** methods to interact with the plugins.
      */
     pluginService: ConversationPluginService;
 }
