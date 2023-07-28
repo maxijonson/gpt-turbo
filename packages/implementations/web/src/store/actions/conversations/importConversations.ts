@@ -11,7 +11,7 @@ export const importConversations = createAction(
         const imported: Conversation[] = [];
 
         for (const { conversation: json, name } of conversationExports) {
-            const conversation = await Conversation.fromJSON({
+            const conversation = Conversation.fromJSON({
                 ...json,
                 config: {
                     ...json.config,

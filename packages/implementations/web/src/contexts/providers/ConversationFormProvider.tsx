@@ -32,13 +32,13 @@ const ConversationFormProvider = ({
         initialValues: {
             save: settings.save,
 
+            // Config
             apiKey: settings.apiKey,
             model: settings.model,
             context: settings.context,
             dry: settings.dry,
             disableModeration: settings.disableModeration,
             stream: settings.stream,
-
             temperature: settings.temperature,
             top_p: settings.top_p,
             frequency_penalty: settings.frequency_penalty,
@@ -48,10 +48,12 @@ const ConversationFormProvider = ({
             logit_bias: settings.logit_bias,
             user: settings.user,
 
-            functionIds: settings.functionIds,
-
+            // Request options
             headers: settings.headers,
             proxy: settings.proxy,
+
+            // Callable functions
+            functionIds: settings.functionIds,
         },
         transformValues: (values) => ({
             ...values,
@@ -70,20 +72,20 @@ const ConversationFormProvider = ({
         hasEditInit.current = true;
         const {
             config = {},
-            functions = [],
+            callableFunctions: { functions = [] } = {},
             requestOptions = {},
         } = conversation.toJSON();
 
         form.setValues({
             save: persistedConversationIds.includes(conversation.id),
-            apiKey: config.apiKey,
 
+            // Config
+            apiKey: config.apiKey,
             model: config.model,
             context: config.context,
             dry: config.dry,
             disableModeration: config.disableModeration,
             stream: config.stream,
-
             temperature: config.temperature,
             top_p: config.top_p,
             frequency_penalty: config.frequency_penalty,
@@ -93,12 +95,14 @@ const ConversationFormProvider = ({
             logit_bias: config.logit_bias,
             user: config.user,
 
+            // Request options
+            headers: requestOptions.headers,
+            proxy: requestOptions.proxy,
+
+            // Callable functions
             functionIds: functions
                 .map((f) => f.id)
                 .filter((id): id is string => !!id),
-
-            headers: requestOptions.headers,
-            proxy: requestOptions.proxy,
         });
     }, [conversation, form, persistedConversationIds]);
 

@@ -40,24 +40,35 @@ const AddConversation = () => {
     const { classes } = useStyles();
     const dropzoneOpenRef = React.useRef<() => void>(null);
 
-    const onSubmit = React.useCallback(
-        ({
-            save,
-            headers,
-            proxy,
-            functionIds,
-            ...values
-        }: ConversationFormValues) => {
-            const newConversation = addConversation(
-                values,
-                { headers, proxy },
-                functionIds,
-                save
-            );
-            setActiveConversation(newConversation.id, true);
-        },
-        []
-    );
+    const onSubmit = React.useCallback((values: ConversationFormValues) => {
+        const newConversation = addConversation(
+            {
+                config: {
+                    apiKey: values.apiKey,
+                    model: values.model,
+                    context: values.context,
+                    dry: values.dry,
+                    disableModeration: values.disableModeration,
+                    stream: values.stream,
+                    temperature: values.temperature,
+                    top_p: values.top_p,
+                    frequency_penalty: values.frequency_penalty,
+                    presence_penalty: values.presence_penalty,
+                    stop: values.stop,
+                    max_tokens: values.max_tokens,
+                    logit_bias: values.logit_bias,
+                    user: values.user,
+                },
+                requestOptions: {
+                    headers: values.headers,
+                    proxy: values.proxy,
+                },
+            },
+            values.functionIds,
+            values.save
+        );
+        setActiveConversation(newConversation.id, true);
+    }, []);
 
     const onDrop = React.useCallback<ConversationNavbarDropzoneProps["onDrop"]>(
         async (importedConversations) => {

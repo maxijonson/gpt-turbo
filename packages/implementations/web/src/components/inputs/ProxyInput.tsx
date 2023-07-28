@@ -10,12 +10,14 @@ import {
     TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { RequestOptionsProxy } from "gpt-turbo";
+import { ConversationRequestOptionsModel } from "gpt-turbo";
 import React from "react";
 
 interface ProxyInputProps {
-    value: RequestOptionsProxy | undefined;
-    onChange: (value: RequestOptionsProxy | undefined) => void;
+    value: ConversationRequestOptionsModel["proxy"] | undefined;
+    onChange: (
+        value: ConversationRequestOptionsModel["proxy"] | undefined
+    ) => void;
 }
 
 const ProxyInput = ({ value, onChange }: ProxyInputProps) => {
@@ -31,7 +33,7 @@ const ProxyInput = ({ value, onChange }: ProxyInputProps) => {
 
     React.useEffect(() => {
         const { host, port, protocol, username, password } = form.values;
-        const next: RequestOptionsProxy | undefined = host
+        const next: ConversationRequestOptionsModel["proxy"] | undefined = host
             ? {
                   host,
                   port,

@@ -26,20 +26,22 @@ export const editConversation = createAction(
             throw new Error(`Conversation with id ${id} not found`);
         }
 
-        conversation.setConfig(config, true);
-        conversation.setRequestOptions({
+        conversation.config.setConfig(config, true);
+        conversation.requestOptions.setRequestOptions({
             headers,
             proxy,
         });
 
         if (functionIds) {
-            conversation.clearFunctions();
+            conversation.callableFunctions.clearFunctions();
             for (const functionId of functionIds) {
                 const callableFunction = callableFunctions.find(
                     (callableFunction) => callableFunction.id === functionId
                 );
                 if (callableFunction) {
-                    conversation.addFunction(callableFunction);
+                    conversation.callableFunctions.addFunction(
+                        callableFunction
+                    );
                 }
             }
         }
