@@ -15,18 +15,18 @@ const ConversationPage = () => {
         const unsubs: (() => void)[] = [];
 
         unsubs.push(
-            activeConversation.onMessageAdded((message) => {
+            activeConversation.history.onMessageAdded((message) => {
                 if (message.content) {
                     persistStore();
                 }
 
                 unsubs.push(
-                    message.onMessageStreamingStop(() => {
+                    message.onStreamingStop(() => {
                         persistStore();
                     })
                 );
             }),
-            activeConversation.onMessageRemoved(() => {
+            activeConversation.history.onMessageRemoved(() => {
                 persistStore();
             })
         );

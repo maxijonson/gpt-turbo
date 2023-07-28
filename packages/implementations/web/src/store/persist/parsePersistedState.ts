@@ -10,7 +10,7 @@ const notify = (title: string, message: string) => {
     }, 100);
 };
 
-export const parsePersistedState = async (persistedState: any) => {
+export const parsePersistedState = (persistedState: any) => {
     const state: AppState = {
         ...initialAppState,
     };
@@ -55,7 +55,7 @@ export const parsePersistedState = async (persistedState: any) => {
     const { conversations } = persistence;
     for (const { lastEdited, name, ...conversation } of conversations) {
         try {
-            const c = await Conversation.fromJSON({
+            const c = Conversation.fromJSON({
                 ...conversation,
                 config: {
                     ...conversation.config,

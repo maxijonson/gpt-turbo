@@ -28,7 +28,8 @@ const SIZE = 14;
 const NavbarConversationInfo = ({
     conversation,
 }: NavbarConversationInfoProps) => {
-    const { model, dry, disableModeration, stream } = conversation.getConfig();
+    const { model, dry, disableModeration, stream } =
+        conversation.config.getConfig();
     const persistedConversationIds = useAppStore(
         (state) => state.persistedConversationIds
     );

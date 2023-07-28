@@ -73,6 +73,7 @@ export default defineConfig({
                         "lowlight",
                     ],
                     "gpt-turbo": ["gpt-turbo"],
+                    "gpt-turbo-plugin-stats": ["gpt-turbo-plugin-stats"],
                     react: ["react"],
                     "react-dom": ["react-dom"],
                     "react-icons": ["react-icons"],

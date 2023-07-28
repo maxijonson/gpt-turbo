@@ -43,7 +43,7 @@ export const useGenerateConversationName = (conversationId: string) => {
     const conversation = conversations.find((c) => c.id === conversationId);
 
     const apiKey = settings.apiKey;
-    const messages = conversation?.getMessages() ?? [];
+    const messages = conversation?.history.getMessages() ?? [];
     const userMessage = getFirstMessageOfRole(messages, "user");
     const assistantMessage = getFirstMessageOfRole(messages, "assistant");
 
@@ -58,15 +58,17 @@ export const useGenerateConversationName = (conversationId: string) => {
 
             setIsGenerating(true);
             const generateConversation = new Conversation({
-                apiKey,
-                disableModeration: true,
+                config: {
+                    apiKey,
+                    disableModeration: true,
+                },
             });
 
-            await generateConversation.addUserMessage(userMessage!.content);
-            await generateConversation.addAssistantMessage(
+            generateConversation.history.addUserMessage(userMessage!.content);
+            generateConversation.history.addAssistantMessage(
                 assistantMessage!.content
             );
-            generateConversation.addFunction(generateFn);
+            generateConversation.callableFunctions.addFunction(generateFn);
 
             const result = await generateConversation.prompt(
                 "Give a name for this conversation based on the two previous messages.",

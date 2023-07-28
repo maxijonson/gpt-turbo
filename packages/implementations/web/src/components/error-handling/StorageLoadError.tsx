@@ -10,9 +10,10 @@ import {
 import React from "react";
 import getErrorInfo from "../../utils/getErrorInfo";
 import { STORAGE_PERSISTENCE_KEY } from "../../config/constants";
-import { BiBug } from "react-icons/bi";
+import { BiLogoGithub } from "react-icons/bi";
 import { BsFire } from "react-icons/bs";
 import { storeVersion } from "../../store/persist/migrations";
+import getIssueLink, { blockTicks } from "../../utils/getIssueLink";
 
 interface StorageLoadErrorProps {
     isMigrationError: boolean;
@@ -26,26 +27,20 @@ const StorageLoadError = ({
     currentData,
 }: StorageLoadErrorProps) => {
     const reportLink = React.useMemo(() => {
-        const link = "https://github.com/maxijonson/gpt-turbo/issues/new";
-
         const title = `[Bug]: Web Storage ${
             isMigrationError ? "Migration" : "Load"
         } Error`;
 
         const info = getErrorInfo(error);
-        let body = `**App Version**:\n${APP_VERSION}\n\n`;
-        body += `**Store Version**:\n${storeVersion}\n\n`;
-        body += `**Is Migration Error**:\n${isMigrationError}\n\n`;
-        body += `**Error Info**:\n\`\`\`\n${info.title}\n${info.message}\n\`\`\`\n\n`;
-        body += `**Stack Trace**:\n\`\`\`\n${error.stack}\n\`\`\`\n\n`;
-        body += `**Current Data**:\n\`\`\`json\n${currentData}\n\`\`\``;
-
-        const params = new URLSearchParams({
-            title,
-            body,
-        });
-
-        return `${link}?${params.toString()}`;
+        const content = {
+            "App Version": APP_VERSION,
+            "Store Version": storeVersion,
+            "Is Migration Error": isMigrationError,
+            "Error Info": `${blockTicks}\n${info.title}\n${info.message}\n${blockTicks}`,
+            "Stack Trace": `${blockTicks}\n${error.stack}\n${blockTicks}`,
+            "Current Data": `${blockTicks}json\n${currentData}\n${blockTicks}`,
+        };
+        return getIssueLink(title, content);
     }, [currentData, error, isMigrationError]);
 
     return (
@@ -108,7 +103,7 @@ const StorageLoadError = ({
             <Group position="right">
                 <Button
                     variant="outline"
-                    leftIcon={<BiBug />}
+                    leftIcon={<BiLogoGithub />}
                     component="a"
                     target="_blank"
                     href={reportLink}

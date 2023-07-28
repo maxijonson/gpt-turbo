@@ -73,7 +73,7 @@ const Prompt = () => {
             const message = await conversation.prompt(values.prompt);
             setConversationLastEdit(conversation.id);
             if (message) {
-                message.onMessageStreamingUpdate((isStreaming) => {
+                message.onStreamingUpdate((isStreaming) => {
                     setIsStreaming(isStreaming);
                 });
                 if (message.isStreaming) {

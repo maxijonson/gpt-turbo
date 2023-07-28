@@ -23,7 +23,7 @@ const useStyles = createStyles(() => ({
 const Messages = () => {
     const conversation = useActiveConversation();
     const [messages, setMessages] = React.useState(
-        conversation?.getMessages() ?? []
+        conversation?.history.getMessages() ?? []
     );
     const callFunction = useCallFunction();
     const viewport = React.useRef<HTMLDivElement>(null);
@@ -73,7 +73,7 @@ const Messages = () => {
     React.useEffect(() => {
         if (!conversation) return;
         const unsubscribes: (() => void)[] = [];
-        const unsubscribeMessageAdded = conversation.onMessageAdded(
+        const unsubscribeMessageAdded = conversation.history.onMessageAdded(
             (message) => {
                 if (message.role === "system") return;
                 setMessages((messages) => [...messages, message]);
@@ -83,26 +83,30 @@ const Messages = () => {
                 if (message.role !== "assistant") return;
 
                 unsubscribes.push(
-                    message.onMessageUpdate(() => {
+                    message.onUpdate(() => {
                         setMessages((messages) => [...messages]); // Force re-render by creating a new array
                         if (isSticky) scrollToBottom();
                     })
                 );
 
-                const isStreaming = conversation.getConfig().stream;
+                const isStreaming = conversation.config.getConfig().stream;
                 if (isStreaming) {
-                    const unsubscribeStreamingStop =
-                        message.onMessageStreamingStop((message) => {
+                    const unsubscribeStreamingStop = message.onStreamingStop(
+                        (message) => {
                             unsubscribeStreamingStop();
                             if (!message.isFunctionCall()) return;
                             handleFunctionCall(
                                 message,
-                                conversation.getFunctions()
+                                conversation.callableFunctions.getFunctions()
                             );
-                        });
+                        }
+                    );
                     unsubscribes.push(unsubscribeStreamingStop);
                 } else if (message.isFunctionCall()) {
-                    handleFunctionCall(message, conversation.getFunctions());
+                    handleFunctionCall(
+                        message,
+                        conversation.callableFunctions.getFunctions()
+                    );
                 }
             }
         );
@@ -115,7 +119,7 @@ const Messages = () => {
 
     React.useEffect(() => {
         if (!conversation) return;
-        return conversation.onMessageRemoved((message) => {
+        return conversation.history.onMessageRemoved((message) => {
             setMessages((messages) =>
                 messages.filter((m) => m.id !== message.id)
             );
@@ -123,7 +127,7 @@ const Messages = () => {
     }, [conversation]);
 
     React.useEffect(() => {
-        setMessages(conversation?.getMessages() ?? []);
+        setMessages(conversation?.history.getMessages() ?? []);
     }, [conversation]);
 
     return (

@@ -30,6 +30,7 @@ module.exports = {
         "@typescript-eslint/no-empty-interface": "off",
         "@typescript-eslint/no-this-alias": "off",
         "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/await-thenable": "warn",
         "max-classes-per-file": "off",
         "no-useless-constructor": "off",
         "class-methods-use-this": "off",

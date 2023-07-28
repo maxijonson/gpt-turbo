@@ -6,14 +6,23 @@ import {
 } from "react-router-dom";
 import ContentLoader from "../components/common/ContentLoader";
 import { Text } from "@mantine/core";
+import RouterCatcher from "../components/error-handling/RouterCatcher";
 
 const ConversationPage = React.lazy(() => import("../pages/ConversationPage"));
 const FunctionsRouter = React.lazy(() => import("./FunctionsRouter"));
 
 const router = createBrowserRouter([
-    { path: "/", element: <ConversationPage /> },
-    { path: "/functions/*", element: <FunctionsRouter /> },
-    { path: "*", element: <Navigate to="" relative="route" /> },
+    { path: "/", element: <ConversationPage />, ErrorBoundary: RouterCatcher },
+    {
+        path: "/functions/*",
+        element: <FunctionsRouter />,
+        ErrorBoundary: RouterCatcher,
+    },
+    {
+        path: "*",
+        element: <Navigate to="" relative="route" />,
+        ErrorBoundary: RouterCatcher,
+    },
 ]);
 
 const AppRouter = () => {

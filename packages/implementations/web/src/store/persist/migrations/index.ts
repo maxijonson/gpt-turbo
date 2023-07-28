@@ -31,7 +31,7 @@ export const migrateStore = async (
             migratedState = await migration(migratedState);
         }
 
-        const parsedState = await parsePersistedState(migratedState);
+        const parsedState = parsePersistedState(migratedState);
         return parsedState;
     } catch (e) {
         console.error(e);

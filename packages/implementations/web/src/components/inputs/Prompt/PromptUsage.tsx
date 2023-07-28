@@ -1,5 +1,6 @@
 import { Tooltip, Stack, Group, Button, Text } from "@mantine/core";
-import { getMessageSize, getMessageCost, Conversation } from "gpt-turbo";
+import { Conversation } from "gpt-turbo";
+import { getMessageSize, getMessageCost } from "gpt-turbo-plugin-stats";
 import getPriceString from "../../../utils/getPriceString";
 import React from "react";
 
@@ -17,7 +18,7 @@ const PromptUsage = ({ prompt, conversation }: PromptUsageProps) => {
             : getPriceString(
                   getMessageCost(
                       prompt,
-                      conversation.getConfig().model,
+                      conversation.config.getConfig().model,
                       "prompt"
                   )
               );
@@ -37,7 +38,7 @@ const PromptUsage = ({ prompt, conversation }: PromptUsageProps) => {
                             {getPriceString(
                                 getMessageCost(
                                     prompt,
-                                    conversation.getConfig().model,
+                                    conversation.config.getConfig().model,
                                     "prompt"
                                 )
                             )}

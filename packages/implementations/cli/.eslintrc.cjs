@@ -29,6 +29,7 @@ module.exports = {
         ],
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/await-thenable": "warn",
         "max-classes-per-file": "off",
         "no-useless-constructor": "off",
         "class-methods-use-this": "off",

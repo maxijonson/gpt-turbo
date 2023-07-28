@@ -1,16 +1,11 @@
-import {
-    Conversation,
-    ConversationConfigParameters,
-    RequestOptions,
-} from "gpt-turbo";
+import { Conversation, ConversationOptions } from "gpt-turbo";
 import { createAction } from "../createAction";
 import { addPersistedConversationId } from "../persistence/addPersistedConversationId";
 
 export const addConversation = createAction(
     (
         { set, get },
-        conversation: Conversation | ConversationConfigParameters,
-        requestOptions?: RequestOptions,
+        conversation: Conversation | ConversationOptions,
         functionIds: string[] = [],
         save = false
     ) => {
@@ -18,14 +13,14 @@ export const addConversation = createAction(
         const newConversation =
             conversation instanceof Conversation
                 ? conversation
-                : new Conversation(conversation, requestOptions);
+                : new Conversation(conversation);
 
         for (const functionId of functionIds) {
             const callableFunction = callableFunctions.find(
                 (callableFunction) => callableFunction.id === functionId
             );
             if (callableFunction) {
-                newConversation.addFunction(callableFunction);
+                newConversation.callableFunctions.addFunction(callableFunction);
             }
         }
 

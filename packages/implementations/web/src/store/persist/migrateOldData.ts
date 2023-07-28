@@ -55,7 +55,7 @@ export const migrateOldData = async () => {
                 JSON.parse(oldPersistence);
             for (const { name, lastEdited, ...conversation } of conversations) {
                 try {
-                    const c = await Conversation.fromJSON(conversation);
+                    const c = Conversation.fromJSON(conversation);
                     addConversation(c);
                     setConversationName(c.id, name);
                     setConversationLastEdit(c.id, lastEdited);

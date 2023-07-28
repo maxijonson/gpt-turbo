@@ -4,6 +4,9 @@ import UsageMetric from "./UsageMetric";
 import getPriceString from "../../utils/getPriceString";
 import { useGetConversationName } from "../../store/hooks/conversations/useGetConversationName";
 import { DEFAULT_CONVERSATION_NAME } from "../../config/constants";
+import { statsPluginName } from "gpt-turbo-plugin-stats";
+import React from "react";
+import { useForceUpdate } from "@mantine/hooks";
 
 interface UsageProps {
     conversation: Conversation;
@@ -11,6 +14,8 @@ interface UsageProps {
 
 const Usage = ({ conversation }: UsageProps) => {
     const getConversationName = useGetConversationName();
+    const forceUpdate = useForceUpdate();
+    const stats = conversation.plugins.getPluginOutput(statsPluginName);
 
     const metrics: {
         label: React.ReactNode;
@@ -19,25 +24,29 @@ const Usage = ({ conversation }: UsageProps) => {
     }[] = [
         {
             label: "Cumulative Size",
-            value: `${conversation.getCumulativeSize()} tkns`,
+            value: `${stats.cumulativeSize} tkns`,
             description: "Cumulative number of tokens sent to OpenAI",
         },
         {
             label: "Cumulative Cost",
-            value: getPriceString(conversation.getCumulativeCost()),
+            value: getPriceString(stats.cumulativeCost),
             description: "Cumulative cost of tokens sent to OpenAI",
         },
         {
             label: "Conversation Size",
-            value: `${conversation.getSize()} tkns`,
+            value: `${stats.size} tkns`,
             description: "Current number of tokens in this conversation",
         },
         {
             label: "Conversation Cost",
-            value: getPriceString(conversation.getCost()),
+            value: getPriceString(stats.cost),
             description: "Current cost of tokens in this conversation",
         },
     ];
+
+    React.useEffect(() => {
+        stats.onStatsUpdate(() => forceUpdate());
+    }, [forceUpdate, stats]);
 
     return (
         <Stack>
