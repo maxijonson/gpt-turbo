@@ -3,8 +3,8 @@ import {
     ConversationPlugin,
     PluginDataFromName,
     PluginOutputFromName,
+    ConversationPluginDefinitionFromPlugin,
 } from "../utils/types/index.js";
-import { ConversationPluginCreatorDefinition } from "../utils/types/index.js";
 import { ConversationPluginService } from "./ConversationPluginService.js";
 
 /**
@@ -16,8 +16,8 @@ import { ConversationPluginService } from "./ConversationPluginService.js";
  */
 export class ConversationPlugins<
     TPluginCreators extends ConversationPlugin[] = ConversationPlugin[],
-    TPlugin extends ConversationPluginCreatorDefinition = ReturnType<
-        TPluginCreators[number]["creator"]
+    TPlugin extends ConversationPluginDefinition = ConversationPluginDefinitionFromPlugin<
+        TPluginCreators[number]
     >,
     TPluginName extends string = TPluginCreators[number]["name"] | (string & {})
 > {
@@ -39,8 +39,8 @@ export class ConversationPlugins<
         }
         return plugin as ConversationPluginDefinition<
             N,
-            PluginOutputFromName<TPlugin>,
-            PluginDataFromName<TPlugin>
+            PluginOutputFromName<TPlugin, N>,
+            PluginDataFromName<TPlugin, N>
         >;
     }
 
@@ -67,7 +67,7 @@ export class ConversationPlugins<
      */
     public getPluginOutput<N extends TPluginName>(name: N) {
         const plugin = this.getPlugin(name);
-        return plugin.out as PluginOutputFromName<TPlugin>;
+        return plugin.out as PluginOutputFromName<TPlugin, N>;
     }
 
     /**
@@ -78,7 +78,7 @@ export class ConversationPlugins<
      */
     public safeGetPluginOutput<N extends TPluginName>(name: N) {
         return this.safeGetPlugin(name)?.out as
-            | PluginOutputFromName<TPlugin>
+            | PluginOutputFromName<TPlugin, N>
             | undefined;
     }
 
