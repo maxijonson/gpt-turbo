@@ -1,12 +1,15 @@
-import { ConversationHistory, Message } from "gpt-turbo";
+import { ConversationHistory, EventManager, Message } from "gpt-turbo";
 import { MessageStats } from "./MessageStats.js";
 import { StatsPluginData } from "../utils/types/index.js";
+import { ConversationStatsStatsUpdateListener } from "../utils/types/conversationStats.types.js";
 
 export class ConversationStats {
     private _cumulativeSize = 0;
     private _cumulativeCost = 0;
 
     private readonly messageStats = new Map<string, MessageStats>();
+    private readonly statsUpdateEvents =
+        new EventManager<ConversationStatsStatsUpdateListener>();
 
     constructor(
         private readonly history: ConversationHistory,
@@ -17,9 +20,7 @@ export class ConversationStats {
 
         this.history
             .getMessages(true)
-            .forEach((message) =>
-                this.messageStats.set(message.id, new MessageStats(message))
-            );
+            .forEach((message) => this.createMessageStats(message));
     }
 
     /**
@@ -125,6 +126,7 @@ export class ConversationStats {
 
     private set cumulativeSize(value) {
         this._cumulativeSize = value;
+        this.statsUpdateEvents.emit();
     }
 
     /**
@@ -153,6 +155,7 @@ export class ConversationStats {
 
     private set cumulativeCost(value) {
         this._cumulativeCost = value;
+        this.statsUpdateEvents.emit();
     }
 
     private createMessageStats(message: Message) {
@@ -161,10 +164,31 @@ export class ConversationStats {
 
         const messageStats = new MessageStats(message);
         this.messageStats.set(message.id, messageStats);
+
+        messageStats.onUpdateCost(() => {
+            this.statsUpdateEvents.emit();
+        });
+
+        messageStats.onUpdateSize(() => {
+            this.statsUpdateEvents.emit();
+        });
+
         return messageStats;
     }
 
     private getMessageById(id: string) {
         return this.history.getMessages(true).find((m) => m.id === id);
+    }
+
+    public onStatsUpdate(listener: ConversationStatsStatsUpdateListener) {
+        return this.statsUpdateEvents.addListener(listener);
+    }
+
+    public onceStatsUpdate(listener: ConversationStatsStatsUpdateListener) {
+        return this.statsUpdateEvents.once(listener);
+    }
+
+    public offStatsUpdate(listener: ConversationStatsStatsUpdateListener) {
+        return this.statsUpdateEvents.removeListener(listener);
     }
 }

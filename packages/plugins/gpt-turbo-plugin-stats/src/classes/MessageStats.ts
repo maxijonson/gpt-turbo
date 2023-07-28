@@ -10,15 +10,15 @@ export class MessageStats {
     public readonly id: string;
     private _size = 0;
     private _cost = 0;
-    private readonly messageSizeUpdateEvents =
+    private readonly sizeUpdateEvents =
         new EventManager<MessageSizeUpdateListener>();
-    private readonly messageCostUpdateEvents =
+    private readonly costUpdateEvents =
         new EventManager<MessageCostUpdateListener>();
 
     constructor(private readonly message: Message) {
         this.id = message.id;
         this.update();
-        message.onUpdate(this.update);
+        message.onUpdate(() => this.update());
     }
 
     public get size() {
@@ -28,7 +28,7 @@ export class MessageStats {
     private set size(size: number) {
         const delta = size - this._size;
         this._size = size;
-        this.messageSizeUpdateEvents.emit(this._size, delta);
+        this.sizeUpdateEvents.emit(this._size, delta);
     }
 
     public get cost() {
@@ -38,7 +38,7 @@ export class MessageStats {
     private set cost(cost: number) {
         const delta = cost - this._cost;
         this._cost = cost;
-        this.messageCostUpdateEvents.emit(this._cost, delta);
+        this.costUpdateEvents.emit(this._cost, delta);
     }
 
     private update() {
@@ -53,26 +53,26 @@ export class MessageStats {
     }
 
     public onUpdateSize(listener: MessageSizeUpdateListener) {
-        return this.messageSizeUpdateEvents.addListener(listener);
+        return this.sizeUpdateEvents.addListener(listener);
     }
 
     public onceUpdateSize(listener: MessageSizeUpdateListener) {
-        return this.messageSizeUpdateEvents.once(listener);
+        return this.sizeUpdateEvents.once(listener);
     }
 
     public offUpdateSize(listener: MessageSizeUpdateListener) {
-        return this.messageSizeUpdateEvents.removeListener(listener);
+        return this.sizeUpdateEvents.removeListener(listener);
     }
 
     public onUpdateCost(listener: MessageCostUpdateListener) {
-        return this.messageCostUpdateEvents.addListener(listener);
+        return this.costUpdateEvents.addListener(listener);
     }
 
     public onceUpdateCost(listener: MessageCostUpdateListener) {
-        return this.messageCostUpdateEvents.once(listener);
+        return this.costUpdateEvents.once(listener);
     }
 
     public offUpdateCost(listener: MessageCostUpdateListener) {
-        return this.messageCostUpdateEvents.removeListener(listener);
+        return this.costUpdateEvents.removeListener(listener);
     }
 }

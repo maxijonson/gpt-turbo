@@ -3,14 +3,14 @@
 
   [![npm i gpt-turbo](https://img.shields.io/npm/v/gpt-turbo?color=brightgreen&label=gpt-turbo&logo=npm)](https://www.npmjs.com/package/gpt-turbo)
 
-  Implementations
+  Implementations using GPT Turbo
   
   [![npm i -g gpt-turbo-cli](https://img.shields.io/npm/v/gpt-turbo-cli?color=brightgreen&label=gpt-turbo-cli&logo=windowsterminal&logoColor=white)](https://www.npmjs.com/package/gpt-turbo-cli)
   [![https://gpt-turbo-web.chintristan.io/](https://img.shields.io/github/package-json/v/maxijonson/gpt-turbo?color=brightgreen&filename=packages/implementations/web/package.json&label=gpt-turbo-web&logo=react)](https://gpt-turbo-web.chintristan.io/)
   [![GPT Turbo - Nest](https://img.shields.io/github/package-json/v/maxijonson/gpt-turbo?color=brightgreen&filename=packages/implementations/nest/package.json&label=gpt-turbo-nest&logo=nestjs)](https://github.com/maxijonson/gpt-turbo/tree/develop/packages/implementations/nest)
   [![GPT Turbo - Discord](https://img.shields.io/github/package-json/v/maxijonson/gpt-turbo?color=brightgreen&filename=packages/implementations/discord/package.json&label=gpt-turbo-discord&logo=discord)](https://discord.gg/Aa77KCmwRx)
 
-  Plugins
+  Plugins for GPT Turbo
 
   [![npm i gpt-turbo-plugin-stats](https://img.shields.io/npm/v/gpt-turbo-plugin-stats?color=brightgreen&label=gpt-turbo-plugin-stats&logo=npm)](https://www.npmjs.com/package/gpt-turbo-plugin-stats)
 
@@ -21,7 +21,7 @@
 
 > Are you a dev looking for the library? [Click here](./packages/lib/)!
 
-GPT Turbo is a JavaScript library for seamless integration with OpenAI's Chat Completion API. It ensures smooth conversation continuity and message history tracking, perfect for creating conversational AI applications.
+GPT Turbo is a JavaScript library for seamless integration with OpenAI's Chat Completion API. It allows you to manage conversation history for smooth conversation continuity, fine-tune chat completion parameters and define callable functions. The library also supports plugins for extending its functionality beyond the core features.
 
 ## Features
 
@@ -58,7 +58,7 @@ This repo is a mono-repo containing both the [Library](./packages/lib/) and smal
 
 ## Plugins
 
-GPT Turbo has a plugin system for extending the library's functionality. This repo contains the following home-made plugins:
+GPT Turbo has a plugin system for extending the library's functionality. While anyone can create and publish custom plugins, this repo contains the following home-made plugins:
 
 - [gpt-turbo-plugin-stats](./packages/plugins/gpt-turbo-plugin-stats/): A plugin for estimating the cost and size of conversations before sending them to the API.
 

@@ -1,5 +1,6 @@
 import {
     ConversationPluginDefinition,
+    ConversationPluginDefinitionFromPlugin,
     createConversationPlugin,
 } from "gpt-turbo";
 import { ConversationStats } from "./classes/ConversationStats.js";
@@ -13,7 +14,9 @@ export const statsPluginName = "gpt-turbo-plugin-stats" as const;
 /**
  * The type of the plugin definition created by the `statsPlugin`.
  */
-export type StatsPlugin = ReturnType<typeof statsPlugin>;
+export type StatsPluginDefinition = ConversationPluginDefinitionFromPlugin<
+    typeof statsPlugin
+>;
 
 /**
  * Type guard for the `statsPlugin`. Useful when using the `Conversation.getPlugin` method with a dynamic plugin name, preserving type safety.
@@ -22,7 +25,7 @@ export type StatsPlugin = ReturnType<typeof statsPlugin>;
  * ```ts
  * ["some-plugin", "some-other-plugin", "gpt-turbo-plugin-stats"].forEach(
  *     (pluginName) => {
- *         const plugin = conversation.safeGetPlugin(pluginName);
+ *         const plugin = conversation.plugins.safeGetPlugin(pluginName);
  *         if (isStatsPlugin(plugin)) {
  *             // plugin is now typed as StatsPlugin
  *             plugin.out.getMessageStats(...);
@@ -32,11 +35,11 @@ export type StatsPlugin = ReturnType<typeof statsPlugin>;
  * ```
  *
  * @param plugin The plugin to check.
- * @returns Whether the plugin is the `statsPlugin`.
+ * @returns Whether the plugin is a `statsPlugin`.
  */
 export const isStatsPlugin = (
     plugin?: ConversationPluginDefinition<any, any, any>
-): plugin is StatsPlugin => plugin?.name === statsPluginName;
+): plugin is StatsPluginDefinition => plugin?.name === statsPluginName;
 
 /**
  * GPT Turbo plugin that calculates and stores statistics about the conversation.
@@ -52,13 +55,14 @@ export const isStatsPlugin = (
  * ```
  */
 const statsPlugin = createConversationPlugin(
+    statsPluginName,
     ({ history }, pluginData?: StatsPluginData) => {
         const conversationStats = new ConversationStats(history, pluginData);
 
         return {
-            name: statsPluginName,
             getPluginData: () => conversationStats.getPluginData(),
-            onChatCompletion: conversationStats.onChatCompletion,
+            onChatCompletion: (...args) =>
+                conversationStats.onChatCompletion(...args),
             out: conversationStats,
         };
     }
