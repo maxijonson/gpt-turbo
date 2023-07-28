@@ -30,7 +30,7 @@ export class ConversationPluginService<
         TPluginCreators[number]
     >
 > {
-    private readonly plugins: ConversationPluginDefinition[] = [];
+    private plugins: ConversationPluginDefinition[] = [];
 
     constructor(private readonly pluginCreators: TPluginCreators) {}
 
@@ -99,11 +99,9 @@ export class ConversationPluginService<
         properties: ConversationPluginProperties,
         pluginsData?: ConversationModel["pluginsData"]
     ) {
-        if (pluginsData) {
-            this.pluginCreators.forEach((p) =>
-                p(properties, pluginsData[p.name])
-            );
-        }
+        this.plugins = this.pluginCreators.map((p) =>
+            p(properties, pluginsData?.[p.name])
+        );
         this.onPostInit();
     }
 

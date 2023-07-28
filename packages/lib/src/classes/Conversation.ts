@@ -80,9 +80,10 @@ export class Conversation<
 
         this.id = id;
 
-        this.pluginService = new ConversationPluginService(
-            Conversation.globalPlugins.concat(plugins)
-        );
+        this.pluginService = new ConversationPluginService([
+            ...Conversation.globalPlugins,
+            ...plugins,
+        ]);
 
         this.config = new ConversationConfig(this.pluginService, config);
         this.requestOptions = new ConversationRequestOptions(

@@ -84,8 +84,10 @@ export type PluginNameFromConversationOptionsWithGlobalPlugins<
 > = ConversationGlobalPluginsOverride extends {
     globalPlugins: ConversationPlugin[];
 }
-    ? PluginNameFromConversationOptions<TOptions> | GlobalPluginName
-    : PluginNameFromConversationOptions<TOptions>;
+    ? TOptions["plugins"] extends ConversationPlugin[]
+        ? PluginNameFromConversationOptions<TOptions> | GlobalPluginName
+        : GlobalPluginName
+    : PluginNameFromConversationOptions<TOptions> | (string & {});
 
 export type PluginsFromConversationOptions<
     TOptions extends ConversationOptions
