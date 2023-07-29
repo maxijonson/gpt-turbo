@@ -110,3 +110,9 @@ The library rewrite was greatly motivated by the desire to add a plugin system. 
   - `Conversation.callableFunctions.onFunctionRemoved`
   - `Conversation.callableFunctions.onceFunctionRemoved`
   - `Conversation.callableFunctions.offFunctionRemoved`
+
+### About the NestJS implementation...
+
+While upgrading the Nest implementation to v5, I noticed that the overall usage of GPT Turbo was still using old techniques from v1.4 (back when serialization was not even a thing!). It made me realize that this implementation has never really been maintained further than making the build pass. This is because, unlike other implementations, the NestJS implementation was more of a proof of concept rather than a useable project. The goal was to show that GPT Turbo could be used in a backend (Node.js) environment, but the Discord implementation is a much better example. 
+
+Going forward, not much effort will be put into maintaining it. It's kept here for historical purposes, and may be reworked in the future or removed entirely. You're welcome to contribute to it if you want to keep it alive! As of right now, I tested it one last time thoroughly on v5.0.0 and it seemed to work fine, apart from not using new features beyond v1.4, such as callable functions and plugins. In a way, it's a good sign that I've been able to upgrade it ever since v1.4 without any major or time consuming changes!
