@@ -22,7 +22,7 @@ import { Message } from "./Message.js";
  * This class is used internally by the library and is not meant to be **instantiated** by consumers of the library.
  */
 export class ConversationPluginService<
-    TPluginCreators extends ConversationPlugin[] = ConversationPlugin[]
+    TPluginCreators extends ConversationPlugin[] = ConversationPlugin[],
 > {
     private plugins: ConversationPluginDefinition[] = [];
 
@@ -152,12 +152,15 @@ export class ConversationPluginService<
     }
 
     public getPluginsData() {
-        return this.plugins.reduce((data, p) => {
-            if (p.getPluginData !== undefined) {
-                data[p.name] = p.getPluginData();
-            }
-            return data;
-        }, {} as Record<string, any>);
+        return this.plugins.reduce(
+            (data, p) => {
+                if (p.getPluginData !== undefined) {
+                    data[p.name] = p.getPluginData();
+                }
+                return data;
+            },
+            {} as Record<string, any>
+        );
     }
 
     public async onModeration(message: Message) {

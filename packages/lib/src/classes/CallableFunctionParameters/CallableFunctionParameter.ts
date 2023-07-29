@@ -5,7 +5,7 @@ import {
 } from "../../schemas/jsonSchema.schema.js";
 
 export abstract class CallableFunctionParameter<
-    TModel extends JsonSchemaBase = JsonSchemaBase
+    TModel extends JsonSchemaBase = JsonSchemaBase,
 > {
     abstract readonly type: string;
 
@@ -23,7 +23,10 @@ export abstract class CallableFunctionParameter<
     deprecated?: JsonSchemaBase["deprecated"];
     $comment?: JsonSchemaBase["$comment"];
 
-    constructor(public name: string, options: JsonSchemaBase = {}) {
+    constructor(
+        public name: string,
+        options: JsonSchemaBase = {}
+    ) {
         this.name = name;
         this.title = options.title;
         this.description = options.description;

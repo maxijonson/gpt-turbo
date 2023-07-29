@@ -31,7 +31,7 @@ import {
 export default <
     TName extends string,
     TOut = undefined,
-    TData extends ConversationPluginData = undefined
+    TData extends ConversationPluginData = undefined,
 >(
     name: TName,
     creator: ConversationPluginCreator<TOut, TData>

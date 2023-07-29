@@ -164,7 +164,7 @@ export interface CreateModerationResponse {
              * Set to `true` if the model classifies the content as violating OpenAI's usage policies, `false` otherwise.
              */
             flagged: boolean;
-        }
+        },
     ];
 }
 

@@ -23,7 +23,7 @@ import { ConversationPlugins } from "./ConversationPlugins.js";
  * A Conversation manages the messages sent to and from the OpenAI API and handles the logic for providing the message history to the API for each prompt.
  */
 export class Conversation<
-    TOptions extends ConversationOptions = ConversationOptions
+    TOptions extends ConversationOptions = ConversationOptions,
 > {
     /**
      * Plugins that will be used for all conversations.

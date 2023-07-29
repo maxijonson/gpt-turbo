@@ -16,10 +16,13 @@ import { ConversationPluginService } from "./ConversationPluginService.js";
  */
 export class ConversationPlugins<
     TPluginCreators extends ConversationPlugin[] = ConversationPlugin[],
-    TPlugin extends ConversationPluginDefinition = ConversationPluginDefinitionFromPlugin<
+    TPlugin extends
+        ConversationPluginDefinition = ConversationPluginDefinitionFromPlugin<
         TPluginCreators[number]
     >,
-    TPluginName extends string = TPluginCreators[number]["name"] | (string & {})
+    TPluginName extends string =
+        | TPluginCreators[number]["name"]
+        | (string & {}),
 > {
     constructor(
         private readonly pluginService: ConversationPluginService<TPluginCreators>

@@ -19,7 +19,7 @@ import { ConversationRequestOptionsModel } from "../../schemas/conversationReque
 export interface ConversationPlugin<
     TName extends string = string,
     TOut = any,
-    TData extends ConversationPluginData = any
+    TData extends ConversationPluginData = any,
 > {
     /**
      * A **unique** name for this plugin. You should set this to your plugin's package name to avoid name collisions.
@@ -39,7 +39,7 @@ export interface ConversationPlugin<
 
 export interface ConversationPluginCreator<
     TOut = any,
-    TData extends ConversationPluginData = any
+    TData extends ConversationPluginData = any,
 > {
     (
         /**
@@ -270,7 +270,7 @@ export type ConversationPluginDefinitionOutput<TOut> = TOut extends undefined
       };
 
 export type ConversationPluginDefinitionGetPluginData<
-    TData extends ConversationPluginData
+    TData extends ConversationPluginData,
 > = TData extends undefined
     ? {
           getPluginData?: () => undefined;
@@ -293,7 +293,7 @@ export type ConversationPluginDefinitionGetPluginData<
  */
 export type ConversationPluginCreatorDefinition<
     TOut = undefined,
-    TData extends ConversationPluginData = undefined
+    TData extends ConversationPluginData = undefined,
 > = ConversationPluginDefinitionBase &
     ConversationPluginDefinitionOutput<TOut> &
     ConversationPluginDefinitionGetPluginData<TData>;
@@ -305,7 +305,7 @@ export type ConversationPluginCreatorDefinition<
 export type ConversationPluginDefinition<
     TName extends string = string,
     TOut = undefined,
-    TData extends ConversationPluginData = undefined
+    TData extends ConversationPluginData = undefined,
 > = ConversationPluginCreatorDefinition<TOut, TData> & {
     /**
      * The unique name of the plugin.
@@ -348,7 +348,7 @@ export type ConversationPluginData =
  * ```
  */
 export type ConversationPluginDefinitionFromPlugin<
-    T extends ConversationPlugin
+    T extends ConversationPlugin,
 > = T extends ConversationPlugin<infer TName, infer TOut, infer TData>
     ? ConversationPluginDefinition<TName, TOut, TData>
     : never;

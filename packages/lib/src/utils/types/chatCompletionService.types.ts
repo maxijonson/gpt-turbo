@@ -222,7 +222,7 @@ export interface CreateChatCompletionResponse {
              * The index of the choice in the request. Always 0.
              */
             index: number;
-        }
+        },
     ];
 }
 
@@ -271,7 +271,7 @@ export interface CreateChatCompletionStreamResponse {
              * The index of the choice in the request. Always 0.
              */
             index: number;
-        }
+        },
     ];
 }
 

@@ -50,7 +50,7 @@ export type PluginNameFromPlugins<
     TPlugin = TPlugins extends ConversationPlugin[] ? TPlugins[number] : string,
     TPluginDefinition = TPlugin extends ConversationPlugin
         ? ReturnType<TPlugin["creator"]>
-        : string
+        : string,
 > = TPluginDefinition extends { name: infer U } ? U | (string & {}) : string; // (string & {}) is a neat trick to provide intellisense for U, while still allowing any string
 
 /**
@@ -68,7 +68,7 @@ export type GlobalPluginName = PluginNameFromPlugins<ConversationGlobalPlugins>;
  * This type is used internally to determine the type of the plugin names available in a conversation. It should have no use outside of the library.
  */
 export type PluginNameFromConversationOptions<
-    TOptions extends ConversationOptions
+    TOptions extends ConversationOptions,
 > = TOptions["plugins"] extends ConversationPlugin[]
     ? PluginNameFromPlugins<TOptions["plugins"]>
     : string;
@@ -80,7 +80,7 @@ export type PluginNameFromConversationOptions<
  * This type is used internally to determine the type of the plugin names available in a conversation. It should have no use outside of the library.
  */
 export type PluginNameFromConversationOptionsWithGlobalPlugins<
-    TOptions extends ConversationOptions
+    TOptions extends ConversationOptions,
 > = ConversationGlobalPluginsOverride extends {
     globalPlugins: ConversationPlugin[];
 }
@@ -90,13 +90,13 @@ export type PluginNameFromConversationOptionsWithGlobalPlugins<
     : PluginNameFromConversationOptions<TOptions> | (string & {});
 
 export type PluginsFromConversationOptions<
-    TOptions extends ConversationOptions
+    TOptions extends ConversationOptions,
 > = TOptions["plugins"] extends ConversationPlugin[]
     ? TOptions["plugins"]
     : ConversationPlugin[];
 
 export type PluginsFromConversationOptionsWithGlobalPlugins<
-    TOptions extends ConversationOptions
+    TOptions extends ConversationOptions,
 > = ConversationGlobalPluginsOverride extends {
     globalPlugins: ConversationPlugin[];
 }

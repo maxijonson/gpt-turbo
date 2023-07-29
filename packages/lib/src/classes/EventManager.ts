@@ -1,5 +1,5 @@
 export class EventManager<
-    T extends (...args: any[]) => void = (...args: any) => void
+    T extends (...args: any[]) => void = (...args: any) => void,
 > {
     private listeners: Array<T> = [];
 
