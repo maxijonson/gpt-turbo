@@ -2,25 +2,39 @@ import { Box, Text } from "ink";
 import React from "react";
 import useConversationManager from "../hooks/useConversationManager.js";
 import BoxTitle from "./BoxTitle.js";
+import { statsPluginName } from "gpt-turbo-plugin-stats";
 
 const SEPARATOR = ": ";
 
 export default () => {
     const [, forceUpdate] = React.useReducer((x) => x + 1, 0);
     const { conversation } = useConversationManager();
-    const cumulativeSize = conversation?.getCumulativeSize() ?? 0;
-    const cumulativeCost = conversation?.getCumulativeCost() ?? 0;
-    const size = conversation?.getSize() ?? 0;
-    const cost = conversation?.getCost() ?? 0;
+    const stats =
+        conversation?.plugins.getPluginOutput(statsPluginName) ?? null;
 
-    const usages = React.useMemo<{ label: string; value: string }[]>(
+    const usages: {
+        label: string;
+        value: string;
+    }[] = React.useMemo(
         () => [
-            { label: "Cumul. Tokens", value: "" + cumulativeSize },
-            { label: "Cumul. Cost", value: "$" + cumulativeCost.toFixed(5) },
-            { label: "Convo. Tokens", value: "" + size },
-            { label: "Convo. Cost", value: "$" + cost.toFixed(5) },
+            {
+                label: "Cumul. Size",
+                value: `${stats?.cumulativeSize ?? 0} tkns`,
+            },
+            {
+                label: "Cumul. Cost",
+                value: `$${stats?.cumulativeCost.toFixed(5) ?? 0}`,
+            },
+            {
+                label: "Convo. Size",
+                value: `${stats?.size ?? 0} tkns`,
+            },
+            {
+                label: "Convo. Cost",
+                value: `$${stats?.cost.toFixed(5) ?? 0}`,
+            },
         ],
-        [cost, cumulativeCost, cumulativeSize, size]
+        [stats?.cost, stats?.cumulativeCost, stats?.cumulativeSize, stats?.size]
     );
 
     const minWidth = React.useMemo(
@@ -34,12 +48,14 @@ export default () => {
     React.useEffect(() => {
         if (!conversation) return;
         const offs: (() => void)[] = [];
-        const offMessageAdded = conversation.onMessageAdded((message) => {
-            offs.push(
-                message.onMessageStreamingUpdate(() => forceUpdate()),
-                message.onMessageUpdate(() => forceUpdate())
-            );
-        });
+        const offMessageAdded = conversation.history.onMessageAdded(
+            (message) => {
+                offs.push(
+                    message.onStreamingUpdate(() => forceUpdate()),
+                    message.onUpdate(() => forceUpdate())
+                );
+            }
+        );
 
         return () => {
             offs.forEach((off) => off());

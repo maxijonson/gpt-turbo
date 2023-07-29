@@ -22,7 +22,7 @@ export default () => {
         null
     );
     const [messages, setMessages] = React.useState<Message[]>(
-        conversation?.getMessages() ?? []
+        conversation?.history.getMessages() ?? []
     );
 
     const pageableMessages = React.useMemo(() => {
@@ -98,7 +98,7 @@ export default () => {
         if (!conversation) return;
         const unsubscribeMessageUpdate: (() => void)[] = [];
         const unsubscribeMessageStreaming: (() => void)[] = [];
-        const unsubscribeMessageAdded = conversation.onMessageAdded(
+        const unsubscribeMessageAdded = conversation.history.onMessageAdded(
             (message) => {
                 if (message.role === "system") return;
                 setPendingMessage(null);
@@ -107,13 +107,13 @@ export default () => {
                 if (message.role !== "assistant") return;
 
                 unsubscribeMessageUpdate.push(
-                    message.onMessageUpdate(
+                    message.onUpdate(
                         () => setMessages((messages) => [...messages]) // Force re-render by creating a new array
                     )
                 );
 
                 unsubscribeMessageStreaming.push(
-                    message.onMessageStreamingUpdate((streaming) => {
+                    message.onStreamingUpdate((streaming) => {
                         setIsStreaming(streaming);
                     })
                 );
@@ -129,7 +129,7 @@ export default () => {
 
     React.useEffect(() => {
         if (!conversation) return;
-        return conversation.onMessageRemoved((message) => {
+        return conversation.history.onMessageRemoved((message) => {
             setMessages((messages) =>
                 messages.filter((m) => m.id !== message.id)
             );

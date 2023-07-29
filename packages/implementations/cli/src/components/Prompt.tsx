@@ -1,4 +1,4 @@
-import { getMessageSize } from "gpt-turbo";
+import { getMessageSize } from "gpt-turbo-plugin-stats";
 import { Box, Text } from "ink";
 import Spinner from "ink-spinner";
 import TextInput from "ink-text-input";

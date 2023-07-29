@@ -51,12 +51,14 @@ export default ({
         if ((!apiKey && !dry) || loadFile) return;
         setConversation(
             new Conversation({
-                dry,
-                model,
-                apiKey,
-                context,
-                disableModeration,
-                stream,
+                config: {
+                    dry,
+                    model,
+                    apiKey,
+                    context,
+                    disableModeration,
+                    stream,
+                },
             })
         );
     }, [

@@ -44,7 +44,7 @@ export default ({ children }: PersistenceProviderProps) => {
             try {
                 const data = fs.readFileSync(loadFile, "utf8");
                 const json = JSON.parse(data);
-                const newConversation = await Conversation.fromJSON(json);
+                const newConversation = Conversation.fromJSON(json);
                 setConversation(newConversation);
             } catch (e) {
                 console.error(e);
@@ -63,24 +63,26 @@ export default ({ children }: PersistenceProviderProps) => {
 
         const attachMessageListeners = () => (message: Message) => {
             messageOffs.push(
-                message.onMessageStreamingStop(() => {
+                message.onStreamingStop(() => {
                     save();
                 }),
-                message.onMessageUpdate((_, m) => {
+                message.onUpdate((_, m) => {
                     if (m.isStreaming) return;
                     save();
                 })
             );
         };
 
-        conversation.getMessages().forEach(attachMessageListeners());
+        conversation.history.getMessages().forEach(attachMessageListeners());
 
-        const offMessageAdded = conversation.onMessageAdded((message) => {
-            save();
-            attachMessageListeners()(message);
-        });
+        const offMessageAdded = conversation.history.onMessageAdded(
+            (message) => {
+                save();
+                attachMessageListeners()(message);
+            }
+        );
 
-        const offMessageRemoved = conversation.onMessageRemoved(() => {
+        const offMessageRemoved = conversation.history.onMessageRemoved(() => {
             save();
         });
 

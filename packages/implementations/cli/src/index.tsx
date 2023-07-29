@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import "./config/gpt-turbo.js";
 import {
     GPTTURBO_APIKEY,
     GPTTURBO_CONTEXT,

@@ -6,14 +6,18 @@
     "dev": "lerna run build --scope \"gpt-turbo\" && lerna watch --scope \"gpt-turbo\" --include-dependencies -- lerna run build --scope=\"gpt-turbo\"",
     "build": "lerna run build",
     "build:lib": "lerna run build --scope \"gpt-turbo\"",
+    "build:stats": "lerna run build --scope \"gpt-turbo-plugin-stats\"",
     "build:web": "lerna run build --scope \"gpt-turbo-web\"",
+    "build:cli": "lerna run build --scope \"gpt-turbo-cli\"",
+    "build:discord": "lerna run build --scope \"gpt-turbo-discord\"",
+    "build:nest": "lerna run build --scope \"gpt-turbo-nest\"",
     "lint:strict": "lerna run lint:strict",
     "lint:fix": "lerna run lint:fix",
     "release": "npm run build && lerna publish",
     "release:patch": "npm run build && lerna publish patch --yes",
     "release:minor": "npm run build && lerna publish minor --yes",
     "release:major": "npm run build && lerna publish major --yes",
-    "postinstall": "npm run build:lib"
+    "postinstall": "npm run build:lib && npm run build:stats"
   },
   "workspaces": [
     "packages/**"

@@ -8,6 +8,7 @@
         "lint": "eslint --ext .ts,.tsx src",
         "lint:strict": "npm run lint -- --max-warnings 0",
         "lint:fix": "npm run lint -- --fix",
+        "tscheck": "tsc --noEmit",
         "build": "npm run lint:strict && rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.tsx\" \"src/**/*.ts\" \"src/**/*\" dist",
         "gpt-turbo": "nodemon",
         "ig": "npm run build && npm i -g ."
@@ -62,6 +63,7 @@
     "dependencies": {
         "dotenv": "^16.0.3",
         "gpt-turbo": "^4.5.0",
+        "gpt-turbo-plugin-stats": "^4.5.0",
         "ink": "^4.0.0",
         "ink-spinner": "^5.0.0",
         "ink-text-input": "^5.0.0",
