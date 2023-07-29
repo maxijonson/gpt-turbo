@@ -12,6 +12,7 @@ import {
     PORT,
 } from "./config/env.js";
 import { ZodValidationExceptionFilter } from "./filters/zod-validation-exception.filter.js";
+import "./config/gpt-turbo.js";
 
 patchNestJsSwagger();
 
@@ -67,6 +68,7 @@ const bootstrap = async () => {
 
     app.useGlobalFilters(new ZodValidationExceptionFilter());
 
+    console.info(`🚀 Listening on port ${PORT}`);
     await app.listen(PORT);
 };
 

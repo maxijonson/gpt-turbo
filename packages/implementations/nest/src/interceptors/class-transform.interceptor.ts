@@ -5,9 +5,9 @@ import {
     NestInterceptor,
 } from "@nestjs/common";
 import { Conversation, Message } from "gpt-turbo";
+import { statsPluginName } from "gpt-turbo-plugin-stats";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-import messageToJson from "../utils/messageToJson.js";
 
 @Injectable()
 export class ClassTransformInterceptor implements NestInterceptor {
@@ -45,22 +45,23 @@ export class ClassTransformInterceptor implements NestInterceptor {
     }
 
     private handleConversationInstance(instance: Conversation) {
-        const { apiKey, ...config } = instance.getConfig();
+        const { apiKey, ...config } = instance.config.getConfig();
+        const stats = instance.plugins.getPluginOutput(statsPluginName);
 
         return {
             id: instance.id,
             config,
-            messages: instance
+            messages: instance.history
                 .getMessages()
                 .map((message) => this.handleMessageInstance(message)),
-            cost: instance.getCost(),
-            cumulativeCost: instance.getCumulativeCost(),
-            size: instance.getSize(),
-            cumulativeSize: instance.getCumulativeSize(),
+            cost: stats.cost,
+            cumulativeCost: stats.cumulativeCost,
+            size: stats.size,
+            cumulativeSize: stats.cumulativeSize,
         };
     }
 
     private handleMessageInstance(instance: Message) {
-        return messageToJson(instance);
+        return instance.toJSON();
     }
 }

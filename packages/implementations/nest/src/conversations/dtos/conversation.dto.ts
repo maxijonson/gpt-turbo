@@ -1,17 +1,8 @@
 import { z } from "nestjs-zod/z";
-import { messageDtoSchema } from "./message.dto.js";
 import { createZodDto } from "nestjs-zod";
-import { conversationConfigDtoSchema } from "./conversationConfig.dto.js";
+import { conversationSchema } from "gpt-turbo";
 
-export const conversationDtoSchema = z.object({
-    id: z.string(),
-    config: conversationConfigDtoSchema,
-    messages: z.array(messageDtoSchema).min(0),
-    cost: z.number(),
-    size: z.number(),
-    cumulativeCost: z.number(),
-    cumulativeSize: z.number(),
-});
+export const conversationDtoSchema = conversationSchema;
 
 export type ConversationDto = z.infer<typeof conversationDtoSchema>;
 

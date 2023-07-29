@@ -6,6 +6,14 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 </div>
 
+> ⚠⚠⚠ Since v5, this implementation is only maintained to make the build pass. Some cases may not work as expected. ⚠⚠⚠
+> 
+> The Nest implementation was more of a proof of concept when GPT Turbo started, rather than an actual useable project like the other implementations.
+> For this reason, not much effort will be put into maintaining it. It's kept here for historical purposes, and may be reworked in the future or removed entirely.
+> You're welcome to contribute to it if you want to keep it alive!
+>
+> *Note: this implementation has been tested thoroughly for the last time on v5.0.0 and seemed to work fine, apart from not using new features beyond v1.4, such as callable functions and plugins*
+
 A NestJS app that interacts with the gpt-turbo library.
 
 ## Disclaimer
@@ -79,10 +87,12 @@ For streamed conversation prompts (`POST /conversations/{id}`), Swagger will onl
 
 ## Postman Collection
 
-While Swagger is the most up-to-date way of testing the API, since it is generated at runtime, you can also use the Postman collection included this directory: `GPT Turbo - Nest.postman_collection.json`. Bear in mind that this collection is not automatically updated, so it may be out of date. To use it, simply import it into Postman.
+While Swagger is the most up-to-date way of testing the API, since it is generated at runtime, you can also use the Postman collection/environment included this directory: 
+- `GPT Turbo - Nest.postman_collection.json`
+- `GPT Turbo - Nest.postman_environment.json`
+
+Bear in mind that this collection is not automatically updated, so it may be out of date. To use it, simply import it into Postman.
 
 The Postman collection includes automated scripts to assign variables so testing is relatively easier than Swagger. For example, after creating a conversation in Postman, the `conversationId` variable will be automatically assigned to the ID of the conversation. This means that you can then use the `conversationId` variable in subsequent requests, such as sending a prompt to the conversation.
 
 Postman is also a great way to test streamed conversation prompts, since Swagger will only show the data stream after the stream has ended.
-
-**Note: If you want to use your API key with these requests, set them in the collection's variables instead of directly in the body. This has already been setup for you to prevent accidental leaks if you open a PR with this file changed! (as I did when the Nest implementation was first released!)**

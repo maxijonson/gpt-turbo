@@ -347,7 +347,7 @@
 	"variable": [
 		{
 			"key": "gpt-turbo-nest",
-			"value": "",
+			"value": "http://localhost:3000",
 			"type": "string"
 		},
 		{
@@ -357,11 +357,6 @@
 		},
 		{
 			"key": "assistantMessageId",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "apiKey",
 			"value": "",
 			"type": "string"
 		}

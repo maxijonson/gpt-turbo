@@ -20,7 +20,6 @@ import { ZodValidationPipe } from "nestjs-zod";
 import { uuidSchema } from "../schemas/uuidSchema.js";
 import { UseZodApiOperation } from "../decorators/zod-api-operation.decorator.js";
 import { getConversationsResponseDtoSchema } from "./dtos/getConversations.dto.js";
-import messageToJson from "../utils/messageToJson.js";
 import { Response } from "express";
 import { z } from "nestjs-zod/z";
 import { conversationDtoSchema } from "./dtos/conversation.dto.js";
@@ -180,13 +179,13 @@ export class ConversationsController {
             throw new NotFoundException("Conversation not found");
         }
 
-        return conversation.getMessages().map(messageToJson);
+        return conversation.history.getMessages().map((m) => m.toJSON());
     }
 
     private handlePromptResponse(message: Message, res: Response) {
         // Non-streaming message
         if (!message.isStreaming && message.content) {
-            res.json(messageToJson(message));
+            res.json(message.toJSON());
             return;
         }
 
@@ -198,14 +197,12 @@ export class ConversationsController {
         });
         res.status(200);
 
-        message.onMessageUpdate((_, m) => {
-            const data = JSON.stringify(
-                messageDtoSchema.parse(messageToJson(m))
-            );
+        message.onUpdate((_, m) => {
+            const data = JSON.stringify(messageDtoSchema.parse(m.toJSON()));
             res.write(`data: ${data}\n\n`);
         });
 
-        message.onMessageStreamingStop(() => {
+        message.onStreamingStop(() => {
             res.end();
         });
     }

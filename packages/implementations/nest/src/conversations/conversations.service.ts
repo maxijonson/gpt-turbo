@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { Conversation, ConversationConfigParameters } from "gpt-turbo";
+import { Conversation, ConversationConfigModel } from "gpt-turbo";
 
 @Injectable()
 export class ConversationsService {
     private conversations: Conversation[] = [];
 
-    createConversation(config: ConversationConfigParameters) {
-        const conversation = new Conversation(config);
+    createConversation(config: ConversationConfigModel) {
+        const conversation = new Conversation({ config });
         this.addConversation(conversation);
         return conversation;
     }
@@ -41,7 +41,7 @@ export class ConversationsService {
             throw new NotFoundException("Conversation not found");
         }
 
-        const message = conversation
+        const message = conversation.history
             .getMessages()
             .find((m) => m.id === messageId);
 
