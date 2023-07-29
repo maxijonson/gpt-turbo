@@ -17,7 +17,7 @@ export default (
         chunkDelay = 50,
     } = config;
 
-    const tokens = message.match(/.{1,3}/g) ?? [];
+    const tokens = message.match(/.{1,5}/g) ?? [];
     const id = `chatcmpl-${Math.random().toString(36).substring(2)}`;
     const created = Date.now();
 

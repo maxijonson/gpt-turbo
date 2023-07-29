@@ -91,8 +91,9 @@ export class ChatCompletionService {
         const messages = this.history.getCreateChatCompletionMessages();
 
         if (this.config.dry) {
+            const historyMessages = this.history.getMessages();
             const response = createDryChatCompletion(
-                this.history.getMessages()[messages.length - 1]?.content ?? "",
+                historyMessages[historyMessages.length - 1]?.content ?? "",
                 {
                     model: this.config.model,
                 }
