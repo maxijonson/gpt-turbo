@@ -376,6 +376,90 @@ Just like every other class in this library, the `CallableFunction` and subclass
 
 There is also a `CallableFunctionParameterFactory.fromJSON` method which is used internally by the `CallableFunctionObject` and `CallableFunctionArray` classes to create their properties/items dynamically from a JSON object.
 
+## Conversation Plugins
+
+Conversation Plugins allow you to extend the functionality of GPT Turbo or simply to attach listeners just like you would without plugins. Throughout the conversation's lifecycle, several events will be triggered by the library so that plugins may tap into them. For example, they can modify the content of a user message during a `prompt` or `reprompt` call.
+
+### Using a plugin
+
+You can find a detailed example with home-made [`gpt-turbo-plugin-stats` plugin](../plugins/gpt-turbo-plugin-stats/README.md).
+
+Plugins can be injected in the `Conversation` constructor through the `plugins` option, or defined as a global plugin that will be used by all conversations.
+
+```ts
+import { Conversation } from "gpt-turbo";
+import stats from "gpt-turbo-plugin-stats";
+
+// Injected in the constructor
+const conversation = new Conversation({
+    plugins: [stats],
+});
+
+// Global plugin
+const globalPlugins = [stats];
+Conversation.globalPlugins = globalPlugins;
+const conversation = new Conversation();
+
+// Typing the global plugins for type safety
+declare module "gpt-turbo" {
+    interface ConversationGlobalPluginsOverride {
+        globalPlugins: typeof globalPlugins;
+    }
+}
+```
+
+If your plugin exposes an output meant to be used by client code, you can use the `getPluginOutput` method to retrieve it. If you're using TypeScript, the plugin output will be fully typed as long as you're accessing the plugin through a literal string or a constant. You should also notice you get automatic intellisense when typing the plugin name. If you're getting the plugin dynamically, the plugin output defaults to `any` and could be `undefined`. Usually, it's recommended that plugin authors export a type guard to properly type the plugin output for dynamic use (more on that later).
+
+```ts
+const pluginOutput = conversation.plugins.getPluginOutput("pluginName");
+const pluginOutput = conversation.plugins.getPlugin("pluginName").out; // Same as the above
+```
+
+### Authoring a plugin
+
+Plugins can be authored for a specific project only or be published as a standalone package. If you're publishing a standalone package, it's recommended you follow the `gpt-turbo-plugin-` naming convention. This will make it easier for users to find your plugin and will also make it easier for you to find a name that isn't already taken. You can also add the `gpt-turbo-plugin` to your tags on npm to make it easier to find.
+
+Plugins are functions that receive every `Conversation` properties, even the ones that are normally private to regular usage, such as `ChatCompletionService` and `PluginService`. They also receive optional plugin data persisted through the `getPluginData` property of your plugin. Your plugin function returns the **plugin definition**, which is an object with the properties you want your plugin to react to during the conversation lifecycle.
+
+For convenience, it's recommended to use the `createConversationPlugin` function, but you could technically define it manually with the `ConversationPlugin` interface exported by the library.
+
+```ts
+import { createConversationPlugin } from "gpt-turbo";
+
+// Recommended to expose the plugin name as a constant
+export const myPluginName = "myPlugin";
+
+export const myPlugin = createConversationPlugin(myPluginName, ({ conversation, history, /* ... */ }, pluginData?: number) => {
+    if (pluginData) {
+        console.log("Plugin data was persisted from a previous conversation (new Conversation(prevConversation.toJSON()))");
+        console.log(`Plugin data: ${pluginData}`);
+    } else {
+        console.log("First time plugin is used (new **Conversation**)");
+    }
+
+    return {
+        onUserPrompt: async (message) => {
+            console.log(`User prompt: ${message.content}`);
+            message.content = await yodaSpeak(message.content);
+        },
+        getPluginData: () => (pluginData ?? 0) + 1,
+        out: "Hello there!", // Plugin output available through `conversation.plugins.getPluginOutput("myPlugin")`. Can be virtually anything you want! (usually a function or a class instance though!)
+        /* Many more methods you can tap into... */
+    }
+});
+```
+
+For TypeScript users, the `conversation.getPlugin` method (and other alike such as `getPluginOutput`) has strong type inference to infer the plugin output and data type when called with a literal. However, in some cases, users may want to dynamically get plugins by their name. To help differentiate your plugin from other plugins in these cases while preserving types, it's recommended to ship a type guard with your plugin.
+
+```ts
+/* ... */
+import { ConversationPluginDefinitionFromPlugin, ConversationPluginDefinition } from "gpt-turbo";
+
+export type MyPluginDefinition = ConversationPluginDefinitionFromPlugin<typeof myPlugin>;
+export const isMyPlugin = (plugin?: ConversationPluginDefinition): plugin is MyPluginDefinition => {
+    return plugin?.name === myPluginName;
+};
+```
 
 ## Documentation
 
