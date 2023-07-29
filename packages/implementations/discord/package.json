@@ -9,6 +9,7 @@
         "lint": "eslint --ext .ts src",
         "lint:strict": "npm run lint -- --max-warnings 0",
         "lint:fix": "npm run lint -- --fix",
+        "tscheck": "tsc --noEmit",
         "build": "npm run lint:strict && rimraf dist && tsc -p tsconfig.build.json && copyfiles -u 1 -e \"src/**/*.ts\" \"src/**/*\" dist",
         "start": "node dist/index.js",
         "dev": "tsx watch --no-cache src/index.ts",

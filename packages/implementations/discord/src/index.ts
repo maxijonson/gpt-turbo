@@ -6,6 +6,7 @@ import {
 } from "discord.js";
 import GPTTurboClient from "./GPTTurboClient.js";
 import { USE_MESSAGE_CONTENT_INTENT } from "./config/env.js";
+import "./config/gpt-turbo.js";
 
 const intents = [
     GatewayIntentBits.Guilds,

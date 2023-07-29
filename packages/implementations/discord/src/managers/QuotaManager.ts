@@ -12,6 +12,7 @@ import isValidSnowflake from "../utils/isValidSnowflake.js";
 import BotException from "../exceptions/BotException.js";
 import GPTTurboClient from "../GPTTurboClient.js";
 import { Role } from "discord.js";
+import { statsPluginName } from "gpt-turbo-plugin-stats";
 
 export type DbType = "mongodb" | "mysql" | "postgres";
 export default class QuotaManager<
@@ -210,25 +211,27 @@ export default class QuotaManager<
         conversation: Conversation
     ): Promise<boolean> {
         if (!this.isEnabled()) return true;
-        const { user } = conversation.getConfig();
+        const { user } = conversation.config.getConfig();
         if (!user) throw new Error("No user found in conversation config");
 
         const userId = this.parseSnowflake(user);
         const quota = await this.getQuota(userId);
         const usage = await this.getUsage(userId);
+        const stats = conversation.plugins.getPluginOutput(statsPluginName);
 
-        return usage + conversation.getSize() < quota;
+        return usage + stats.size < quota;
     }
 
     public async logUsage(conversation: Conversation) {
         if (!this.isEnabled()) return;
-        const { user } = conversation.getConfig();
+        const { user } = conversation.config.getConfig();
         if (!user) throw new Error("No user found in conversation config");
 
         const userId = this.parseSnowflake(user);
         const usage = await this.getUsage(userId);
+        const stats = conversation.plugins.getPluginOutput(statsPluginName);
 
-        await this.usages.set(userId, usage + conversation.getSize());
+        await this.usages.set(userId, usage + stats.size);
     }
 
     private parseSnowflake(snowflake: string) {

@@ -1,4 +1,4 @@
-import { ConversationConfigParameters } from "gpt-turbo";
+import { ConversationConfigModel } from "gpt-turbo";
 import {
     GPTTURBO_APIKEY,
     GPTTURBO_MODEL,
@@ -7,8 +7,8 @@ import {
 } from "../config/env.js";
 
 export default (
-    config: ConversationConfigParameters = {}
-): ConversationConfigParameters => ({
+    config: ConversationConfigModel = {}
+): ConversationConfigModel => ({
     apiKey: GPTTURBO_APIKEY,
     model: GPTTURBO_MODEL,
     dry: !GPTTURBO_APIKEY || GPTTURBO_DRY,

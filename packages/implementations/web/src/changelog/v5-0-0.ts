@@ -3,7 +3,7 @@ import { CHANGELOG_SECTION } from "../config/constants";
 
 const v5_0_0: ChangelogEntry = {
     version: "5.0.0 - Library rewrite and plugin system",
-    date: new Date("july 28 2023"),
+    date: new Date("july 29 2023"),
     description:
         "This new update is primarily focused on the library side of the project, so there shouldn't be any major noticeable changes here. However, under the hood, the library has been completely rewritten to be more modular and extensible with plugins. The first plugin to exist is actually the usage stats feature, which has been moved out from the underlying library and into a conversation plugin!",
     sections: [
