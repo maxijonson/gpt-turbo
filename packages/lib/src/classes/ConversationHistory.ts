@@ -221,7 +221,10 @@ export class ConversationHistory {
      * Returns the context message content, if it is set.
      */
     public getContext() {
-        return this.messages[0]?.content ?? null;
+        const firstMessage = this.messages[0];
+        if (!firstMessage) return null;
+        if (firstMessage.role !== "system") return null;
+        return firstMessage.content;
     }
 
     /**
