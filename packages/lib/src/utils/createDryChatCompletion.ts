@@ -1,5 +1,4 @@
-import getMessageTokens from "./getMessageTokens.js";
-import { CreateDryChatCompletionConfig } from "./types.js";
+import { CreateDryChatCompletionConfig } from "./types/index.js";
 
 /**
  * Creates a dry chat completion and returns a `ReadableStream`. Can be used to simulate a streamed chat completion.
@@ -17,7 +16,8 @@ export default (
         initialDelay = 500,
         chunkDelay = 50,
     } = config;
-    const tokens = getMessageTokens(message);
+
+    const tokens = message.match(/.{1,5}/g) ?? [];
     const id = `chatcmpl-${Math.random().toString(36).substring(2)}`;
     const created = Date.now();
 

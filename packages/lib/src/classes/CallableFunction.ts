@@ -4,9 +4,9 @@ import {
 } from "../schemas/callableFunction.schema.js";
 import { v4 as uuid } from "uuid";
 import { CallableFunctionObject } from "./CallableFunctionParameters/CallableFunctionObject.js";
-import { CreateChatCompletionFunction } from "../utils/types.js";
 import { CallableFunctionParameter } from "./CallableFunctionParameters/CallableFunctionParameter.js";
-import { JsonSchema, JsonSchemaObject } from "../index.js";
+import { JsonSchema, JsonSchemaObject } from "../schemas/jsonSchema.schema.js";
+import { CreateChatCompletionFunction } from "../utils/types/index.js";
 
 export class CallableFunction {
     /**

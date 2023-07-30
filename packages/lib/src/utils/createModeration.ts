@@ -1,11 +1,11 @@
+import { ConversationRequestOptionsModel } from "schemas/conversationRequestOptions.schema.js";
 import { ENDPOINT_MODERATION } from "../index.js";
 import getRequestHeaders from "./getRequestHeaders.js";
 import getRequestUrl from "./getRequestUrl.js";
 import {
     CreateModerationRequest,
     CreateModerationResponse,
-    RequestOptions,
-} from "./types.js";
+} from "./types/index.js";
 
 /**
  * Sends a Create Moderation request to the OpenAI API.
@@ -16,7 +16,7 @@ import {
  */
 export default async (
     { apiKey, input }: CreateModerationRequest,
-    { headers: optHeaders = {}, proxy }: RequestOptions
+    { headers: optHeaders = {}, proxy }: ConversationRequestOptionsModel
 ): Promise<CreateModerationResponse> => {
     const headers = getRequestHeaders(apiKey, optHeaders, proxy);
     const url = getRequestUrl(ENDPOINT_MODERATION, proxy);

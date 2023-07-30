@@ -1,8 +1,6 @@
 import { v4 as uuid } from "uuid";
-import { getMessageCost, getMessageSize } from "../index.js";
 import {
     ChatCompletionRequestMessageRoleEnum,
-    RequestOptions,
     CreateChatCompletionStreamResponse,
     MessageStreamingListener,
     MessageStreamingStartListener,
@@ -14,9 +12,12 @@ import {
     CreateChatCompletionMessage,
     CreateChatCompletionFunctionCallMessage,
     CreateChatCompletionFunctionMessage,
-} from "../utils/types.js";
-import createModeration from "../utils/createModeration.js";
+    MessageContentStreamListener,
+} from "../utils/types/index.js";
 import { MessageModel, messageSchema } from "../schemas/message.schema.js";
+import { ConversationRequestOptionsModel } from "../schemas/conversationRequestOptions.schema.js";
+import createModeration from "../utils/createModeration.js";
+import { EventManager } from "./EventManager.js";
 
 /**
  * A message in a Conversation.
@@ -38,19 +39,24 @@ export class Message {
           }
         | undefined;
     private _flags: string[] | null = null;
-    private _size: number | null = null;
-    private _cost: number | null = null;
     private _isStreaming = false;
 
-    private messageUpdateListeners: MessageUpdateListener[] = [];
-    private messageStreamingListeners: MessageStreamingListener[] = [];
+    private messageUpdateEvents = new EventManager<MessageUpdateListener>();
+    private messageStreamingEvents =
+        new EventManager<MessageStreamingListener>();
+    private messageStreamingStartEvents =
+        new EventManager<MessageStreamingStartListener>();
+    private messageStreamingStopEvents =
+        new EventManager<MessageStreamingStopListener>();
+    private messageContentStreamEvents =
+        new EventManager<MessageContentStreamListener>();
 
     /**
      * Creates a new Message instance.
      *
      * @param role The role of who this message is from. Either "user", "assistant" or "system".
      * @param content The content of the message.
-     * @param model The model used for processing this message. This is only used to calculate the cost of the message. If you don't specify a model, the `cost` will always be `0`.
+     * @param model The model used for processing this message.
      */
     constructor(
         role: ChatCompletionRequestMessageRoleEnum = "user",
@@ -99,84 +105,6 @@ export class Message {
     }
 
     /**
-     * Removes a message update listener, previously set with `onMessageUpdate`.
-     *
-     * @param listener The previously added listener
-     */
-    public offMessageUpdate(listener: MessageUpdateListener) {
-        this.messageUpdateListeners = this.messageUpdateListeners.filter(
-            (l) => l !== listener
-        );
-    }
-
-    /**
-     * Add a listener for message content changes.
-     *
-     * @param listener The listener to trigger when `content` changes
-     * @returns An unsubscribe function for this `listener`
-     */
-    public onMessageUpdate(listener: MessageUpdateListener) {
-        this.messageUpdateListeners.push(listener);
-        return () => this.offMessageUpdate(listener);
-    }
-
-    /**
-     * Removes a message streaming listener, previously set with `onMessageStreamingUpdate`.
-     *
-     * @param listener The previously added listener
-     */
-    public offMessageStreaming(listener: MessageStreamingListener) {
-        this.messageStreamingListeners = this.messageStreamingListeners.filter(
-            (l) => l !== listener
-        );
-    }
-
-    /**
-     * Adds a listener for message streaming state changes.
-     *
-     * @param listener The listener to trigger when `isStreaming` changes
-     * @returns An unsubscribe function for this `listener`
-     */
-    public onMessageStreamingUpdate(listener: MessageStreamingListener) {
-        this.messageStreamingListeners.push(listener);
-        return () => this.offMessageStreaming(listener);
-    }
-
-    /**
-     * Adds a listener for message streaming start.
-     *
-     * **Note:** Internally, this creates a new function wrapping your passed `listener` and passes it to `onMessageStreamingUpdate`.
-     * For this reason, you cannot remove a listener using `offMessageStreaming(listener)`.
-     * Instead, use the returned function to unsubscribe the listener properly.
-     *
-     * @param listener The listener to trigger when `isStreaming` is set to `true`
-     * @returns An unsubscribe function for this `listener`
-     */
-    public onMessageStreamingStart(listener: MessageStreamingStartListener) {
-        const startListener: MessageStreamingListener = (
-            isStreaming,
-            message
-        ) => isStreaming && listener(message);
-        return this.onMessageStreamingUpdate(startListener);
-    }
-
-    /**
-     * Adds a listener for message streaming stop.
-     *
-     * **Note: ** Internally, this creates a new function wrapping your passed `listener` and passes it to `onMessageStreamingUpdate`.
-     * For this reason, you cannot remove a listener using `offMessageStreaming(listener)`.
-     * Instead, use the returned function to unsubscribe the listener properly.
-     *
-     * @param listener The listener to trigger when `isStreaming` is set to `false`
-     * @returns An unsubscribe function for this `listener`
-     */
-    public onMessageStreamingStop(listener: MessageStreamingStopListener) {
-        const stopListener: MessageStreamingListener = (isStreaming, message) =>
-            !isStreaming && listener(message);
-        return this.onMessageStreamingUpdate(stopListener);
-    }
-
-    /**
      * Call the OpenAI moderation API to check if the message is flagged. Only called once for the same content.
      *
      * @param apiKey The OpenAI API key
@@ -185,13 +113,16 @@ export class Message {
      */
     public async moderate(
         apiKey: string,
-        requestOptions: RequestOptions = {}
+        requestOptions: ConversationRequestOptionsModel = {}
     ): Promise<string[]> {
         const flags = this.flags;
         if (flags) {
             return flags;
         }
-        if (!this.content) return [];
+        if (!this.content) {
+            this.flags = [];
+            return this.flags;
+        }
 
         const response = await createModeration(
             {
@@ -302,19 +233,6 @@ export class Message {
         );
     }
 
-    private notifyMessageUpdate() {
-        const content = this.content;
-        this.messageUpdateListeners.forEach((listener) =>
-            listener(content, this)
-        );
-    }
-
-    private notifyMessageStreaming() {
-        this.messageStreamingListeners.forEach((listener) => {
-            listener(this.isStreaming, this);
-        });
-    }
-
     /** The role of who this message is from. */
     get role() {
         return this._role;
@@ -341,10 +259,15 @@ export class Message {
     set content(content) {
         this._content = content;
         this.flags = null;
-        this.size = null;
-        this.cost = null;
 
-        this.notifyMessageUpdate();
+        this.messageUpdateEvents.emit(content, this);
+        if (this.isStreaming) {
+            this.messageContentStreamEvents.emit(
+                content,
+                this.isStreaming,
+                this
+            );
+        }
     }
 
     get name() {
@@ -362,8 +285,6 @@ export class Message {
     set functionCall(functionCall) {
         this._functionCall = functionCall;
         this.flags = null;
-        this.size = null;
-        this.cost = null;
         this.content = null; // also call notifyMessageUpdate() to notify listeners
     }
 
@@ -381,51 +302,24 @@ export class Message {
         return (this.flags?.length ?? 0) > 0;
     }
 
-    /** The size of the message's content, in tokens. */
-    get size(): number {
-        if (this._size) {
-            return this._size;
-        }
-        // FIXME: Find out how the size is calculated for messages with function calls
-        if (this._content === null) {
-            return 0;
-        }
-        const s = getMessageSize(this._content);
-        this.size = s;
-        return this._size as typeof s;
-    }
-
-    private set size(size: number | null) {
-        this._size = size;
-    }
-
-    /** The estimated cost of the message's content. */
-    get cost(): number {
-        if (this._cost) {
-            return this._cost;
-        }
-        const c = getMessageCost(
-            this.size,
-            this.model,
-            this.role === "assistant" ? "completion" : "prompt"
-        );
-        this.cost = c;
-        return this._cost as typeof c;
-    }
-
-    private set cost(cost: number | null) {
-        this._cost = cost;
-    }
-
     /** Whether the message is currently being streamed. */
     get isStreaming() {
         return this._isStreaming;
     }
 
     private set isStreaming(isStreaming) {
+        if (this._isStreaming === isStreaming) return;
         this._isStreaming = isStreaming;
 
-        this.notifyMessageStreaming();
+        this.messageStreamingEvents.emit(isStreaming, this);
+        isStreaming
+            ? this.messageStreamingStartEvents.emit(this)
+            : this.messageStreamingStopEvents.emit(this);
+
+        this.messageContentStreamEvents.emit(this.content, isStreaming, this);
+        if (!isStreaming) {
+            this.messageContentStreamEvents.clear();
+        }
     }
 
     /**
@@ -462,5 +356,162 @@ export class Message {
         }
 
         throw new Error("Message type not recognized.");
+    }
+
+    /**
+     * Add a listener for message content changes.
+     *
+     * @param listener The listener to trigger when `content` changes
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onUpdate(listener: MessageUpdateListener) {
+        return this.messageUpdateEvents.addListener(listener);
+    }
+
+    /**
+     * Add a listener that is called only once when the message content changes.
+     *
+     * @param listener The listener to trigger when `content` changes
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onceUpdate(listener: MessageUpdateListener) {
+        return this.messageUpdateEvents.once(listener);
+    }
+
+    /**
+     * Removes a message update listener, previously set with `onUpdate`.
+     *
+     * @param listener The previously added listener
+     */
+    public offUpdate(listener: MessageUpdateListener) {
+        return this.messageUpdateEvents.removeListener(listener);
+    }
+
+    /**
+     * Adds a listener for message streaming state changes.
+     *
+     * @param listener The listener to trigger when `isStreaming` changes
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onStreamingUpdate(listener: MessageStreamingListener) {
+        return this.messageStreamingEvents.addListener(listener);
+    }
+
+    /**
+     * Adds a listener that is called only once when the message streaming state changes.
+     *
+     * @param listener The listener to trigger when `isStreaming` changes
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onceStreamingUpdate(listener: MessageStreamingListener) {
+        return this.messageStreamingEvents.once(listener);
+    }
+
+    /**
+     * Removes a message streaming listener, previously set with `onStreamingUpdate`.
+     *
+     * @param listener The previously added listener
+     */
+    public offStreaming(listener: MessageStreamingListener) {
+        return this.messageStreamingEvents.removeListener(listener);
+    }
+
+    /**
+     * Adds a listener for message streaming start.
+     *
+     * @param listener The listener to trigger when `isStreaming` is set to `true`
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onStreamingStart(listener: MessageStreamingStartListener) {
+        return this.messageStreamingStartEvents.addListener(listener);
+    }
+
+    /**
+     * Adds a listener that is called only once when the message streaming starts.
+     *
+     * @param listener The listener to trigger when `isStreaming` is set to `true`
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onceStreamingStart(listener: MessageStreamingStartListener) {
+        return this.messageStreamingStartEvents.once(listener);
+    }
+
+    /**
+     * Removes a message streaming start listener, previously set with `onStreamingStart`.
+     *
+     * @param listener The previously added listener
+     */
+    public offStreamingStart(listener: MessageStreamingStartListener) {
+        return this.messageStreamingStartEvents.removeListener(listener);
+    }
+
+    /**
+     * Adds a listener for message streaming stop.
+     *
+     * @param listener The listener to trigger when `isStreaming` is set to `false`
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onStreamingStop(listener: MessageStreamingStopListener) {
+        return this.messageStreamingStopEvents.addListener(listener);
+    }
+
+    /**
+     * Adds a listener that is called only once when the message streaming stops.
+     *
+     * @param listener The listener to trigger when `isStreaming` is set to `false`
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onceStreamingStop(listener: MessageStreamingStopListener) {
+        return this.messageStreamingStopEvents.once(listener);
+    }
+
+    /**
+     * Removes a message streaming stop listener, previously set with `onStreamingStop`.
+     *
+     * @param listener The previously added listener
+     */
+    public offStreamingStop(listener: MessageStreamingStopListener) {
+        return this.messageStreamingStopEvents.removeListener(listener);
+    }
+
+    /**
+     * Adds a listener that is fired whenever the message content is updated during streaming. Also fires when streaming starts/ends.
+     *
+     * @remarks
+     * Unlike the other listeners which behave like normal event listeners, this special listener is unsubscribed automatically when streaming ends.
+     * If this is not desired, use `onUpdate` and `onStreamingStart`/`onStreamingStop` instead.
+     *
+     * @param listener The listener to trigger when `content` changes during streaming
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onContentStream(listener: MessageContentStreamListener) {
+        return this.messageContentStreamEvents.addListener(listener);
+    }
+
+    /**
+     * Adds a listener that is fired only once whenever the message content is updated during streaming. Also fires when streaming starts/ends.
+     *
+     * @remarks
+     * Unlike the other listeners which behave like normal event listeners, this special listener is unsubscribed automatically when streaming ends, regardless of whether it was called once or not.
+     * If this is not desired, use `onceUpdate` and `onceStreamingStart`/`onceStreamingStop` instead.
+     *
+     * @param listener The listener to trigger when `content` changes during streaming
+     * @returns An unsubscribe function for this `listener`
+     */
+    public onceContentStream(listener: MessageContentStreamListener) {
+        return this.messageContentStreamEvents.once(listener);
+    }
+
+    /**
+     * Removes a message streaming content listener, previously set with `onContentStream`.
+     *
+     * @remarks
+     * You do not need to call this method manually, as this listener automatically unsubscribes all listeners when streaming ends.
+     * You should use this if you want to unsubscribe a listener before streaming ends.
+     *
+     * @param listener The previously added listener
+     */
+    public offContentStream(listener: MessageContentStreamListener) {
+        return this.messageContentStreamEvents.removeListener(listener);
     }
 }

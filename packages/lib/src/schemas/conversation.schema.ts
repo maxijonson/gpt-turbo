@@ -1,34 +1,19 @@
 import { z } from "zod";
-import { messageSchema } from "./message.schema.js";
 import { conversationConfigSchema } from "./conversationConfig.schema.js";
-import { callableFunctionSchema } from "./callableFunction.schema.js";
+import { conversationRequestOptionsSchema } from "./conversationRequestOptions.schema.js";
+import { conversationHistorySchema } from "./conversationHistory.schema.js";
+import { conversationCallableFunctionsSchema } from "./conversationCallableFunctions.schema.js";
 
 /**
  * A JSON representation of a Conversation instance.
  */
 export const conversationSchema = z.object({
     id: z.string().uuid().optional(),
-    messages: z.array(messageSchema),
+    history: conversationHistorySchema.optional(),
     config: conversationConfigSchema.optional(),
-    functions: z.array(callableFunctionSchema),
-    requestOptions: z
-        .object({
-            headers: z.record(z.string(), z.string()).optional(),
-            proxy: z
-                .object({
-                    host: z.string(),
-                    port: z.number().optional(),
-                    protocol: z.enum(["http", "https"]).optional(),
-                    auth: z
-                        .object({
-                            username: z.string(),
-                            password: z.string(),
-                        })
-                        .optional(),
-                })
-                .optional(),
-        })
-        .optional(),
+    callableFunctions: conversationCallableFunctionsSchema.optional(),
+    requestOptions: conversationRequestOptionsSchema.optional(),
+    pluginsData: z.record(z.any()).optional(),
 });
 
 /**

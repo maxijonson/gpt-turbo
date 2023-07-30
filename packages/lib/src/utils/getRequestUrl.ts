@@ -1,9 +1,12 @@
-import { RequestOptionsProxy } from "./types.js";
+import { ConversationRequestOptionsModel } from "schemas/conversationRequestOptions.schema.js";
 
 /**
  * Returns the URL object for a request, taking into account a proxy.
  */
-export default (targetUrl: string, proxy?: RequestOptionsProxy) => {
+export default (
+    targetUrl: string,
+    proxy?: ConversationRequestOptionsModel["proxy"]
+) => {
     if (!proxy) return new URL(targetUrl);
 
     const protocol = proxy.protocol || "http";

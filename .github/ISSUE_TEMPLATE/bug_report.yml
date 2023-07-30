@@ -16,8 +16,9 @@ body:
       multiple: true
       options:
         - "Library (gpt-turbo)"
-        - "CLI (gpt-turbo-cli)"
+        - "Stats Plugin (gpt-turbo-plugin-stats)"
         - "Web (gpt-turbo-web)"
+        - "CLI (gpt-turbo-cli)"
         - "Nest (gpt-turbo-nest)"
         - "Discord (gpt-turbo-discord)"
     validations:
