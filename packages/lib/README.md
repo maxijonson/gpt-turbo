@@ -380,9 +380,9 @@ There is also a `CallableFunctionParameterFactory.fromJSON` method which is used
 
 Conversation Plugins allow you to extend the functionality of GPT Turbo or simply to attach listeners just like you would without plugins. Throughout the conversation's lifecycle, several events will be triggered by the library so that plugins may tap into them. For example, they can modify the content of a user message during a `prompt` or `reprompt` call.
 
-### Using a plugin
-
 You can find a detailed example with home-made [`gpt-turbo-plugin-stats` plugin](../plugins/gpt-turbo-plugin-stats/README.md).
+
+### Using a plugin
 
 Plugins can be injected in the `Conversation` constructor through the `plugins` option, or defined as a global plugin that will be used by all conversations.
 
@@ -459,6 +459,24 @@ export type MyPluginDefinition = ConversationPluginDefinitionFromPlugin<typeof m
 export const isMyPlugin = (plugin?: ConversationPluginDefinition): plugin is MyPluginDefinition => {
     return plugin?.name === myPluginName;
 };
+```
+
+Because plugins are functions, you can allow custom options to be passed to your plugin by client code. This isn't a feature of GPT Turbo, it's just JavaScript! As long as your plugin function returns a plugin definition, you can do whatever you want with it. 
+
+```ts
+const myPlugin = (options) => {
+    // do something with options, maybe
+    return createConversationPlugin(myPluginName, ({ conversation, history, /* ... */ }, pluginData?: number) => {
+        /* do something else with options, maybe */
+        return { /* ... */ };
+    });
+}
+
+// Usage
+const options = { /* ... */ };
+const conversation = new Conversation({
+    plugins: [myPlugin(options)],
+});
 ```
 
 ## Documentation
