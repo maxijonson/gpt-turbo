@@ -1,6 +1,6 @@
 {
     "name": "gpt-turbo-plugin-stats",
-    "version": "4.5.0",
+    "version": "5.0.0",
     "description": "GPT Turbo plugin that calculates your conversation size and cost",
     "main": "dist/index.js",
     "type": "module",
