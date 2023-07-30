@@ -4,3 +4,4 @@ dist
 gptturbo-conversation-*.json
 .DS_Store
 .vscode
+lerna-debug.log
