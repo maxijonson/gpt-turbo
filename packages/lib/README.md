@@ -449,6 +449,8 @@ export const myPlugin = createConversationPlugin(myPluginName, ({ conversation, 
 });
 ```
 
+#### Recommended practices for TypeScript
+
 For TypeScript users, the `conversation.getPlugin` method (and other alike such as `getPluginOutput`) has strong type inference to infer the plugin output and data type when called with a literal. However, in some cases, users may want to dynamically get plugins by their name. To help differentiate your plugin from other plugins in these cases while preserving types, it's recommended to ship a type guard with your plugin.
 
 ```ts
@@ -460,6 +462,8 @@ export const isMyPlugin = (plugin?: ConversationPluginDefinition): plugin is MyP
     return plugin?.name === myPluginName;
 };
 ```
+
+#### Custom plugin configuration
 
 Because plugins are functions, you can allow custom options to be passed to your plugin by client code. This isn't a feature of GPT Turbo, it's just JavaScript! As long as your plugin function returns a plugin definition, you can do whatever you want with it. 
 
