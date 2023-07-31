@@ -11,12 +11,13 @@ const config: GatsbyConfig = {
     graphqlTypegen: true,
     plugins: [
         "gatsby-plugin-mantine",
+        "gatsby-plugin-provide-react",
         "gatsby-plugin-image",
         "gatsby-plugin-sitemap",
         {
             resolve: "gatsby-plugin-manifest",
             options: {
-                icon: "src/images/icon.png",
+                icon: "src/images/logo/logo-small.png",
             },
         },
         "gatsby-plugin-mdx",
