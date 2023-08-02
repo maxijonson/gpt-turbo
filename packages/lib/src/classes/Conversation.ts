@@ -183,7 +183,10 @@ export class Conversation<
 
         try {
             await this.pluginService.onUserPrompt(userMessage);
-            await this.chatCompletionService.moderateMessage(userMessage);
+            await this.chatCompletionService.moderateMessage(
+                userMessage,
+                requestOptions
+            );
             const assistantMessage =
                 await this.chatCompletionService.getAssistantResponse(
                     options,
@@ -246,7 +249,7 @@ export class Conversation<
             if (previousUserMessageIndex < 0) break;
             previousUserMessage = messages[previousUserMessageIndex];
         }
-        if (previousUserMessage?.role !== "user") {
+        if (previousUserMessage.role !== "user") {
             throw new Error(
                 `Could not find a previous user message to reprompt from (${id}).`
             );
@@ -293,7 +296,10 @@ export class Conversation<
 
         try {
             await this.pluginService.onFunctionPrompt(functionMessage);
-            await this.chatCompletionService.moderateMessage(functionMessage);
+            await this.chatCompletionService.moderateMessage(
+                functionMessage,
+                requestOptions
+            );
             const assistantMessage =
                 await this.chatCompletionService.getAssistantResponse(
                     options,

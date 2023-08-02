@@ -1,0 +1,42 @@
+{
+  "folders": [
+    {
+      "name": "lib",
+      "path": "packages/lib"
+    },
+    {
+      "name": "web",
+      "path": "packages/implementations/web"
+    },
+    {
+      "name": "stats",
+      "path": "packages/plugins/gpt-turbo-plugin-stats"
+    },
+    {
+      "name": "discord",
+      "path": "packages/implementations/discord"
+    },
+    {
+      "name": "cli",
+      "path": "packages/implementations/cli"
+    },
+    {
+      "name": "nest",
+      "path": "packages/implementations/nest"
+    },
+    {
+      "name": "root",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "jest.disabledWorkspaceFolders": [
+      "web",
+      "discord",
+      "stats",
+      "nest",
+      "cli",
+      "root"
+    ]
+  }
+}
