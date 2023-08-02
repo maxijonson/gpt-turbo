@@ -59,7 +59,7 @@ export class ChatCompletionService {
             options,
             requestOptions
         );
-        await this.moderateMessage(response);
+        await this.moderateMessage(response, requestOptions);
         return this.history.addMessage(response);
     }
 
@@ -67,13 +67,16 @@ export class ChatCompletionService {
      * @internal
      * Should not be used directly by library consumers. Use `moderate` from the `Message` class instead.
      */
-    public async moderateMessage(message: Message) {
+    public async moderateMessage(
+        message: Message,
+        requestOptions?: ConversationRequestOptionsModel
+    ) {
         if (!this.config.isModerationEnabled) return;
 
-        await message.moderate(
-            this.config.apiKey,
-            this.requestOptions.getRequestOptions()
-        );
+        await message.moderate(this.config.apiKey, {
+            ...this.requestOptions.getRequestOptions(),
+            ...requestOptions,
+        });
         await this.pluginService.onModeration(message);
 
         const flags = message.flags ?? [];
