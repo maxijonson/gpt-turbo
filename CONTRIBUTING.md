@@ -8,7 +8,7 @@ All types of contributions are encouraged and valued. See the [Table of Contents
 > And if you like the project, but just don't have time to contribute, that's fine. There are other easy ways to support the project and show your appreciation, which we would also be very happy about:
 >
 > - Star the project
-> - Tweet about it
+> - Xeet about it
 > - Refer this project in your project's readme
 > - Mention the project at local meetups and tell your friends/colleagues
 
@@ -111,7 +111,7 @@ Once it's filed:
 
 The following are required for you to be able to run the project locally and contribute to it:
 
-- [Node.js](https://nodejs.org/en/) (v12.0.0 or higher)
+- [Node.js](https://nodejs.org/en/) (v18.0.0 or higher)
 - [Git](https://git-scm.com/)
 - NPM, which is installed with Node.js and used by the project to manage dependencies.
 
@@ -124,16 +124,20 @@ Follow these steps to get your development environment set up:
    1. `npm install`: installs the mono-repo dependencies, bootstraps packages, and builds the library used by the implementations.
    2. (optional) `npm run dev`: if you plan on editing both the library and an implementation, this will watch for changes in the library and automatically rebuild it so that the implementation can use the latest version of the library.
 
-You're now all set to start contributing! Make your changes, commit them and push them to your forked repository. Then, open a pull request to the `develop` branch of the main repository.
+You're now all set to start contributing! Make your changes, commit them and push them to your forked repository. 
 
-Before submitting your changes, run the following commands to prevent your contribution from being rejected:
+Before submitting your changes, run the following commands **at the repository root**. These will be run automatically by the CI when you open a pull request, but it's better to run them locally to prevent your contribution from being automatically rejected:
 
-1. `npm run lint:fix`: fix linting errors that can be fixed automatically.
-2. `npm run lint:strict`: check for linting errors and warnings (warnings are not allowed).
+1. `npm run build`: Builds every package in the mono-repo.
+   1. If the build fails because of linting errors, run `npm run lint:fix` to fix the errors that can be fixed automatically, then run `npm run build` again. Otherwise, fix the errors manually.
+2. `npm test`: Runs unit tests for every package (currently only `lib`)
+
+Then, open a pull request to the `develop` branch of the main repository. You're done! 🎉
 
 > This project is mainly developped using [VSCode](https://code.visualstudio.com/). It is recommended to use it as well, as some extensions can help you respect the styleguides and automate some tasks.
 > - [ESLint extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) for enforcing coding practices. 
 > - [Prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) for enforcing code formatting.
+> - [Jest extension](https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest) for running tests.
 
 ### Improving The Documentation
 
