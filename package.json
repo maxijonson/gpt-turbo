@@ -14,10 +14,10 @@
     "lint:strict": "lerna run lint:strict",
     "lint:fix": "lerna run lint:fix",
     "test": "lerna run test",
-    "release": "npm run build && lerna publish",
-    "release:patch": "npm run build && lerna publish patch --yes",
-    "release:minor": "npm run build && lerna publish minor --yes",
-    "release:major": "npm run build && lerna publish major --yes",
+    "release": "npm run build && npm test && lerna publish",
+    "release:patch": "npm run build && npm test && lerna publish patch --yes",
+    "release:minor": "npm run build && npm test && lerna publish minor --yes",
+    "release:major": "npm run build && npm test && lerna publish major --yes",
     "postinstall": "npm run build:lib && npm run build:stats"
   },
   "workspaces": [
