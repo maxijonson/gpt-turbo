@@ -3,10 +3,11 @@ name: Develop Check
 on:
   push:
     branches:
-      - 'develop'
+      - "develop"
 
 jobs:
-  build:
+  develop_check:
+    name: Develop Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -17,15 +18,6 @@ jobs:
 
       - name: Build code
         run: npm run build
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: npm install
 
       - name: Run tests
         run: npm run test
