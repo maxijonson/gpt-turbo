@@ -3,10 +3,11 @@ name: Develop Check
 on:
   push:
     branches:
-      - 'develop'
+      - "develop"
 
 jobs:
-  test-build:
+  develop_check:
+    name: Develop Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -17,3 +18,6 @@ jobs:
 
       - name: Build code
         run: npm run build
+
+      - name: Run tests
+        run: npm run test

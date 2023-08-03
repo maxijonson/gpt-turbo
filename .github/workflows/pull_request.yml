@@ -3,10 +3,15 @@ name: Pull Request Check
 on:
   pull_request:
     branches:
-      - '**'
+      - "**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.sha }}
+  cancel-in-progress: true
 
 jobs:
-  test-pr:
+  pr_check:
+    name: PR Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -17,3 +22,6 @@ jobs:
 
       - name: Build code
         run: npm run build
+
+      - name: Run tests
+        run: npm run test
