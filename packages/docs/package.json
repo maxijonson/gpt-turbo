@@ -1,9 +1,9 @@
 {
     "name": "gpt-turbo-docs",
-    "version": "0.1.0",
+    "version": "5.0.0",
     "private": true,
     "scripts": {
-        "dev": "next dev --turbo",
+        "dev": "next dev",
         "build": "next build",
         "start": "next start",
         "lint": "next lint"
@@ -11,6 +11,8 @@
     "dependencies": {
         "@mantine/core": "^7.0.0-alpha.20",
         "@mantine/hooks": "^7.0.0-alpha.20",
+        "@mantine/vanilla-extract": "^7.0.0-alpha.20",
+        "@vanilla-extract/css": "^1.12.0",
         "next": "13.4.12",
         "react": "18.2.0",
         "react-dom": "18.2.0",
@@ -20,6 +22,7 @@
         "@types/node": "20.4.6",
         "@types/react": "18.2.18",
         "@types/react-dom": "18.2.7",
+        "@vanilla-extract/next-plugin": "^2.2.1",
         "eslint": "8.46.0",
         "eslint-config-next": "13.4.12",
         "eslint-config-prettier": "^8.9.0",

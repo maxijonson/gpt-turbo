@@ -1,7 +1,7 @@
 import { Group, Box } from "@mantine/core";
 import AppHeaderLogo from "./AppHeaderLogo";
 import AppHeaderSearch from "./AppHeaderSearch";
-import AppHeaderSocials from "./AppHeaderSocials";
+import AppHeaderButtons from "./AppHeaderButtons";
 
 const AppHeader = () => {
     return (
@@ -9,7 +9,7 @@ const AppHeader = () => {
             <Group justify="space-between" h="100%" mx="sm" wrap="nowrap" grow>
                 <AppHeaderLogo />
                 <AppHeaderSearch />
-                <AppHeaderSocials />
+                <AppHeaderButtons />
             </Group>
         </Box>
     );
