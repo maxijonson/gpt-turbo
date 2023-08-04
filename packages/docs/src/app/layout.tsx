@@ -1,4 +1,6 @@
-import ClientProviders from "../contexts/providers/ClientProviders";
+import "@mantine/core/styles.css";
+import AppHeader from "./components/AppHeader/AppHeader";
+import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 
 interface AppLayoutProps {
     children: React.ReactNode;
@@ -7,8 +9,14 @@ interface AppLayoutProps {
 const AppLayout = ({ children }: AppLayoutProps) => {
     return (
         <html lang="en">
+            <head>
+                <ColorSchemeScript />
+            </head>
             <body>
-                <ClientProviders>{children}</ClientProviders>
+                <MantineProvider>
+                    <AppHeader />
+                    {children}
+                </MantineProvider>
             </body>
         </html>
     );
