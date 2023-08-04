@@ -1,7 +1,7 @@
 import "@mantine/core/styles.css";
-import AppHeader from "./components/AppHeader/AppHeader";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
-import { theme } from "../utils/theme";
+import { theme } from "@theme";
+import Shell from "./components/Shell/Shell";
 
 interface AppLayoutProps {
     children: React.ReactNode;
@@ -15,8 +15,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             </head>
             <body>
                 <MantineProvider theme={theme}>
-                    <AppHeader />
-                    {children}
+                    <Shell>{children}</Shell>
                 </MantineProvider>
             </body>
         </html>
