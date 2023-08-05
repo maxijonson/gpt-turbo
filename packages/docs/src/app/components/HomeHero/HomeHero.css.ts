@@ -16,12 +16,6 @@ export const root = style({
     backgroundImage: `radial-gradient(${vars.colors.gray[3]} ${size}, transparent 0)`,
     backgroundSize: `${freq} ${freq}`,
 
-    "@media": {
-        [vars.largerThan("sm")]: {
-            height: `calc(max(60vh, 500px) - ${rem(60)})`,
-        },
-    },
-
     selectors: {
         [vars.darkSelector]: {
             borderBottomColor: vars.colors.gray[8],

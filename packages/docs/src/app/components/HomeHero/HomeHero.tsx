@@ -15,7 +15,7 @@ import NextImage from "next/image";
 import * as classes from "./HomeHero.css";
 import logo from "@public/assets/images/logo/logo-small.png";
 import LightDark from "../../../components/LightDark/LightDark";
-import { APPHEADER_HEIGHT } from "../AppHeader/AppHeader";
+import { APPHEADER_HEIGHT } from "@config/constants";
 
 const HomeHero = () => {
     return (
@@ -46,7 +46,7 @@ const HomeHero = () => {
                         component={Title}
                         lightProps={{ c: "dark.4" }}
                         darkProps={{ c: "gray.4" }}
-                        order={3}
+                        order={2}
                         fz={24}
                         ta="center"
                     >
@@ -59,7 +59,7 @@ const HomeHero = () => {
                         variant="gradient"
                         gradient={{ from: "red.6", to: "orange.7" }}
                     >
-                        conversationnal AI
+                        conversational AI
                     </Text>
                     <Group mt="md">
                         <Button size="md">Get Started</Button>

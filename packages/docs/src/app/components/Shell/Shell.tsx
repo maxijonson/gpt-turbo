@@ -1,9 +1,10 @@
 "use client";
 
 import { AppShell } from "@mantine/core";
-import AppHeader, { APPHEADER_HEIGHT } from "../AppHeader/AppHeader";
+import AppHeader from "../AppHeader/AppHeader";
 import AppNavbar, { APPNAVBAR_WIDTH } from "../AppNavbar/AppNavbar";
 import { useAppStore } from "@store";
+import { APPHEADER_HEIGHT } from "@config/constants";
 
 interface ShellProps {
     children: React.ReactNode;
