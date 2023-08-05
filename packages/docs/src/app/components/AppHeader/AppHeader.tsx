@@ -4,15 +4,14 @@ import { Group, Burger, AppShell } from "@mantine/core";
 import AppHeaderLogo from "./AppHeaderLogo/AppHeaderLogo";
 import AppHeaderSearch from "./AppHeaderSearch/AppHeaderSearch";
 import AppHeaderButtons from "./AppHeaderButtons/AppHeaderButtons";
+import { useAppStore } from "@store";
+import { toggleMobileNavbar } from "@store/actions/navbar/toggleMobileNavbar";
 
 export const APPHEADER_HEIGHT = 60;
 
-interface AppHeaderProps {
-    navbarOpened: boolean;
-    toggleNavbar: () => void;
-}
+const AppHeader = () => {
+    const mobileNavbarOpened = useAppStore((s) => s.navbar.mobileNavbarOpened);
 
-const AppHeader = ({ navbarOpened, toggleNavbar }: AppHeaderProps) => {
     return (
         <>
             <AppShell.Header h={APPHEADER_HEIGHT} visibleFrom="sm">
@@ -37,7 +36,10 @@ const AppHeader = ({ navbarOpened, toggleNavbar }: AppHeaderProps) => {
                     wrap="nowrap"
                     grow
                 >
-                    <Burger opened={navbarOpened} onClick={toggleNavbar} />
+                    <Burger
+                        opened={mobileNavbarOpened}
+                        onClick={() => toggleMobileNavbar()}
+                    />
                     <AppHeaderLogo />
                     <AppHeaderButtons />
                 </Group>

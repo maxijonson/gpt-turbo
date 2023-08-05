@@ -1,16 +1,19 @@
 "use client";
 
 import { AppShell } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
 import AppHeader, { APPHEADER_HEIGHT } from "../AppHeader/AppHeader";
 import AppNavbar, { APPNAVBAR_WIDTH } from "../AppNavbar/AppNavbar";
+import { useAppStore } from "@store";
 
 interface ShellProps {
     children: React.ReactNode;
 }
 
 const Shell = ({ children }: ShellProps) => {
-    const [navbarOpened, { toggle: toggleNavbar }] = useDisclosure();
+    const [mobileNavbarOpened, showDesktopNavbar] = useAppStore((s) => [
+        s.navbar.mobileNavbarOpened,
+        s.navbar.showDesktopNavbar,
+    ]);
 
     return (
         <AppShell
@@ -18,14 +21,14 @@ const Shell = ({ children }: ShellProps) => {
             navbar={{
                 width: APPNAVBAR_WIDTH,
                 breakpoint: "sm",
-                collapsed: { desktop: true, mobile: !navbarOpened },
+                collapsed: {
+                    desktop: !showDesktopNavbar,
+                    mobile: !mobileNavbarOpened,
+                },
             }}
             transitionDuration={0}
         >
-            <AppHeader
-                navbarOpened={navbarOpened}
-                toggleNavbar={toggleNavbar}
-            />
+            <AppHeader />
             <AppNavbar />
 
             <AppShell.Main>{children}</AppShell.Main>
