@@ -12,7 +12,9 @@ const MdxWrapper = ({ children }: MdxWrapperProps) => {
                 root: classes.root,
             }}
         >
-            <Container size="md">{children}</Container>
+            <Container size="md" pb={80}>
+                {children}
+            </Container>
         </TypographyStylesProvider>
     );
 };
