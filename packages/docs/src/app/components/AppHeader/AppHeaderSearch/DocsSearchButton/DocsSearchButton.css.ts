@@ -22,3 +22,15 @@ export const group = style({
         },
     },
 });
+
+export const shortcut = style({
+    fontFamily: vars.fontFamilyMonospace,
+    backgroundColor: vars.colors.gray[2],
+    borderRadius: vars.radius.xs,
+
+    selectors: {
+        [vars.darkSelector]: {
+            backgroundColor: vars.colors.dark[5],
+        },
+    },
+});

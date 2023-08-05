@@ -1,10 +1,10 @@
 import { Box } from "@mantine/core";
-import FakeSearch from "./FakeSearch/FakeSearch";
+import DocsSearchButton from "./DocsSearchButton/DocsSearchButton";
 
 const AppHeaderSearch = () => {
     return (
         <Box w="100%">
-            <FakeSearch />
+            <DocsSearchButton />
         </Box>
     );
 };
