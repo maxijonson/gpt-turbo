@@ -1,13 +1,13 @@
 "use client";
 
-import { BoxProps, Image, createPolymorphicComponent } from "@mantine/core";
-import NextImage from "next/image";
+import { BoxProps, createPolymorphicComponent } from "@mantine/core";
 import logoFullLight from "@public/assets/images/logo/logo-inline-transparent-dark.png";
 import logoFullDark from "@public/assets/images/logo/logo-inline-transparent.png";
 import logoSmallLight from "@public/assets/images/logo/logo-small.png";
 import logoSmallDark from "@public/assets/images/logo/logo-small.png";
 import LightDark from "../LightDark/LightDark";
 import { forwardRef } from "react";
+import MantineNextImage from "../MantineNextImage/MantineNextImage";
 
 interface GPTTurboLogoProps extends BoxProps {
     small?: boolean;
@@ -23,28 +23,19 @@ const GPTTurboLogo = createPolymorphicComponent<"div", GPTTurboLogoProps>(
             <LightDark
                 {...rest}
                 ref={ref}
-                light={
-                    <Image
-                        src={small ? logoSmallLight : logoFullLight}
-                        alt="GPT Turbo Logo"
-                        component={NextImage}
-                        w="100%"
-                        h="100%"
-                        fit="contain"
-                        priority
-                    />
-                }
-                dark={
-                    <Image
-                        src={small ? logoSmallDark : logoFullDark}
-                        alt="GPT Turbo Logo"
-                        component={NextImage}
-                        w="100%"
-                        h="100%"
-                        fit="contain"
-                        priority
-                    />
-                }
+                component={MantineNextImage}
+                src={small ? logoSmallLight : logoFullLight}
+                w="100%"
+                h="100%"
+                fit="contain"
+                priority
+                alt="GPT Turbo Logo"
+                lightProps={{
+                    src: small ? logoSmallLight : logoFullLight,
+                }}
+                darkProps={{
+                    src: small ? logoSmallDark : logoFullDark,
+                }}
             />
         );
     })

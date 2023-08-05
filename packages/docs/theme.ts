@@ -11,5 +11,6 @@ export const theme = createTheme({
             },
         }),
     },
+    primaryColor: "orange",
 });
 export const vars = themeToVars(theme);

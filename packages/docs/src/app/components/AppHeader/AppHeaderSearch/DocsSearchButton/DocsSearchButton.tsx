@@ -27,7 +27,9 @@ const DocsSearchButton = ({ ...buttonProps }: DocsSearchButtonProps) => {
                 className={classes.group}
             >
                 <BiSearch />
-                <Text size="sm">Search Docs</Text>
+                <Text size="sm" style={{ flexGrow: 1 }} c="dimmed">
+                    Search Docs
+                </Text>
                 <Text fz={10} p={2} className={classes.shortcut}>
                     Ctrl+K
                 </Text>
