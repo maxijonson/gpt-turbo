@@ -11,13 +11,13 @@ export const root = style({
 export const group = style({
     padding: `${rem(4)} ${rem(12)}`,
 
-    borderWidth: rem(1),
-    borderStyle: "solid",
+    border: `${rem(1)} solid`,
     borderRadius: vars.radius.xl,
     borderColor: vars.colors.gray[4],
 
     selectors: {
         [vars.darkSelector]: {
+            backgroundColor: vars.colors.dark[6],
             borderColor: vars.colors.dark[5],
         },
     },
@@ -25,12 +25,16 @@ export const group = style({
 
 export const shortcut = style({
     fontFamily: vars.fontFamilyMonospace,
-    backgroundColor: vars.colors.gray[2],
+    backgroundColor: vars.colors.gray[1],
+
+    border: `${rem(1)} solid`,
     borderRadius: vars.radius.xs,
+    borderColor: vars.colors.gray[3],
 
     selectors: {
         [vars.darkSelector]: {
-            backgroundColor: vars.colors.dark[5],
+            backgroundColor: vars.colors.dark[7],
+            borderColor: vars.colors.dark[7],
         },
     },
 });
