@@ -5,6 +5,7 @@ export const root = style({
     selectors: {
         [vars.darkSelector]: {
             backgroundColor: vars.colors.dark[8],
+            borderColor: vars.colors.dark[8],
         },
     },
 });
