@@ -1,10 +1,11 @@
 import "@mantine/core/styles.css";
 import "@mantine/spotlight/styles.css";
-import { ColorSchemeScript, MantineProvider } from "@mantine/core";
-import { theme } from "@theme";
+import "@mantine/code-highlight/styles.css";
+import { ColorSchemeScript } from "@mantine/core";
 import Shell from "./components/Shell/Shell";
 import DocsSpotlight from "./components/DocsSpotlight/DocsSpotlight";
 import { Metadata } from "next";
+import Providers from "./components/Providers/Providers";
 
 export const metadata: Metadata = {
     title: "GPT Turbo",
@@ -43,10 +44,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 <ColorSchemeScript />
             </head>
             <body>
-                <MantineProvider theme={theme}>
+                <Providers>
                     <DocsSpotlight />
                     <Shell>{children}</Shell>
-                </MantineProvider>
+                </Providers>
             </body>
         </html>
     );

@@ -9,6 +9,7 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@mantine/code-highlight": "^7.0.0-alpha.20",
         "@mantine/core": "^7.0.0-alpha.20",
         "@mantine/hooks": "^7.0.0-alpha.20",
         "@mantine/spotlight": "^7.0.0-alpha.20",
