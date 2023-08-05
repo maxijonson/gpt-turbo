@@ -29,6 +29,7 @@
             "@utils/*": ["src/utils/*"],
             "@config/*": ["src/config/*"],
             "@store/*": ["src/store/*"],
+            "@mdx/*": ["src/mdx/*"],
         }
     },
     "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
