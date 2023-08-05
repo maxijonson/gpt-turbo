@@ -1,6 +1,6 @@
 import { AppShell } from "@mantine/core";
 
-export const APPNAVBAR_WIDTH = 300;
+export const APPNAVBAR_WIDTH = 260;
 
 const AppNavbar = () => {
     return <AppShell.Navbar>Navbar</AppShell.Navbar>;

@@ -16,6 +16,7 @@ import * as classes from "./HomeHero.css";
 import logo from "@public/assets/images/logo/logo-small.png";
 import LightDark from "../../../components/LightDark/LightDark";
 import { APPHEADER_HEIGHT } from "@config/constants";
+import Link from "next/link";
 
 const HomeHero = () => {
     return (
@@ -62,8 +63,15 @@ const HomeHero = () => {
                         conversational AI
                     </Text>
                     <Group mt="md">
-                        <Button size="md">Get Started</Button>
-                        <Button size="md" variant="outline">
+                        <Button component={Link} href="/docs" size="md">
+                            Get Started
+                        </Button>
+                        <Button
+                            component={Link}
+                            href="/docs"
+                            size="md"
+                            variant="outline"
+                        >
                             Docs
                         </Button>
                     </Group>
