@@ -21,6 +21,8 @@
         ],
         "baseUrl": ".",
         "paths": {
+            "contentlayer/generated": ["./.contentlayer/generated"],
+
             "@theme": ["theme.ts"],
             "@store": ["src/store/index.ts"],
 
@@ -29,9 +31,15 @@
             "@utils/*": ["src/utils/*"],
             "@config/*": ["src/config/*"],
             "@store/*": ["src/store/*"],
-            "@mdx/*": ["src/mdx/*"],
+            "@mdx/*": ["src/mdx/*"]
         }
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+    "include": [
+        "next-env.d.ts",
+        "**/*.ts",
+        "**/*.tsx",
+        ".next/types/**/*.ts",
+        ".contentlayer/generated",
+    ],
     "exclude": ["node_modules"]
 }

@@ -1,6 +1,6 @@
-import React from "react";
+import { allDocs } from "contentlayer/generated";
 import SlugNotFound from "./components/SlugNotFound/SlugNotFound";
-import { getDocsPage } from "@mdx/docs";
+import Mdx from "../../../components/mdx/Mdx/Mdx";
 
 interface DocsSlugProps {
     params: {
@@ -8,17 +8,11 @@ interface DocsSlugProps {
     };
 }
 
-const DocsSlug = async ({ params: { slug } }: DocsSlugProps) => {
-    const [slugGroup, slugPage] = slug;
-    if (!slugGroup || !slugPage) return <SlugNotFound />;
+const DocsSlugPage = async ({ params: { slug } }: DocsSlugProps) => {
+    const doc = allDocs.find((doc) => doc.slug === slug.join("/"));
+    if (!doc) return <SlugNotFound />;
 
-    const page = await getDocsPage(slugGroup, slugPage);
-    if (!page) return <SlugNotFound />;
-
-    const pageModule = await page.import();
-    const { default: Component } = pageModule;
-
-    return <Component />;
+    return <Mdx doc={doc} />;
 };
 
-export default DocsSlug;
+export default DocsSlugPage;

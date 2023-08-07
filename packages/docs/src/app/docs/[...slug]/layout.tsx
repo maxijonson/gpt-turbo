@@ -1,5 +1,5 @@
-import { Metadata } from "next";
-import { getDocsPage } from "@mdx/docs";
+import { Metadata } from "next/types";
+import { allDocs } from "../../../../.contentlayer/generated";
 
 interface DocsSlugLayoutProps {
     children: React.ReactNode;
@@ -8,20 +8,15 @@ interface DocsSlugLayoutProps {
     };
 }
 
-export const generateMetadata = async ({
+export const generateMetadata = ({
     params: { slug },
-}: DocsSlugLayoutProps): Promise<Metadata> => {
-    const [slugGroup, slugPage] = slug;
-    if (!slugGroup || !slugPage) return {};
+}: DocsSlugLayoutProps): Metadata => {
+    const doc = allDocs.find((doc) => doc.slug === slug.join("/"));
+    if (!doc) return {};
 
-    const page = await getDocsPage(slugGroup, slugPage);
-    if (!page) return {};
-
-    const pageModule = await page.import();
-    const { title } = pageModule;
-    const metadata: Metadata = {};
-
-    if (title) metadata.title = `${title} | GPT Turbo`;
+    const metadata: Metadata = {
+        title: `${doc.title} | GPT Turbo`,
+    };
 
     return metadata;
 };
