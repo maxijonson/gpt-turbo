@@ -4,16 +4,18 @@ import path from "path";
 const ROOT = process.cwd();
 const MDX_DOCS = path.join(ROOT, "src/mdx/docs");
 
-interface DocsPage {
+export interface DocsPage {
     slug: string;
     path: string;
     import: () => Promise<any>;
 }
 
-interface DocsPageGroup {
+export interface DocsPageGroup {
     slugGroup: string;
     pages: Record<string, DocsPage>;
 }
+
+export type DocsPagesGroups = Record<string, DocsPageGroup>;
 
 export const getDocsPage = async (
     slugGroup: string,
@@ -66,9 +68,9 @@ export const getDocsPageGroup = async (
     }
 };
 
-export const getDocsPages = async () => {
+export const getDocsPages = async (): Promise<DocsPagesGroups> => {
     const docsDir = await fs.readdir(MDX_DOCS);
-    const pageGroups: Record<string, DocsPageGroup> = {};
+    const pageGroups: DocsPagesGroups = {};
 
     for (const folder of docsDir) {
         const pageGroup = await getDocsPageGroup(folder);

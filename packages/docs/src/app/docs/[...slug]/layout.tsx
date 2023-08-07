@@ -26,7 +26,7 @@ export const generateMetadata = async ({
     return metadata;
 };
 
-const DocsSlugLayout = async ({ children }: DocsSlugLayoutProps) => {
+const DocsSlugLayout = ({ children }: DocsSlugLayoutProps) => {
     return <>{children}</>;
 };
 
