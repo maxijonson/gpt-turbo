@@ -1,6 +1,6 @@
 import { ActionIcon } from "@mantine/core";
 import { BiSearch } from "react-icons/bi";
-import { docsSpotlight } from "../../DocsSpotlight/DocsSpotlight";
+import { docsSpotlight } from "../../../DocsSpotlight/DocsSpotlight";
 
 const SearchButton = () => {
     return (

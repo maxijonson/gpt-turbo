@@ -8,6 +8,7 @@ interface MdxWrapperProps {
 const MdxWrapper = ({ children }: MdxWrapperProps) => {
     return (
         <TypographyStylesProvider
+            pl={0}
             classNames={{
                 root: classes.root,
             }}

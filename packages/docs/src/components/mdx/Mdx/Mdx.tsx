@@ -1,7 +1,7 @@
 import { Doc } from ".contentlayer/generated";
 import { useMDXComponent } from "next-contentlayer/hooks";
-import MdxWrapper from "../MdxWrapper/MdxWrapper";
 import { MDXComponents } from "mdx/types";
+import MdxWrapper from "../MdxWrapper/MdxWrapper";
 import MdxPreformatted from "../intrinsic/MdxPreformatted/MdxPreformatted";
 
 interface MdxProps {

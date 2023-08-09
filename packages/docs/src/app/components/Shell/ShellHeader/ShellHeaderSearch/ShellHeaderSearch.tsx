@@ -1,7 +1,7 @@
 import { Box } from "@mantine/core";
 import DocsSearchButton from "./DocsSearchButton/DocsSearchButton";
 
-const AppHeaderSearch = () => {
+const ShellHeaderSearch = () => {
     return (
         <Box w="100%">
             <DocsSearchButton />
@@ -9,4 +9,4 @@ const AppHeaderSearch = () => {
     );
 };
 
-export default AppHeaderSearch;
+export default ShellHeaderSearch;

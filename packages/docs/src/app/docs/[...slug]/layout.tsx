@@ -1,5 +1,5 @@
 import { Metadata } from "next/types";
-import { allDocs } from "../../../../.contentlayer/generated";
+import { getDocBySlug } from "@mdx/docs";
 
 interface DocsSlugLayoutProps {
     children: React.ReactNode;
@@ -11,7 +11,7 @@ interface DocsSlugLayoutProps {
 export const generateMetadata = ({
     params: { slug },
 }: DocsSlugLayoutProps): Metadata => {
-    const doc = allDocs.find((doc) => doc.slug === slug.join("/"));
+    const doc = getDocBySlug(...slug);
     if (!doc) return {};
 
     const metadata: Metadata = {

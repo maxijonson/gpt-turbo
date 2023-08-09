@@ -1,1 +1,1 @@
-export const APPHEADER_HEIGHT = 60;
+export const SHELLHEADER_HEIGHT = 60;

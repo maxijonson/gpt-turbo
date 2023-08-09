@@ -5,7 +5,7 @@ import RepoButton from "./RepoButton";
 import SearchButton from "./SearchButton";
 import DiscordButton from "./DiscordButton";
 
-const AppHeaderButtons = () => {
+const ShellHeaderButtons = () => {
     return (
         <Group justify="right" gap="xs">
             <ThemeSwitch />
@@ -22,4 +22,4 @@ const AppHeaderButtons = () => {
     );
 };
 
-export default AppHeaderButtons;
+export default ShellHeaderButtons;

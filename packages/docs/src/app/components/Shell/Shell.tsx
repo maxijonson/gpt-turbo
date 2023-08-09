@@ -1,12 +1,11 @@
 "use client";
 
 import { AppShell } from "@mantine/core";
-import AppHeader from "../AppHeader/AppHeader";
-import AppNavbar, { APPNAVBAR_WIDTH } from "../AppNavbar/AppNavbar";
+import ShellHeader from "./ShellHeader/ShellHeader";
+import ShellNavbar, { SHELLNAVBAR_WIDTH } from "./ShellNavbar/ShellNavbar";
 import { useAppStore } from "@store";
-import { APPHEADER_HEIGHT } from "@config/constants";
+import { SHELLHEADER_HEIGHT } from "@config/constants";
 import { usePathname } from "next/navigation";
-import { setShowDesktopNavbar } from "../../../store/actions/navbar/setShowDesktopNavbar";
 import React from "react";
 
 interface ShellProps {
@@ -17,30 +16,25 @@ const EXCLUDE_NAVBAR_PAGES = ["/"];
 
 const Shell = ({ children }: ShellProps) => {
     const pathname = usePathname();
-    const [mobileNavbarOpened, showDesktopNavbar] = useAppStore((s) => [
+    const [mobileNavbarOpened] = useAppStore((s) => [
         s.navbar.mobileNavbarOpened,
-        s.navbar.showDesktopNavbar,
     ]);
-
-    React.useEffect(() => {
-        setShowDesktopNavbar(!EXCLUDE_NAVBAR_PAGES.includes(pathname));
-    }, [pathname]);
 
     return (
         <AppShell
-            header={{ height: APPHEADER_HEIGHT }}
+            header={{ height: SHELLHEADER_HEIGHT }}
             navbar={{
-                width: APPNAVBAR_WIDTH,
+                width: SHELLNAVBAR_WIDTH,
                 breakpoint: "sm",
                 collapsed: {
-                    desktop: !showDesktopNavbar,
+                    desktop: EXCLUDE_NAVBAR_PAGES.includes(pathname),
                     mobile: !mobileNavbarOpened,
                 },
             }}
             transitionDuration={0}
         >
-            <AppHeader />
-            <AppNavbar />
+            <ShellHeader />
+            <ShellNavbar />
 
             <AppShell.Main>{children}</AppShell.Main>
         </AppShell>

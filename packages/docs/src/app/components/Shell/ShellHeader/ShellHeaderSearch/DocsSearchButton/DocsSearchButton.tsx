@@ -8,7 +8,7 @@ import {
 } from "@mantine/core";
 import { BiSearch } from "react-icons/bi";
 import * as classes from "./DocsSearchButton.css";
-import { docsSpotlight } from "../../../DocsSpotlight/DocsSpotlight";
+import { docsSpotlight } from "../../../../DocsSpotlight/DocsSpotlight";
 
 interface DocsSearchButtonProps
     extends UnstyledButtonProps,

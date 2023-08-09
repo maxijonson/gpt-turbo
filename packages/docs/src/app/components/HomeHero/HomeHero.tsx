@@ -10,18 +10,19 @@ import {
     rem,
     Button,
     Group,
+    Code,
 } from "@mantine/core";
 import NextImage from "next/image";
 import * as classes from "./HomeHero.css";
 import logo from "@public/assets/images/logo/logo-small.png";
 import LightDark from "../../../components/LightDark/LightDark";
-import { APPHEADER_HEIGHT } from "@config/constants";
+import { SHELLHEADER_HEIGHT } from "@config/constants";
 import Link from "next/link";
 
 const HomeHero = () => {
     return (
         <Box className={classes.root}>
-            <Center h={`calc(100% - ${rem(APPHEADER_HEIGHT)})`}>
+            <Center h={`calc(100% - ${rem(SHELLHEADER_HEIGHT)})`}>
                 <Stack align="center" gap={0}>
                     <Image
                         component={NextImage}
@@ -75,6 +76,9 @@ const HomeHero = () => {
                             Docs
                         </Button>
                     </Group>
+                    <Code mt="md" py="xs" px="sm" fz="sm">
+                        npm install gpt-turbo
+                    </Code>
                 </Stack>
             </Center>
         </Box>
