@@ -27,6 +27,7 @@
             "@store": ["src/store/index.ts"],
 
             "@components/*": ["src/components/*"],
+            "@contexts/*": ["src/contexts/*"],
             "@public/*": ["public/*"],
             "@utils/*": ["src/utils/*"],
             "@config/*": ["src/config/*"],

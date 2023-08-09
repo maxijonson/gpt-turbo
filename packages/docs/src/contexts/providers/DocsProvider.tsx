@@ -10,11 +10,44 @@ interface DocsProviderProps {
 }
 
 const DocsProvider = ({ children, docs }: DocsProviderProps) => {
+    const groupedDocs = React.useMemo<DocsContextValue["groupedDocs"]>(() => {
+        return docs.reduce(
+            (acc, doc) => {
+                if (doc.isGroupIndex) return acc;
+
+                const [group, page] = doc.slug.split("/");
+                if (!acc[group]) {
+                    acc[group] = {};
+                }
+                acc[group][page] = doc;
+
+                return acc;
+            },
+            {} as DocsContextValue["groupedDocs"]
+        );
+    }, [docs]);
+
+    const docGroupIndexes = React.useMemo<
+        DocsContextValue["docGroupIndexes"]
+    >(() => {
+        return docs.reduce(
+            (acc, doc) => {
+                if (doc.isGroupIndex) {
+                    acc.push(doc);
+                }
+                return acc;
+            },
+            [] as DocsContextValue["docGroupIndexes"]
+        );
+    }, [docs]);
+
     const providerValue = React.useMemo<DocsContextValue>(
         () => ({
             docs,
+            groupedDocs,
+            docGroupIndexes,
         }),
-        [docs]
+        [docGroupIndexes, docs, groupedDocs]
     );
 
     return (
