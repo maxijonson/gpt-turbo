@@ -11,7 +11,7 @@ interface DocsSlugLayoutProps {
 export const generateMetadata = ({
     params: { slug },
 }: DocsSlugLayoutProps): Metadata => {
-    const doc = getDocBySlug(...slug);
+    const doc = getDocBySlug(slug);
     if (!doc) return {};
 
     const metadata: Metadata = {

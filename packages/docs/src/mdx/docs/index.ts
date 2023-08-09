@@ -1,17 +1,61 @@
 import { Doc, allDocs } from ".contentlayer/generated";
 
-export interface GroupedDocs {
+/**
+ * Lighter version of Doc type so it can be used in the client without having to import all of the content
+ */
+export interface PartialDoc
+    extends Pick<
+        Doc,
+        | "title"
+        | "description"
+        | "order"
+        | "slug"
+        | "slugGroup"
+        | "slugPage"
+        | "isGroupIndex"
+    > {
+    body?: never;
+    _raw?: never;
+}
+
+export type DocOrPartialDoc<P extends boolean> = P extends true
+    ? PartialDoc
+    : Doc;
+
+export interface GroupedDocs<P extends boolean> {
     [group: string]: {
-        [page: string]: Doc;
+        [page: string]: DocOrPartialDoc<P>;
     };
 }
 
-export const getDocBySlug = (...slugParts: string[]) => {
-    const slug = slugParts.join("/");
-    return allDocs.find((doc) => doc.slug === slug) ?? null;
+export const getPartialDoc = (doc: Doc): PartialDoc => ({
+    title: doc.title,
+    description: doc.description,
+    order: doc.order,
+    slug: doc.slug,
+    slugGroup: doc.slugGroup,
+    slugPage: doc.slugPage,
+    isGroupIndex: doc.isGroupIndex,
+});
+
+export const getPartialDocs = (docs: Doc[] = allDocs) => {
+    return docs.map(getPartialDoc);
 };
 
-export const getGroupedDocs = () => {
+export const getDocBySlug = <P extends boolean = true>(
+    slugParts: string[],
+    partial: P = true as P
+): DocOrPartialDoc<P> | null => {
+    const slug = slugParts.join("/");
+    const doc = allDocs.find((doc) => doc.slug === slug) ?? null;
+    if (!doc) return null;
+    if (partial) return getPartialDoc(doc) as DocOrPartialDoc<P>;
+    return doc as DocOrPartialDoc<P>;
+};
+
+export const getGroupedDocs = <P extends boolean = true>(
+    partial: P = true as P
+) => {
     return allDocs.reduce((acc, doc) => {
         if (doc.isGroupIndex) return acc;
 
@@ -19,12 +63,18 @@ export const getGroupedDocs = () => {
         if (!acc[group]) {
             acc[group] = {};
         }
-        acc[group][page] = doc;
+
+        if (partial) {
+            (acc as GroupedDocs<true>)[group][page] = getPartialDoc(doc);
+        } else {
+            (acc as GroupedDocs<false>)[group][page] = doc;
+        }
+
         return acc;
-    }, {} as GroupedDocs);
+    }, {} as GroupedDocs<P>);
 };
 
-export const sortDocs = (docs: Doc[]) => {
+export const sortDocs = <T extends Doc | PartialDoc>(docs: T[]) => {
     return docs.sort((a, b) => {
         if (a.order && b.order) {
             return a.order - b.order;
@@ -39,19 +89,25 @@ export const sortDocs = (docs: Doc[]) => {
     });
 };
 
-export const getGroupIndexes = () => {
-    const groupIndexes = Object.keys(getGroupedDocs()).reduce((acc, group) => {
-        const doc = getDocBySlug(group);
+export const getGroupIndexes = <P extends boolean = true>(
+    partial: P = true as P
+) => {
+    const groupedDocs = getGroupedDocs(partial);
+    const groupIndexes = Object.keys(groupedDocs).reduce((acc, group) => {
+        const doc = getDocBySlug([group], partial);
         if (doc) {
             acc.push(doc);
         }
         return acc;
-    }, [] as Doc[]);
+    }, [] as DocOrPartialDoc<P>[]);
     return sortDocs(groupIndexes);
 };
 
-export const getGroupDocs = (group: string) => {
-    const groupedDocs = getGroupedDocs();
+export const getGroupDocs = <P extends boolean = true>(
+    group: string,
+    partial: P = true as P
+) => {
+    const groupedDocs = getGroupedDocs(partial);
     const groupDocs = groupedDocs[group];
     if (!groupDocs) return [];
     return sortDocs(Object.values(groupDocs));

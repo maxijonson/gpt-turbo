@@ -1,9 +1,9 @@
-import { Doc } from ".contentlayer/generated";
 import { SimpleGrid, Card, Text } from "@mantine/core";
 import Link from "next/link";
+import { PartialDoc } from "@mdx/docs";
 
 interface DocGridProps {
-    docs: Doc[];
+    docs: PartialDoc[];
 }
 
 const DocsGrid = ({ docs }: DocGridProps) => {

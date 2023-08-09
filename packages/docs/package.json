@@ -9,7 +9,8 @@
         "build": "contentlayer build && next build",
         "preview": "npm run build && npm start",
         "start": "next start",
-        "lint": "next lint"
+        "lint": "next lint",
+        "tscheck": "tsc --noEmit"
     },
     "dependencies": {
         "@mantine/code-highlight": "^7.0.0-alpha.21",

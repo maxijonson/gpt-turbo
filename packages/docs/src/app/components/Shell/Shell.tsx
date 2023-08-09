@@ -2,9 +2,9 @@
 
 import { AppShell } from "@mantine/core";
 import ShellHeader from "./ShellHeader/ShellHeader";
-import ShellNavbar, { SHELLNAVBAR_WIDTH } from "./ShellNavbar/ShellNavbar";
+import ShellNavbar from "./ShellNavbar/ShellNavbar";
 import { useAppStore } from "@store";
-import { SHELLHEADER_HEIGHT } from "@config/constants";
+import { SHELLHEADER_HEIGHT, SHELLNAVBAR_WIDTH } from "@config/constants";
 import { usePathname } from "next/navigation";
 import React from "react";
 

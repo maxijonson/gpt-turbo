@@ -16,7 +16,7 @@ interface DocsSlugProps {
 }
 
 const DocsSlugPage = async ({ params: { slug } }: DocsSlugProps) => {
-    const doc = getDocBySlug(...slug);
+    const doc = getDocBySlug(slug, false);
     if (!doc) return <SlugNotFound />;
 
     if (doc.isGroupIndex) {
