@@ -8,11 +8,30 @@ import {
 } from "@mantine/spotlight";
 import React from "react";
 import { BiSearch } from "react-icons/bi";
+import useDocs from "../../../contexts/hooks/useDocs";
+import { useRouter } from "next/navigation";
 
 export const [docsStore, docsSpotlight] = createSpotlight();
 
 const DocsSpotlight = () => {
-    const actions = React.useMemo<SpotlightActionData[]>(() => [], []);
+    const { docs } = useDocs();
+    const router = useRouter();
+
+    const actions = React.useMemo<SpotlightActionData[]>(
+        () =>
+            docs.reduce((acc, doc) => {
+                return doc.isGroupIndex
+                    ? acc
+                    : acc.concat({
+                          id: doc.slug,
+                          label: doc.title,
+                          description: doc.description,
+                          group: doc.slugGroup.replace("-", " "),
+                          onClick: () => router.push(`/docs/${doc.slug}`),
+                      });
+            }, [] as SpotlightActionData[]),
+        [docs, router]
+    );
 
     return (
         <Spotlight
