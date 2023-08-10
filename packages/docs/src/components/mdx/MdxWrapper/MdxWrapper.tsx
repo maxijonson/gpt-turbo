@@ -12,8 +12,9 @@ const MdxWrapper = ({ children }: MdxWrapperProps) => {
             classNames={{
                 root: classes.root,
             }}
+            fz={15}
         >
-            <Container size="md" pb={80}>
+            <Container size="md" pb={80} px="xl">
                 {children}
             </Container>
         </TypographyStylesProvider>
