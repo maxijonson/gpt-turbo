@@ -16,6 +16,7 @@ export const generateMetadata = ({
 
     const metadata: Metadata = {
         title: `${doc.title} | GPT Turbo`,
+        description: doc.description,
     };
 
     return metadata;

@@ -1,6 +1,7 @@
 import SlugNotFound from "./components/SlugNotFound/SlugNotFound";
 import Mdx from "@components/mdx/Mdx/Mdx";
 import {
+    Box,
     Container,
     Text,
     Title,
@@ -8,6 +9,7 @@ import {
 } from "@mantine/core";
 import { getDocBySlug, getGroupDocs } from "@mdx/docs";
 import DocsGrid from "../../../components/DocsGrid/DocsGrid";
+import DocHeader from "./components/DocHeader/DocHeader";
 
 interface DocsSlugProps {
     params: {
@@ -33,7 +35,12 @@ const DocsSlugPage = async ({ params: { slug } }: DocsSlugProps) => {
         );
     }
 
-    return <Mdx doc={doc} />;
+    return (
+        <Box>
+            <DocHeader doc={doc} />
+            <Mdx doc={doc} />
+        </Box>
+    );
 };
 
 export default DocsSlugPage;
