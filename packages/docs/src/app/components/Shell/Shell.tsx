@@ -20,7 +20,10 @@ interface ShellProps {
 
 const EXCLUDE_NAVBAR_PAGES = ["/"];
 
-const getMdxRoot = () => document.getElementById(MDX_ROOT_ID);
+const getMdxRoot = () => {
+    if (typeof document === "undefined") return null;
+    return document.getElementById(MDX_ROOT_ID);
+};
 
 const Shell = ({ children }: ShellProps) => {
     const pathname = usePathname();
