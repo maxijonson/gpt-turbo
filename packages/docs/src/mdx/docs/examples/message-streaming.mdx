@@ -6,7 +6,7 @@ description: Get the message content as it is being created, like ChatGPT.
 
 By default, messsage responses are returned in a single string. However, you can also stream a message as it is generated, just like ChatGPT.
 
-To do this, you need to set the `stream` option to `true` when creating a `Conversation` instance. 
+To do this, you need to set the `stream` option to `true` when creating a `Conversation` instance.
 Then, you can use the `onContentStream` method to listen for new content as it is generated.
 
 ```ts
@@ -23,12 +23,19 @@ const response = await conversation.prompt(
     "How can I make my code more efficient than a droid army?"
 );
 
-// New method (v5). Recommended for streamed responses as it automatically unsubscribes when the streaming stops.
 response.onContentStream(async (content, isStreaming) => {
     console.log(content);
 });
+```
 
-// Legacy method (v4). Still supported, but you need to unsubscribe manually.
+## Legacy Method (v4)
+
+If you are using v4, you can use the `onUpdate` method to listen for new content as it is generated.
+Just don't forget to unsubscribe when you are done.
+
+```ts
+// ...
+
 const unsubscribeUpdate = response.onUpdate((content) => {
     console.log(content);
 });
@@ -38,3 +45,5 @@ const unsubscribeStop = response.onStreamingStop(() => {
     unsubscribeStop();
 });
 ```
+
+> this method also works in v5, but `onContentStream` is preferred.
