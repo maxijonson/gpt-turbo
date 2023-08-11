@@ -1,5 +1,6 @@
 import {
     AppShellAside,
+    RemoveScroll,
     Tabs,
     TabsList,
     TabsTab,
@@ -61,7 +62,7 @@ const ShellAside = () => {
     if (tocEntries.length === 0 || !active) return null;
 
     return (
-        <AppShellAside withBorder={false} py="xl">
+        <AppShellAside withBorder={false} py="xl" className={RemoveScroll.classNames.fullWidth}>
             <Text fw="bold" fz="xs">
                 ON THIS PAGE
             </Text>
