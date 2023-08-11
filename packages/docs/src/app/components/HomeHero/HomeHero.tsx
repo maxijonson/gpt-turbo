@@ -64,7 +64,11 @@ const HomeHero = () => {
                         conversational AI
                     </Text>
                     <Group mt="md">
-                        <Button component={Link} href="/docs/getting-started/introduction" size="md">
+                        <Button
+                            component={Link}
+                            href="/docs/getting-started/introduction"
+                            size="md"
+                        >
                             Get Started
                         </Button>
                         <Button
