@@ -39,6 +39,6 @@ import { Conversation } from "gpt-turbo";
 import { load } from "./utils/db.js";
 
 const conversationJson = await load();
-const conversation = await Conversation.fromJSON(conversationJson);
+const conversation = Conversation.fromJSON(conversationJson);
 // ...
 ```
