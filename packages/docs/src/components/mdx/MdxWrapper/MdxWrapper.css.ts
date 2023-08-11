@@ -11,7 +11,14 @@ globalStyle(
     }
 );
 
-globalStyle(`${root} .subheading-anchor, ${root} .subheading-anchor:hover`, {
-    color: "inherit",
+globalStyle(`${root} a`, {
+    color: vars.colors.orange[8],
+});
+globalStyle(`${darkRoot} a`, {
+    color: vars.colors.anchor,
+});
+
+globalStyle(`${root} a.subheading-anchor, ${root} a.subheading-anchor:hover`, {
+    color: vars.colors.text,
     textDecoration: "none",
 });
