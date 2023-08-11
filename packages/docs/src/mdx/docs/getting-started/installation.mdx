@@ -1,0 +1,69 @@
+---
+order: 1
+title: Installation
+description: Setup and use GPT Turbo in your project.
+---
+
+> These docs will use `npm` for conciseness, but you can use `yarn` or any other package manager.
+> 
+> Since GPT Turbo is a TypeScript-first library, examples will also use TypeScript.
+> You can simply ignore TypeScript specific syntax and use plain JavaScript if you prefer.
+
+## Install GPT Turbo
+
+Install GPT Turbo using your favorite package manager:
+
+```bash
+npm install gpt-turbo
+```
+
+## (optional) Environment setup with dotenv
+
+Unless your app is meant to be 100% local, you'll probably ship your app somewhere or at least push it to a git repository.
+In that case, it is **highly recommended** to setup environment variables to avoid leaking your API keys.
+While you may choose `process.env` directly or another library, it's recommended to use [dotenv](https://www.npmjs.com/package/dotenv), which will be shown below.
+
+Install dotenv:
+
+```bash
+npm install dotenv
+```
+
+Create a `.env` file in the root of your project and add the following:
+
+```txt
+OPENAI_API_KEY=sk-...
+```
+
+Add `.env` to your `.gitignore` file to avoid committing it to your repository.
+
+Finally, you'll need to call `dotenv.config()` somewhere in your app, preferably as early as possible (e.g. in your `index.ts` file).
+You can also export the specific variables so you don't need to type and call `process.env` everywhere:
+
+```ts
+/// config.ts
+import dotenv from 'dotenv';
+dotenv.config();
+
+export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+/// index.ts
+import "./config";
+
+// ...
+```
+
+## Usage
+
+You're now ready to use GPT Turbo in your app!
+You can test out the following basic example:
+
+```ts
+import { Conversation } from "gpt-turbo";
+import { OPENAI_API_KEY } from "./config";
+
+const conversation = new Conversation({ config: { apiKey: OPENAI_API_KEY } });
+const response = await conversation.prompt("Hello there!");
+
+console.log(response.content);
+```
