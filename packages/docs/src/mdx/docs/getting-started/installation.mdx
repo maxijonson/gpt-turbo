@@ -5,7 +5,7 @@ description: Setup and use GPT Turbo in your project.
 ---
 
 > These docs will use `npm` for conciseness, but you can use `yarn` or any other package manager.
-> 
+>
 > Since GPT Turbo is a TypeScript-first library, examples will also use TypeScript.
 > You can simply ignore TypeScript specific syntax and use plain JavaScript if you prefer.
 
@@ -42,7 +42,7 @@ You can also export the specific variables so you don't need to type and call `p
 
 ```ts
 /// config.ts
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
 export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -60,10 +60,16 @@ You can test out the following basic example:
 
 ```ts
 import { Conversation } from "gpt-turbo";
-import { OPENAI_API_KEY } from "./config";
 
-const conversation = new Conversation({ config: { apiKey: OPENAI_API_KEY } });
-const response = await conversation.prompt("Hello there!");
+const apiKey = "sk-1234"; /* Your API key */
 
-console.log(response.content);
+const conversation = new Conversation({ config: { apiKey } });
+const response = await conversation.prompt(
+    "What's the best way to make my code as precise as a Stormtrooper's aim?"
+);
+console.log(`Response: ${response.content}`);
 ```
+
+## Advanced Usage
+
+Check out the [Examples](/docs/examples) section for more advanced usage examples.

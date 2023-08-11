@@ -33,7 +33,7 @@ const DocsProvider = ({ children, docs }: DocsProviderProps) => {
     >(() => {
         const groupIndexes = docs.reduce(
             (acc, doc) => {
-                if (doc.isGroupIndex) {
+                if (doc.isGroupIndex && groupedDocs[doc.slugGroup]) {
                     acc.push(doc);
                 }
                 return acc;
@@ -41,7 +41,7 @@ const DocsProvider = ({ children, docs }: DocsProviderProps) => {
             [] as DocsContextValue["docGroupIndexes"]
         );
         return sortDocs(groupIndexes);
-    }, [docs]);
+    }, [docs, groupedDocs]);
 
     const orderedDocs = React.useMemo<DocsContextValue["orderedDocs"]>(() => {
         return docGroupIndexes.flatMap((groupIndex) => {

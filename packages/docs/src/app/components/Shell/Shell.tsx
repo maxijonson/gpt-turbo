@@ -13,6 +13,7 @@ import {
 import { usePathname } from "next/navigation";
 import React from "react";
 import ShellAside from "./ShellAside/ShellAside";
+import getTocEntries from "@utils/getTocEntries";
 
 interface ShellProps {
     children: React.ReactNode;
@@ -51,7 +52,7 @@ const Shell = ({ children }: ShellProps) => {
                 width: SHELLASIDE_WIDTH,
                 breakpoint: "lg",
                 collapsed: {
-                    desktop: mdxRoot === null,
+                    desktop: mdxRoot === null || getTocEntries().length === 0,
                     mobile: true,
                 },
             }}

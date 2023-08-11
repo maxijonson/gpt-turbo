@@ -8,7 +8,7 @@ interface DocHeaderProps {
 
 const DocHeader = ({ doc }: DocHeaderProps) => {
     return (
-        <Container size="md" mt="xl">
+        <Container size="md" mt="xl" mb="md">
             <Title fz={42}>{doc.title}</Title>
             <Text c="dimmed">{doc.description}</Text>
             <DocHeaderItems doc={doc} />
