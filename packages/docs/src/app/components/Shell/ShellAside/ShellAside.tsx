@@ -50,7 +50,7 @@ const ShellAside = () => {
                     return Math.abs(curr.top) < Math.abs(prev.top)
                         ? curr
                         : prev;
-                });
+                }, { hash: "", top: Infinity });
 
             setActive(closest.hash);
         };
