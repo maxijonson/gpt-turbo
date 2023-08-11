@@ -5,6 +5,7 @@ import ShellHeader from "./ShellHeader/ShellHeader";
 import ShellNavbar from "./ShellNavbar/ShellNavbar";
 import { useAppStore } from "@store";
 import {
+    MDX_ROOT_ID,
     SHELLASIDE_WIDTH,
     SHELLHEADER_HEIGHT,
     SHELLNAVBAR_WIDTH,
@@ -12,7 +13,6 @@ import {
 import { usePathname } from "next/navigation";
 import React from "react";
 import ShellAside from "./ShellAside/ShellAside";
-import useDocs from "@contexts/hooks/useDocs";
 
 interface ShellProps {
     children: React.ReactNode;
@@ -20,21 +20,18 @@ interface ShellProps {
 
 const EXCLUDE_NAVBAR_PAGES = ["/"];
 
+const getMdxRoot = () => document.getElementById(MDX_ROOT_ID);
+
 const Shell = ({ children }: ShellProps) => {
     const pathname = usePathname();
     const [mobileNavbarOpened] = useAppStore((s) => [
         s.navbar.mobileNavbarOpened,
     ]);
-    const { docs } = useDocs();
 
-    const currentDoc = React.useMemo(
-        () => docs.find((doc) => `/docs/${doc.slug}` === pathname),
-        [docs, pathname]
-    );
-    const showAside =
-        !!currentDoc &&
-        !currentDoc.isGroupIndex &&
-        currentDoc.headings.length > 0;
+    const [mdxRoot, setMdxRoot] = React.useState(getMdxRoot());
+    React.useEffect(() => {
+        setMdxRoot(getMdxRoot());
+    }, [pathname]);
 
     return (
         <AppShell
@@ -51,7 +48,7 @@ const Shell = ({ children }: ShellProps) => {
                 width: SHELLASIDE_WIDTH,
                 breakpoint: "lg",
                 collapsed: {
-                    desktop: !showAside,
+                    desktop: mdxRoot === null,
                     mobile: true,
                 },
             }}
@@ -59,7 +56,7 @@ const Shell = ({ children }: ShellProps) => {
         >
             <ShellHeader />
             <ShellNavbar />
-            {showAside && <ShellAside doc={currentDoc} />}
+            <ShellAside />
 
             <AppShell.Main>{children}</AppShell.Main>
         </AppShell>

@@ -20,7 +20,6 @@
         "@mantine/vanilla-extract": "^7.0.0-alpha.21",
         "@vanilla-extract/css": "^1.12.0",
         "contentlayer": "^0.3.4",
-        "github-slugger": "^2.0.0",
         "gpt-turbo": "^5.0.0",
         "next": "13.4.12",
         "next-contentlayer": "^0.3.4",

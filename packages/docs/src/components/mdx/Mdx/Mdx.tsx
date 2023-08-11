@@ -5,6 +5,8 @@ import MdxWrapper from "../MdxWrapper/MdxWrapper";
 import MdxPreformatted from "../intrinsic/MdxPreformatted/MdxPreformatted";
 import MdxBlockquote from "../intrinsic/MdxBlockquote/MdxBlockquote";
 import { h } from "../intrinsic/MdxTitle/MdxTitle";
+import { Box } from "@mantine/core";
+import { MDX_ROOT_ID } from "@config/constants";
 
 interface MdxProps {
     doc: Doc;
@@ -24,7 +26,11 @@ const components: MDXComponents = {
 
 const Mdx = ({ doc }: MdxProps) => {
     const Component = useMDXComponent(doc.body.code);
-    return <Component components={components} />;
+    return (
+        <Box id={MDX_ROOT_ID}>
+            <Component components={components} />
+        </Box>
+    );
 };
 
 export default Mdx;

@@ -16,13 +16,6 @@ export interface PartialDoc
     > {
     body?: never;
     _raw?: never;
-    headings: DocHeading[];
-}
-
-export interface DocHeading {
-    title: string;
-    level: number;
-    hash: string;
 }
 
 export type DocOrPartialDoc<P extends boolean> = P extends true
@@ -43,7 +36,6 @@ export const getPartialDoc = (doc: Doc): PartialDoc => ({
     slugGroup: doc.slugGroup,
     slugPage: doc.slugPage,
     isGroupIndex: doc.isGroupIndex,
-    headings: doc.headings,
 });
 
 export const getPartialDocs = (docs: Doc[] = allDocs) => {

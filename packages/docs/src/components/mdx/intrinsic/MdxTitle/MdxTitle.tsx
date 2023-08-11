@@ -8,7 +8,7 @@ const MdxTitle = ({ id, ...props }: MdxTitleProps) => {
     return (
         <>
             <div id={id} className={classes.idMarker} />
-            <Title {...props} />
+            <Title {...props} data-hash={id} />
         </>
     );
 };
