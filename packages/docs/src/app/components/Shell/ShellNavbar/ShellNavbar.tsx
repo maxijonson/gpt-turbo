@@ -1,16 +1,17 @@
 import {
+    Anchor,
     AppShell,
     Box,
     Stack,
     Tabs,
     TabsList,
     TabsTab,
-    Text,
 } from "@mantine/core";
 import * as classes from "./ShellNavbar.css";
 import useDocs from "@contexts/hooks/useDocs";
 import { usePathname, useRouter } from "next/navigation";
 import sortDocs from "../../../../utils/sortDocs";
+import Link from "next/link";
 
 const ShellNavbar = () => {
     const pathname = usePathname();
@@ -27,14 +28,17 @@ const ShellNavbar = () => {
 
                     return (
                         <Box key={group.slug}>
-                            <Text
+                            <Anchor
+                                component={Link}
+                                href={`/docs/${group.slugGroup}`}
                                 className={classes.groupTitle}
                                 fw="bold"
                                 fz="xs"
+                                c="inherit"
                                 mb={4}
                             >
                                 {group.title}
-                            </Text>
+                            </Anchor>
                             <Tabs
                                 orientation="vertical"
                                 placement="right"
