@@ -5,7 +5,7 @@ interface MdxBlockquoteProps
         ElementProps<"blockquote", keyof BlockquoteProps> {}
 
 const MdxBlockquote = (props: MdxBlockquoteProps) => {
-    return <Blockquote color="blue" pb={1} {...props} />;
+    return <Blockquote fz={15} pb={1} {...props} />;
 };
 
 export default MdxBlockquote;
