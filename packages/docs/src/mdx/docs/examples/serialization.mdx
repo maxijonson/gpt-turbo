@@ -1,0 +1,44 @@
+---
+order: 1
+title: Serialization
+description: Save and load your data in a JSON format
+---
+
+Almost every class in the library can be serialized to JSON and deserialized from JSON. 
+This is useful for saving and loading data to and from disk, or for sending data over the network.
+
+The classes you'll most likely be using for serialization are the following, but keep in mind most internal classes are also serializable/deserializable:
+
+- `Conversation`
+- `Message`
+- `CallableFunction`
+
+## Serialization
+
+Serializable classes have a `toJSON()` method that returns a JSON object.
+
+
+```ts
+import { Conversation } from "gpt-turbo";
+import { save } from "./utils/db.js";
+
+const conversation = new Conversation();
+
+const response = await conversation.prompt("How can I optimize my code to be faster than the Millennium Falcon's Kessel Run?");
+console.log(`Response: ${response.content}`);
+
+await save(conversation.toJSON());
+```
+
+## Deserialization
+
+Deserializable classes have a `fromJSON()` static method that returns an instance of the class.
+
+```ts
+import { Conversation } from "gpt-turbo";
+import { load } from "./utils/db.js";
+
+const conversationJson = await load();
+const conversation = await Conversation.fromJSON(conversationJson);
+// ...
+```
