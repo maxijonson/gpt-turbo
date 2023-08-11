@@ -46,11 +46,14 @@ const ShellAside = () => {
                     (entry): entry is { hash: string; top: number } =>
                         entry !== null
                 )
-                .reduce((prev, curr) => {
-                    return Math.abs(curr.top) < Math.abs(prev.top)
-                        ? curr
-                        : prev;
-                }, { hash: "", top: Infinity });
+                .reduce(
+                    (prev, curr) => {
+                        return Math.abs(curr.top) < Math.abs(prev.top)
+                            ? curr
+                            : prev;
+                    },
+                    { hash: "", top: Infinity }
+                );
 
             setActive(closest.hash);
         };
@@ -62,7 +65,11 @@ const ShellAside = () => {
     if (tocEntries.length === 0 || !active) return null;
 
     return (
-        <AppShellAside withBorder={false} py="xl" className={RemoveScroll.classNames.fullWidth}>
+        <AppShellAside
+            withBorder={false}
+            py="xl"
+            className={RemoveScroll.classNames.fullWidth}
+        >
             <Text fw="bold" fz="xs">
                 ON THIS PAGE
             </Text>
