@@ -14,7 +14,7 @@ const MdxWrapper = ({ children }: MdxWrapperProps) => {
             }}
             fz={15}
         >
-            <Container size="md" pb={80} px="xl">
+            <Container size="md" pb="xl" px="xl">
                 {children}
             </Container>
         </TypographyStylesProvider>

@@ -2,7 +2,8 @@
 
 import React from "react";
 import { DocsContext, DocsContextValue } from "../DocsContext";
-import type { PartialDoc } from "@mdx/docs";
+import { PartialDoc } from "@utils/types";
+import sortDocs from "@utils/sortDocs";
 
 interface DocsProviderProps {
     children?: React.ReactNode;
@@ -30,7 +31,7 @@ const DocsProvider = ({ children, docs }: DocsProviderProps) => {
     const docGroupIndexes = React.useMemo<
         DocsContextValue["docGroupIndexes"]
     >(() => {
-        return docs.reduce(
+        const groupIndexes = docs.reduce(
             (acc, doc) => {
                 if (doc.isGroupIndex) {
                     acc.push(doc);
@@ -39,15 +40,24 @@ const DocsProvider = ({ children, docs }: DocsProviderProps) => {
             },
             [] as DocsContextValue["docGroupIndexes"]
         );
+        return sortDocs(groupIndexes);
     }, [docs]);
+
+    const orderedDocs = React.useMemo<DocsContextValue["orderedDocs"]>(() => {
+        return docGroupIndexes.flatMap((groupIndex) => {
+            const group = groupedDocs[groupIndex.slugGroup];
+            return sortDocs(Object.values(group));
+        });
+    }, [docGroupIndexes, groupedDocs]);
 
     const providerValue = React.useMemo<DocsContextValue>(
         () => ({
-            docs,
+            docs: sortDocs(docs),
             groupedDocs,
             docGroupIndexes,
+            orderedDocs,
         }),
-        [docGroupIndexes, docs, groupedDocs]
+        [docs, groupedDocs, docGroupIndexes, orderedDocs]
     );
 
     return (

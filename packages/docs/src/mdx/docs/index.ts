@@ -1,32 +1,6 @@
 import { Doc, allDocs } from ".contentlayer/generated";
-
-/**
- * Lighter version of Doc type so it can be used in the client without having to import all of the content
- */
-export interface PartialDoc
-    extends Pick<
-        Doc,
-        | "title"
-        | "description"
-        | "order"
-        | "slug"
-        | "slugGroup"
-        | "slugPage"
-        | "isGroupIndex"
-    > {
-    body?: never;
-    _raw?: never;
-}
-
-export type DocOrPartialDoc<P extends boolean> = P extends true
-    ? PartialDoc
-    : Doc;
-
-export interface GroupedDocs<P extends boolean> {
-    [group: string]: {
-        [page: string]: DocOrPartialDoc<P>;
-    };
-}
+import type { DocOrPartialDoc, GroupedDocs, PartialDoc } from "@utils/types";
+import sortDocs from "@utils/sortDocs";
 
 export const getPartialDoc = (doc: Doc): PartialDoc => ({
     title: doc.title,
@@ -72,21 +46,6 @@ export const getGroupedDocs = <P extends boolean = true>(
 
         return acc;
     }, {} as GroupedDocs<P>);
-};
-
-export const sortDocs = <T extends Doc | PartialDoc>(docs: T[]) => {
-    return docs.sort((a, b) => {
-        if (a.order && b.order) {
-            return a.order - b.order;
-        }
-        if (a.order) {
-            return -1;
-        }
-        if (b.order) {
-            return 1;
-        }
-        return 0;
-    });
 };
 
 export const getGroupIndexes = <P extends boolean = true>(

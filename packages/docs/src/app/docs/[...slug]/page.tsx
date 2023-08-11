@@ -10,6 +10,7 @@ import {
 import { getDocBySlug, getGroupDocs } from "@mdx/docs";
 import DocsGrid from "../../../components/DocsGrid/DocsGrid";
 import DocHeader from "./components/DocHeader/DocHeader";
+import DocFooter from "./components/DocFooter/DocFooter";
 
 interface DocsSlugProps {
     params: {
@@ -39,6 +40,7 @@ const DocsSlugPage = async ({ params: { slug } }: DocsSlugProps) => {
         <Box>
             <DocHeader doc={doc} />
             <Mdx doc={doc} />
+            <DocFooter />
         </Box>
     );
 };

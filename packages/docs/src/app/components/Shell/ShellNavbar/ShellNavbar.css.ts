@@ -13,3 +13,16 @@ export const root = style({
 export const groupTitle = style({
     textTransform: "uppercase",
 });
+
+export const tab = style({
+    backgroundColor: "red",
+
+    selectors: {
+        "&[data-active]": {
+            backgroundColor: vars.colors.orange.light,
+        },
+        "&[data-active]:hover": {
+            backgroundColor: vars.colors.orange.lightHover,
+        },
+    },
+});

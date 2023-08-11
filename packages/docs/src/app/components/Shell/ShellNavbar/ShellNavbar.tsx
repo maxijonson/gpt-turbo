@@ -1,47 +1,56 @@
-import { AppShell, Box, Button, Text } from "@mantine/core";
+import { AppShell, Box, Tabs, TabsList, TabsTab, Text } from "@mantine/core";
 import * as classes from "./ShellNavbar.css";
 import useDocs from "@contexts/hooks/useDocs";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import sortDocs from "../../../../utils/sortDocs";
 
 const ShellNavbar = () => {
     const pathname = usePathname();
+    const router = useRouter();
     const { groupedDocs, docGroupIndexes } = useDocs();
 
     return (
         <AppShell.Navbar className={classes.root} p="md">
-            {docGroupIndexes.map((group) => (
-                <Box key={group.slug}>
-                    <Text
-                        className={classes.groupTitle}
-                        fw="bold"
-                        fz="xs"
-                        px="md"
-                        mb={4}
-                    >
-                        {group.title}
-                    </Text>
-                    {Object.values(groupedDocs[group.slugGroup]).map((doc) => {
-                        const path = `/docs/${doc.slug}`;
-                        const isActive = pathname === path;
+            {docGroupIndexes.map((group) => {
+                const docs = sortDocs(
+                    Object.values(groupedDocs[group.slugGroup])
+                );
 
-                        return (
-                            <Button
-                                key={doc.slug}
-                                component={Link}
-                                href={path}
-                                fullWidth
-                                justify="start"
-                                variant={isActive ? "light" : "default"}
-                                fw={isActive ? "normal" : "lighter"}
-                                style={{ border: 0 }}
-                            >
-                                {doc.title}
-                            </Button>
-                        );
-                    })}
-                </Box>
-            ))}
+                return (
+                    <Box key={group.slug}>
+                        <Text
+                            className={classes.groupTitle}
+                            fw="bold"
+                            fz="xs"
+                            mb={4}
+                        >
+                            {group.title}
+                        </Text>
+                        <Tabs
+                            orientation="vertical"
+                            placement="right"
+                            value={pathname}
+                        >
+                            <TabsList w="100%">
+                                {docs.map((doc) => (
+                                    <TabsTab
+                                        key={doc.slug}
+                                        value={`/docs/${doc.slug}`}
+                                        onClick={() =>
+                                            router.push(`/docs/${doc.slug}`)
+                                        }
+                                        classNames={{
+                                            tab: classes.tab,
+                                        }}
+                                    >
+                                        {doc.title}
+                                    </TabsTab>
+                                ))}
+                            </TabsList>
+                        </Tabs>
+                    </Box>
+                );
+            })}
         </AppShell.Navbar>
     );
 };
