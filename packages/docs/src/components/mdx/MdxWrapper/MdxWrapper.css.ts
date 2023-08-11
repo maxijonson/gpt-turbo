@@ -2,7 +2,6 @@ import { globalStyle, style } from "@vanilla-extract/css";
 import { vars } from "@theme";
 
 export const root = style({});
-
 const darkRoot = `[data-mantine-color-scheme="dark"] ${root}`;
 
 globalStyle(
@@ -11,3 +10,8 @@ globalStyle(
         color: vars.colors.white,
     }
 );
+
+globalStyle(`${root} .subheading-anchor, ${root} .subheading-anchor:hover`, {
+    color: "inherit",
+    textDecoration: "none",
+});

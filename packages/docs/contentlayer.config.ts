@@ -2,6 +2,8 @@
 import { defineDocumentType, makeSource } from "contentlayer/source-files";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeSlug from "rehype-slug";
+import GithubSlugger from "github-slugger";
+import type { DocHeading } from "./src/mdx/docs";
 
 export const Doc = defineDocumentType(() => {
     const getSlug = (doc: any) => {
@@ -48,6 +50,27 @@ export const Doc = defineDocumentType(() => {
                 type: "boolean",
                 resolve: (doc) => getSlug(doc).split("/").length === 1,
             },
+            headings: {
+                type: "json",
+                resolve: (doc) => {
+                    // https://www.yusuf.fyi/posts/contentlayer-table-of-contents
+                    const regXHeader = /\n(?<level>#{1,6})\s+(?<title>.+)/g;
+                    const slugger = new GithubSlugger();
+                    return Array.from(doc.body.raw.matchAll(regXHeader)).reduce(
+                        (headings, { groups }) => {
+                            const level = groups?.level;
+                            const title = groups?.title;
+                            if (!level || !title) return headings;
+                            return headings.concat({
+                                level: level.length,
+                                title,
+                                hash: slugger.slug(title),
+                            });
+                        },
+                        [] as DocHeading[]
+                    );
+                },
+            },
         },
     };
 });
@@ -66,6 +89,7 @@ export default makeSource({
                         className: ["subheading-anchor"],
                         ariaLabel: "Link to section",
                     },
+                    behavior: "wrap",
                 },
             ],
         ],

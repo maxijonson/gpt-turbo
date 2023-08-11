@@ -12,7 +12,13 @@ const ShellNavbar = () => {
         <AppShell.Navbar className={classes.root} p="md">
             {docGroupIndexes.map((group) => (
                 <Box key={group.slug}>
-                    <Text fw="bold" px="md" mb={4}>
+                    <Text
+                        className={classes.groupTitle}
+                        fw="bold"
+                        fz="xs"
+                        px="md"
+                        mb={4}
+                    >
                         {group.title}
                     </Text>
                     {Object.values(groupedDocs[group.slugGroup]).map((doc) => {

@@ -9,3 +9,7 @@ export const root = style({
         },
     },
 });
+
+export const groupTitle = style({
+    textTransform: "uppercase",
+});

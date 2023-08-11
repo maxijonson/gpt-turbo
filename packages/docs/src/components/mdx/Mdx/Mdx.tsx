@@ -4,15 +4,22 @@ import { MDXComponents } from "mdx/types";
 import MdxWrapper from "../MdxWrapper/MdxWrapper";
 import MdxPreformatted from "../intrinsic/MdxPreformatted/MdxPreformatted";
 import MdxBlockquote from "../intrinsic/MdxBlockquote/MdxBlockquote";
+import { h } from "../intrinsic/MdxTitle/MdxTitle";
 
 interface MdxProps {
     doc: Doc;
 }
 
 const components: MDXComponents = {
+    wrapper: MdxWrapper,
     pre: ({ children }) => <MdxPreformatted>{children}</MdxPreformatted>,
     blockquote: MdxBlockquote,
-    wrapper: MdxWrapper,
+    h1: h(1),
+    h2: h(2),
+    h3: h(3),
+    h4: h(4),
+    h5: h(5),
+    h6: h(6),
 };
 
 const Mdx = ({ doc }: MdxProps) => {
