@@ -26,7 +26,6 @@ const DocsSpotlight = () => {
                           id: doc.slug,
                           label: doc.title,
                           description: doc.description,
-                          group: doc.slugGroup.replace("-", " "),
                           onClick: () => router.push(`/docs/${doc.slug}`),
                       });
             }, [] as SpotlightActionData[]),
