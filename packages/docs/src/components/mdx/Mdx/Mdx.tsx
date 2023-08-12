@@ -7,6 +7,7 @@ import MdxBlockquote from "../intrinsic/MdxBlockquote/MdxBlockquote";
 import { h } from "../intrinsic/MdxTitle/MdxTitle";
 import { Box } from "@mantine/core";
 import { MDX_ROOT_ID } from "@config/constants";
+import MdxAnchor from "../intrinsic/MdxAnchor/MdxAnchor";
 
 interface MdxProps {
     doc: Doc;
@@ -14,6 +15,7 @@ interface MdxProps {
 
 const components: MDXComponents = {
     wrapper: MdxWrapper,
+    a: MdxAnchor,
     pre: ({ children }) => <MdxPreformatted>{children}</MdxPreformatted>,
     blockquote: MdxBlockquote,
     h1: h(1),

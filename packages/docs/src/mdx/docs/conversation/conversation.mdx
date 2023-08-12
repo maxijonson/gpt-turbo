@@ -20,4 +20,18 @@ import { Conversation } from "gpt-turbo";
 
 const apiKey = "sk-1234567890abcdefg";
 const conversation = new Conversation({ config: { apiKey } });
+// const conversation = new Conversation(); // Works, but runs in dry mode
 ```
+
+## Conversation Configuration
+
+In the example above, we configured the conversation config property of the conversation through the `config` property.
+Behind the scenes, the constructor passes these properties to the `ConversationConfig` class instance.
+Here are all the properties you can pass to a `Conversation` constructor:
+
+- `config`: Configures the [`ConversationConfig`](/docs/conversation/conversation-config) 
+- `requestOptions`: Configures the [`ConversationRequestOptions`](/docs/conversation/conversation-request-options) 
+- `history`: Configures the [`ConversationHistory`](/docs/conversation/conversation-history) 
+- `callableFunctions`: Configures the [`ConversationCallableFunctions`](/docs/conversation/conversation-callable-functions) 
+- `plugins`: Registers the plugins to the [`ConversationPluginService`](/docs/conversation/conversation-plugin-service), which is used by the [`ConversationPlugins`](/docs/conversation/conversation-plugins) class.
+- `pluginsData`: Data passed to the plugins on initialization, usually passed when creating a conversation from a JSON representation of a conversation (i.e. with `fromJSON`)
