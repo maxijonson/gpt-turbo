@@ -1,0 +1,23 @@
+---
+title: Conversation
+description: GPT Turbo's main class for interacting with the Chat Completion API
+order: 0
+---
+
+The `Conversation` class is the main class you'll be interacting with.
+It allows you to easily interact with the Chat Completion API with a few methods.
+Internally, it uses multiple other classes to handle the heavy lifting.
+These are outlined in the next sections.
+
+## Creating a Conversation
+
+To create a conversation, you need to instantiate the `Conversation` class.
+If you pass no parameters, it will use default settings to instantiate its internal classes.
+However, at the very least, you'll want to pass in an API key, otherwise the conversation will run in dry mode by default.
+
+```ts
+import { Conversation } from "gpt-turbo";
+
+const apiKey = "sk-1234567890abcdefg";
+const conversation = new Conversation({ config: { apiKey } });
+```
