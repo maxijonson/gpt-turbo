@@ -8,6 +8,7 @@ import { h } from "../intrinsic/MdxTitle/MdxTitle";
 import { Box } from "@mantine/core";
 import { MDX_ROOT_ID } from "@config/constants";
 import MdxAnchor from "../intrinsic/MdxAnchor/MdxAnchor";
+import MdxUnderConstruction from "../MdxUnderConstruction/MdxUnderConstruction";
 
 interface MdxProps {
     doc: Doc;
@@ -24,6 +25,8 @@ const components: MDXComponents = {
     h4: h(4),
     h5: h(5),
     h6: h(6),
+
+    UnderConstruction: MdxUnderConstruction,
 };
 
 const Mdx = ({ doc }: MdxProps) => {
