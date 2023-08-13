@@ -23,15 +23,180 @@ const conversation = new Conversation({ config: { apiKey } });
 // const conversation = new Conversation(); // Works, but runs in dry mode
 ```
 
-## Conversation Configuration
+## Constructor
 
 In the example above, we configured the conversation config property of the conversation through the `config` property.
 Behind the scenes, the constructor passes these properties to the `ConversationConfig` class instance.
 Here are all the properties you can pass to a `Conversation` constructor:
 
-- `config`: Configures the [`ConversationConfig`](/docs/conversation/conversation-config) 
-- `requestOptions`: Configures the [`ConversationRequestOptions`](/docs/conversation/conversation-request-options) 
-- `history`: Configures the [`ConversationHistory`](/docs/conversation/conversation-history) 
-- `callableFunctions`: Configures the [`ConversationCallableFunctions`](/docs/conversation/conversation-callable-functions) 
-- `plugins`: Registers the plugins to the [`ConversationPluginService`](/docs/conversation/conversation-plugin-service), which is used by the [`ConversationPlugins`](/docs/conversation/conversation-plugins) class.
-- `pluginsData`: Data passed to the plugins on initialization, usually passed when creating a conversation from a JSON representation of a conversation (i.e. with `fromJSON`)
+-   `config`: Configures the [`ConversationConfig`](/docs/conversation/conversation-config)
+-   `requestOptions`: Configures the [`ConversationRequestOptions`](/docs/conversation/conversation-request-options)
+-   `history`: Configures the [`ConversationHistory`](/docs/conversation/conversation-history)
+-   `callableFunctions`: Configures the [`ConversationCallableFunctions`](/docs/conversation/conversation-callable-functions)
+-   `plugins`: Registers the plugins to the [`ConversationPluginService`](/docs/conversation/conversation-plugin-service), which is used by the [`ConversationPlugins`](/docs/conversation/conversation-plugins) class.
+-   `pluginsData`: Data passed to the plugins on initialization, usually passed when creating a conversation from a JSON representation of a conversation (i.e. with `fromJSON`)
+
+## Prompting
+
+Once you've created a conversation, you can use the `prompt` method to prompt the API for a completion.
+
+> This is the recommended way to use the Chat Completion API with GPT Turbo.
+> It takes care of hidden steps, such as adding a user message to the history, moderating the message, and more.
+> If you want to take more control over the prompt lifecycle, check out the [manual history management example](/docs/recipes/manual-history-management).
+
+```ts
+const conversation = new Conversation(/* ... */);
+const response = await conversation.prompt("Hello there!");
+console.log(response.content);
+```
+
+### Override chat completion parameters for a single prompt
+
+The `prompt` method takes an optional second argument, `options`, which allows you to override some chat completion parameters, previously given to the `config` parameter of the `Conversation` constructor.
+
+```ts
+const conversation = new Conversation({ config: { model: "gpt-3.5-turbo" } });
+const response = await conversation.prompt("Hello there!", { model: "gpt-4" });
+```
+
+### Override request options for a single prompt
+
+Similarly, the `prompt` method takes an optional third argument, `requestOptions`, which allows you to override some request options, previously given to the `requestOptions` parameter of the `Conversation` constructor.
+
+```ts
+const conversation = new Conversation({
+    requestOptions: { headers: { Some_Header: "value" } },
+});
+const response = await conversation.prompt("Hello there!", undefined, {
+    headers: { Some_Header: "other value" },
+});
+```
+
+## Reprompting
+
+The `reprompt` method is a convenience method to reprompt the conversation from a previous message.
+It takes care of removing messages from the reprompted message and prompts the API with a new message or the same user message.
+
+The last two arguments (of the 4) are the same as the `prompt` method and do the same thing: `options` and `requestOptions`.
+
+### Remprompting with the same message
+
+To reprompt a message re-using the same user message (but different answer), you can pass the previous response to the `reprompt` method.
+
+```ts
+const conversation = new Conversation(/* ... */);
+const r1 = await conversation.prompt("Name a strength of the clone army."); // They are good soldiers who follow orders
+const r2 = await conversation.prompt("Name a weakness of the clone army."); // They are not expandable
+
+// history:
+// User:        Name a strength of the clone army.
+// Assistant:   They are good soldiers who follow orders.
+// User:        Name a weakness of the clone army.
+// Assistant:   They are not expandable.
+
+const newR1 = await conversation.reprompt(r1); // They aim better than stormtroopers
+// const newR1 = await conversation.reprompt(r1.id); // Alternative syntax
+
+// history:
+// User:        Name a strength of the clone army.
+// Assistant:   They aim better than stormtroopers
+```
+
+### Reprompting with a new message
+
+You can specify a new message to reprompt with by passing the prompt as second argument.
+
+```ts
+const conversation = new Conversation(/* ... */);
+const r1 = await conversation.prompt("Name a strength of the clone army."); // They are good soldiers who follow orders
+const r2 = await conversation.prompt("Name a weakness of the clone army."); // They are not expandable
+
+// history:
+// User:        Name a strength of the clone army.
+// Assistant:   They are good soldiers who follow orders.
+// User:        Name a weakness of the clone army.
+// Assistant:   They are not expandable.
+
+const newR1 = await conversation.reprompt(
+    r1,
+    "Name a strength of the droid army."
+); // They're good at roger-rogering
+
+// history:
+// User:        Name a strength of the droid army.
+// Assistant:   They're good at roger-rogering
+```
+
+## Function Prompting
+
+If you have defined callable functions in your conversation, the assistant may decide to call one of them (or may not, if `function_call` is `"auto"`).
+In the event that it does, you can use the `functionPrompt` method to send the result of the called function to the assistant, after which it will respond to.
+Think of the `functionPrompt` as a way to let the assistant know what is the result of its function call.
+
+The function prompt `result` argument takes **any** type of value.
+In the end, if the value is not a string, it will be serialized using `JSON.stringify`.
+
+The last two arguments (of the 4) are the same as the `prompt` method and do the same thing: `options` and `requestOptions`.
+
+```ts
+import { Conversation, CallableFunction, CallableFunctionNumber } from "gpt-turbo";
+
+// This is the true function that will be called
+const executeOrder = (order: number) => {
+    if (order === 66) {
+        return "Yes, my lord.";
+    }
+    // ...
+    else {
+        return "I'm sorry, I don't understand.";
+    }
+};
+
+// This is a representation of the above function for the API
+const executeOrderFn = new CallableFunction("executeOrder", "Executes an order embedded in clone troopers.");
+executeOrderFn.addParameter(new CallableFunctionNumber("order", "The order number to execute"), true);
+
+const conversation = new Conversation({
+    callableFunctions: { 
+        functions: [executeOrderFn]
+    }
+});
+
+const r1 = await conversation.prompt("Execute order 66."); // [function call: "executeOrder", arguments: { order: 66 }]
+
+if (r1.isFunctionCall()) {
+    const { order } = r1.functionCall.arguments;
+    const result = executeOrder(order);
+
+    // Here, we're basically telling the assistant "Hey, you asked to call the 'executeOrder' function with order=66 as argument, and the result is 'Yes, my lord.'. Now, please respond to that."
+    const r2 = await conversation.functionPrompt(r1.functionCall.name, result); // Order 66 executed.
+}
+```
+
+> Check out a more complete example of function calling in the [function calling example](/docs/recipes/function-calling)
+
+## Serialization and Deserialization
+
+You can serialize a conversation to JSON using the `toJSON` method.
+This is especially useful if you want to persist a conversation in a database or file.
+Use the `toJSON` method to serialize a conversation to JSON.
+
+```ts
+const conversation = new Conversation(/* ... */);
+const conversationJson = conversation.toJSON();
+```
+
+You can then deserialize a conversation from JSON using the `fromJSON` static method.
+
+```ts
+const conversation = Conversation.fromJSON(conversationJson);
+```
+
+### Registering plugins during deserialization
+
+Since plugins can't be serialized (but their `pluginData` can), you'll need to provide those seperately when deserializing a conversation.
+If your plugins defined the `getPluginData` function, their data should already be in the conversation JSON and will be given to the plugins automatically on their initialization.
+
+```ts
+const conversation = Conversation.fromJSON(conversationJson, [myPlugin1, myPlugin2]);
+```
