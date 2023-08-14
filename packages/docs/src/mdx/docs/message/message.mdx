@@ -4,4 +4,173 @@ description: Represents a single message in a conversation.
 order: 0
 ---
 
-<UnderConstruction path="classes/Message.html" />
+In order to have conversation continuity, every message in the conversation must be (re-)sent to the API when prompting for a new response.
+To make this mechanism a breeze, the `ConversationHistory` instance of a `Conversation` keeps track of all `Message`s.
+
+## Creating a message
+
+To create a conversation, you need to instantiate the `Message` class.
+At its core, a `Message` has a `role`, the `model` they were created with/for and a `content` string (or `null`. More on that later!).
+
+```ts
+import { Message } from "gpt-turbo";
+
+const message = new Message("user", "Hello there!", "gpt-3.5-turbo");
+```
+
+Although it's not recommended, you can instantiate a `Message` without any arguments.
+You should do this when you want to create an instance where properties will be set later.
+
+```ts
+const message = new Message(); // equivalent to new Message("user", "", "")
+```
+
+## Message Roles
+
+The message role can be one of the following:
+
+-   `"system"`: The first message in the history, which represents the conversation's context.
+    There can only be one or zero system message in a conversation and it must be the first message.
+    Setting a good system message can greatly impact the quality of the conversation for a specific context.
+    This is (probably) very similar to what ChatGPT's Custom Instructions are, since you're giving ChatGPT some "context" about you.
+-   `"user"`: A prompt sent by the user. (you)
+-   `"assistant"`: A response to a prompt, sent by the GPT model.
+    assistant messages can be one of two types:
+    -   Chat Completion: A regular response where `content` is a string.
+    -   Function Call: A response where `content` is `null` and instead a `functionCall` object with `name` and `arguments` is present:
+        -   `name`: The name of the function to call.
+        -   `arguments`: An object where the key is the name of the argument and the value is the value of the argument.
+-   `"function"`: Similar to a `"user"` message, but instead of being a text prompt, it is rather a result of a function call.
+    Usually, after a function call by the assistant, your code should evaluate the result of the real function and send it back to the API as a `"function"` message.
+    A function message has a `name` and `content` property: - `name`: The name of the function called. - `content`: A stringified representation of the result of the function call.
+
+> You'll notice in these docs that we never use "ChatGPT" when referring to the assistant.
+> This isn't for copyright or some other legal reason, but rather because it would be innacurate.
+> ChatGPT is a **product** powered by OpenAI's Chat Completion API.
+> The assistant is the actual term used to refer to the **GPT model responses**.
+
+### Role Type Guards
+
+A `Message` can have different properties depending on its role (e.g: `content` is **always** a string for completions, but **always** `null` for function calls).
+Because of this, without type guards, `content` is always `string | null`.
+Luckily, there are some type guard methods that will narrow down the message properties to a **strict type**:
+
+-   `isCompletion()`: `role` will be one of `"system"`, `"user"` or `"assistant"`.
+    `content` will be a string.
+    `functionCall` and `name` will be `undefined`.
+-   `isFunctionCall()`: `role` will be `"assistant"`.
+    `content` will be `null`.
+    `functionCall` will be defined.
+-   `isFunction()`: `role` will be `"function"`.
+    `content` will be a string.
+    `name` will be defined.
+
+```ts
+// content = string | null. role = "system" | "user" | "assistant" | "function". ...
+const response = await conversation.prompt(/* ... */);
+
+if (response.isCompletion()) {
+    // content = string. role = "system" | "user" | "assistant". ...
+} else if (response.isFunctionCall()) {
+    // content = null. role = "assistant". functionCall = { name: string, arguments: Record<string, any> }. ...
+} else if (response.isFunction()) {
+    // content = string. role = "function". name = string. ...
+}
+```
+
+## Moderation
+
+You can moderate the message by calling the `moderate` method.
+The method takes one required argument, your API key, and one optional argument, the request options.
+
+Before moderating a `Message`, its `flags` property is always `null`.
+After moderating a `Message`, its `flags` property will be an array of strings, where each string is a flag.
+If the message is not flagged, the array will be empty.
+
+```ts
+const message = new Message("user", "Kill them all!");
+console.log(message.flags) // null
+
+await message.moderate("sk-1234");
+console.log(message.flags) // ["violence"]
+```
+
+> This will use [OpenAI's Moderation API](https://platform.openai.com/docs/guides/moderation/overview), which is **free** for all users (as of August 2023).
+
+## Event Listeners
+
+You can listen to various events on a `Message` instance.
+These allow you to react to certain events, such as when the message content changes.
+
+All events shown below have an `on`, `once` and `off` method (e.g: `onUpdate`, `onceUpdate`, `offUpdate`).
+-   `on`: Adds a listener to the event. Takes a callback function as an argument.
+-   `once`: Same as `on`, but the listener will only be called once before being automatically unsubscribed.
+-   `off`: Removes a listener from the event. Takes the callback function passed to `on` or `once` as an argument.
+
+> Except for the Content Stream event, you should make sure to unsubscribe from the event when you no longer need it, **otherwise you risk memory leaks**.
+
+### Update
+
+This event fires when the `content` of a message changes, with the following arguments:
+-   `content`: The new content of the message.
+-   `message`: The message itself.
+
+### StreamingUpdate
+
+This event fires when the `isStreaming` property of a message changes, with the following arguments:
+-   `isStreaming`: The new value of the `isStreaming` property.
+-   `message`: The message itself.
+
+### StreamingStart
+
+This event fires when the `isStreaming` property of a message changes to `true`, with the following arguments:
+-   `message`: The message itself.
+
+### StreamingStop
+
+This event fires when the `isStreaming` property of a message changes to `false`, with the following arguments:
+-   `message`: The message itself.
+
+### ContentStream
+
+This is a special kind of event that combines both the `Update` and `StreamingUpdate` events.
+It fires at every `content` change while `isStreaming` is `true`, with the following arguments:
+-   `content`: The new content of the message.
+-   `isStreaming`: The new value of the `isStreaming` property.
+-   `message`: The message itself.
+
+Once `isStreaming` is `false`, the event will be unsubscribed automatically.
+
+This is a convenience listener for listening only while a message is streaming, without having to handle unsubscribes.
+
+```ts
+const conversation = new Conversation({ config: { stream: true } })
+const response = await conversation.prompt(/* ... */);
+
+response.onContentStream((content) => {
+    console.log(content);
+});
+```
+
+> This event will first fire for `isStreaming = true` with an empty (or not) string as the content.
+> Finally, it will last fire for `isStreaming = false` with the final content.
+
+## Serialization and Deserialization
+
+You can serialize a message to JSON using the `toJSON` method.
+This is especially useful if you want to persist a message in a database or file.
+Use the `toJSON` method to serialize a message to JSON.
+
+```ts
+const message = new Message(/* ... */);
+const messageJson = message.toJSON();
+```
+
+You can then deserialize a message from JSON using the `fromJSON` static method.
+
+```ts
+const message = Message.fromJSON(messageJson);
+```
+
+> Messages are automatically serialized/deserialized when serializing a `Conversation` or `ConversationHistory`.
+> You should only use these methods if you want to serialize/deserialize a single message.
