@@ -4,4 +4,117 @@ description: Represents a callable function for the Chat Completion API's "funct
 order: 0
 ---
 
-<UnderConstruction path="classes/CallableFunction.html" />
+> Callable functions have no effect for conversations in dry mode.
+> There is no planned support for this either.
+
+Callable functions can be sent with your conversations to let the assistant be aware of functions available in your application and decide which function to call based on the user's input.
+The `CallableFunction` class let's you define a callable function in a type-safe way.
+
+## Creating a callable function
+
+To get started with a simple callable function, you need to instantiate a `CallableFunction` class with at least the `name` of the function.
+However, it's highly recommended to also provide a `description` through the second (optional) argument.
+Lastly, you can also specify `parameters` for the function through the third (optional) argument.
+Since it's recommended to add parameters through methods instead, it won't be shown here, but you can refer to the [Function Calling example](/docs/recipes/function-calling) for examples doing this.
+
+```ts
+import { CallableFunction } from "gpt-turbo";
+
+const callableFunction = new CallableFunction("myFunction", "My function description");
+```
+
+## Managing Parameters
+
+### Adding parameters
+
+You can add parameters to your callable function using the `addParameter` method.
+
+The first argument is the `parameter` or JSON `schema`.
+This means you can pass either an instance of class that extends `CallableFunctionParameter` or a [JSON schema](https://json-schema.org/) (+ the name of the parameter) as a JSON object.
+
+The second (optional) argument is the `required` flag.
+This specifies whether the parameter is required or not and is `false` by default.
+
+```ts
+import { CallableFunction, CallableFunctionString, CallableFunctionNumber } from "gpt-turbo";
+
+const callableFunction = new CallableFunction("myFunction", "My function description");
+
+const myRequiredParameter = new CallableFunctionString("myRequiredParameter");
+const myOptionalParameter = new CallableFunctionNumber("myOptionalParameter");
+
+callableFunction.addParameter(myRequiredParameter, true);
+callableFunction.addParameter(myOptionalParameter);
+```
+
+### Removing parameters
+
+You can remove parameters from your callable function using the `removeParameter` method.
+This method only takes the `name` of the parameter as an argument.
+
+```ts
+callableFunction.removeParameter("myOptionalParameter");
+```
+
+### Getting parameters
+
+There are many ways you can get one or many parameters from your callable function.
+
+#### Get a single parameter by name
+
+You can get a single parameter by name using the `getParameter` method.
+
+```ts
+const myRequiredParameter = callableFunction.getParameter("myRequiredParameter");
+```
+
+#### Get all parameters
+
+You can get all parameters using the `parameters` property.
+
+#### Get all required parameters
+
+You can get all required parameters using the `requiredParameters` property.
+
+#### Get all optional parameters
+
+You can get all optional parameters using the `optionalParameters` property.
+
+## Parameter classes
+
+The following classes can be used to define the parameters of your callable function in a type-safe way.
+These classes all extend the [`CallableFunctionParameter`](/docs/callable-function/callable-function-parameter) class, which is the base class for all parameters.
+
+- [`CallableFunctionString`](/docs/callable-function/callable-function-string)
+- [`CallableFunctionNumber`](/docs/callable-function/callable-function-number)
+- [`CallableFunctionBoolean`](/docs/callable-function/callable-function-boolean)
+- [`CallableFunctionObject`](/docs/callable-function/callable-function-object)
+- [`CallableFunctionArray`](/docs/callable-function/callable-function-array)
+- [`CallableFunctionEnum`](/docs/callable-function/callable-function-enum)
+- [`CallableFunctionConst`](/docs/callable-function/callable-function-const)
+- [`CallableFunctionNull`](/docs/callable-function/callable-function-null)
+
+Just like most classes in this library, the `CallableFunction` and subclasses of `CallableFunctionParameter` all have a `toJSON` method and `fromJSON` static method. 
+Each `CallableFunctionParameter` subclass also have Zod schemas exported so that you can validate their JSON representation. 
+
+There is also a [`CallableFunctionParameterFactory.fromJSON`](/docs/callable-function/callable-function-parameter-factory) method which is used internally by the `CallableFunctionObject` and `CallableFunctionArray` classes to create their properties/items dynamically from a JSON object.
+
+## Serialization and Deserialization
+
+You can serialize a callable function to JSON using the `toJSON` method.
+This is especially useful if you want to persist a callable function in a database or file.
+Use the `toJSON` method to serialize a callable function to JSON.
+
+```ts
+const callableFunction = new CallableFunction(/* ... */);
+const callableFunctionJson = callableFunction.toJSON();
+```
+
+You can then deserialize a callable function from JSON using the `fromJSON` static method.
+
+```ts
+const callableFunction = CallableFunction.fromJSON(callableFunctionJson);
+```
+
+> Callable functions are automatically serialized/deserialized when serializing a `Conversation` or `ConversationCallableFunctions`.
+> You should only use these methods if you want to serialize/deserialize a single callable function.

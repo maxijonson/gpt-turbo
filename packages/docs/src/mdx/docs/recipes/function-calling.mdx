@@ -4,9 +4,6 @@ title: Function Calling
 description: Use OpenAI's Function Calling feature for GPT models.
 ---
 
-> Function calls are not currently supported in dry mode. 
-> There is no planned support for this either.
-
 You can use OpenAI's Function Calling feature with GPT Turbo through the `functionPrompt` method. 
 Just define your functions in the conversation configuration just like you would normally with the Chat Completion API. 
 
@@ -241,22 +238,3 @@ const conversation = new Conversation({
     },
 });
 ```
-
-## Parameter classes
-
-The following classes can be used to define the parameters of your callable function in a type-safe way.
-These classes all extend the `CallableFunctionParameter` class, which is the base class for all parameters.
-
-- `CallableFunctionString`
-- `CallableFunctionNumber`
-- `CallableFunctionBoolean`
-- `CallableFunctionObject`
-- `CallableFunctionArray`
-- `CallableFunctionEnum`
-- `CallableFunctionConst`
-- `CallableFunctionNull`
-
-Just like most classes in this library, the `CallableFunction` and subclasses of `CallableFunctionParameter` all have a `toJSON` method and `fromJSON` static method. 
-Each `CallableFunctionParameter` subclass also have Zod schemas exported so that you can validate their JSON representation. 
-
-There is also a `CallableFunctionParameterFactory.fromJSON` method which is used internally by the `CallableFunctionObject` and `CallableFunctionArray` classes to create their properties/items dynamically from a JSON object.
