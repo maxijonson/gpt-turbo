@@ -7,10 +7,12 @@ import DocsSpotlight from "./components/DocsSpotlight/DocsSpotlight";
 import { Metadata } from "next";
 import Providers from "./components/Providers/Providers";
 
+const title = "GPT Turbo";
+const description =
+    "JavaScript library for OpenAI's Chat Completion API. Features conversation history management, parameter configuration, callable functions and plugin support!";
 export const metadata: Metadata = {
-    title: "GPT Turbo",
-    description:
-        "JavaScript library for OpenAI's Chat Completion API. Comes with conversation history management, parameter configuration, callable functions and plugin support!",
+    title,
+    description,
     keywords: [
         "openai",
         "chatgpt",
@@ -31,6 +33,15 @@ export const metadata: Metadata = {
         "bot",
         "chatbot",
     ],
+
+    openGraph: {
+        type: "website",
+        title,
+        description,
+        locale: "en_US",
+        url: "https://gpt-turbo.chintristan.io/",
+        siteName: "GPT Turbo",
+    },
 };
 
 interface AppLayoutProps {
