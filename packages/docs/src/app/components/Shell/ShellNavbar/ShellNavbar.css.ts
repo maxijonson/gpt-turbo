@@ -15,8 +15,6 @@ export const groupTitle = style({
 });
 
 export const tab = style({
-    backgroundColor: "red",
-
     selectors: {
         "&[data-active]": {
             backgroundColor: vars.colors.orange.light,
