@@ -1,6 +1,6 @@
 import { SimpleGrid, Card, Text } from "@mantine/core";
 import Link from "next/link";
-import { PartialDoc } from "@mdx/docs";
+import { PartialDoc } from "@utils/types";
 
 interface DocGridProps {
     docs: PartialDoc[];
