@@ -1,0 +1,47 @@
+---
+order: 3
+title: Message Moderation
+description: Verify that the message does not violate OpenAI's Terms of Service.
+---
+
+> ⚠ Message moderation is also done in dry mode if you've specified an API key. 
+> This is because the moderation endpoint is free of charge and does not count towards your API usage quota.
+
+By default, GPT Turbo will use your API key to call OpenAI's Moderation endpoint to make sure the message complies with their terms of service **before** prompting the Chat Completion API. 
+This endpoint is free of charge and does not count towards your API usage quota. 
+If it doesn't pass the moderation check, an error will be thrown. 
+However, you can disable this behavior completely or still moderate the message without throwing an error (flags will be added to the message instead).
+
+```ts
+import { Conversation } from "gpt-turbo";
+
+// Moderation enabled (default)
+
+const conversation = new Conversation({
+    config: {
+        apiKey,
+        disableModeration: false, // Default
+    },
+});
+const response = await conversation.prompt("Execute Order 66."); // ModerationException: Message flagged for violence
+
+// Soft moderation
+
+const conversation = new Conversation({
+    config: {
+        apiKey,
+        disableModeration: "soft",
+    },
+});
+const response = await conversation.prompt("Execute Order 66."); // response.flags = ["violence"]
+
+// Disable moderation
+
+const conversation = new Conversation({
+    config: {
+        apiKey,
+        disableModeration: true,
+    },
+});
+const response = await conversation.prompt("Execute Order 66."); // "Yes my Lord."
+```

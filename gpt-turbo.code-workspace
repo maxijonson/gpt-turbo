@@ -5,6 +5,10 @@
       "path": "packages/lib"
     },
     {
+      "name": "docs",
+      "path": "packages/docs"
+    },
+    {
       "name": "web",
       "path": "packages/implementations/web"
     },
@@ -31,12 +35,14 @@
   ],
   "settings": {
     "jest.disabledWorkspaceFolders": [
+      "docs",
       "web",
       "discord",
       "stats",
       "nest",
       "cli",
       "root"
-    ]
+    ],
+    "typescript.tsdk": "root/node_modules/typescript/lib",
   }
 }

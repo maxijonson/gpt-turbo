@@ -1,0 +1,124 @@
+---
+title: Conversation Plugins
+description: Extend the functionality of a conversation with plugins.
+order: 0
+---
+
+Using conversation plugins let's you enhance the functionality of conversations for a specific use-case not covered by the library.
+One example of such use case is the ability to get usage stats for a conversation, which the [`gpt-turbo-plugin-stats`](https://www.npmjs.com/package/gpt-turbo-plugin-stats) accomplishes.
+Since this plugin is homemade, we'll be using it as an example throughout this guide, but roughly the same principles apply to any other plugin.
+
+## Finding plugins
+
+While it's not mandatory, we recommend plugin authors to publish their plugins on NPM with some guidelines to make it easier for users to find them.
+
+- **Strongly recommended**: The package should have the `gpt-turbo-plugin` keyword. [Search NPM for this keyword](https://www.npmjs.com/search?q=keywords:gpt-turbo-plugin).
+- The package name should start with `gpt-turbo-plugin-`.
+
+## Installation
+
+Install your plugin as a dependency to your project:
+
+> Only for `gpt-turbo-plugin-stats`: the version you install should match the version of GPT Turbo you're using.
+
+```bash
+npm install gpt-turbo-plugin-stats
+```
+
+## Usage
+
+Plugins are functions that you pass to the `plugins` property of the `Conversation` constructor.
+These functions will be called by the conversation's `PluginService` with everything a plugin can access to do *stuff* (i.e.: the conversation itself and all it's properties).
+All you need to do is provide that function:
+
+```ts
+import { Conversation } from "gpt-turbo";
+import statsPlugin from "gpt-turbo-plugin-stats";
+
+const conversation = new Conversation({
+    plugins: [statsPlugin]
+});
+```
+
+## Global plugins
+
+You can also define plugins globally, which mean they'll be used by all conversations **after** you've defined them:
+
+```ts
+import { Conversation } from "gpt-turbo";
+import statsPlugin from "gpt-turbo-plugin-stats";
+
+// No plugins
+const c1 = new Conversation();
+
+Conversation.globalPlugins = [statsPlugin];
+
+// Stats plugin
+const c2 = new Conversation();
+```
+
+### Typing global plugins
+
+If you're using TypeScript, you should override the `ConversationGlobalPluginsOverride` interface to get proper typing for your global plugins:
+
+```ts
+import { Conversation } from "gpt-turbo";
+import statsPlugin from "gpt-turbo-plugin-stats";
+
+const globalPlugins = [statsPlugin];
+Conversation.globalPlugins = globalPlugins;
+
+declare module "gpt-turbo" {
+    interface ConversationGlobalPluginsOverride {
+        globalPlugins: typeof globalPlugins;
+    }
+}
+
+const conversation = new Conversation();
+```
+
+## Plugin Output
+
+Plugins define various methods so they can tap into the conversation's lifecycle internally.
+Sometimes, it may be useful for them to expose some data to the client code.
+For this reason, plugins can decide to define the `out` property, which can be accessed from the client code using the `getPluginOutput` method of the conversation:
+
+```ts
+const statsOutput = conversation.getPluginOutput("gpt-turbo-plugin-stats");
+// const statsOutput = conversation.getPlugin("gpt-turbo-plugin-stats").out; // equivalent
+```
+
+### Plugin Output Types
+
+When getting a plugin output through a **static** plugin name, like above, the type of the output will be inferred from the plugin's type definition.
+This allows you to use the output directly, with strong types, without ever needing type guards!
+
+
+```ts
+const statsOutput = conversation.getPluginOutput("gpt-turbo-plugin-stats"); // ConversationStats
+console.log(statsOutput.size); // number
+```
+
+However, when getting a plugin output through a **dynamic** plugin name, the type of the output will be `any`.
+The reason it is `any` and not a union of all plugins is to avoid types to be too restrictive.
+For example, if a plugin is dynamically added to a conversation, there would be no way of knowing the type of the output, even through a static plugin name.
+Using `any` let's your intellisense suggest known plugins, while allowing you to use an unknown plugin name without error.
+
+Another recommendation made to plugin authors is to export a type guard for such cases:
+
+```ts
+import { Conversation } from "gpt-turbo";
+import statsPlugin, { isStatsPlugin } from "gpt-turbo-plugin-stats";
+
+const conversation = new Conversation({
+    plugins: [statsPlugin]
+});
+
+// getting a plugin "dynamically"
+const plugin = conversation.plugins.getPlugin("gpt-turbo-plugin" + "-stats");
+plugin.out; // any
+
+if (isStatsPlugin(plugin)) {
+    const stats = plugin.out; // ConversationStats
+}
+```

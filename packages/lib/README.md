@@ -485,4 +485,4 @@ const conversation = new Conversation({
 
 ## Documentation
 
-View the full documentation [here](https://gpt-turbo.chintristan.io/). The documentation website is auto-generated based on the TSdoc comments in the source code for the latest version of the library.
+View the full [documentation website](https://gpt-turbo.chintristan.io/) for detailed information on how to use GPT Turbo and view examples.

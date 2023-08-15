@@ -1,0 +1,88 @@
+---
+order: 0
+title: Introduction
+description: Get to know GPT Turbo
+---
+
+> The docs are still a work in progress and not all pages are written yet!
+> But don't worry, if the page you're looking for is not documented yet, you can check out the [auto-generated docs](https://maxijonson.github.io/gpt-turbo/).
+> There is a lot to cover, so documentation will be added over time!
+
+## What is GPT Turbo?
+
+GPT Turbo is a JavaScript library (with TypeScript-first support) for interacting with OpenAI's Chat Completion API. 
+It focuses on **covering 100% of the API surface**, while providing a simple, intuitive, and type-safe interface.
+
+## Features
+
+🤖 Supports all Chat Completion models, including **GPT-4**. (full list [here](https://platform.openai.com/docs/models/model-endpoint-compatibility))
+
+💬 Supports both single, streamed and function completions, just like ChatGPT.
+
+⚙ Tune chat completion parameters, such as temperature, top-p, and frequency penalty.
+
+🌐 Compatible in both Node.js and the browser.
+
+📜 Keeps track of the conversation history for you, making conversation continuity a breeze.
+
+💰 Estimate the cost and size of conversations before sending them to the API. (*through the `gpt-turbo-plugin-stats` plugin*)
+
+💾 Easily persist conversations with serialization and deserialization methods.
+
+🔌 Includes a plugin system for extending the library's functionality.
+
+💻 Built entirely with TypeScript.
+
+⚔️ Battle-tested in multiple environments. (See [implementations](#implementations))
+
+## Implementations
+
+Here's a list of all the home-made [implementations](https://github.com/maxijonson/gpt-turbo/tree/develop/packages/implementations) of GPT Turbo:
+
+- [Web](https://gpt-turbo-web.chintristan.io/): A web app, very similar to ChatGPT, for handling chats in the browser.
+- [Discord](https://discord.com/invite/Aa77KCmwRx): A Discord bot for chatting in Discord servers, similar to Discord's own Clyde AI bot.
+- [CLI](https://www.npmjs.com/package/gpt-turbo-cli): A command-line interface to chat straight from your terminal.
+- [Nest](https://github.com/maxijonson/gpt-turbo/tree/develop/packages/implementations/nest): A NestJS backend, for interacting with the library via a REST API.
+
+## Plugins
+
+Here's a list of all the home-made [plugins](https://github.com/maxijonson/gpt-turbo/tree/develop/packages/plugins) for GPT Turbo:
+
+- [gpt-turbo-plugin-stats](https://www.npmjs.com/package/gpt-turbo-plugin-stats): A plugin for estimating the cost and size of conversations before sending them to the API.
+
+## Differences from OpenAI's official library
+
+While OpenAI provides an official JavaScript library for interacting with the API, it focuses on providing a basic interface for all of their APIs. 
+This is fine when you're working with multiple of them, but not ideal when you just want to use the Chat Completion API.
+GPT Turbo is designed to be a **dedicated library for the Chat Completion API**, and thus provides a much more intuitive interface.
+
+One of the pain points of working with the API directly or OpenAI's official JavaScript library was keeping track of the message history.
+Since you need to send the entire history of messages for each prompt, you need an efficient way to store and update the history.
+GPT Turbo solves this by providing a `Conversation` class that handles all of this for you.
+While conversation history management was the main motivation for creating this library, it has grown to do much more than that.
+GPT Turbo also supports proxy configuration, message streaming\*, callable functions and plugins.
+
+Another issue with OpenAI's library is that it is designed as a server-side library, and thus does not support the browser.
+GPT Turbo is completely isomorphic, and **works in both Node.js and the browser**.
+
+\**Message streaming is part of OpenAI's Chat Completion API, but it uses server-sent events, which can be cumbersome to work with. 
+GPT Turbo works wraps these server-sent events into a more convenient interface.*
+
+## API Reference
+
+These docs are designed to be clean and concise, and thus do not include the entire API reference.
+For a complete and detailed reference on the API, check out the [auto-generated docs](https://maxijonson.github.io/gpt-turbo/).
+The website a bit less polished than this one, since it's auto-generated with TSdoc, but it contains the most up-to-date reference, only for the **latest version of GPT Turbo**.
+
+## Recipes
+
+If you just want to jump into some of the concepts of GPT Turbo by example, check out the [recipes](/docs/recipes) section.
+Many of these were once written directly in the library's README and served as the only source of documentation for their features.
+So you should be able to follow along without reading through the entire docs!
+
+## Acknowledgements
+
+Special mention to:
+
+- [Mantine](https://mantine.dev/), the UI library used to build this docs website. The docs structure is also heavily inspired by theirs.
+- [Cuputo on Flaticon](https://www.flaticon.com/authors/cuputo) for the [logo](https://www.flaticon.com/free-icon/quick_5246195).

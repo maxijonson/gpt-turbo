@@ -1,0 +1,240 @@
+---
+order: 5
+title: Function Calling
+description: Use OpenAI's Function Calling feature for GPT models.
+---
+
+You can use OpenAI's Function Calling feature with GPT Turbo through the `functionPrompt` method. 
+Just define your functions in the conversation configuration just like you would normally with the Chat Completion API. 
+
+> ⚠ Unless you configure `functions_call` to explicitly call a function by name (which by default does not, it uses `auto`), make sure you also plan for standard chat completions in your code. 
+> To help with detecting which type of response you got, the `Message` class exposes two (type-guarded!) functions: `isFunctionCall` and `isCompletion`.
+
+## Basic Example
+
+```ts
+import { Conversation, CallableFunction, CallableFunctionString, CallableFunctionObject } from "gpt-turbo";
+
+const locateJedi = (jedi, locationType = "planet") => {
+    return {
+        name: jedi,
+        location: locationType === "planet" ? "Tatooine" : "Mos Eisley",
+    };
+};
+
+const locateJediFn = new CallableFunction("locateJedi", "Returns the current location of a Jedi")
+locateJediFn.addParameter(new CallableFunctionString("jedi", "The name of the Jedi to locate"), true);
+locateJediFn.addParameter(new CallableFunctionString("locationType", { enum: ["planet", "city"] }));
+
+const conversation = new Conversation({
+    config: {
+        apiKey,
+    },
+});
+conversation.callableFunctions.addFunction(locateJediFn);
+
+const r1 = await conversation.prompt("Where can I find Obi-Wan Kenobi?");
+
+if (r1.isCompletion()) {
+    console.info(r1.content);
+} else if (r1.isFunctionCall()) {
+    const { jedi, locationType } = r1.functionCall.arguments;
+    const r2 = await conversation.functionPrompt(
+        r1.functionCall.name,
+        locateJedi(jedi, locationType)
+    );
+    console.info(r2.content); // "Obi-Wan Kenobi can be found on Tatooine."
+}
+```
+
+## Streaming Function Calls
+
+Function calls can also be streamed!
+
+```ts
+const conversation = new Conversation({
+    config: {
+        apiKey,
+        stream: true,
+    },
+});
+conversation.callableFunctions.addFunction(locateJediFn);
+
+const r1 = await conversation.prompt("In which city is Obi-Wan Kenobi?");
+
+r1.onContentStream(async (_, isStreaming, message) => {
+    // Gracefully handle non-function call completions
+    // Optional if you're certain that all completions will be function calls (i.e, specifying `function_call` in the `config`)
+    if (message.isCompletion() && message.content) {
+        console.info("Completion", message.content);
+        return;
+    }
+
+    // Wait for function call to complete
+    if (isStreaming) return;
+    // Not a function call. Stop here.
+    if (!message.isFunctionCall()) return;
+
+    const { jedi, locationType } = message.functionCall.arguments;
+    const r2 = await conversation.functionPrompt(
+        message.functionCall.name,
+        locateJedi(jedi, locationType)
+    );
+
+    r2.onContentStream((content) => {
+        if (!content) return;
+        console.info("Function Call:", content); // "Obi-Wan Kenobi is located in the city of Mos Eisley."
+    });
+});
+```
+
+### Legacy Method for Streaming Function Calls (v4)
+
+> This also works on v5, but it is recommended to use the new method above.
+
+```ts
+const unsubscribeUpdates = r1.onUpdate((_, message) => {
+    if (!message.isCompletion()) {
+        return;
+    }
+    console.info(message.content);
+});
+
+const unsubscribeStop = r1.onStreamingStop(async (message) => {
+    if (message.isFunctionCall()) {
+        const { jedi, locationType } = message.functionCall.arguments;
+        const r2 = await conversation.functionPrompt(
+            message.functionCall.name,
+            locateJedi(jedi, locationType)
+        );
+
+        const unsubscribeFunctionUpdate = r2.onUpdate((content) => {
+            console.info(content); // "Obi-Wan Kenobi is located in the city of Mos Eisley."
+        });
+
+        const unsubscribeFunctionStop = r2.onStreamingStop(() => {
+            unsubscribeFunctionUpdate();
+            unsubscribeFunctionStop();
+        });
+    }
+
+    unsubscribeUpdates();
+    unsubscribeStop();
+});
+```
+
+## Alternative Ways to Create Callable Functions
+
+There are a lot of ways to create a callable function. 
+Here are **some** of the ways we could've created the `locateJediFn` callable function. 
+While the one we used above is the most verbose, it might not suit all use cases.
+
+Imagine this is above all of the examples below:
+
+```ts
+const name = "locateJedi";
+const description = "Returns the current location of a Jedi";
+```
+
+### Using CallableFunction methods with class parameters
+
+*This is the method used above*
+
+```ts
+const locateJediFn = new CallableFunction(name, description)
+locateJediFn.addParameter(new CallableFunctionString("jedi", "The name of the Jedi to locate"), true);
+locateJediFn.addParameter(new CallableFunctionString("locationType", { enum: ["planet", "city"] }));
+```
+
+### Creating parameters in a CallableFunctionObject
+
+we're passing a random name to the object because it is generally required for the parameters, but it won't be used in this case. 
+Notice the `addProperty` instead of `addParameter` method.
+
+```ts
+const parameters = new CallableFunctionObject("_");
+parameters.addProperty(new CallableFunctionString("jedi", "The name of the Jedi to locate"), true);
+parameters.addProperty(new CallableFunctionString("locationType", { enum: ["planet", "city"] }));
+const locateJediFn = new CallableFunction(name, description, parameters);
+```
+
+### Using a JSON Object Schema
+
+The Chat Completion API's `functions` parameter takes a JSON object that follows the [JSON Schema](https://json-schema.org/) specification.
+You can pass this schema directly to the `CallableFunction` constructor.
+This complex structure almost looks like what the library will send to the API in the end.
+
+```ts
+const locateJediFn = new CallableFunction(name, description, {
+    type: "object",
+    properties: {
+        jedi: {
+            type: "string",
+            description: "The name of the Jedi to locate",
+        },
+        locationType: {
+            type: "string",
+            enum: ["planet", "city"],
+        },
+    },
+    required: ["jedi"],
+});
+```
+
+### Using deserialization (fromJSON)
+
+This is the same object that will be sent to the API in the end. 
+This is also the method used by the Web implmentation of GPT Turbo uses, since it loads functions from the local storage as JSON objects.
+
+```ts
+const locateJediFn = CallableFunction.fromJSON({
+    name,
+    description,
+    parameters: {
+        type: "object",
+        properties: {
+            jedi: {
+                type: "string",
+                description: "The name of the Jedi to locate",
+            },
+            locationType: {
+                type: "string",
+                enum: ["planet", "city"],
+            },
+        },
+        required: ["jedi"],
+    },
+});
+```
+
+### Defining the function in the Conversation constructor
+
+You can totally ignore the CallableFunction class and pass your raw functions to the Conversation constructor.
+
+```ts
+const conversation = new Conversation({
+    config: { apiKey },
+    callableFunctions: {
+        functions: [
+            {
+                name,
+                description,
+                parameters: {
+                    type: "object", // Notice that "type" will ALWAYS be "object", no matter what your function takes as parameters. This follows the JSON Object Schema specification.
+                    properties: {
+                        jedi: {
+                            type: "string",
+                            description: "The name of the Jedi to locate",
+                        },
+                        locationType: {
+                            type: "string",
+                            enum: ["planet", "city"],
+                        },
+                    },
+                    required: ["jedi"],
+                },
+            },
+        ],
+    },
+});
+```

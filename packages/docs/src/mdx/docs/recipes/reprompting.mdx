@@ -1,0 +1,17 @@
+---
+order: 4
+title: Reprompting
+description: Generate a new response or edit a prompt from the history.
+---
+
+Just like on ChatGPT, you can edit previous user messages or reprompt the assistant for a specific message. 
+When re-prompting, all messages **from** the re-prompted one will be removed from the conversation history.
+
+```ts
+import { Conversation } from "gpt-turbo";
+
+const conversation = new Conversation({ config: { apiKey } });
+const first = await conversation.prompt("We do not grant you the rank of Master."); // "How can you do this?!"
+const second = await conversation.prompt("Take a seat, young Skywalker."); // "I will slaughter padawans!"
+const edit = await conversation.reprompt(first, "We grant you the rank of Master.");
+```

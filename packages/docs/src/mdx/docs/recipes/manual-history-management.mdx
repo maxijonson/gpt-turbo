@@ -1,0 +1,40 @@
+---
+order: 2
+title: Manual History Management
+description: Take control of the prompt cycle
+---
+
+The `prompt` method is the recommended way to prompt the GPT model, as it takes care of managing the message history for you (i.e. add a "user" message to the history, get the chat completion and add the "assistant" response to the history). However, if you need to do some intermediate steps, you can do this manually. The following code is roughly the equivalent of what the `prompt` method does.
+
+```ts
+import { Conversation } from "gpt-turbo";
+import { getRemainingCredits } from "./utils/quota.js";
+
+const conversation = new Conversation({ config: { apiKey } });
+const userMessage = conversation.history.addUserMessage("How can I make my database more scalable than the Galactic Empire?");
+
+try {
+    const userFlags = await userMessage.moderate(apiKey);
+    if (userFlags.length > 0) {
+        throw new Error(userFlags.join(", "));
+    }
+
+    const remainingCredits = await getRemainingCredits();
+    if (userMessage.content.length > remainingCredits) {
+        throw new Error("Insufficient credits, you have. Strong with the Force, your wallet is not.");
+    }
+
+    const assistantMessage = await conversation.getChatCompletionResponse();
+    await assistantMessage.moderate(apiKey);
+    if (assistantMessage.flags.length > 0) {
+        throw new Error(assistantMessage.flags.join(", "));
+    }
+
+    console.log(`Response: ${assistantMessage.content}`);
+
+    await conversation.history.addAssistantMessage(assistantMessage.content);
+} catch (e) {
+    conversation.history.removeMessage(userMessage);
+    throw e;
+}
+```
