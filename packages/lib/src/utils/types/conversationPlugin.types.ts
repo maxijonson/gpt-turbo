@@ -224,9 +224,9 @@ export interface ConversationPluginDefinitionBase {
     /**
      * Tap into a function message instance.
      *
-     * @param prompt The stringified result of what was passed to the `Conversation.functionPrompt` method, after it was transformed by `transformFunctionResult`.
+     * @param message The function message instance
      */
-    onFunctionPrompt?: (prompt: Message) => void | Promise<void>;
+    onFunctionPrompt?: (message: Message) => void | Promise<void>;
 
     /**
      * Called when an error is thrown during a function prompt.
@@ -254,7 +254,7 @@ export type ConversationPluginDefinitionOutput<TOut> = TOut extends undefined
       }
     : {
           /**
-           * The output of the plugin
+           * The output of the plugin.
            * This is useful for plugins that want to expose some functionality to client code.
            * This output can be virtually anything, such as a class instance, a function, or a primitive value.
            *

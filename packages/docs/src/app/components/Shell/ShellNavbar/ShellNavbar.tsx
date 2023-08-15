@@ -20,8 +20,8 @@ const ShellNavbar = () => {
     const { groupedDocs, docGroupIndexes } = useDocs();
 
     return (
-        <AppShell.Navbar className={classes.root} px="md" py={0}>
-            <ScrollArea type="never" offsetScrollbars={false}>
+        <AppShell.Navbar className={classes.root} py={0}>
+            <ScrollArea offsetScrollbars={false}>
                 <Stack py="md">
                     {docGroupIndexes.map((group) => {
                         const docs = sortDocs(
@@ -29,7 +29,7 @@ const ShellNavbar = () => {
                         );
 
                         return (
-                            <Box key={group.slug}>
+                            <Box key={group.slug} px="md">
                                 <Anchor
                                     component={Link}
                                     href={`/docs/${group.slugGroup}`}

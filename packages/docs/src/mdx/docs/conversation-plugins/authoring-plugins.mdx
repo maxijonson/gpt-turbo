@@ -1,0 +1,255 @@
+---
+title: Authoring Conversation Plugins
+description: Create your own conversation plugins for project use or to publish on NPM.
+order: 1
+---
+
+Creating plugins can help you (or others) extend the functionnality of a conversation.
+Plugins can tap into the conversation lifecycle at various moments to perform actions such as:
+
+-   Calculating usage stats on the conversation (which is done by the [`gpt-turbo-plugin-stats`](https://www.npmjs.com/package/gpt-turbo-plugin-stats) plugin)
+-   Modifying user prompts before they're sent to the API
+-   Reacting to message moderation results
+-   Automate prompt generation
+
+## Creating a plugin
+
+Plugins are functions that receive two arguments:
+
+-   `properties`: every conversation properties (including private ones) and the conversation itself.
+-   `pluginData`: an optional argument that can be used to retrieve data from the plugin's previous execution. (usually when deserializing a conversation from JSON)
+    -   If you're planning on using this argument, your plugin definition should define the `getPluginData` property as a function that returns the `pluginData` to be retrieved later.
+
+This function returns a plugin definition, which is an object with optional properties you can define to tap into the conversation lifecycle
+
+For convenience, GPT Turbo provides a `createConversationPlugin` function to help you write type-safe plugins.
+
+```ts
+import { createConversationPlugin } from "gpt-turbo";
+
+export const myPluginName = "my-plugin";
+
+const myPlugin = createConversationPlugin(
+    myPluginName,
+    (properties, pluginData) => {
+        const { conversation, history /* ... */ } = properties;
+        return {
+            // Plugin Definition Properties
+        };
+    }
+);
+```
+
+## Plugin Definition Properties
+
+Here are all the properties that you can define for your plugin definition.
+All of them are optional, just define the ones you need.
+
+### onPostInit
+
+Called after all plugins have been initialized.
+This could potentially be used to interop with other plugins.
+
+**Receives**: Nothing
+
+**Returns**: Nothing
+
+### transformConversationJson
+
+Called when a `Conversation` is being transformed into JSON (`conversation.toJSON()`).
+
+**Receives**:
+- `json`: the JSON object that will be returned by `conversation.toJSON()`
+
+**Returns**: a valid JSON object for the conversation (`ConversationModel`).
+
+### transformConversationCallableFunctionsJson
+
+Called when a `ConversationCallableFunctions` is being transformed into JSON (`conversation.callableFunctions.toJSON()`).
+
+**Receives**:
+- `json`: the JSON object that will be returned by `conversation.callableFunctions.toJSON()`
+
+**Returns**: a valid JSON object for the conversation callable functions (`ConversationCallableFunctionsModel`).
+
+### transformConversationConfigJson
+
+Called when a `ConversationConfig` is being transformed into JSON (`conversation.config.toJSON()`).
+
+**Receives**:
+- `json`: the JSON object that will be returned by `conversation.config.toJSON()`
+
+**Returns**: a valid JSON object for the conversation config (`ConversationConfigModel`).
+
+### transformConversationHistoryJson
+
+Called when a `ConversationHistory` is being transformed into JSON (`conversation.history.toJSON()`).
+
+**Receives**:
+- `json`: the JSON object that will be returned by `conversation.history.toJSON()`
+
+**Returns**: a valid JSON object for the conversation history (`ConversationHistoryModel`).
+
+### transformConversationRequestOptionsJson
+
+Called when a `ConversationRequestOptions` is being transformed into JSON (`conversation.requestOptions.toJSON()`).
+
+**Receives**:
+- `json`: the JSON object that will be returned by `conversation.requestOptions.toJSON()`
+
+**Returns**: a valid JSON object for the conversation request options (`ConversationRequestOptionsModel`).
+
+### onUserPrompt
+
+Tap into a user message instance created during prompt.
+
+*can be async.*
+
+**Receives**:
+- `message`: The user `Message` instance.
+
+**Returns**: Nothing
+
+### onUserPromptError
+
+Called when an error is thrown during a user prompt.
+This can be useful to clean up your plugin's state.
+
+> Errors thrown during this method will have no effect.
+> This is to ensure all plugins implementing this method are called.
+
+*can be async.*
+
+**Receives**:
+- `error`: The error that was thrown.
+
+**Returns**: Nothing
+
+### onChatCompletion
+
+Tap into an assistant message instance during a chat completion **before** it is added to the history.
+
+> Keep in mind that the message passed to this method is not necessarily a standard chat completion. 
+> It could be a function call too.
+> Additionnaly, the message could be streamed or not, so message content may not yet be available when this method is called.
+
+*can be async.*
+
+**Receives**:
+- `message`: The assistant `Message` instance.
+
+**Returns**: Nothing
+
+### transformFunctionResult
+
+Transform the function prompt result before it is stringified.
+
+*can be async.*
+
+**Receives**:
+- `result`: The result of the function generated by the client code
+
+**Returns**: The new result. 
+Keep in mind this result is later stringified (using `JSON.stringify`). 
+That being said, your result **must be serializable**.
+
+### onFunctionPrompt
+
+Tap into a function message instance.
+
+*can be async.*
+
+**Receives**:
+- `prompt`: The function `Message` instance.
+
+### onFunctionPromptError
+
+Called when an error is thrown during a function prompt.
+This can be useful to clean up your plugin's state.
+
+> Errors thrown during this method will have no effect.
+> This is to ensure all plugins implementing this method are called.
+
+*can be async.*
+
+**Receives**:
+- `error`: The error that was thrown.
+
+**Returns**: Nothing
+
+### onModeration
+
+Tap into a message that was moderated.
+
+*can be async.*
+
+**Receives**:
+- `message`: The moderated `Message` instance, with the `flags` property populated.
+
+**Returns**: Nothing
+
+### getPluginData
+
+Allows your plugin to store data in the `pluginsData` property of the `ConversationModel` returned by the `Conversation.toJSON` method.
+This data will be stored under the name of your plugin and will be accessible when your plugin is initialized. (second argument of the plugin function)
+
+> This data **must** be serializable, as it is stored during the serialization of the conversation to JSON.
+> Storing a non-serializable value will have unexpected results.
+
+**Receives**: Nothing
+
+**Returns**: The data to be stored in the `pluginsData` property of the `ConversationModel` returned by the `Conversation.toJSON` method.
+
+### out
+
+The output of the plugin.
+This is useful for plugins that want to expose some functionality to client code.
+This output can be virtually anything, such as a class instance, a function, or a primitive value.
+Typically, client code would access the output of a plugin like this:
+
+```ts
+const myPlugin = conversation.getPlugin("myPlugin");
+const myPluginOutput = myPlugin.out;
+
+// or
+
+const myPluginOutput = conversation.getPluginOutput("myPlugin");
+```
+
+## Guidelines
+
+If you're planning on plublishing your plugin on NPM, you should follow these recommendations, although they're not required.
+You can view an example source code for an homemade plugin, [`gpt-turbo-plugin-stats`](https://github.com/maxijonson/gpt-turbo/blob/develop/packages/plugins/gpt-turbo-plugin-stats/src/index.ts), for reference.
+
+-   **Strongly recommended** to add the `gpt-turbo-plugin` keyword to your `package.json` file. Users can then [search NPM for packages with this keyword](https://www.npmjs.com/search?q=keywords:gpt-turbo-plugin) to find your plugin.
+-   Name your package with the `gpt-turbo-plugin-` prefix (e.g: `gpt-turbo-plugin-stats`).
+-   Export your plugin name as a constant.
+
+    ```ts
+    export const myPluginName = "my-plugin";
+    ```
+
+-   Write your plugin in TypeScript so that the library can infer some types off of your plugin definition.
+-   Export your plugin definition type using the `ConversationPluginDefinitionFromPlugin` type exported by the library. (requires your plugin to be written in TypeScript)
+
+    ```ts
+    import { createConversationPlugin, ConversationPluginDefinitionFromPlugin } from "gpt-turbo";
+
+    const myPlugin = createConversationPlugin(myPluginName, /* ... */);
+
+    export type MyPluginDefinition = ConversationPluginDefinitionFromPlugin<
+        typeof myPlugin
+    >;
+
+    export default myPlugin;
+    ```
+
+-   Export a type guard for dynamic type checking of your conversation plugin (requires your plugin to be written in TypeScript)
+
+    ```ts
+    import { ConversationPluginDefinition } from "gpt-turbo";
+
+    export const isStatsPlugin = (
+        plugin?: ConversationPluginDefinition<any, any, any>
+    ): plugin is MyPluginDefinition => plugin?.name === myPluginName;
+    ```
