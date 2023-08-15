@@ -25,6 +25,10 @@ export const Doc = defineDocumentType(() => {
                 type: "number",
                 required: false,
             },
+            api: {
+                type: "string",
+                required: false,
+            },
         },
         computedFields: {
             slug: {
