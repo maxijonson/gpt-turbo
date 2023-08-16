@@ -10,7 +10,7 @@ const sitemap = (): MetadataRoute.Sitemap => {
             url: baseUrl.origin,
         },
         ...allDocs.map((doc) => ({
-            url: `${baseUrl.origin}/${doc.slug}`,
+            url: `${baseUrl.origin}/docs/${doc.slug}`,
         })),
     ];
 };
