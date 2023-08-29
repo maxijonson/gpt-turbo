@@ -54,19 +54,16 @@ Here's a list of all the home-made [plugins](https://github.com/maxijonson/gpt-t
 
 While OpenAI provides an official JavaScript library for interacting with the API, it focuses on providing a basic interface for all of their APIs. 
 This is fine when you're working with multiple of them, but not ideal when you just want to use the Chat Completion API.
-GPT Turbo is designed to be a **dedicated library for the Chat Completion API**, and thus provides a much more intuitive interface.
+GPT Turbo is designed to be a **dedicated library for the Chat Completion API**, and thus provides an interface centered around it as well as features like conversation history management.
 
 One of the pain points of working with the API directly or OpenAI's official JavaScript library was keeping track of the message history.
 Since you need to send the entire history of messages for each prompt, you need an efficient way to store and update the history.
 GPT Turbo solves this by providing a `Conversation` class that handles all of this for you.
 While conversation history management was the main motivation for creating this library, it has grown to do much more than that.
-GPT Turbo also supports proxy configuration, message streaming\*, callable functions and plugins.
+GPT Turbo also supports proxy configuration, message streaming, callable functions and plugins.
 
 Another issue with OpenAI's library is that it is designed as a server-side library, and thus does not support the browser.
 GPT Turbo is completely isomorphic, and **works in both Node.js and the browser**.
-
-\**Message streaming is part of OpenAI's Chat Completion API, but it uses server-sent events, which can be cumbersome to work with. 
-GPT Turbo works wraps these server-sent events into a more convenient interface.*
 
 ## API Reference
 
