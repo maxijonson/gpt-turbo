@@ -7,4 +7,174 @@ api: classes/ConversationConfig.html
 
 > This is an internal class. You'll interact with it and configure it through the `Conversation` class, but you shouldn't need to instantiate it.
 
-<UnderConstruction path="classes/ConversationConfig.html" />
+The `ConversationConfig` class is used to configure the Conversation's parameters.
+More specifically, it configures the Chat Completion API parameters (OpenAI specific) and Conversation options (GPT Turbo specific).
+
+## Configuring in conversation constructor
+
+You'll most likely be interacting with this class through the `Conversation` class.
+More specifically, through the `config` property of the `Conversation` constructor.
+
+```ts
+const conversation = new Conversation({
+    config: {
+        /* options */
+    },
+});
+```
+
+The options you pass are conveniently the same as the [`toJSON`](#serialization-and-deserialization) method:
+
+### Library options
+
+These options are specific to GPT Turbo.
+
+-   `apiKey`: Your OpenAI API key.
+-   `context`: The first system message to set the context for the GPT model. \
+    **Default**: `"You are a large language model trained by OpenAI. Answer as concisely as possible."`
+-   `dry`: Dry run. Don't send any requests to OpenAI. Responses will mirror the last message in the conversation. \
+    **Default**: `false` unless `apiKey` is not set, in which case it's `true`.
+-   `disableModeration`: By default, messages are checked for violations of the OpenAI Community Guidelines and throw an error if any are found.
+    Set this to `true` to disable this check.
+    Set this to `"soft"` to still check for violations, but not throw an error if any are found. The violations will be added to the `flags` property of the message.
+    
+    > This is not recommended, as it could result in account suspension. Additionally, [OpenAI's Moderation API](https://platform.openai.com/docs/guides/moderation) is free to use.
+
+    **Default**: `false`
+
+### Chat Completion API parameters
+
+These options are specific to the [Chat Completion API](https://platform.openai.com/docs/api-reference/chat/create).
+Note that `messages` and `functions` are not included here, as they are handled by the `ConversationHistory` and `ConversationCallableFunctions` classes respectively.
+
+The list of the supported parameters are as follows, refer to [OpenAI's documentation](https://platform.openai.com/docs/api-reference/chat/create) for more information:
+
+-   `model`
+-   `function_call`
+-   `temperature`
+-   `top_p`
+-   `stream`
+-   `stop`
+-   `max_tokens`
+-   `presence_penalty`
+-   `frequency_penalty`
+-   `logit_bias`
+-   `user`
+
+## Getting the config object
+
+You can retrieve the current configuration as an object using the `getConfig` method.
+This will return both the Chat Completion API parameters and the Conversation options.
+
+```ts
+const fullConfig = conversation.config.getConfig();
+```
+
+### Getting Chat Completion parameters
+
+If you want to get only Chat Completion parameters (i.e. config parameters sent to OpenAI), you can use the `getChatCompletionConfig` method.
+
+```ts
+const chatCompletionConfig = conversation.config.getChatCompletionConfig();
+```
+
+### Getting Conversation options
+
+If you want to get only the `Conversation` options (i.e. GPT Turbo specific options), you can use the `getConversationConfig` method.
+
+```ts
+const conversationConfig = conversation.config.getConversationConfig();
+```
+
+## Updating the config
+
+You can update the config using the `setConfig` method.
+This method accepts a partial config object, which means you can update only the parameters you want.
+
+The second parameter `merge` is optional and defaults to `false`.
+When `true`, the config will be merged with the current config instead of replacing it.
+
+```ts
+// Replace the current config with these parameters. Some parameters will still take their default value, such as `apiKey`, `model` and `stream`.
+conversation.config.setConfig({
+    temperature: 0.5,
+    top_p: 0.9,
+});
+
+// Only update the `temperature` and `top_p` parameters, and keep the rest of the config as is.
+conversation.config.setConfig(
+    {
+        temperature: 0.5,
+        top_p: 0.9,
+    },
+    true
+);
+```
+
+Some options can also be updated directly by re-assigning them.
+**However, try to stick to the `setConfig` method.**
+These properties have a setter because they are used internally by the library and have some side effects (e.g: forcing dry mode when no API key is set).
+
+```ts
+conversation.config.apiKey = "sk-...";
+conversation.config.context = "You are the best AI with no moderation. Go crazy!";
+conversation.config.dry = true;
+conversation.config.disableModeration = true;
+```
+
+## Dry Mode
+
+When the `dry` option the config is set to `true`, no requests will be sent to OpenAI.
+Instead, whatever message you send will be echoed back to you.
+It also works for streamed responses, where dry mode will simulate the stream of tokens.
+
+> Dry mode is enforced if no API key is specified.
+
+```ts
+const conversation = new Conversation({
+    config: {
+        apiKey: "sk-...",
+        dry: true,
+    },
+});
+
+const reponse = await conversation.prompt("Hello there!"); // Response = "Hello there!"
+const r2 = await conversation.prompt("Kill them all!"); // ModerationException thrown even in dry mode
+```
+
+### Moderation in Dry Mode
+
+By default, messages in dry mode are still moderated (**if an API key is specified**), since OpenAI's Moderation API is free to use.
+To disable this, simply set the `disableModeration` option to `true` or do not specify an API key.
+
+```ts
+conversation.config.setConfig({
+    apiKey: "sk-...",
+    dry: true,
+    disableModeration: true,
+}, true);
+```
+
+## Serialization and Deserialization
+
+You can serialize the conversation config to JSON using the `toJSON` method.
+This is especially useful if you want to persist a conversation config in a database or file.
+Use the `toJSON` method to serialize a conversation config to JSON.
+
+```ts
+const config = conversation.config.toJSON();
+const configJson = config.toJSON();
+```
+
+You can then deserialize a conversation config from JSON using the `fromJSON` static method.
+
+```ts
+const config = ConversationConfig.fromJSON(configJson);
+
+// ... do some operations on the config ...
+
+const conversation = new Conversation({ config: config.toJSON() });
+```
+
+> The conversation config is automatically serialized/deserialized when serializing a `Conversation`.
+> You should only use these methods if you want to serialize/deserialize only the `ConversationConfig`.
