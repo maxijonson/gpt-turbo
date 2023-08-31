@@ -7,7 +7,7 @@ api: classes/ConversationHistory.html
 
 > This is an internal class. You'll interact with it and configure it through the `Conversation` class, but you shouldn't need to instantiate it.
 
-The conversation history is what keeps track of the messages in a conversation and manages them.
+The `ConversationHistory` is what keeps track of the messages in a conversation and manages them.
 
 ## Configuring in conversation constructor
 
@@ -116,8 +116,6 @@ All events shown below have an `on`, `once` and `off` method (e.g: `onMessageAdd
 -   `once`: Same as `on`, but the listener will only be called once before being automatically unsubscribed.
 -   `off`: Removes a listener from the event. Takes the callback function passed to `on` or `once` as an argument.
 
-> Except for the Content Stream event, you should make sure to unsubscribe from the event when you no longer need it, **otherwise you risk memory leaks**.
-
 ### MessageAdded
 
 This event fires when a message is added to the history, with the following arguments:
@@ -137,7 +135,7 @@ This is especially useful if you want to persist a conversation history in a dat
 Use the `toJSON` method to serialize a conversation history to JSON.
 
 ```ts
-const history = conversation.history.toJSON();
+const history = conversation.history;
 const historyJson = history.toJSON();
 ```
 

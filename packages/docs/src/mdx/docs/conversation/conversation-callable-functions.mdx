@@ -7,4 +7,109 @@ api: classes/ConversationCallableFunctions.html
 
 > This is an internal class. You'll interact with it and configure it through the `Conversation` class, but you shouldn't need to instantiate it.
 
-<UnderConstruction path="classes/ConversationCallableFunctions.html" />
+The `ConversationCallableFunctions` class is what keeps track of the callable functions in a conversation and manages them.
+
+## Configuring in conversation constructor
+
+You'll most likely be interacting with this class through the `Conversation` class.
+More specifically, through the `callableFunctions` property of the `Conversation` constructor.
+
+```ts
+const conversation = new Conversation({
+    callableFunctions: {
+        /* options */
+    },
+});
+```
+
+The options you pass are conveniently the same as the [`toJSON`](#serialization-and-deserialization) method:
+
+-   `functions`: The callable functions available to the conversation.
+    These should be a [JSON representation of a `CallableFunction`](../callable-function/callable-function#serialization-and-deserialization).
+
+## Managing Callable Functions
+
+The `ConversationCallableFunctions` class has various methods to manage the functions available in the conversation.
+
+### Adding Callable Functions
+
+You can add a function using the `addFunction` method.
+This method takes either a [`CallableFunction`](../callable-function/callable-function) instance or a [JSON representation of a `CallableFunction`](../callable-function/callable-function#serialization-and-deserialization).
+
+```ts
+const callableFunction = new CallableFunction(/* ... */);
+
+conversation.callableFunctions.addFunction(callableFunction);
+conversation.callableFunctions.addFunction(callableFunction.toJSON());
+```
+
+### Getting the Callable Functions
+
+You can get the callable functions in the conversation using the `getFunctions` method.
+
+```ts
+const callableFunctions = conversation.callableFunctions.getFunctions();
+```
+
+### Removing Callable Functions
+
+You can remove a specific callable function with the `removeFunction` method or remove all of them with the `clearFunctions` method.
+
+```ts
+const callableFunction = new CallableFunction(/* ... */);
+conversation.callableFunctions.addFunction(callableFunction);
+
+// Remove a specific function
+conversation.callableFunctions.removeFunction(callableFunction);
+conversation.callableFunctions.removeFunction(callableFunction.id);
+
+// Remove all functions
+conversation.callableFunctions.clearFunctions();
+```
+
+## Event Listeners
+
+You can listen to various events on a `ConversationCallableFunctions` instance.
+These allow you to react to certain events, such as when a function is added.
+
+All events shown below have an `on`, `once` and `off` method (e.g: `onCallableFunctionAdded`, `onceCallableFunctionAdded`, `offCallableFunctionAdded`).
+
+-   `on`: Adds a listener to the event. Takes a callback function as an argument.
+-   `once`: Same as `on`, but the listener will only be called once before being automatically unsubscribed.
+-   `off`: Removes a listener from the event. Takes the callback function passed to `on` or `once` as an argument.
+
+### CallableFunctionAdded
+
+This event fires when a function is added to the callable functions, with the following arguments:
+
+-   `callableFunction`: The function that was added.
+
+### CallableFunctionRemoved
+
+This event fires when a function is removed to the callable functions, with the following arguments:
+
+-   `callableFunction`: The function that was removed.
+
+## Serialization and Deserialization
+
+You can serialize the conversation callable functions to JSON using the `toJSON` method.
+This is especially useful if you want to persist a conversation callable functions in a database or file.
+Use the `toJSON` method to serialize a conversation callable functions to JSON.
+
+```ts
+const callableFunctions = conversation.callableFunctions;
+const callableFunctionsJson = callableFunctions.toJSON();
+```
+
+You can then deserialize a conversation callable functions from JSON using the `fromJSON` static method.
+
+```ts
+const callableFunctions = ConversationCallableFunctions.fromJSON(callableFunctionsJson);
+
+// ... do some operations on the callableFunctions ...
+
+const conversation = new Conversation({ callableFunctions: callableFunctions.toJSON() });
+```
+
+> The conversation callable functions are automatically serialized/deserialized when serializing a `Conversation`.
+> You should only use these methods if you want to serialize/deserialize only the `ConversationCallableFunctions`.
