@@ -23,7 +23,7 @@ const conversation = new Conversation({
 });
 ```
 
-The options you pass are conveniently the same as the [`toJSON`](#serialization-and-deserialization) method:
+The options you pass are conveniently the same as the [`toJSON`](#serialization-and-deserialization) method detailed in the next subsections.
 
 ### Library options
 
@@ -162,7 +162,7 @@ This is especially useful if you want to persist a conversation config in a data
 Use the `toJSON` method to serialize a conversation config to JSON.
 
 ```ts
-const config = conversation.config.toJSON();
+const config = conversation.config;
 const configJson = config.toJSON();
 ```
 

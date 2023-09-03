@@ -7,4 +7,60 @@ api: classes/ConversationRequestOptions.html
 
 > This is an internal class. You'll interact with it and configure it through the `Conversation` class, but you shouldn't need to instantiate it.
 
-<UnderConstruction path="classes/ConversationRequestOptions.html" />
+The `ConversationRequestOptions` is responsible for configuring options to use when sending HTTP requests to OpenAI's API, whether it's the Chat Completion API or the Moderation API.
+
+## Configuring in conversation constructor
+
+You'll most likely be interacting with this class through the `Conversation` class.
+More specifically, through the `requestOptions` property of the `Conversation` constructor.
+
+```ts
+const conversation = new Conversation({
+    requestOptions: {
+        /* options */
+    },
+});
+```
+
+The options you pass are conveniently the same as the [`toJSON`](#serialization-and-deserialization) method:
+
+-   `headers`: Additional headers to send with the request.
+    These are also sent to the proxy, if one is configured.
+-   `proxy`: The proxy to use when sending the request.
+    This is an object with the following properties:
+    -   `host`: The proxy host.
+    -   `port`: The proxy port.
+    -   `protocol`: The proxy protocol. Either `"http"` or `"https"`.
+    -   `auth`: The proxy authentication.
+        This is an object with the following properties:
+        -   `username`: The proxy username.
+        -   `password`: The proxy password.
+        
+    > A header `Proxy-Authorization` is automatically added to the request with the proxy authentication.
+    > You shouldn't need to add it yourself unless you want to override the default value of "Basic {auth}" where `{auth}` is a base64-encoded string of the `username:password`.
+
+## Serialization and Deserialization
+
+You can serialize the conversation request options to JSON using the `toJSON` method.
+This is especially useful if you want to persist the request options in a database or file.
+Use the `toJSON` method to serialize them to JSON.
+
+```ts
+const requestOptions = conversation.requestOptions;
+const requestOptionsJson = requestOptions.toJSON();
+```
+
+You can then deserialize a conversation's request options from JSON using the `fromJSON` static method.
+
+```ts
+const requestOptions = ConversationRequestOptions.fromJSON(requestOptionsJson);
+
+// ... do some operations on the requestOptions ...
+
+const conversation = new Conversation({
+    requestOptions: requestOptions.toJSON(),
+});
+```
+
+> The conversation's request options are automatically serialized/deserialized when serializing a `Conversation`.
+> You should only use these methods if you want to serialize/deserialize only the `ConversationRequestOptions`.
