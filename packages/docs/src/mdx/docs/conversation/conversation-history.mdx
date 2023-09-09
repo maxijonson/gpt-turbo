@@ -7,4 +7,147 @@ api: classes/ConversationHistory.html
 
 > This is an internal class. You'll interact with it and configure it through the `Conversation` class, but you shouldn't need to instantiate it.
 
-<UnderConstruction path="classes/ConversationHistory.html" />
+The `ConversationHistory` is what keeps track of the messages in a conversation and manages them.
+
+## Configuring in conversation constructor
+
+You'll most likely be interacting with this class through the `Conversation` class.
+More specifically, through the `history` property of the `Conversation` constructor.
+
+```ts
+const conversation = new Conversation({
+    history: {
+        /* options */
+    },
+});
+```
+
+The options you pass are conveniently the same as the [`toJSON`](#serialization-and-deserialization) method:
+
+-   `messages`: The messages in the conversation history, including the context message.
+    These messages should be a [JSON representation of a `Message`](../message/message#serialization-and-deserialization).
+
+## Conversation Context
+
+> By default, the conversation context is `You are a large language model trained by OpenAI. Answer as concisely as possible.`
+
+The conversation context is set by the very first message of the conversation with the role of `system`.
+You can see this message as the "message zero" of the conversation and in most cases, you won't need to show this message to the user.
+
+From OpenAI's [documentation](https://platform.openai.com/docs/guides/gpt/chat-completions-api):
+
+> _The system message helps set the behavior of the assistant.
+> For example, you can modify the personality of the assistant or provide specific instructions about how it should behave throughout the conversation.
+> However note that the system message is optional and the model's behavior without a system message is likely to be similar to using a generic message such as "You are a helpful assistant."_
+
+You can set the context using the `setContext` method and get the context using the `getContext` method.
+
+```ts
+conversation.history.setContext("You are a helpful assistant.");
+const context = conversation.history.getContext();
+```
+
+## Managing messages
+
+The `ConversationHistory` class has various methods to manage the messages in the conversation.
+
+### Adding messages
+
+You can add a message using the `addMessage` method, or specific methods like `addUserMessage` or `addAssistantMessage`.
+
+```ts
+// Manual way
+conversation.history.addMessage(new Message("user", "Hello there!"));
+
+// User message
+conversation.history.addUserMessage("Hello there!");
+
+// Assistant message
+conversation.history.addAssistantMessage("Hello there!");
+
+// System message
+conversation.history.setContext("Hello there!");
+
+// Function call (by the assistant)
+conversation.history.addFunctionCallMessage({
+    name: "sayHello",
+    arguments: { to: "John" },
+});
+
+// Function message (by the user (client code))
+conversation.history.addFunctionMessage("{ action: 'greet', to: 'John' }");
+```
+
+### Getting messages
+
+You can get the messages in the conversation using the `getMessages` method.
+This method also accepts an optional parameter `includeContext` which defaults to `false`.
+When `true`, the context message will be included in the returned messages.
+
+```ts
+const messages = conversation.history.getMessages();
+const messagesWithContext = conversation.history.getMessages(true);
+```
+
+### Removing messages
+
+You can remove a specific message with the `removeMessage` method or remove all messages with the `clearMessages` method.
+
+```ts
+const message = new Message("user", "Hello there!");
+conversation.history.addMessage(message);
+
+// Remove a specific message
+conversation.history.removeMessage(message);
+conversation.history.removeMessage(message.id);
+
+// Remove all messages
+conversation.history.clearMessages();
+```
+
+## Event Listeners
+
+You can listen to various events on a `ConversationHistory` instance.
+These allow you to react to certain events, such as when a message is added.
+
+All events shown below have an `on`, `once` and `off` method (e.g: `onMessageAdded`, `onceMessageAdded`, `offMessageAdded`).
+
+-   `on`: Adds a listener to the event. Takes a callback function as an argument.
+-   `once`: Same as `on`, but the listener will only be called once before being automatically unsubscribed.
+-   `off`: Removes a listener from the event. Takes the callback function passed to `on` or `once` as an argument.
+
+### MessageAdded
+
+This event fires when a message is added to the history, with the following arguments:
+
+-   `message`: The message that was added.
+
+### MessageRemoved
+
+This event fires when a message is removed to the history, with the following arguments:
+
+-   `message`: The message that was removed.
+
+## Serialization and Deserialization
+
+You can serialize the conversation history to JSON using the `toJSON` method.
+This is especially useful if you want to persist a conversation history in a database or file.
+Use the `toJSON` method to serialize a conversation history to JSON.
+
+```ts
+const history = conversation.history;
+const historyJson = history.toJSON();
+```
+
+You can then deserialize a conversation history from JSON using the `fromJSON` static method.
+
+```ts
+const history = ConversationHistory.fromJSON(historyJson);
+
+// ... do some operations on the history ...
+
+const conversation = new Conversation({ history: history.toJSON() });
+```
+
+> The conversation history is automatically serialized/deserialized when serializing a `Conversation`.
+> You should only use these methods if you want to serialize/deserialize only the `ConversationHistory`.

@@ -1,6 +1,7 @@
 import "@mantine/core/styles.css";
 import "@mantine/spotlight/styles.css";
 import "@mantine/code-highlight/styles.css";
+import { Analytics } from "@vercel/analytics/react";
 import { ColorSchemeScript } from "@mantine/core";
 import Shell from "./components/Shell/Shell";
 import DocsSpotlight from "./components/DocsSpotlight/DocsSpotlight";
@@ -59,6 +60,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                     <DocsSpotlight />
                     <Shell>{children}</Shell>
                 </Providers>
+                <Analytics />
             </body>
         </html>
     );

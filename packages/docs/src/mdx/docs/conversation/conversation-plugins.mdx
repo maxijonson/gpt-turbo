@@ -7,4 +7,99 @@ api: classes/ConversationPlugins.html
 
 > This is an internal class. You'll interact with it and configure it through the `Conversation` class, but you shouldn't need to instantiate it.
 
-<UnderConstruction path="classes/ConversationPlugins.html" />
+The `ConversationPlugins` class manages the plugins available to a conversation.
+It is also possible for client code to interact with this class through the `Conversation` class in order to access the plugins and their output (`out` property).
+
+## Configuring in conversation constructor
+
+You'll most likely be interacting with this class through the `Conversation` class.
+More specifically, through the `plugins` property of the `Conversation` constructor.
+
+```ts
+const conversation = new Conversation({
+    plugins: [
+        /* plugins */
+    ],
+});
+```
+
+For example, if you wanted to use the `gpt-turbo-plugin-stats` plguin, you'd do the following:
+
+```ts
+import { Conversation } from "gpt-turbo";
+import statsPlugin from "gpt-turbo-plugin-stats";
+
+const conversation = new Conversation({
+    plugins: [statsPlugin]
+});
+```
+
+> In the example above, `statsPlugin` is actually a function that returns a plugin **definition**, which contains a plugin's lifecycle hooks.
+> Internally, this function is referred to as a "plugin **creator**".
+> The `ConversationPluginService` class calls the plugin **creator** during the `onInit` lifecycle hook in order to get the plugin **definition**.
+> Beyond that, the plugin **creator** is not used and only the plugin **definition** is used.
+>
+> That being said, the "plugin" word alone takes on different meanings depending on the context:
+> - **Plugin creator**: when we're talking about a plugin outside of a `Conversation` instance, like the one we're importing or passing to the `Conversation` constructor.
+> - **Plugin definition**: when we're talking about a plugin from within a `Conversation` instance, like the one we're [accessing](#accessing-plugins) through the `plugins` property of the `Conversation` instance. 
+
+## Accessing plugins
+
+There are various ways you get access to a plugin (definition) in order to interact with it from your client code.
+In most cases, you'll be using the plugin's `out` property to get the plugin's output, which is a property that is set by the plugin itself and specifically made to be accessed by client code.
+However, the library also allows you to access the plugin's definition directly, which is useful if you want to interact with the plugin's lifecycle hooks manually.
+
+### Getting all plugins
+
+You can retrieve all of the plugins of a conversation through the `getPlugins` method.
+
+```ts
+const plugins = conversation.plugins.getPlugins();
+```
+
+### Getting a specific plugin by name
+
+You can retrieve a specific plugin of a conversation, by name, through the `getPlugin` method.
+
+If you use a static name (i.e. either a constant or a string literal), the returned plugin will be strongly typed, meaning its `out` property will be typed accordingly, given the plugin has a strictly typed plugin output.
+
+```ts
+import statsPlugin, { statsPluginName } from "gpt-turbo-plugin-stats";
+
+const conversation = new Conversation({
+    plugins: [statsPlugin, someOtherPlugin]
+});
+
+const plugin = conversation.plugins.getPlugin(statsPluginName); // ConversationPluginDefinition<"gpt-turbo-plugin-stats", ConversationStats, StatsPluginData>
+plugin.out; // ConversationStats
+```
+
+If you're using a static name, but it isn't a known name of the plugins passed to the `Conversation` constructor, the returned plugin will be loosely typed with `any`.
+
+> If the plugin is not found at runtime, this will throw an error.
+> Use `safeGetPlugin` instead if you want to avoid this, which will return `undefined` instead.
+
+```ts
+const plugin = conversation.plugins.getPlugin("asdf"); // ConversationPluginDefinition<"asdf", any, any>
+plugin.out; // any
+```
+
+If you use a dynamic name, the returned plugin will be loosely typed with the union of all known plugins.
+
+> If you've loaded the plugins dynamically in the `Conversation` constructor, even using a static name will result in a loosely typed plugin.
+> This is because the `getPlugin` method's types relies on the type of the `plugins` property of the `Conversation` constructor.
+> If this property is loosely typed as a `ConversationPluginDefinition[]` instead of specific plugin types, then the `getPlugin` method can't infer it's type just from a string.
+
+```ts
+const pluginName = getPluginNameFromSomewhere(); // string
+const plugin = conversation.plugins.getPlugin(pluginName); // ConversationPluginDefinition<string, ConversationStats | SomeOtherPlugin, StatsPluginData | SomeOtherPluginData>
+plugin.out; // ConversationStats | SomeOtherPlugin
+```
+
+### Getting a specific plugin output by name
+
+Since you'll mostly be using the `out` property of a plugin, there's a shorthand method similar to `getPlugin` that returns the `out` property of a plugin directly: `getPluginOutput` (and `safeGetPluginOutput`).
+
+```ts
+const pluginOutput = conversation.plugins.getPluginOutput(statsPluginName); // ConversationStats
+```

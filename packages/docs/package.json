@@ -19,6 +19,7 @@
         "@mantine/spotlight": "^7.0.0-alpha.21",
         "@mantine/vanilla-extract": "^7.0.0-alpha.21",
         "@vanilla-extract/css": "^1.12.0",
+        "@vercel/analytics": "^1.0.2",
         "contentlayer": "^0.3.4",
         "next": "13.4.12",
         "next-contentlayer": "^0.3.4",

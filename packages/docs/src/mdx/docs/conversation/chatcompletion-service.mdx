@@ -7,4 +7,47 @@ api: classes/ChatCompletionService.html
 
 > This is an internal class. You can interact with it when authoring plugins, but you shouldn't need to instantiate it.
 
-<UnderConstruction path="classes/ChatCompletionService.html" />
+The `ChatCompletionService` exposes the methods used by the `Conversation` to interact with the Chat Completion API.
+Unlike most other classes (of the `Conversation` class), it is not exposed as a property of the `Conversation` class.
+It is essentially a utility class for internal use by the library and can be very complex to work with standalone.
+
+However, it is exposed to plugins, in order to allow complex behaviors and side effects.
+This page will cover what this service accomplishes, but there aren't much patterns to follow when using it.
+
+## Getting a chat completion response from the API
+
+The `getChatCompletionResponse` method is in charge of getting a response from the Chat Completion API using the appropriate handler:
+
+- `handleStreamedResponse`: used when the `stream` option is enabled.
+- `handleNonStreamedResponse`: used when the `stream` option is disabled.
+
+It then returns the response as a `Promise<Message>`.
+
+### Handling a streamed response
+
+When the `stream` option is enabled, the `handleStreamedResponse` method will be used to get a response from the Chat Completion API.
+One particular distinction of this method is that it is **synchronous**. 
+It does not wait for the API response to be received, because it is easy to predict the initial state of the message:
+
+- The message content will be empty.
+- The message will be updated internally, periodically, as the API sends new data.
+
+The goal here is to get the message instance out as soon as possible.
+This allows client code to subscribe to the message's events, such as `onUpdate` or `onContentStream`, without missing any event.
+
+### Handling a non-streamed response
+
+When the `stream` option is disabled, the `handleNonStreamedResponse` method will be used to get a response from the Chat Completion API.
+Unlike the previous handler, this one is **asynchronous**.
+It will wait for the API response to be received, and then return the message instance.
+
+## Getting the assistant's response
+
+The `getAssistantResponse` method is a wrapper around the `getChatCompletionResponse` method.
+It gets the chat completion response, moderates it, adds the message to the `ConversationHistory` and returns the message.
+
+### Moderation
+
+The `moderateMessage` method is a wrapper around the `moderate` method of the `Message` class.
+The role of the `Message.moderate` method is only to get the message's moderation status.
+The `moderateMessage` method will use this status to determine whether or not it should throw a `ModerationException`.
