@@ -6,10 +6,10 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 </div>
 
-> ⚠⚠⚠ Since v5, this implementation is only maintained to make the build pass. Some cases may not work as expected. ⚠⚠⚠
+> ⚠⚠⚠ Since v5.0.1, this implementation is no longer maintained due to an unknown issue preventing it from building. ⚠⚠⚠
 > 
 > The Nest implementation was more of a proof of concept when GPT Turbo started, rather than an actual useable project like the other implementations.
-> For this reason, not much effort will be put into maintaining it. It's kept here for historical purposes, and may be reworked in the future or removed entirely.
+> It's kept here for historical purposes, and may be reworked in the future or removed entirely.
 > You're welcome to contribute to it if you want to keep it alive!
 >
 > *Note: this implementation has been tested thoroughly for the last time on v5.0.0 and seemed to work fine, apart from not using new features beyond v1.4, such as callable functions and plugins*

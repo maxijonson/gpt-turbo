@@ -10,7 +10,6 @@
     "build:web": "lerna run build --scope \"gpt-turbo-web\"",
     "build:cli": "lerna run build --scope \"gpt-turbo-cli\"",
     "build:discord": "lerna run build --scope \"gpt-turbo-discord\"",
-    "build:nest": "lerna run build --scope \"gpt-turbo-nest\"",
     "lint:strict": "lerna run lint:strict",
     "lint:fix": "lerna run lint:fix",
     "test": "lerna run test",
