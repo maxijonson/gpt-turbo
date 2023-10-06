@@ -74,7 +74,7 @@
         "typescript": "^5.1.6"
     },
     "dependencies": {
-        "uuid": "^9.0.0",
+        "uuid": "^9.0.1",
         "zod": "^3.22.4"
     },
     "gitHead": "161775a17f75ed5bfa661e963818933216b3a2c4"
