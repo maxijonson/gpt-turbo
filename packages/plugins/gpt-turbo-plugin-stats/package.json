@@ -71,7 +71,7 @@
         "typescript": "^5.2.2"
     },
     "peerDependencies": {
-        "gpt-turbo": "5.0.0"
+        "gpt-turbo": "5.0.1"
     },
     "dependencies": {
         "gpt-tokenizer": "^2.1.1"
