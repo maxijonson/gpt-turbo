@@ -1,6 +1,6 @@
 {
     "name": "gpt-turbo-cli",
-    "version": "5.0.0",
+    "version": "5.0.1",
     "description": "A CLI that interacts with the gpt-turbo library",
     "main": "dist/index.js",
     "type": "module",
@@ -62,8 +62,8 @@
     },
     "dependencies": {
         "dotenv": "^16.0.3",
-        "gpt-turbo": "^5.0.0",
-        "gpt-turbo-plugin-stats": "^5.0.0",
+        "gpt-turbo": "^5.0.1",
+        "gpt-turbo-plugin-stats": "^5.0.1",
         "ink": "^4.0.0",
         "ink-spinner": "^5.0.0",
         "ink-text-input": "^5.0.0",
