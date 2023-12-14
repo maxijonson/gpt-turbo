@@ -3,6 +3,7 @@ export const CODE_LANGUAGES = [
     "bash",
     "clike",
     "c",
+    "c",
     "cpp",
     "css",
     "javascript",

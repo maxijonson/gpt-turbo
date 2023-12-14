@@ -53,7 +53,7 @@ const CodeBlock = ({
                             <ActionIcon
                                 onClick={copy}
                                 mt="sm"
-                                sx={{ alignSelf: "start" }}
+                                sx={{ alignSelf: "centre" }}
                             >
                                 {copied ? <BiCheck /> : <RxClipboard />}
                             </ActionIcon>

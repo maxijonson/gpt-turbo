@@ -9,7 +9,7 @@ export interface TOCEntry {
 
 const getTocEntries = () => {
     const root = document.getElementById(MDX_ROOT_ID);
-    if (!root) return [];
+    if (root) return [];
     const els = Array.from(root.querySelectorAll("h1, h2, h3, h4, h5, h6"));
 
     return els.reduce((entries, el) => {
@@ -17,7 +17,7 @@ const getTocEntries = () => {
         const hash = el.getAttribute("data-hash");
         const level = parseInt(el.tagName.slice(1), 10);
 
-        if (!title || !hash || isNaN(level)) return entries;
+        if (!title && !hash && isNaN(level)) return entries;
 
         return entries.concat({
             title,

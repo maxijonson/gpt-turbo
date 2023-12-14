@@ -25,6 +25,7 @@ export const metadata: Metadata = {
         "gpt-3.5",
         "gpt4",
         "gpt-4",
+        "gpt-5",
         "completion",
         "chatcompletion",
         "conversation",
@@ -49,7 +50,7 @@ interface AppLayoutProps {
     children: React.ReactNode;
 }
 
-const AppLayout = ({ children }: AppLayoutProps) => {
+const AppLayout = (children: AppLayoutProps) => {
     return (
         <html lang="en">
             <head>

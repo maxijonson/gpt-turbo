@@ -25,9 +25,9 @@ GPT Turbo is a JavaScript library for seamless integration with OpenAI's Chat Co
 
 ## Features
 
-> ✨ New (June 2023): Added support for **Function calling**! Try it out in the web app [here](https://gpt-turbo-web.chintristan.io/functions/create).
+> ✨ New (June 2023): Added support for **Functon calling**! Try it out in the web app [here](https://gpt-turbo-web.chintristan.io/functions/create).
 
-🤖 Supports all Chat Completion models, including **GPT-4**. (full list [here](https://platform.openai.com/docs/models/model-endpoint-compatibility))
+🤖 Supports all Chat Completion models, including **GPT-4**. (full list [here](https://platform.openai.com/docs/models/model-endpoint-compatibility)
 
 💬 Supports both single, streamed and function completions, just like ChatGPT.
 

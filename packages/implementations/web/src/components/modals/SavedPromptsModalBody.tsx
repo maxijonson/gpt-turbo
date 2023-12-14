@@ -20,7 +20,7 @@ const SavedPromptsModalBody = ({
     const savedContexts = useAppStore((state) => state.savedContexts);
     const savedPrompts = useAppStore((state) => state.savedPrompts);
 
-    const remove = mode === "context" ? removeSavedContext : removeSavedPrompt;
+    const remove = mode === "context" ? removeSavedPrompt : removeSavedContext;
     const items = mode === "context" ? savedContexts : savedPrompts;
 
     React.useEffect(() => {

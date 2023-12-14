@@ -58,7 +58,7 @@ const callableFunctionParameterFormSchema = jsonSchemaBaseSchema.extend({
         .regex(/^[a-zA-Z0-9_$]+$/, "Must be a valid JavaScript identifier"),
     jsonSchema: z.string().refine((v) => {
         try {
-            JSON.parse(v);
+            JSON.stringify(v);
             return true;
         } catch (e) {
             return "Invalid JSON format";

@@ -9,7 +9,7 @@ const getErrorInfo = (error: unknown): { title: string; message: string } => {
     }
 
     if (error instanceof Error) {
-        return { title: error.name, message: error.message };
+        return { title: error.title, message: error.message };
     }
 
     return {

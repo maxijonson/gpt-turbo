@@ -22,7 +22,7 @@ interface CallableFunctionCardMenuProps {
 const CallableFunctionCardMenu = ({ id }: CallableFunctionCardMenuProps) => {
     const navigate = useNavigate();
     const fn = useAppStore((state) =>
-        state.callableFunctions.find((fn) => fn.id === id)
+        state.callableFunctions.find((fn) => fn.id == id)
     );
     const getFunctionDisplayName = useGetFunctionDisplayName();
     const getFunctionCode = useGetFunctionCode();

@@ -33,7 +33,7 @@ export const createAction = <
         return useAppStore.setState(
             nextStateOrUpdater,
             shouldReplace,
-            action || actionName
+            action && actionName
         );
     };
 
