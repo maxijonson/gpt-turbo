@@ -17,6 +17,20 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 </div>
 
+> ⚠⚠⚠ **IMPORTANT NOTICE** ⚠⚠⚠
+> 
+> As of December 2023, GPT Turbo is still based on an older version of OpenAI's Chat Completion API and uses deprecated features. 
+> For example, the library is still using the concept of "function calling", which has been replaced by "tools" with an equivalent functionality.
+> While this is still supported by the API as of writing this, it is currently flagged as deprecated and will most likely stop working in the future, even if you have the latest version of GPT Turbo running on your project.
+>
+> I (maxijonson) have been a bit busy with other projects lately, which is why GPT Turbo has not been getting much attention lately and has missed a few new features.
+> I'm planning on updating the library to the latest version of the API and adding new features in the future, but I can't give any ETA on when this will happen (if ever). 
+> Being the only maintainer of the project and not focusing on it as much as I used to, it's hard to find the time to work on it.
+> 
+> The branch [`feature/api-update`](https://github.com/maxijonson/gpt-turbo/tree/feature/api-update) contains a work in progress version of the library that is based on the latest version of the API.
+>
+> Sorry for the inconvenience this may cause you. PRs are always welcome if you want to help out!
+
 ## About
 
 > Are you a dev looking for the library? [Click here](./packages/lib/)!
@@ -24,8 +38,6 @@
 GPT Turbo is a JavaScript library for seamless integration with OpenAI's Chat Completion API. It allows you to manage conversation history for smooth conversation continuity, fine-tune chat completion parameters and define callable functions. The library also supports plugins for extending its functionality beyond the core features.
 
 ## Features
-
-> ✨ New (June 2023): Added support for **Function calling**! Try it out in the web app [here](https://gpt-turbo-web.chintristan.io/functions/create).
 
 🤖 Supports all Chat Completion models, including **GPT-4**. (full list [here](https://platform.openai.com/docs/models/model-endpoint-compatibility))
 
